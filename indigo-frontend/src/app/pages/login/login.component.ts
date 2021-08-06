@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { User } from 'src/app/domain/user';
 import { Router } from '@angular/router';
 import { LoginService } from 'src/app/services/login.service';
@@ -22,10 +22,11 @@ export class LoginComponent implements OnInit {
     private router: Router,
     private messageService: MessageService,
     public translate: TranslateService,
-    public userService: UserService) { }
+    public userService: UserService,
+    private changeDetectorRef: ChangeDetectorRef) { }
 
   ngOnInit(): void {
-    // CHECK THE isLoggedIn STATE HERE 
+    // CHECK THE isLoggedIn STATE HERE
     if (sessionStorage.user) {
       this.router.navigate(["books"]);
     }
@@ -84,14 +85,16 @@ export class LoginComponent implements OnInit {
           } else {
             this.error = error;
           }
-        });
+        }).add(() => {
+          //Called when operation is complete (both success and error)
+          if (this.error != null) {
+            this.translate.get(this.error).subscribe((text: string) => {
+              this.messageService.add({ severity: 'error', detail: text });
+            });
+            this.changeDetectorRef.detectChanges();
+          }
+     });
 
-    }
-
-    if (this.error != null) {
-      this.translate.get(this.error).subscribe((text: string) => {
-        this.messageService.add({ severity: 'error', detail: text });
-      });
     }
 
   }
