@@ -1,0 +1,182 @@
+<p-toast position="top-center" [showTransformOptions]="'translateY(-100%)'"></p-toast>
+
+<div class="settings">
+    <p-card>
+        <div class="content-header p-grid">
+            <div class="p-col-12">
+                <span class="page-title">
+                    {{'locale.settings.title' | translate}}
+                </span>
+            </div>
+        </div>
+
+
+        <div class="content-body">
+
+            <div class="p-col">
+                <p-panel header="{{'locale.settings.panel.users.title' | translate}}" [toggleable]="true" [collapsed]="true">
+                    <p-table [value]="userList" [responsive]="true">
+                        <ng-template pTemplate="header">
+                            <tr>
+                                <th class="center">{{'locale.profile.account.username' | translate}}</th>
+                                <th class="center">{{'locale.profile.account.role' | translate}}</th>
+                                <th class="center">{{'locale.profile.account.language' | translate}}</th>
+                                <th class="center">{{'locale.profile.account.kindle_short' | translate}}
+                                </th>
+                                <th class="table-buttons"><button pButton type="button"
+                                        label="{{'locale.buttons.add' | translate}}" icon="pi p-plus"
+                                        class="settings-button" (click)="newUser()"></button></th>
+                            </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-user>
+                            <tr>
+                                <td>{{user.username}}
+                                </td>
+                                <td>{{user.role}}
+                                </td>
+                                <td>{{'locale.languages.' + user.language | translate}}
+                                </td>
+                                <td>{{user.kindle}}
+                                </td>
+                                <td class="table-buttons">
+                                    <button pButton type="button" icon="pi pi-pencil" class="settings-button"
+                                        (click)="updateUser(user)"></button>
+                                    <button pButton type="button" icon="pi pi-trash" class="settings-button"
+                                        (click)="deleteUser(user.id)"></button>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                </p-panel>
+            </div>
+            <div class="p-col">
+                <p-panel header="{{'locale.settings.panel.global.title' | translate}}" [toggleable]="true" [collapsed]="true">
+                    <div class="p-grid p-fluid">
+                        <div class="p-col-12 p-md-4">
+                            {{'locale.settings.panel.global.path.kindlegen' | translate}}
+                        </div>
+                        <div class="p-col p-md-8">
+                            <input type="text" pInputText autocomplete="off"
+                                class="ui-inputtext ui-corner-all ui-state-default ui-widget"
+                                [(ngModel)]="kindlegenPath" />
+                        </div>
+                        <div class="p-col-12 p-md-4">
+                            {{'locale.settings.panel.global.recommendations' | translate}}</div>
+                        <div class="p-col p-md-8">
+                            <p-inputNumber [(ngModel)]="booksRecommendations" mode="decimal" [showButtons]="true"
+                                [min]="0" [max]="50">
+                            </p-inputNumber>
+                        </div>
+                    </div>
+                </p-panel>
+            </div>
+
+            <div class="p-col">
+                <p-panel header="{{'locale.settings.panel.metadata.title' | translate}}" [toggleable]="true" [collapsed]="true">
+                    <div class="p-grid p-fluid">
+                        <div class="p-col-12 p-md-4">{{'locale.settings.panel.metadata.pull' | translate}}
+                        </div>
+                        <div class="p-col-12 p-md-8">
+                            <p-inputNumber [(ngModel)]="metadataPull" mode="decimal" [showButtons]="true" [min]="1"
+                                [max]="5">
+                            </p-inputNumber>
+                        </div>
+
+                        <div class="p-col-12 p-md-4">
+                            {{'locale.settings.panel.metadata.goodreadskey' | translate}}
+                        </div>
+                        <div class="p-col-12 p-md-8">
+                            <input type="text" pInputText autocomplete="off" [(ngModel)]="goodReadsKey" />
+                        </div>
+
+
+                        <div class="p-col-12 p-md-4">
+                            {{'locale.settings.panel.metadata.authors.nodata' | translate}}
+                        </div>
+                        <div class="p-col-12 p-md-8">
+                            <div class="p-col-11 center" style="float: left;">
+                                <p-progressBar [value]="progressBar" *ngIf="isNoData"></p-progressBar>
+                            </div>
+                            <div class="p-col-1 right" style="float: right;">
+                                <a href="javascript:;" (click)="doExecuteNoData()">
+                                    <span class="pi" [ngClass]="{ 'pi-pause': isNoData, 'pi-play': !isNoData  }"></span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="p-col-12 p-md-4">
+                            {{'locale.settings.panel.metadata.authors.data' | translate}}
+                        </div>
+                        <div class="p-col-12 p-md-8">
+                            <div class="p-col-11 center" style="float: left;">
+                                <p-progressBar [value]="progressBar" *ngIf="isData"></p-progressBar>
+                            </div>
+                            <div class="p-col-1 right" style="float: right;">
+                                <a href="javascript:;" (click)="doExecuteData()">
+                                    <span class="pi" [ngClass]="{ 'pi-pause': isData, 'pi-play': !isData  }"></span>
+                                </a></div>
+                        </div>
+                    </div>
+                </p-panel>
+            </div>
+
+            <div class="p-col">
+                <p-panel header="{{'locale.settings.panel.smtp.title' | translate}}" [toggleable]="true" [collapsed]="true">
+                    <div class="p-grid p-fluid">
+                        <div class="p-col-12 p-md-4">{{'locale.settings.panel.smtp.host' | translate}}</div>
+                        <div class="p-col-12 p-md-8">
+                            <input type="text" pInputText autocomplete="off" [(ngModel)]="smtpHost" />
+                        </div>
+
+                        <div class="p-col-12 p-md-4">{{'locale.settings.panel.smtp.port' | translate}}</div>
+                        <div class="p-col-12 p-md-8">
+                            <input type="text" pInputText autocomplete="off" [(ngModel)]="smtpPort" />
+                        </div>
+
+                        <div class="p-col-12 p-md-4">{{'locale.settings.panel.smtp.encryption' | translate}}
+                        </div>
+                        <div class="p-col-12 p-md-8">
+                            <p-dropdown [options]="encryptions" [(ngModel)]="smtpEncryption"></p-dropdown>
+                        </div>
+
+                        <div class="p-col-12 p-md-4">{{'locale.settings.panel.smtp.username' | translate}}
+                        </div>
+                        <div class="p-col-12 p-md-8">
+                            <input type="text" pInputText autocomplete="off" [(ngModel)]="smtpUsername" />
+                        </div>
+
+                        <div class="p-col-12 p-md-4">{{'locale.settings.panel.smtp.password' | translate}}
+                        </div>
+                        <div class="p-col-12 p-md-8">
+                            <input type="password" pPassword autocomplete="off" [(ngModel)]="smtpPassword" />
+                        </div>
+
+                        <div class="p-col-12 p-md-4">{{'locale.settings.panel.smtp.test' | translate}}</div>
+                        <div class="p-col-12 p-md-8">
+                            <div class="p-col-11" style="float: left;">
+                                <span
+                                    [ngClass]="{ 'success': smtpStatus==='ok','error': smtpStatus==='error', 'warn': smtpStatus === 'unknown'}">{{'locale.settings.panel.smtp.status.' + smtpStatus | translate}}</span>
+                            </div>
+                            <div class="p-col-1 right" style="float: right;">
+                                <a href="javascript:;" (click)="doSendTestMail()"
+                                    [ngClass]="{ 'disabled': isSendTestMail}">
+                                    <span class="pi"
+                                        [ngClass]="{ 'pi-pause': isSendTestMail, 'pi-play': !isSendTestMail  }"></span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </p-panel>
+            </div>
+
+        
+            <div class="p-col-12 page-buttons">
+                <button type="button" pButton label="{{'locale.buttons.save' | translate}}"
+                    class="page-button"
+                    (click)="save()">
+                </button>
+            </div>
+
+        </div>
+    </p-card>
+</div>

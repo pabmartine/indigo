@@ -1,0 +1,79 @@
+<div class="search">
+    <p-card>
+        <div class="content-header p-grid">
+            <div class="p-col-12">
+                <span class="page-title">
+                    {{'locale.search.title' | translate}}
+                </span>
+            </div>
+        </div>
+
+        <div class="content-body">
+            <div class="p-grid p-fluid">
+
+                <div class="p-col-12 p-md-6 p-field">
+                    <label for="title">{{'locale.search.field.title' | translate}}</label>
+                    <input id="title" type="text" pInputText [(ngModel)]="search.title" />
+                </div>
+
+                <div class="p-col-12 p-md-6 p-field">
+                    <label for="author">{{'locale.search.field.author' | translate}}</label>
+                    <input id="author" type="text" pInputText [(ngModel)]="search.author" />
+                </div>
+
+                <div class="p-col-12 p-md-6 p-field">
+                    <label for="ini">{{'locale.search.field.date.ini' | translate}}</label>
+                    <p-calendar id="ini" [(ngModel)]="search.ini" [readonlyInput]="true" [monthNavigator]="true"
+                        [yearNavigator]="true" yearRange="1900:2030"></p-calendar>
+                </div>
+
+                <div class="p-col-12 p-md-6 p-field">
+                    <label for="end">{{'locale.search.field.date.end' | translate}}</label>
+                    <p-calendar id="end" [(ngModel)]="search.end" [readonlyInput]="true" [monthNavigator]="true"
+                        [yearNavigator]="true" yearRange="1900:2030"></p-calendar>
+                </div>
+
+                <div class="p-col-12 p-md-6 p-field">
+                    <label for="min">{{'locale.search.field.pages.min' | translate}}</label>
+                    <p-inputNumber id="min" [(ngModel)]="search.min"></p-inputNumber>
+                </div>
+
+                <div class="p-col-12 p-md-6 p-field">
+                    <label for="max">{{'locale.search.field.pages.max' | translate}}</label>
+                    <p-inputNumber id="max" [(ngModel)]="search.max"></p-inputNumber>
+                </div>
+
+                <div class="p-col-12 p-md-6 p-field">
+                    <label for="tag">{{'locale.search.field.tags' | translate}}</label>
+
+                    <p-multiSelect [options]="tags" [(ngModel)]="search.selectedTags" [filter]="true"
+                        [showToggleAll]="true" [showHeader]="true">
+                        <ng-template let-value pTemplate="selectedItems">
+                            <div *ngFor="let val of value" class="multiselected-item-token ui-corner-all">
+                                <span>{{val.tag}}</span>
+                            </div>
+                            <span *ngIf="!value || value.length === 0"
+                                class="multiselected-empty-token ui-corner-all"> </span>
+                        </ng-template>
+                        <ng-template let-tag pTemplate="item">
+                            <span style="font-size:14px;margin-top:4px">{{tag.label}}</span>
+                        </ng-template>
+                    </p-multiSelect>
+
+                </div>
+
+                <div class="p-col-12 p-md-6 p-field">
+                    <label for="serie">{{'locale.search.field.serie' | translate}}</label>
+                    <input id="serie" type="text" pInputText [(ngModel)]="search.serie" />
+                </div>
+            </div>
+
+            <div class="p-col-12 right">
+                <button type="button" pButton label="{{'locale.buttons.search' | translate}}"
+                    class="search-button"
+                    (click)="doSearch()">
+                </button>
+            </div>
+        </div>
+    </p-card>
+</div>

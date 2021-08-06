@@ -1,0 +1,18 @@
+<p-sidebar [(visible)]="show" styleClass="sidebar" [modal]="false"  [showCloseIcon]=false>
+    <div class="sb-menu">
+        <div class="layout-menu">
+            <p-menu [model]="items"></p-menu>
+            <p-menu [model]="others"></p-menu>
+        </div>
+    </div>
+</p-sidebar>
+
+<div class="sidebar2">
+    <div class="menu">
+        <p-card>
+            <ul class="layout-menu">
+                <p-menu [model]="items"></p-menu>
+            </ul>
+        </p-card>
+    </div>
+</div>

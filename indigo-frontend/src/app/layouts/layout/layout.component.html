@@ -1,0 +1,9 @@
+<div class="layout" [ngClass]="{'sidebar-active': sideBar, 'topbar-active': topBar}">
+        <app-topbar [show]="topBar" (emitterTopBar)="showTopBar($event)"></app-topbar>
+        <app-header (emitterSideBar)="showSideBar($event)" (emitterTopBar)="showTopBar($event)"></app-header>
+        <app-sidebar [show]="sideBar" ></app-sidebar>
+        <div class="main">
+                <router-outlet></router-outlet>
+        </div>
+        <app-footer></app-footer>
+</div>

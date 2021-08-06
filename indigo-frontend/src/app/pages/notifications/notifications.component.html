@@ -1,0 +1,158 @@
+<p-toast position="top-center" [showTransformOptions]="'translateY(-100%)'"></p-toast>
+
+<div class="notification">
+    <p-card>
+        <div class="content-header p-grid">
+            <div class="p-col-12">
+                <span class="page-title">
+                    {{'locale.notifications.title' | translate}}
+                </span>
+            </div>
+        </div>
+
+        <div class="content-body p-grid">
+            <div class="p-fluid">
+                <p-table #dt [value]="notifications" [responsive]="true" [paginator]="true" [rows]="10"
+                    [rowsPerPageOptions]="[10,25,50]">
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th class="center" pSortableColumn="id">{{'locale.notifications.id' | translate}}
+                                <p-sortIcon field="id"></p-sortIcon>
+                            </th>
+                            <th class="center" pSortableColumn="type">
+                                {{'locale.notifications.type' | translate}}
+                                <p-sortIcon field="type"></p-sortIcon>
+                            </th>
+                            <th class="center" pSortableColumn="username">
+                                {{'locale.notifications.user' | translate}}
+                                <p-sortIcon field="username"></p-sortIcon>
+                            </th>
+                            <th class="center" pSortableColumn="title">
+                                {{'locale.notifications.book' | translate}}
+                                <p-sortIcon field="title"></p-sortIcon>
+                            </th>
+                            <th class="center" pSortableColumn="title">
+                                {{'locale.notifications.readByUser' | translate}}
+                                <p-sortIcon field="readByUser"></p-sortIcon>
+                            </th>
+                            <th class="center" pSortableColumn="title">
+                                {{'locale.notifications.readByAdmin' | translate}}
+                                <p-sortIcon field="readByAdmin"></p-sortIcon>
+                            </th>
+                            <th class="center" pSortableColumn="status">
+                                {{'locale.notifications.status' | translate}}
+                                <p-sortIcon field="status"></p-sortIcon>
+                            </th>
+                            <th class="center" pSortableColumn="error">
+                                {{'locale.notifications.error' | translate}}
+                                <p-sortIcon field="error"></p-sortIcon>
+                            </th>
+                            <th class="table-buttons"></th>
+                        </tr>
+                        <tr>
+                            <th>
+                                <input pInputText type="text" (input)="dt.filter($event.target.value, 'id', 'equals')"
+                                    placeholder="{{'locale.notifications.search' | translate}}{{'locale.notifications.id' | translate}}"
+                                    class="p-column-filter">
+                            </th>
+                            <th>
+                                <p-dropdown [options]="types" (onChange)="dt.filter($event.value, 'type', 'equals')"
+                                    styleClass="p-column-filter"
+                                    placeholder="{{'locale.notifications.select' | translate}}{{'locale.notifications.type' | translate}}"
+                                    [showClear]="true">
+                                    <ng-template let-option pTemplate="item">
+                                        <span>{{option.label}}</span>
+                                    </ng-template>
+                                </p-dropdown>
+                            </th>
+                            <th>
+                                <p-dropdown [options]="users" (onChange)="dt.filter($event.value, 'username', 'equals')"
+                                    styleClass="p-column-filter"
+                                    placeholder="{{'locale.notifications.select' | translate}}{{'locale.notifications.user' | translate}}"
+                                    [showClear]="true">
+                                    <ng-template let-option pTemplate="item">
+                                        <span>{{option.label}}</span>
+                                    </ng-template>
+                                </p-dropdown>
+                            </th>
+                            <th>
+                                <input pInputText type="text"
+                                    (input)="dt.filter($event.target.value, 'title', 'startsWith')"
+                                    placeholder="{{'locale.notifications.search' | translate}}{{'locale.notifications.book' | translate}}"
+                                    class="p-column-filter">
+                            </th>
+                            <th>
+                                <p-dropdown [options]="read" (onChange)="dt.filter($event.value, 'readByUser', 'equals')"
+                                    styleClass="p-column-filter"
+                                    placeholder="{{'locale.notifications.select' | translate}}{{'locale.notifications.status' | translate}}"
+                                    [showClear]="true">
+                                    <ng-template let-option pTemplate="item">
+                                        <span>{{option.label}}</span>
+                                    </ng-template>
+                                </p-dropdown>
+                            </th>   
+                            <th>
+                                <p-dropdown [options]="read" (onChange)="dt.filter($event.value, 'readByAdmin', 'equals')"
+                                    styleClass="p-column-filter"
+                                    placeholder="{{'locale.notifications.select' | translate}}{{'locale.notifications.status' | translate}}"
+                                    [showClear]="true">
+                                    <ng-template let-option pTemplate="item">
+                                        <span>{{option.label}}</span>
+                                    </ng-template>
+                                </p-dropdown>
+                            </th>                           
+                            <th>
+                                <p-dropdown [options]="statuses"
+                                    (onChange)="dt.filter($event.value, 'status', 'equals')"
+                                    styleClass="p-column-filter"
+                                    placeholder="{{'locale.notifications.select' | translate}}{{'locale.notifications.status' | translate}}"
+                                    [showClear]="true">
+                                    <ng-template let-option pTemplate="item">
+                                        <span>{{option.label}}</span>
+                                    </ng-template>
+                                </p-dropdown>
+                            </th>
+                            <th>
+                                <input pInputText type="text"
+                                    (input)="dt.filter($event.target.value, 'error', 'startsWith')"
+                                    placeholder="{{'locale.notifications.search' | translate}}{{'locale.notifications.error' | translate}}"
+                                    class="p-column-filter">
+                            </th>
+                            <th>
+                            </th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-notif>
+                        <tr>
+                            <td>{{notif.id}}
+                            </td>
+                            <td>{{'locale.notifications.types.' + notif.type | translate}}
+                            </td>
+                            <td>{{notif.username}}
+                            </td>
+                            <td (mouseover)="cover=notif.image;op.toggle($event)">{{notif.title}}
+                            </td>
+                            <td>{{'locale.notifications.read.' + notif.readByUser | translate}}
+                            </td>
+                            <td>{{'locale.notifications.read.' + notif.readByAdmin | translate}}
+                            </td>
+                            <td>{{'locale.notifications.statuses.' + notif.status | translate}}
+                            </td>
+                            <td class="column-overflow" title="{{notif.error}}">{{notif.error}}
+                            </td>
+                            <td class="table-buttons">
+                                <button pButton type="button" icon="pi pi-trash"
+                                    (click)="deleteNotification(notif.id)"></button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+                <p-overlayPanel #op class="no-border">
+                    <ng-template pTemplate>
+                        <img [src]="cover" class="detail-image img-fluid" />
+                    </ng-template>
+                </p-overlayPanel>
+            </div>
+        </div>
+    </p-card>
+</div>

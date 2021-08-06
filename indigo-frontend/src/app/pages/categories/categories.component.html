@@ -1,0 +1,126 @@
+<p-toast position="top-center" [showTransformOptions]="'translateY(-100%)'"></p-toast>
+
+<div class="tag">
+  <p-card>
+    <div class="content-header p-grid">
+      <div class="p-col-12 p-md-6">
+        <span class="page-title">
+          {{title}}
+        </span>
+      </div>
+      <div class="p-col-12 p-md-6" style="text-align: right;">
+        <p-dropdown [options]="sorts" [(ngModel)]="selectedSort" (onChange)="onChange($event)"  class="sortBy">
+          <ng-template let-item pTemplate="selectedItem">
+            <span style="vertical-align:middle">{{item.label}}</span>
+          </ng-template>
+        </p-dropdown>
+      </div>
+    </div>
+
+    <div class="content-body p-grid">
+      <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let tag of tags">
+        <div class="container">
+          <img [src]="tag.image" class="tag-list-image" (click)="getBooksByTag(tag)" *ngIf="tag.image">
+          <img src="./assets/images/unknown.jpg" class="tag-list-image" (click)="getBooksByTag(tag)" *ngIf="!tag.image">
+          <div class="tag1">
+            <div class="tag-title" (click)="getBooksByTag(tag)">{{tag.tag}}</div>
+
+            <a href="javascript:;" (click)="sourceTag = tag; menu.toggle($event)" *ngIf="showMenu()">
+              <span class="tag-list-icon pi pi-ellipsis-v"></span>
+            </a>
+
+          </div>
+          <div class="tag2" (click)="getBooksByTag(tag)">
+            <div class="tag-subtitle">{{tag.total}} {{'locale.tags.total' | translate}}</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </p-card>
+
+  <p-tieredMenu #menu [model]="items" [popup]="true"></p-tieredMenu>
+
+</div>
+
+<div class="tag-dialogs">
+  <p-dialog header="{{'locale.tags.actions.rename.title' | translate}}" [(visible)]="rename" [style]="{width: '720px'}"
+    [baseZIndex]="10000" [modal]="true" [focusOnShow]="false" position="top">
+
+    <div class="rename p-fluid">
+      <div class="p-field">
+        <label for="source">{{'locale.tags.actions.rename.description.source' | translate}}</label>
+        <input id="source" type="text" pInputText [(ngModel)]="sourceTag.tag" readonly="true">
+      </div>
+
+      <div class="p-field">
+        <label for="target">{{'locale.tags.actions.rename.description.target' | translate}}</label>
+        <input id="target" type="text" pInputText [(ngModel)]="newTag" (keyup)="validateRename($event)">
+      </div>
+
+      <div class="resume">
+        <p-messages key="rename" [closable]="false"></p-messages>
+      </div>
+    </div>
+
+    <p-footer>
+      <button type="button" pButton (click)="doRename(); rename=false" label="{{'locale.buttons.accept' | translate}}"
+        [disabled]="!renameValid"></button>
+      <button type="button" pButton (click)="rename=false" label="{{'locale.buttons.cancel' | translate}}"></button>
+    </p-footer>
+  </p-dialog>
+
+  <p-dialog header="{{'locale.tags.actions.merge.title' | translate}}" [(visible)]="merge" [style]="{width: '720px'}"
+    [baseZIndex]="10000" [modal]="true" [focusOnShow]="false" position="top">
+
+    <div class="merge p-fluid">
+      <div class="p-field">
+        <label for="source">{{'locale.tags.actions.merge.description.source' | translate}}</label>
+        <input id="source" type="text" pInputText [(ngModel)]="sourceTag.tag" readonly="true">
+      </div>
+
+      <div class="p-field">
+        <label for="target">{{'locale.tags.actions.merge.description.source' | translate}}</label>
+        <p-dropdown [options]="sortedTags" [(ngModel)]="targetTag" optionLabel="tag" [showClear]="true"
+          (onChange)="validateMerge($event)"></p-dropdown>
+      </div>
+
+      <div class="resume">
+        <p-messages key="merge" [closable]="false"></p-messages>
+      </div>
+    </div>
+
+    <p-footer>
+      <button type="button" pButton (click)="doMerge(); merge=false" label="{{'locale.buttons.accept' | translate}}"
+        [disabled]="!mergeValid"></button>
+      <button type="button" pButton (click)="merge=false" label="{{'locale.buttons.cancel' | translate}}"></button>
+    </p-footer>
+
+  </p-dialog>
+
+  <p-dialog header="{{'locale.tags.actions.image.title' | translate}}" [(visible)]="image" [style]="{width: '720px'}"
+    [baseZIndex]="10000" [modal]="true" [focusOnShow]="false" position="top">
+
+    <div class="image p-fluid">
+      <div class="p-field">
+        <label for="source">{{'locale.tags.actions.image.description.source' | translate}}</label>
+        <input id="source" type="text" pInputText [(ngModel)]="sourceTag.tag" readonly="true">
+      </div>
+
+      <div class="p-field">
+        <label for="target">{{'locale.tags.actions.image.description.target' | translate}}</label>
+        <input id="target" type="text" pInputText [(ngModel)]="background_image" (keyup)="validateImage($event)">
+      </div>
+
+      <div class="resume">
+        <p-messages key="image" [closable]="false"></p-messages>
+      </div>
+    </div>
+
+    <p-footer>
+      <button type="button" pButton (click)="doImage(); image=false" label="{{'locale.buttons.accept' | translate}}"
+        [disabled]="!imageValid"></button>
+      <button type="button" pButton (click)="image=false" label="{{'locale.buttons.cancel' | translate}}"></button>
+    </p-footer>
+  </p-dialog>
+</div>

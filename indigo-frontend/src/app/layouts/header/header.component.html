@@ -1,0 +1,38 @@
+<div class="header clearfix">
+    <button id="sidebar-menu-button" pButton type="button" icon="pi pi-bars" class="button-menu no-shadow" (click)="toggleSideBar($event)"></button>
+
+    <span [ngClass]="{'header-title':messages.length==0, 'header-title-message':messages.length>0}">{{'locale.header.title' | translate}}</span>
+    
+    <button id="topbar-menu-button" pButton type="button" icon="pi pi-ellipsis-v" class="button-search no-shadow" (click)="toggleTopBar($event)"></button>
+    <button id="messages-menu-button" pButton type="button" icon="pi pi-envelope" class="button-messages no-shadow" (click)="msg.toggle($event)" *ngIf="messages.length==0"></button>
+
+    <div id="header-icons">
+        <span class="header-search">
+            <input type="text" placeholder="{{'locale.header.search' | translate}}" [(ngModel)]="search" (keyup.enter)="doSearch()"/>
+            <span class="header-search-icon pi pi-search"></span>
+        </span>     
+        <a href="javascript:;" (click)="msg.toggle($event)">
+            <span class="header-icon pi pi-envelope" [ngClass]="{ 'active': messages.length > 0 }"></span>
+        </a>  
+        <a href="javascript:;" (click)="menu.toggle($event)">
+            <span class="header-icon pi pi-user"></span>
+        </a>
+    </div>
+
+    <p-tieredMenu #menu [model]="items" [popup]="true"></p-tieredMenu>
+
+    <p-overlayPanel #msg>
+        <ng-template pTemplate>
+            <div class="messages" *ngIf="messages.length==0">
+                <span class="message-text">{{'locale.messages.none' | translate}}</span>
+            </div>
+            <div class="messages" *ngFor="let message of messages">
+                <span class="message-text" [innerHtml] = "message.message"></span>
+                <a href="javascript:;">
+                    <span class="message-icon pi pi-trash" (click)="markMessageAsRead(message.id)"></span>
+                </a>    
+            </div>
+        </ng-template>
+    </p-overlayPanel>
+
+</div>

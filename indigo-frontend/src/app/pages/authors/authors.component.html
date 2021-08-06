@@ -1,0 +1,71 @@
+<p-toast position="top-center" [showTransformOptions]="'translateY(-100%)'"></p-toast>
+
+<div class="author" *ngIf="favorites?.length > 0">
+  <p-card>
+    <div class="content-header p-grid">
+      <div class="p-col-12 p-md-6">
+        <span class="page-title">
+          {{'locale.authors.favorites.title' | translate}}
+        </span>
+      </div>
+    </div>
+
+    <div class="content-body p-grid">
+      <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let author of favorites">
+        <div class="user_avatar">
+          <img [src]="author.image" class="avatar" (click)="getBooksByAuthor(author.sort)" style="cursor: pointer;"
+            *ngIf="author.image" />
+
+          <img src="./assets/images/avatar3.jpg" class="avatar" (click)="getBooksByAuthor(author.sort)"
+            style="cursor: pointer;" *ngIf="!author.image" />
+
+          <a href="javascript:;" (click)="getBooksByAuthor(author.sort)" style="cursor: pointer;">
+            <span class="title">{{author.sort}}</span>
+            <span class="subtitle">{{author.total}} {{'locale.authors.total' | translate}}</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </p-card>
+</div>
+
+<div class="author">
+  <p-card>
+    <div class="content-header p-grid">
+      <div class="p-col-12 p-md-6">
+        <span class="page-title">
+          {{title}}
+        </span>
+      </div>
+      <div class="p-col-12 p-md-6" style="text-align: right;">
+        <p-dropdown [options]="sorts" [(ngModel)]="selectedSort" (onChange)="onChange($event)"  class="sortBy">
+          <ng-template let-item pTemplate="selectedItem">
+            <span style="vertical-align:middle">{{item.label}}</span>
+          </ng-template>
+        </p-dropdown>
+      </div>
+    </div>
+
+    <div class="content-body p-grid" infiniteScroll [infiniteScrollDistance]="2" (scrolled)="onScroll()">
+      <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let author of authors">
+
+        <div class="user_avatar">
+          <img [src]="author.image" class="avatar" (click)="getBooksByAuthor(author.sort)" style="cursor: pointer;"
+            *ngIf="author.image" />
+
+          <img src="./assets/images/avatar3.jpg" class="avatar" (click)="getBooksByAuthor(author.sort)"
+            style="cursor: pointer;" *ngIf="!author.image" />
+
+          <a href="javascript:;" (click)="getBooksByAuthor(author.sort)" style="cursor: pointer;">
+            <span class="title">{{author.sort}}</span>
+            <span class="subtitle">{{author.total}} {{'locale.authors.total' | translate}}</span>
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    <button type="button" pButton [ngClass]="'up-button'" *ngIf="showGoUpButton" (click)="scrollTop()"
+      icon="pi pi-arrow-up"></button>
+  </p-card>
+</div>

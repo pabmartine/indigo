@@ -1,0 +1,39 @@
+<div class="login">
+
+    <p-card>
+
+        <span class="title">{{'locale.login.title' | translate}}</span>
+
+        <div class="p-fluid login-data" (keyup.enter)="login(user)">
+                <div class="p-col-12 p-inputgroup">
+                    <input id="username" name="username" type="text" pInputText autocomplete="off"
+                    placeholder="{{'locale.login.username' | translate}}" [(ngModel)]="user.username" />       
+                    <span class="p-inputgroup-addon"><i class="pi pi-user"></i></span>
+                </div>
+            <div class="p-col-12 p-inputgroup">
+                <input type="password" pPassword autocomplete="off"
+                    placeholder="{{'locale.login.password' | translate}}" [(ngModel)]="user.password" />
+                    <span class="p-inputgroup-addon"><i class="pi pi-lock"></i></span>
+            </div>
+            <div class="p-col-12 left">
+                <span class="remember-me">{{'locale.login.rememberme' | translate}}</span>
+                <p-checkbox [(ngModel)]="rememberMe" [binary]="true"></p-checkbox>
+
+            </div>
+            <div class="p-col-12">
+                <button type="button" pButton label="{{'locale.buttons.login' | translate}}"
+                    (click)="login(user)">
+                </button>
+            </div>
+        </div>
+
+    </p-card>
+
+    <div class="error">
+        <p-messages [closable]="false"></p-messages>
+    </div>
+
+
+
+
+</div>

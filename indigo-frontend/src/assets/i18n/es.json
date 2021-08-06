@@ -1,0 +1,357 @@
+{
+    "locale": {
+        "header": {
+            "title": "INDIGO",
+            "user": "Usuario",
+            "messages": "Mensajes",
+            "search": "Introduzca título o autor para buscar",
+            "menu": {
+                "profile": "Perfil",
+                "logout": "Salir"
+            }
+        },
+        "footer": {
+            "title": "Indigo",
+            "subtitle": "Interfaz web gratuita para la biblioteca de libros electrónicos Calibre"
+        },
+        "sidebar": {
+            "menu": {
+                "books": "Libros",
+                "authors": "Autores",
+                "tags": "Categorías",
+                "series": "Series",
+                "search": "Búsqueda avanzada",
+                "settings": "Ajustes",
+                "notifications": "Notificaciones"
+            }
+        },
+        "messages":{
+            "none": "No hay mensajes pendientes",
+            "kindle": {
+                "ok": "El libro <strong>{{book}}</strong> se ha enviado al kindle de <strong>{{user}}</strong> correctamente",
+                "error": "Se ha producido un error en el envío del libro <strong>{{book}}</strong> al kindle de <strong>{{user}}</strong>"
+            }
+        },
+        "books": {
+            "title": "Libros",
+            "title_of": "Libros de ",
+            "search_results": "Resultados de la búsqueda: ",
+            "detail": {
+                "title": "Detalles del libro",
+                "pubdate": "Fecha de publicación:",
+                "pages": "páginas",
+                "kindle": {
+                    "todo": "El libro se enviará a su dispositivo",
+                    "ok": "El libro se ha enviado a su dispositivo y aparecerá en unos minutos",
+                    "error": "El libro no ha podido ser enviado"
+                },
+                "favorite": {
+                    "add": {
+                        "ok": "El libro se ha añadido a favoritos",
+                        "error": "El libro no se ha podido añadir a favoritos"
+                    },
+                    "delete": {
+                        "ok": "El libro se ha quitado de favoritos",
+                        "error": "El libro no se ha podido quitar de favoritos"
+                    }
+                }
+            },
+            "similar":{
+                "title": "Otros libros similares"
+            },
+            "recommendations":{
+                "title": "También pueden gustarte"
+            },
+            "favorites":{
+                "title": "Favoritos"
+            },
+            "order_by": {
+                "id": {
+                    "asc": "Libros añadidos más antiguos",
+                    "desc": "Libros añadidos recientemente"
+                },
+                "pubdate": {
+                    "asc": "Primeros libros publicados",
+                    "desc": "Últimos libros publicados"
+                },
+                "title": {
+                    "asc": "Libros ordenados por titulo ascendente",
+                    "desc": "Libros ordenados por titulo descendente"
+                }
+            },
+            "error": {
+                "data": "No se han podido obtener los datos",
+                "tags": "No se han podido recuperar las categorías",
+                "serie": "No se ha podido recuperar la serie",
+                "pages": "No se ha podido recuperar las páginas",
+                "comment": "No se ha podido recuperar la descripción",
+                "cover": "No se ha podido recuperar la imagen"
+            }
+        },
+        "authors": {
+            "title": "Autores",
+            "order_by": {
+                "total": {
+                    "asc": "Autores con menos libros",
+                    "desc": "Autores con más libros"
+                },
+                "sort": {
+                    "asc": "Autores por nombre ascendente",
+                    "desc": "Autores por nombre descendente"
+                }
+            },
+            "favorites":{
+                "title": "Favoritos",
+                "add": {
+                    "ok": "El autor se ha añadido a favoritos",
+                    "error": "El autor no se ha podido añadir a favoritos"
+                },
+                "delete": {
+                    "ok": "El autor se ha quitado de favoritos",
+                    "error": "El autor no se ha podido quitar de favoritos"
+                }
+            },
+            "total": "libros en la biblioteca",
+            "error": {
+                "data": "No se han podido obtener los datos"
+            }
+        },
+        "tags": {
+            "title": "Categorías",
+            "order_by": {
+                "total": {
+                    "asc": "Categorías con menos libros",
+                    "desc": "Categorías más libros"
+                },
+                "name": {
+                    "asc": "Categorías por nombre ascendente",
+                    "desc": "Categorías por nombre descendente"
+                }
+            },
+            "actions": {
+                "settings": {
+                    "title": "Opciones"
+                },
+                "rename": {
+                    "title": "Renombrar",
+                    "description": {
+                        "source": "Seleccione la etiqueta a renombrar",
+                        "target": "Introduzca el nuevo nombre"
+                    },
+                    "error": "Ya existe una categoría con el nuevo nombre introducido",
+                    "info": "La categoría {{source}} va a ser renombrada a {{target}}. ¿Desea continuar?"
+                },
+                "merge": {
+                    "title": "Mezclar",
+                    "description": {
+                        "source": "Seleccione la etiqueta de origen",
+                        "target": "Seleccione la etiqueta de destino"
+                    },
+                    "error": "Las categorías seleccionadas deben ser distintas",
+                    "info": "La categoría {{source}} va a ser mezclada en {{target}}. ¿Desea continuar?"
+                },                
+                "image": {
+                    "title": "Modificar imagen",
+                    "description": {
+                        "source": "Seleccione la etiqueta de origen",
+                        "target": "Introduzca la url de la nueva imagen"
+                    },
+                    "error": "La imagen introducida no es correcta",
+                    "info": "La imagen introducida es correcta. ¿Desea continuar?"
+                }
+            },
+            "total": "libros en la biblioteca",
+            "error": {
+                "data": "No se han podido obtener los datos",
+                "merge": "No se ha podido realizar la operación",
+                "rename": "No se ha podido realizar la operación",
+                "image": "No se ha podido realizar la operación"
+
+            }
+        },
+        "series": {
+            "title": "Series",
+            "order_by": {
+                "total": {
+                    "asc": "Series con menos libros",
+                    "desc": "Series con más libros"
+                },
+                "sort": {
+                    "asc": "Series por nombre ascendente",
+                    "desc": "Series por nombre descendente"
+                }
+            },
+            "total": "libros en la biblioteca",
+            "error": {
+                "data": "No se han podido obtener los datos"
+            }
+        },
+        "profile": {
+            "title": "Perfil de {{username}}",
+            "account": {
+                "title": "Cuenta",
+                "username": "Usuario",
+                "password": "Contraseña",
+                "role": "Rol",
+                "language": "Idioma",
+                "kindle": "Dirección email del dispositivo Kindle",
+                "kindle_short": "Kindle",
+                "account": "Cuenta"
+            },
+            "permissions": {
+                "title": "Permisos",
+                "show_random_books": "Mostrar libros aleatorios"
+            },
+            "books": {
+                "title": "Mis lecturas"
+            },
+            "error": {
+                "get" : "No se ha podido recuperar el perfil",
+                "update" : "No se ha podido actualizar el perfil",
+                "save" : "No se ha podido salvar el perfil",
+                "name" : "Ya existe un usuario con ese nombre"
+            },
+            "ok": {
+                "update" : "Perfil actualizado correctamente"
+            }
+        },
+        "settings": {
+            "title": "Configuración",
+            "panel":{
+                "users": {
+                    "title": "Usuarios"
+                },
+                "global": {
+                    "title": "General",
+                    "path":{
+                        "kindlegen": "Ruta a la instalación de kindlegen"
+                    },
+                    "recommendations": "Número máximo de lecturas recomendadas"
+                },
+                "metadata":  {
+                    "title": "Metadatos",
+                    "pull": "Realizar una petición cada (segundos)",
+                    "goodreadskey": "Clave de desarrollador de GoodReads",
+                    "authors": {
+                        "nodata" : "Actualizar metadatos (ratings, comentarios, biografía del autor, etc.) para libros nuevos",
+                        "data": "Actualizar metadatos (ratings, comentarios, biografía del autor, etc.) para toda la biblioteca. Sobreescribir existentes."
+                    }
+                },
+                "smtp":  {
+                    "title": "Servidor de correo",
+                    "host": "Servidor",
+                    "port": "Puerto",
+                    "encryption": "Encriptación",
+                    "username": "Usuario",
+                    "password": "Contraseña",
+                    "test": "Comprobar configuración del servidor",
+                    "status": {
+                        "unknown": "Desconocido",
+                        "ok": "Validado",
+                        "error": "Error"
+                    }
+                    
+                }
+            },
+            "actions": {
+                "save": {
+                    "ok": "Configuración salvada correctamente",
+                    "error": "No se ha podido salvar la configuración"
+                },
+                "start":{
+                    "error": "No se ha podido iniciar el servicio"
+                },
+                "stop": {
+                    "error": "No se ha podido detener el servicio"
+                },
+                "delete": {
+                    "error": "No se ha podido borrar el usuario"
+                }
+            }
+        },
+        "login": {
+            "title": "Entrada al sistema",
+            "username": "Usuario",
+            "password": "Contraseña",
+            "rememberme": "Recuérdame", 
+            "username.required": "El usuario es obligatorio",
+            "password.required": "La contraseña es obligatoria",
+            "userpass.wrong": "Usuario y/o contraseña incorrectos",
+            "error": "Se ha producido un error en el acceso"
+        },
+        "search": {
+            "title": "Búsqueda Avanzada",
+            "field": {
+                "title": "Título",
+                "author": "Autor",
+                "serie": "Serie", 
+                "date": {
+                    "ini": "Fecha de publicación posterior a",
+                    "end": "Fecha de publicación anterior a"
+                },
+                "pages": {
+                    "min": "Número de páginas mayor que",
+                    "max": "Número de páginas menor que"
+                },
+                "tags": "Categorías"
+            }
+        },
+        "notifications": {
+            "title": "Notificaciones",
+            "id": "Id",
+            "user": "Usuario",
+            "book": "Libro",
+            "type": "Tipo",
+            "status": "Estado",
+            "readByUser": "Leido por usuario",
+            "readByAdmin": "Leido por administrador",
+            "error": "Error",
+            "search": "Buscar por ",
+            "select": "Selecciona un ",
+            "actions": {
+                "get": {
+                    "error": "No se ha podido obtener las notificaciones"
+                },
+                "delete": {
+                    "error": "No se ha podido borrar la notificación"
+                }
+            },
+            "read":{
+                "true":"Sí",
+                "false":"No"
+            },
+            "statuses":{
+                "SEND":"Enviado",
+                "NOT_SEND": "No enviado"
+            },
+            "types": {
+                "KINDLE": "Kindle"
+            }
+        },
+        "buttons": {
+            "login": "Entrar",
+            "logout": "Salir",
+            "accept": "Aceptar",
+            "cancel": "Cancelar",
+            "close": "Cerrar",
+            "save": "Salvar",
+            "send": "Enviar a Kindle",
+            "new": "Nuevo",
+            "add": "Añadir",
+            "search": "Buscar",
+            "favorite": {
+                "add": "Añadir a favoritos",
+                "delete": "Quitar de favoritos"
+            }
+        }, 
+        "languages": {
+            "es": "Español",
+            "en": "Inglés",
+            "fr": "Francés"
+        },
+        "session": {
+            "title": "Sesión caducada",
+            "description": "La sesión ha caducado, vuelva a iniciar sesión."
+        }
+    }
+}

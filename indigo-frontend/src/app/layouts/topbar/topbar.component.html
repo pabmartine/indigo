@@ -1,0 +1,8 @@
+<p-sidebar [(visible)]="show" position="top" styleClass="topbar" [showCloseIcon]=false [modal]="false">
+    <div id="topbar-icons">
+        <span class="topbar-search">
+            <input type="search" placeholder="{{'locale.header.search' | translate}}" [(ngModel)]="search" (search)="doSearch()"/>
+            <span class="topbar-search-icon pi pi-search" (click)="doSearch()"></span>
+        </span>
+    </div>
+</p-sidebar>
