@@ -1,2 +1,2 @@
 # indigo
-Interfaz web gratuita para la biblioteca de libros electrónicos Calibre
+Free web interface for the Calibre e-book library
