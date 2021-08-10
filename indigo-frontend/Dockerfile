@@ -16,4 +16,4 @@ COPY --from=node /app/dist/indigo-client /usr/share/ngnix/html
 EXPOSE 80
 
 # Containers run nginx with global directives and daemon off
-# ENTRYPOINT ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
