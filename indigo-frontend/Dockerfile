@@ -9,7 +9,7 @@ COPY . .
 RUN npm install
 RUN npm run build --prod
 
-FROM nginx:alpine
+FROM nginx:1.20.1-alpine
 COPY --from=node /app/dist/indigo-client /usr/share/ngnix/html
 
 # Containers run nginx with global directives and daemon off
