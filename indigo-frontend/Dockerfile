@@ -12,7 +12,7 @@ RUN npm run build --prod
 FROM nginx:1.20.1-alpine
 
 COPY nginx.conf /etc/nginx/nginx.conf
-COPY --from=node /app/dist/indigo-client /usr/share/ngnix/html
+COPY --from=node /app/dist /usr/share/ngnix/html
 
 # Expose port 80
 EXPOSE 80
