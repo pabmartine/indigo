@@ -10,6 +10,8 @@ RUN npm install
 RUN npm run build --prod
 
 FROM nginx:1.20.1-alpine
+
+RUN rm -rf /usr/share/nginx/html/*
 COPY --from=node /app/dist/indigo-client /usr/share/ngnix/html
 
 # Expose port 80
