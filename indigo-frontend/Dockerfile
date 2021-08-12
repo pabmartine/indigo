@@ -13,7 +13,7 @@ FROM nginx:1.20.1-alpine
 
 RUN rm -rf /usr/share/nginx/html/*
 COPY nginx.conf /etc/nginx/nginx.conf
-COPY --from=node /dist/indigo-client /usr/share/nginx/html
+COPY --from=node /app/dist/indigo-client /usr/share/nginx/html
 
 # Expose port 80
 EXPOSE 80
