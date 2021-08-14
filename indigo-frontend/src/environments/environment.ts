@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  endpoint: 'http://krahen.synology.me:8081/rest/',
+  endpoint: 'http://indigo-backend:8081/rest/',
 };
