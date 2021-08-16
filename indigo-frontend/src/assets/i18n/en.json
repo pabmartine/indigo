@@ -303,7 +303,8 @@
 			"readByUser": "Read by user",
 			"readByAdmin": "Read by administrator",
 			"status": "Status",
-			"error": "Error",			
+      "sendDate": "Date",
+			"error": "Error",
 			"search": "Search by ",
 			"select": "Select a ",
 			"actions": {

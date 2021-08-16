@@ -10,6 +10,7 @@ export class Notif {
         public type?:NotificationEnum,
         public status?:StatusEnum,
         public error?:string,
+        public sendDate?:string,
         public readByUser?:boolean,
         public readByAdmin?:boolean,
         public message?:string,

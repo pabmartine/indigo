@@ -31,11 +31,15 @@
                                 {{'locale.notifications.book' | translate}}
                                 <p-sortIcon field="title"></p-sortIcon>
                             </th>
-                            <th class="center" pSortableColumn="title">
+                            <th class="center" pSortableColumn="sendDate">
+                              {{'locale.notifications.sendDate' | translate}}
+                              <p-sortIcon field="sendDate"></p-sortIcon>
+                          </th>
+                            <th class="center" pSortableColumn="readByUser">
                                 {{'locale.notifications.readByUser' | translate}}
                                 <p-sortIcon field="readByUser"></p-sortIcon>
                             </th>
-                            <th class="center" pSortableColumn="title">
+                            <th class="center" pSortableColumn="readByAdmin">
                                 {{'locale.notifications.readByAdmin' | translate}}
                                 <p-sortIcon field="readByAdmin"></p-sortIcon>
                             </th>
@@ -81,6 +85,10 @@
                                     placeholder="{{'locale.notifications.search' | translate}}{{'locale.notifications.book' | translate}}"
                                     class="p-column-filter">
                             </th>
+                            <th><input pInputText type="text"
+                              (input)="dt.filter($event.target.value, 'sendDate', 'startsWith')"
+                              placeholder="{{'locale.notifications.search' | translate}}{{'locale.notifications.sendDate' | translate}}"
+                              class="p-column-filter"></th>
                             <th>
                                 <p-dropdown [options]="read" (onChange)="dt.filter($event.value, 'readByUser', 'equals')"
                                     styleClass="p-column-filter"
@@ -90,7 +98,7 @@
                                         <span>{{option.label}}</span>
                                     </ng-template>
                                 </p-dropdown>
-                            </th>   
+                            </th>
                             <th>
                                 <p-dropdown [options]="read" (onChange)="dt.filter($event.value, 'readByAdmin', 'equals')"
                                     styleClass="p-column-filter"
@@ -100,7 +108,7 @@
                                         <span>{{option.label}}</span>
                                     </ng-template>
                                 </p-dropdown>
-                            </th>                           
+                            </th>
                             <th>
                                 <p-dropdown [options]="statuses"
                                     (onChange)="dt.filter($event.value, 'status', 'equals')"
@@ -132,6 +140,7 @@
                             </td>
                             <td (mouseover)="cover=notif.image;op.toggle($event)">{{notif.title}}
                             </td>
+                            <td>{{notif.sendDate}}</td>
                             <td>{{'locale.notifications.read.' + notif.readByUser | translate}}
                             </td>
                             <td>{{'locale.notifications.read.' + notif.readByAdmin | translate}}

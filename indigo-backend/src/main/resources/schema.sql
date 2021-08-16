@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS notifications (
 					user INTEGER,
 					status TEXT,
 					read_by_user INTEGER,
-					read_by_admin INTEGER
-					error TEXT
+					read_by_admin INTEGER,
+					error TEXT,
+					send_date TEXT
 );  

@@ -51,6 +51,7 @@ import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 
 //cache
 import {CustomReuseStrategy} from 'src/app/utils/cache.routes'
+import { DatePipe } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -98,6 +99,7 @@ import {CustomReuseStrategy} from 'src/app/utils/cache.routes'
 
   ],
   providers: [
+    DatePipe
   ]
 })
 export class LayoutModule { }

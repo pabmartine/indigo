@@ -1,6 +1,7 @@
 package com.martinia.indigo.model.indigo;
 
 import java.io.Serializable;
+import java.sql.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,6 +12,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.Type;
 
@@ -56,6 +59,9 @@ public class Notification implements Serializable {
 	@Column(name = "\"read_by_admin\"")
 	@Type(type = "numeric_boolean")
 	private boolean readByAdmin;
+
+	@Column(name = "\"send_date\"")
+	private String sendDate;
 
 	public Notification() {
 	}
@@ -134,6 +140,14 @@ public class Notification implements Serializable {
 
 	public void setError(String error) {
 		this.error = error;
+	}
+
+	public String getSendDate() {
+		return sendDate;
+	}
+
+	public void setSendDate(String sendDate) {
+		this.sendDate = sendDate;
 	}
 
 }

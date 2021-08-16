@@ -149,7 +149,7 @@
                     },
                     "error": "Las categorías seleccionadas deben ser distintas",
                     "info": "La categoría {{source}} va a ser mezclada en {{target}}. ¿Desea continuar?"
-                },                
+                },
                 "image": {
                     "title": "Modificar imagen",
                     "description": {
@@ -250,7 +250,7 @@
                         "ok": "Validado",
                         "error": "Error"
                     }
-                    
+
                 }
             },
             "actions": {
@@ -273,7 +273,7 @@
             "title": "Entrada al sistema",
             "username": "Usuario",
             "password": "Contraseña",
-            "rememberme": "Recuérdame", 
+            "rememberme": "Recuérdame",
             "username.required": "El usuario es obligatorio",
             "password.required": "La contraseña es obligatoria",
             "userpass.wrong": "Usuario y/o contraseña incorrectos",
@@ -284,7 +284,7 @@
             "field": {
                 "title": "Título",
                 "author": "Autor",
-                "serie": "Serie", 
+                "serie": "Serie",
                 "date": {
                     "ini": "Fecha de publicación posterior a",
                     "end": "Fecha de publicación anterior a"
@@ -303,6 +303,7 @@
             "book": "Libro",
             "type": "Tipo",
             "status": "Estado",
+            "sendDate": "Fecha",
             "readByUser": "Leido por usuario",
             "readByAdmin": "Leido por administrador",
             "error": "Error",
@@ -343,7 +344,7 @@
                 "add": "Añadir a favoritos",
                 "delete": "Quitar de favoritos"
             }
-        }, 
+        },
         "languages": {
             "es": "Español",
             "en": "Inglés",

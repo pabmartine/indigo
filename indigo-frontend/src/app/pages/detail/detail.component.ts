@@ -17,6 +17,7 @@ import { NotificationEnum } from 'src/app/enums/notification.enum.';
 import { StatusEnum } from 'src/app/enums/status.enum';
 import { Search } from 'src/app/domain/search';
 import { Tag } from 'src/app/domain/tag';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-detail',
@@ -49,7 +50,8 @@ export class DetailComponent implements OnInit {
     private messageService: MessageService,
     public translate: TranslateService,
     public notificationService: NotificationService,
-    private location: Location) {
+    private location: Location,
+    public datepipe: DatePipe) {
 
     this.route.queryParams.subscribe(params => {
 
@@ -257,7 +259,8 @@ export class DetailComponent implements OnInit {
 
   addNotification(book: number, type: NotificationEnum, status: StatusEnum, error: string) {
     const user = JSON.parse(sessionStorage.user);
-    const notification = new Notif(null, book, user.id, type, status, error);
+
+    const notification = new Notif(null, book, user.id, type, status, error, this.datepipe.transform(new Date(), 'dd/MM/yyyy HH:mm:ss'));
     this.notificationService.save(notification).subscribe(
       data => {
         console.log(data);
@@ -294,7 +297,7 @@ export class DetailComponent implements OnInit {
       }
     );
 
-    
+
   }
 
 
