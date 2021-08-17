@@ -45,7 +45,7 @@ export class BooksComponent implements OnInit {
   private showScrollHeight = 400;
   private hideScrollHeight = 200;
 
-  
+
   sorts: SelectItem[] = [];
   selectedSort: string;
 
@@ -116,13 +116,12 @@ export class BooksComponent implements OnInit {
 
 
     if (!this.adv_search) {
-      this.reset();
       this.doSearch();
     }
   }
 
   ngOnInit(): void {
-    
+
   }
 
   ngAfterViewChecked() {
@@ -326,7 +325,7 @@ export class BooksComponent implements OnInit {
     const user = JSON.parse(sessionStorage.user);
     this.bookService.getFavorites(user.id).subscribe(
       data => {
-
+        this.favorites.length = 0
         data.forEach((book) => {
           this.getCover(book);
           this.getInfo(book, true);
