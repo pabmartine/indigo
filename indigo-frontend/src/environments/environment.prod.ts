@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  endpoint: 'http://localhost:8080/rest/',
+  endpoint: 'http://krahen.synology.me:8080/rest/',
 };
