@@ -5,17 +5,17 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import com.martinia.indigo.dto.auth.UserAuthDto;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class JWTParserService {
-
-	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(JWTParserService.class);
 
 	private String AUTH_TYPE = "Bearer";
 	private String HTTP_HEADER = "Authorization";
@@ -49,7 +49,7 @@ public class JWTParserService {
 				}
 			} catch (Exception ex) {
 				request.setAttribute("payload", ex.getMessage());
-				LOG.error(ex.getMessage());
+				log.error(ex.getMessage());
 			}
 
 		}

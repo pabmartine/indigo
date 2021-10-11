@@ -5,6 +5,11 @@ import java.util.Collection;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class UserAuthDto implements Authentication {
 
 	private String name;
@@ -13,11 +18,6 @@ public class UserAuthDto implements Authentication {
 	public UserAuthDto(String name) {
 		super();
 		this.name = name;
-	}
-
-	@Override
-	public String getName() {
-		return this.name;
 	}
 
 	@Override
@@ -38,17 +38,6 @@ public class UserAuthDto implements Authentication {
 	@Override
 	public Object getPrincipal() {
 		return null;
-	}
-
-	@Override
-	public boolean isAuthenticated() {
-		return authenticated;
-	}
-
-	@Override
-	public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
-		this.authenticated = isAuthenticated;
-
 	}
 
 }

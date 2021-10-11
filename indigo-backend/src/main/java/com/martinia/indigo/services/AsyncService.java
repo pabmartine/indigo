@@ -4,12 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import com.martinia.indigo.controllers.rest.BookRestController;
 import com.martinia.indigo.model.calibre.Author;
 import com.martinia.indigo.model.calibre.Book;
 import com.martinia.indigo.model.indigo.MyAuthor;
@@ -19,13 +19,13 @@ import com.martinia.indigo.repository.calibre.BookRepository;
 import com.martinia.indigo.repository.indigo.ConfigurationRepository;
 import com.martinia.indigo.repository.indigo.MyAuthorRepository;
 import com.martinia.indigo.repository.indigo.MyBookRepository;
-import com.martinia.indigo.rest.BookRestController;
 import com.martinia.indigo.singletons.MetadataSingleton;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class AsyncService {
-
-	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AsyncService.class);
 
 	@Autowired
 	WikipediaService wikipediaService;
@@ -54,6 +54,7 @@ public class AsyncService {
 	@Autowired
 	ConfigurationRepository configurationRepository;
 
+	// TODO esto no debería ser un controller
 	@Autowired
 	BookRestController bookRestController;
 
@@ -66,7 +67,9 @@ public class AsyncService {
 
 		metadataSingleton.start("nodata");
 
-		long pullTime = Long.parseLong(configurationRepository.findById("metadata.pull").get().getValue());
+		long pullTime = Long.parseLong(configurationRepository.findById("metadata.pull")
+				.get()
+				.getValue());
 
 		long countBooks = bookRepository.count();
 		metadataSingleton.setTotal(countBooks);
@@ -83,7 +86,9 @@ public class AsyncService {
 				metadataSingleton.setCurrent(i);
 
 				// Get currentBook info
-				Book book = bookRepository.findAll(PageRequest.of(i, 1)).getContent().get(0);
+				Book book = bookRepository.findAll(PageRequest.of(i, 1))
+						.getContent()
+						.get(0);
 
 				// Get ratting
 				Optional<MyBook> myBook = myBookRepository.findById(book.getId());
@@ -103,7 +108,8 @@ public class AsyncService {
 					serviceCalled = true;
 
 					// Get author
-					if (!book.getAuthorSort().contains(" & ")) {// Get info if there is only one author
+					if (!book.getAuthorSort()
+							.contains(" & ")) {// Get info if there is only one author
 
 						Author author = authorRepository.findBySort(book.getAuthorSort());
 
@@ -141,7 +147,7 @@ public class AsyncService {
 					Thread.sleep(pullTime);
 				}
 
-				LOG.info("Processed " + i + " books");
+				log.info("Processed " + i + " books");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -159,7 +165,9 @@ public class AsyncService {
 
 		metadataSingleton.start("data");
 
-		long pullTime = Long.parseLong(configurationRepository.findById("metadata.pull").get().getValue());
+		long pullTime = Long.parseLong(configurationRepository.findById("metadata.pull")
+				.get()
+				.getValue());
 
 		long countBooks = bookRepository.count();
 		metadataSingleton.setTotal(countBooks);
@@ -174,7 +182,9 @@ public class AsyncService {
 				metadataSingleton.setCurrent(i);
 
 				// Get currentBook info
-				Book book = bookRepository.findAll(PageRequest.of(i, 1)).getContent().get(0);
+				Book book = bookRepository.findAll(PageRequest.of(i, 1))
+						.getContent()
+						.get(0);
 
 //				// Get ratting
 //				MyBook _myBook = goodReadsService.findBook(book.getTitle(), book.getAuthorSort());
@@ -220,7 +230,7 @@ public class AsyncService {
 				// Sleept for 5 seconds
 //				Thread.sleep(pullTime);
 
-				LOG.info("Processed " + i + " books");
+				log.info("Processed " + i + " books");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -239,7 +249,7 @@ public class AsyncService {
 	}
 
 	public void stop() {
-		LOG.info("Stopping async authors process");
+		log.info("Stopping async authors process");
 		metadataSingleton.stop();
 	}
 

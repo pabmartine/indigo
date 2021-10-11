@@ -10,10 +10,17 @@ import javax.persistence.Id;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 /**
  * The persistent class for the "books_authors_link" database table.
  * 
  */
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "\"favorite_authors\"")
 @NamedQuery(name = "FavoriteAuthor.findAll", query = "SELECT b FROM FavoriteAuthor b")
@@ -31,37 +38,10 @@ public class FavoriteAuthor implements Serializable {
 	@Column(name = "\"id\"")
 	private int id;
 
-	public FavoriteAuthor() {
-	}
-
 	public FavoriteAuthor(int user, int author) {
 		super();
 		this.user = user;
 		this.author = author;
-	}
-
-	public int getUser() {
-		return user;
-	}
-
-	public void setUser(int user) {
-		this.user = user;
-	}
-
-	public int getAuthor() {
-		return author;
-	}
-
-	public void setAuthor(int author) {
-		this.author = author;
-	}
-
-	public int getId() {
-		return this.id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
 	}
 
 }

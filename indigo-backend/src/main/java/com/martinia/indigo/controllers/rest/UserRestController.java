@@ -1,4 +1,4 @@
-package com.martinia.indigo.rest;
+package com.martinia.indigo.controllers.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -13,58 +13,62 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.martinia.indigo.enums.RolesEnum;
 import com.martinia.indigo.model.indigo.User;
-import com.martinia.indigo.repository.indigo.UserRepository;
+import com.martinia.indigo.services.indigo.UserService;
 
 @RestController
 @RequestMapping("/rest/user")
 public class UserRestController {
 
 	@Autowired
-	private UserRepository userRepository;
+	private UserService userService;
 
 	@Autowired
 	PasswordEncoder passwordEncoder;
-
+	//TODO MAPPING
 	@GetMapping(value = "/get", produces = MediaType.APPLICATION_JSON_VALUE)
 	public User get(@RequestParam String username) {
-		return userRepository.findByUsername(username);
+		return userService.findByUsername(username);
 	}
-
+	//TODO MAPPING
 	@GetMapping(value = "/getById", produces = MediaType.APPLICATION_JSON_VALUE)
 	public User getById(@RequestParam int id) {
-		return userRepository.findById(id).get();
+		return userService.findById(id)
+				.get();
 	}
-
+	//TODO MAPPING
 	@GetMapping(value = "/getAll", produces = MediaType.APPLICATION_JSON_VALUE)
 	public Iterable<User> getAll() {
-		return userRepository.findAll();
+		return userService.findAll();
 	}
 
 	@PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public void update(@RequestBody User user) {
 
-		User _user = userRepository.findById(user.getId()).get();
+		User _user = userService.findById(user.getId())
+				.get();
 
-		if (!_user.getPassword().equals(user.getPassword()))
+		if (!_user.getPassword()
+				.equals(user.getPassword()))
 			_user.setPassword(passwordEncoder.encode(user.getPassword()));
 
 		_user.setUsername(user.getUsername());
 		_user.setLanguage(user.getLanguage());
 		_user.setKindle(user.getKindle());
 
-		userRepository.save(_user);
+		userService.save(_user);
 	}
 
 	@PutMapping(value = "/save", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public void save(@RequestBody User user) {
 		user.setRole(RolesEnum.USER.name());
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
-		userRepository.save(user);
+		userService.save(user);
 	}
 
 	@DeleteMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)
 	public void delete(@RequestParam int id) {
-		User user = userRepository.findById(id).get();
-		userRepository.delete(user);
+		User user = userService.findById(id)
+				.get();
+		userService.delete(user);
 	}
 }

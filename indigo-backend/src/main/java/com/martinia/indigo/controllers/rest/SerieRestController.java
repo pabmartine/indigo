@@ -1,4 +1,4 @@
-package com.martinia.indigo.rest;
+package com.martinia.indigo.controllers.rest;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,27 +19,27 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.martinia.indigo.repository.calibre.SerieRepository;
+import com.martinia.indigo.services.calibre.SerieService;
 
 @RestController
 @RequestMapping("/rest/serie")
 public class SerieRestController {
 
 	@Autowired
-	private SerieRepository serieRepository;
+	private SerieService serieService;
 
 	@Value("${book.library.path}")
 	private String libraryPath;
 
 	@GetMapping("/count")
 	public long getTotal() {
-		return serieRepository.count();
+		return serieService.count();
 	}
 
 	@GetMapping(value = "/numbooks", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<Map<String, String>> getNumBooksBySerie(@RequestParam int page, @RequestParam int size,
 			@RequestParam String sort, @RequestParam String order) {
-		List<Object[]> data = serieRepository.getNumBooksBySerie(page, size, sort, order);
+		List<Object[]> data = serieService.getNumBooksBySerie(page, size, sort, order);
 
 		List<Map<String, String>> ret = new ArrayList<>(data.size());
 		for (Object[] o : data) {
@@ -57,7 +57,7 @@ public class SerieRestController {
 	public Map<String, String> findPagesByBookId(@RequestParam int id) {
 
 		Map<String, String> map = new HashMap<String, String>();
-		map.put("serie", serieRepository.getSerieByBook(id));
+		map.put("serie", serieService.getSerieByBook(id));
 
 		return map;
 	}
@@ -69,13 +69,15 @@ public class SerieRestController {
 		if (!libraryPath.endsWith(File.separator))
 			libraryPath += File.separator;
 
-		String path = serieRepository.getBookPathSerieById(id, PageRequest.of(0, 1, Sort.by("seriesIndex"))).get(0);
+		String path = serieService.getBookPathSerieById(id, PageRequest.of(0, 1, Sort.by("seriesIndex")))
+				.get(0);
 
 		String basePath = libraryPath + path + "/cover.jpg";
 
 		File file = new File(basePath);
 
-		String image = Base64.getEncoder().encodeToString(Files.readAllBytes(file.toPath()));
+		String image = Base64.getEncoder()
+				.encodeToString(Files.readAllBytes(file.toPath()));
 
 		map = new HashMap<String, String>();
 		map.put("image", image);

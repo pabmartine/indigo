@@ -18,7 +18,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.martinia.indigo.filters.JWTAuthenticationFilter;
 import com.martinia.indigo.filters.JWTAuthorizationFilter;
 import com.martinia.indigo.services.JWTParserService;
-import com.martinia.indigo.services.UserService;
+import com.martinia.indigo.services.LoginService;
 
 @Configuration
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
@@ -27,7 +27,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	JWTParserService jwtParserService;
 
 	@Autowired
-	UserService userService;
+	LoginService userService;
 
 	@Autowired
 	Http401UnauthorizedEntryPoint authenticationEntryPoint;

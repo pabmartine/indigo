@@ -21,6 +21,6 @@ public interface TagRepository extends CrudRepository<Tag, Integer>, CustomTagRe
 	@Query("select t.name from Tag t, BooksTagsLink l where t.id = l.tag and l.book = :id")
 	List<String> getTagsByBookId(int id);
 	
-	Tag getTagByName(String name);
+	Tag findTagByName(String name);
 
 }

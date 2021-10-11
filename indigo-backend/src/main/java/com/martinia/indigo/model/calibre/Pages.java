@@ -8,10 +8,17 @@ import javax.persistence.Id;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 /**
  * The persistent class for the "custom_column_5" database table.
  * 
  */
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "\"custom_column_5\"")
 @NamedQuery(name = "Pages.findAll", query = "SELECT c FROM Pages c")
@@ -27,32 +34,5 @@ public class Pages implements Serializable {
 
 	@Column(name = "\"value\"")
 	private int value;
-
-	public Pages() {
-	}
-
-	public int getBook() {
-		return book;
-	}
-
-	public void setBook(int book) {
-		this.book = book;
-	}
-
-	public int getId() {
-		return this.id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public int getValue() {
-		return this.value;
-	}
-
-	public void setValue(int value) {
-		this.value = value;
-	}
 
 }

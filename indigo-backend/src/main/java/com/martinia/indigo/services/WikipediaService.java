@@ -1,7 +1,6 @@
 package com.martinia.indigo.services;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -10,19 +9,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.martinia.indigo.model.indigo.MyAuthor;
 import com.martinia.indigo.utils.DataUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class WikipediaService {
 
-	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(WikipediaService.class);
-	
 	private String PROVIDER = "Wikipedia";
-
 
 	public MyAuthor findAuthor(String subject, String lang) {
 
 		MyAuthor customAuthor = null;
 
-		subject = StringUtils.stripAccents(subject).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ");
+		subject = StringUtils.stripAccents(subject)
+				.replaceAll("[^a-zA-Z0-9]", " ")
+				.replaceAll("\\s+", " ");
 
 		String url = "https://" + lang
 				+ ".wikipedia.org/w/api.php?action=query&format=json&list=search&utf8=1&origin=*&srsearch="
@@ -47,12 +48,17 @@ public class WikipediaService {
 						JsonNode title = objNode.get("title");
 						strTitle = title.asText();
 
-						String filterTitle = StringUtils.stripAccents(strTitle).replaceAll("[^a-zA-Z0-9]", " ")
-								.replaceAll("\\s+", " ").toLowerCase().trim();
+						String filterTitle = StringUtils.stripAccents(strTitle)
+								.replaceAll("[^a-zA-Z0-9]", " ")
+								.replaceAll("\\s+", " ")
+								.toLowerCase()
+								.trim();
 
 						boolean contains = true;
 						for (String term : terms) {
-							term = StringUtils.stripAccents(term).toLowerCase().trim();
+							term = StringUtils.stripAccents(term)
+									.toLowerCase()
+									.trim();
 							if (!filterTitle.contains(term)) {
 								contains = false;
 							}
@@ -71,7 +77,7 @@ public class WikipediaService {
 				}
 			}
 		} catch (Exception e) {
-			LOG.error(url);
+			log.error(url);
 			e.printStackTrace();
 		}
 
@@ -82,7 +88,9 @@ public class WikipediaService {
 
 		MyAuthor customAuthor = null;
 
-		subject = StringUtils.stripAccents(subject).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ");
+		subject = StringUtils.stripAccents(subject)
+				.replaceAll("[^a-zA-Z0-9]", " ")
+				.replaceAll("\\s+", " ");
 
 		String url = "https://" + lang
 				+ ".wikipedia.org/w/api.php?format=json&action=query&prop=extracts|pageimages&exintro&explaintext&generator=search&gsrlimit=1&redirects=1&piprop=original&gsrsearch="
@@ -102,25 +110,33 @@ public class WikipediaService {
 					JsonNode search = query.get("pages");
 					JsonNode title = search.findPath("title");
 					JsonNode extract = search.findPath("extract");
-					JsonNode source = search.findPath("original").get("source");
+					JsonNode source = search.findPath("original")
+							.get("source");
 
 					String strTitle = title.asText();
-					String filterTitle = StringUtils.stripAccents(strTitle).replaceAll("[^a-zA-Z0-9]", " ")
-							.replaceAll("\\s+", " ").toLowerCase().trim();
+					String filterTitle = StringUtils.stripAccents(strTitle)
+							.replaceAll("[^a-zA-Z0-9]", " ")
+							.replaceAll("\\s+", " ")
+							.toLowerCase()
+							.trim();
 
 					String[] terms = subject.split(" ");
 					boolean contains = true;
 					for (String term : terms) {
 
-						term = StringUtils.stripAccents(term).toLowerCase().trim();
+						term = StringUtils.stripAccents(term)
+								.toLowerCase()
+								.trim();
 
 						if (!filterTitle.contains(term)) {
 							contains = false;
 						}
 					}
 
-					if (extract.asText().toLowerCase().startsWith("for the")) {
-						LOG.info(title + " --> " + extract.asText());
+					if (extract.asText()
+							.toLowerCase()
+							.startsWith("for the")) {
+						log.info(title + " --> " + extract.asText());
 					}
 
 					if (contains) {
@@ -130,7 +146,7 @@ public class WikipediaService {
 				}
 			}
 		} catch (Exception e) {
-			LOG.error(url);
+			log.error(url);
 
 			e.printStackTrace();
 		}

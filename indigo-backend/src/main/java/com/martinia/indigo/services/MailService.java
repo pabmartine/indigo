@@ -5,7 +5,6 @@ import java.util.Properties;
 
 import javax.mail.internet.MimeMessage;
 
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.SimpleMailMessage;
@@ -18,10 +17,11 @@ import com.martinia.indigo.model.indigo.Configuration;
 import com.martinia.indigo.repository.indigo.ConfigurationRepository;
 import com.martinia.indigo.repository.indigo.UserRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class MailService {
-
-	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(MailService.class);
 
 	@Autowired
 	private JavaMailSender javaMailSender;
@@ -34,18 +34,32 @@ public class MailService {
 
 	public void init() {
 		JavaMailSenderImpl ms = (JavaMailSenderImpl) javaMailSender;
-		ms.setHost(configurationRepository.findById("smtp.host").get().getValue());
-		ms.setPort(Integer.parseInt(configurationRepository.findById("smtp.port").get().getValue()));
-		ms.setUsername(configurationRepository.findById("smtp.username").get().getValue());
-		ms.setPassword(configurationRepository.findById("smtp.password").get().getValue());
+		ms.setHost(configurationRepository.findById("smtp.host")
+				.get()
+				.getValue());
+		ms.setPort(Integer.parseInt(configurationRepository.findById("smtp.port")
+				.get()
+				.getValue()));
+		ms.setUsername(configurationRepository.findById("smtp.username")
+				.get()
+				.getValue());
+		ms.setPassword(configurationRepository.findById("smtp.password")
+				.get()
+				.getValue());
 
 		Properties props = ms.getJavaMailProperties();
 		props.put("mail.transport.protocol", "smtp");
 
-		if (configurationRepository.findById("smtp.encryption").get().getValue().equals("starttls")) {
+		if (configurationRepository.findById("smtp.encryption")
+				.get()
+				.getValue()
+				.equals("starttls")) {
 			props.put("mail.smtp.auth", "true");
 			props.put("mail.smtp.starttls.enable", "true");
-		} else if (configurationRepository.findById("smtp.encryption").get().getValue().equals("ssl/tls")) {
+		} else if (configurationRepository.findById("smtp.encryption")
+				.get()
+				.getValue()
+				.equals("ssl/tls")) {
 			props.put("mail.smtp.auth", "true");
 			props.put("mail.smtp.socketFactory.port", "465");
 			props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
@@ -60,7 +74,9 @@ public class MailService {
 			init();
 
 			SimpleMailMessage message = new SimpleMailMessage();
-			message.setTo(userRepository.findById(user).get().getKindle());
+			message.setTo(userRepository.findById(user)
+					.get()
+					.getKindle());
 			message.setFrom("no-Reply@indigo.com");
 			message.setSubject("Test mail");
 			message.setText("This is a test mail");
@@ -69,7 +85,7 @@ public class MailService {
 
 			config.setValue("ok");
 		} catch (Exception e) {
-			LOG.error(e.getMessage());
+			log.error(e.getMessage());
 			config.setValue("error");
 		}
 
@@ -86,7 +102,9 @@ public class MailService {
 			MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
 			helper.setFrom("no-reply@indigo.com");
-			helper.setTo(userRepository.findById(user).get().getKindle());
+			helper.setTo(userRepository.findById(user)
+					.get()
+					.getKindle());
 			helper.setSubject("INDIGO");
 			helper.setText(filename + "sent to Kindle");
 

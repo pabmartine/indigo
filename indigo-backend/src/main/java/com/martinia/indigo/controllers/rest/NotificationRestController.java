@@ -1,4 +1,4 @@
-package com.martinia.indigo.rest;
+package com.martinia.indigo.controllers.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -12,59 +12,63 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.martinia.indigo.model.indigo.Notification;
 import com.martinia.indigo.model.indigo.User;
-import com.martinia.indigo.repository.indigo.NotificationRepository;
-import com.martinia.indigo.repository.indigo.UserRepository;
+import com.martinia.indigo.services.indigo.NotificationService;
+import com.martinia.indigo.services.indigo.UserService;
 
 @RestController
 @RequestMapping("/rest/notification")
 public class NotificationRestController {
 
 	@Autowired
-	private NotificationRepository notificationRepository;
+	private NotificationService notificationService;
 
 	@Autowired
-	private UserRepository userRepository;
-
+	private UserService userService;
+	//TODO MAPPING
 	@GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
 	public Iterable<Notification> findAll() {
-		return notificationRepository.findAllByOrderByIdDesc();
+		return notificationService.findAllByOrderByIdDesc();
 	}
-
+	//TODO MAPPING
 	@GetMapping(value = "/not_read", produces = MediaType.APPLICATION_JSON_VALUE)
 	public Iterable<Notification> findAllNotRead() {
-		return notificationRepository.findNotReadAdmin();
+		return notificationService.findNotReadAdmin();
 	}
-
+	//TODO MAPPING
 	@GetMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
 	public Iterable<Notification> findAllByUser(@RequestParam int user) {
-		return notificationRepository.findByUser(user);
+		return notificationService.findByUser(user);
 	}
-
+	//TODO MAPPING
 	@GetMapping(value = "/not_read_user", produces = MediaType.APPLICATION_JSON_VALUE)
 	public Iterable<Notification> findAllNotReadByUser(@RequestParam int user) {
-		return notificationRepository.findNotReadUser(user);
+		return notificationService.findNotReadUser(user);
 	}
 
 	@PutMapping(value = "/save", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public void save(@RequestBody Notification notification) {
-		notificationRepository.save(notification);
+		notificationService.save(notification);
 	}
 
 	@GetMapping(value = "/read", produces = MediaType.APPLICATION_JSON_VALUE)
 	public void markAsRead(@RequestParam int id, @RequestParam int user) {
-		User usr = userRepository.findById(user).get();
-		Notification notification = notificationRepository.findById(id).get();
-		if (usr.getRole().equals("ADMIN"))
+		User usr = userService.findById(user)
+				.get();
+		Notification notification = notificationService.findById(id)
+				.get();
+		if (usr.getRole()
+				.equals("ADMIN"))
 			notification.setReadByAdmin(true);
 		else
 			notification.setReadByUser(true);
-		notificationRepository.save(notification);
+		notificationService.save(notification);
 	}
 
 	@DeleteMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)
 	public void delete(@RequestParam int id) {
-		Notification notification = notificationRepository.findById(id).get();
-		notificationRepository.delete(notification);
+		Notification notification = notificationService.findById(id)
+				.get();
+		notificationService.delete(notification);
 	}
 
 }

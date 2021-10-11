@@ -1,4 +1,4 @@
-package com.martinia.indigo.rest;
+package com.martinia.indigo.controllers.rest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,27 +19,26 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.martinia.indigo.model.calibre.Author;
 import com.martinia.indigo.model.indigo.FavoriteAuthor;
-import com.martinia.indigo.model.indigo.FavoriteBook;
 import com.martinia.indigo.model.indigo.MyAuthor;
-import com.martinia.indigo.repository.calibre.AuthorRepository;
-import com.martinia.indigo.repository.indigo.FavoriteAuthorRepository;
-import com.martinia.indigo.repository.indigo.MyAuthorRepository;
 import com.martinia.indigo.services.AsyncService;
 import com.martinia.indigo.services.GoodReadsService;
 import com.martinia.indigo.services.WikipediaService;
+import com.martinia.indigo.services.calibre.AuthorService;
+import com.martinia.indigo.services.indigo.FavoriteAuthorService;
+import com.martinia.indigo.services.indigo.MyAuthorService;
 
 @RestController
 @RequestMapping("/rest/author")
 public class AuthorRestController {
 
 	@Autowired
-	private FavoriteAuthorRepository favoriteAuthorRepository;
+	private FavoriteAuthorService favoriteAuthorService;
 
 	@Autowired
-	private AuthorRepository authorRepository;
+	private AuthorService authorService;
 
 	@Autowired
-	private MyAuthorRepository myAuthorRepository;
+	private MyAuthorService myAuthorService;
 
 	@Autowired
 	private WikipediaService wikipediaService;
@@ -52,13 +51,13 @@ public class AuthorRestController {
 
 	@GetMapping("/count")
 	public long getTotal() {
-		return authorRepository.count();
+		return authorService.count();
 	}
 
 	@GetMapping(value = "/numbooks", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<Map<String, String>> getNumBooksByAuthor(@RequestParam int page, @RequestParam int size,
 			@RequestParam String sort, @RequestParam String order) {
-		List<Object[]> data = authorRepository.getNumBooksByAuthor(page, size, sort, order);
+		List<Object[]> data = authorService.getNumBooksByAuthor(page, size, sort, order);
 
 		List<Map<String, String>> ret = new ArrayList<>(data.size());
 		for (Object[] o : data) {
@@ -71,9 +70,10 @@ public class AuthorRestController {
 		return ret;
 	}
 
+	//TODO MAPPING
 	@GetMapping(value = "/info/name", produces = MediaType.APPLICATION_JSON_VALUE)
 	public MyAuthor getAuthorInfoByName(@RequestParam String author, @RequestParam String lang) {
-		MyAuthor myAuthor = myAuthorRepository.findBySort(author);
+		MyAuthor myAuthor = myAuthorService.findBySort(author);
 		if (myAuthor == null) {
 
 			myAuthor = wikipediaService.findAuthor(author, lang);
@@ -88,17 +88,18 @@ public class AuthorRestController {
 
 			if (myAuthor != null) {
 				myAuthor.setSort(author);
-				Author auth = authorRepository.findBySort(author);
+				Author auth = authorService.findBySort(author);
 				myAuthor.setId(auth.getId());
-				myAuthorRepository.save(myAuthor);
+				myAuthorService.save(myAuthor);
 			}
 		}
 		return myAuthor;
 	}
 
+	//TODO MAPPING
 	@GetMapping(value = "/info/id", produces = MediaType.APPLICATION_JSON_VALUE)
 	public Optional<MyAuthor> getAuthorInfoById(@RequestParam int id) {
-		return myAuthorRepository.findById(id);
+		return myAuthorService.findById(id);
 	}
 
 	@GetMapping(value = "/nodata")
@@ -125,10 +126,10 @@ public class AuthorRestController {
 	public List<Map<String, String>> getFavoriteBooks(@RequestParam int user) {
 		List<Map<String, String>> list = new ArrayList<>();
 
-		List<Integer> dat = myAuthorRepository.getFavoriteAuthors(user);
+		List<Integer> dat = myAuthorService.getFavoriteAuthors(user);
 
 		for (Integer id : dat) {
-			Object[] o = (Object[]) authorRepository.getNumBooksByAuthorId(id)[0];
+			Object[] o = (Object[]) authorService.getNumBooksByAuthorId(id)[0];
 
 			Map<String, String> map = new HashMap<>();
 			map.put("id", o[0].toString());
@@ -140,23 +141,23 @@ public class AuthorRestController {
 
 		return list;
 	}
-	
+	//TODO MAPPING
 	@GetMapping(value = "/favorite", produces = MediaType.APPLICATION_JSON_VALUE)
 	public FavoriteAuthor getFavoriteAuthor(@RequestParam int author, @RequestParam int user) {
-		FavoriteAuthor fb = favoriteAuthorRepository.getFavoriteAuthor(author, user);
+		FavoriteAuthor fb = favoriteAuthorService.getFavoriteAuthor(author, user);
 		return fb;
 	}
 
 	@PostMapping(value = "/favorite", produces = MediaType.APPLICATION_JSON_VALUE)
 	public void addFavoriteAuthors(@RequestParam int author, @RequestParam int user) {
 		FavoriteAuthor fb = new FavoriteAuthor(user, author);
-		favoriteAuthorRepository.save(fb);
+		favoriteAuthorService.save(fb);
 	}
 
 	@Transactional
 	@DeleteMapping(value = "/favorite", produces = MediaType.APPLICATION_JSON_VALUE)
 	public void deleteFavoriteAuthors(@RequestParam int author, @RequestParam int user) {
-		FavoriteAuthor fb = favoriteAuthorRepository.getFavoriteAuthor(author, user);
-		favoriteAuthorRepository.delete(fb);
+		FavoriteAuthor fb = favoriteAuthorService.getFavoriteAuthor(author, user);
+		favoriteAuthorService.delete(fb);
 	}
 }

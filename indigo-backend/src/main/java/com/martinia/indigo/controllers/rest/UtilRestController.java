@@ -1,4 +1,4 @@
-package com.martinia.indigo.rest;
+package com.martinia.indigo.controllers.rest;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,7 +10,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.Base64;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -21,20 +20,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.martinia.indigo.repository.indigo.ConfigurationRepository;
 import com.martinia.indigo.services.MailService;
+import com.martinia.indigo.services.indigo.ConfigurationService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/rest/util")
 public class UtilRestController {
-
-	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(UtilRestController.class);
 
 	@Autowired
 	MailService mailService;
 
 	@Autowired
-	private ConfigurationRepository configurationRepository;
+	private ConfigurationService configurationService;
 
 	@Value("${book.library.path}")
 	private String libraryPath;
@@ -49,7 +49,9 @@ public class UtilRestController {
 
 		String error = null;
 
-		String kindlegenPath = configurationRepository.findById("kindlegen.path").get().getValue();
+		String kindlegenPath = configurationService.findById("kindlegen.path")
+				.get()
+				.getValue();
 
 		if (!libraryPath.endsWith(File.separator))
 			libraryPath += File.separator;
@@ -62,25 +64,31 @@ public class UtilRestController {
 			File epub = null;
 			File mobi = null;
 			for (File f : files) {
-				if (f.getName().endsWith(".epub"))
+				if (f.getName()
+						.endsWith(".epub"))
 					epub = f;
-				else if (f.getName().endsWith(".mobi"))
+				else if (f.getName()
+						.endsWith(".mobi"))
 					mobi = f;
 			}
 
 			if (mobi == null) {
 				try {
 
-					String name = epub.getName().substring(0, epub.getName().indexOf("."));
-					String newName = Base64.getEncoder().encodeToString(name.getBytes()) + ".epub";
+					String name = epub.getName()
+							.substring(0, epub.getName()
+									.indexOf("."));
+					String newName = Base64.getEncoder()
+							.encodeToString(name.getBytes()) + ".epub";
 
 					File destination = new File(libraryPath + newName);
 
 					Files.copy(epub.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
 					String cmd = kindlegenPath + " " + destination.getPath();
-					LOG.info(cmd);
-					Process process = Runtime.getRuntime().exec(cmd);
+					log.info(cmd);
+					Process process = Runtime.getRuntime()
+							.exec(cmd);
 					InputStream is = null;
 					BufferedReader br = null;
 					InputStreamReader isr = null;
@@ -90,17 +98,18 @@ public class UtilRestController {
 					br = new BufferedReader(isr);
 					while ((textLine = br.readLine()) != null) {
 						if (0 != textLine.length()) {
-							LOG.info(textLine);
+							log.info(textLine);
 						}
 					}
 
-					mobi = new File(destination.getPath().replace(".epub", ".mobi"));
+					mobi = new File(destination.getPath()
+							.replace(".epub", ".mobi"));
 
 					destination.delete();
 
 				} catch (IOException e) {
 					error = e.getMessage();
-					LOG.error(error);
+					log.error(error);
 				}
 			}
 
@@ -109,7 +118,7 @@ public class UtilRestController {
 					mailService.sendEmail(mobi.getName(), mobi, user);
 				} catch (Exception e) {
 					error = e.getMessage();
-					LOG.error(error);
+					log.error(error);
 				}
 			}
 

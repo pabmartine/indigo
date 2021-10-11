@@ -13,7 +13,7 @@ import com.martinia.indigo.model.indigo.User;
 import com.martinia.indigo.repository.indigo.UserRepository;
 
 @Service
-public class UserService implements org.springframework.security.core.userdetails.UserDetailsService {
+public class LoginService implements org.springframework.security.core.userdetails.UserDetailsService {
 
 	@Autowired
 	private UserRepository userRepository;

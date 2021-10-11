@@ -21,10 +21,11 @@ public interface NotificationRepository extends CrudRepository<Notification, Int
 	
 	List<Notification> findByStatus(StatusEnum status);
 	
-	@Query("select n from Notification n where n.user = :user and n.readByUser = false")
-	List<Notification> findNotReadUser(@Param("user") int user);
+	List<Notification> findByUserAndReadByUserFalse(int user);
 	
-	@Query("select n from Notification n where n.readByAdmin = false")
-	List<Notification> findNotReadAdmin();
+	List<Notification> findByReadByAdminFalse();
+	
+	@Query("select distinct n.book from Notification n where n.user = :user")
+	List<Integer> getSentBooks(@Param("user") int user);
 
 }

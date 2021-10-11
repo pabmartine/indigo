@@ -1,54 +1,38 @@
 package com.martinia.indigo.model.calibre;
 
 import java.io.Serializable;
-import javax.persistence.*;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * The persistent class for the "series" database table.
  * 
  */
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
-@Table(name="\"series\"")
-@NamedQuery(name="Serie.findAll", query="SELECT s FROM Serie s")
+@Table(name = "\"series\"")
+@NamedQuery(name = "Serie.findAll", query = "SELECT s FROM Serie s")
 public class Serie implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@Column(name="\"id\"")
+	@Column(name = "\"id\"")
 	private int id;
 
-	@Column(name="\"name\"")
+	@Column(name = "\"name\"")
 	private String name;
 
-	@Column(name="\"sort\"")
+	@Column(name = "\"sort\"")
 	private String sort;
-
-	public Serie() {
-	}
-
-	public int getId() {
-		return this.id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return this.name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getSort() {
-		return this.sort;
-	}
-
-	public void setSort(String sort) {
-		this.sort = sort;
-	}
 
 }

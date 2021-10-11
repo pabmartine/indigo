@@ -1,4 +1,4 @@
-package com.martinia.indigo.rest;
+package com.martinia.indigo.controllers.rest;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,23 +10,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.martinia.indigo.repository.calibre.PageRepository;
+import com.martinia.indigo.services.calibre.PageService;
 
 @RestController
 @RequestMapping("/rest/page")
 public class PageRestController {
 
 	@Autowired
-	private PageRepository pageRepository;
+	private PageService pageService;
 
-	@GetMapping(value="/book", produces = MediaType.APPLICATION_JSON_VALUE)
+	@GetMapping(value = "/book", produces = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String, Integer> findPagesByBookId(@RequestParam int id) {
 
 		Map<String, Integer> map = new HashMap<String, Integer>();
-		map.put("pages", pageRepository.findPagesByBookId(id));
-				
+		map.put("pages", pageService.findPagesByBookId(id));
+
 		return map;
 	}
 
-	
 }

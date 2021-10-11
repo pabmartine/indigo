@@ -1,7 +1,6 @@
-package com.martinia.indigo.rest;
+package com.martinia.indigo.controllers.rest;
 
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,7 +15,6 @@ import javax.imageio.ImageIO;
 import javax.transaction.Transactional;
 
 import org.imgscalr.Scalr;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -34,27 +32,28 @@ import com.martinia.indigo.dto.Search;
 import com.martinia.indigo.model.calibre.Book;
 import com.martinia.indigo.model.indigo.FavoriteBook;
 import com.martinia.indigo.model.indigo.MyBook;
-import com.martinia.indigo.repository.calibre.BookRepository;
-import com.martinia.indigo.repository.indigo.ConfigurationRepository;
-import com.martinia.indigo.repository.indigo.FavoriteBookRepository;
-import com.martinia.indigo.repository.indigo.MyBookRepository;
 import com.martinia.indigo.services.GoodReadsService;
 import com.martinia.indigo.services.GoogleBooksService;
+import com.martinia.indigo.services.calibre.BookService;
+import com.martinia.indigo.services.indigo.ConfigurationService;
+import com.martinia.indigo.services.indigo.FavoriteBookService;
+import com.martinia.indigo.services.indigo.MyBookService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/rest/book")
 public class BookRestController {
 
-	private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(BookRestController.class);
+	@Autowired
+	private BookService bookService;
 
 	@Autowired
-	private BookRepository bookRepository;
+	private FavoriteBookService favoriteBookService;
 
 	@Autowired
-	private FavoriteBookRepository favoriteBookRepository;
-
-	@Autowired
-	private MyBookRepository myBookRepository;
+	private MyBookService myBookService;
 
 	@Autowired
 	private GoodReadsService goodReadsService;
@@ -63,22 +62,21 @@ public class BookRestController {
 	private GoogleBooksService googleBooksService;
 
 	@Autowired
-	private ConfigurationRepository configurationRepository;
+	private ConfigurationService configurationService;
 
 	@Value("${book.library.path}")
 	private String libraryPath;
 
 	@PostMapping(value = "/count/search/advance", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public long getTotalAdvSearch(@RequestBody(required = false) Search search) {
-		return bookRepository.count(search);
+		return bookService.count(search);
 	}
-
+	//TODO MAPPING
 	@PostMapping(value = "/all/advance", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<Book> getBooks(@RequestBody(required = false) Search search, @RequestParam int page,
 			@RequestParam int size, @RequestParam String sort, @RequestParam String order) {
-		return bookRepository.findAll(search, page, size, sort, order);
+		return bookService.findAll(search, page, size, sort, order);
 	}
-
 
 	@GetMapping(value = "/cover", produces = MediaType.APPLICATION_JSON_VALUE)
 	public Map<String, String> getCover(@RequestParam String path, boolean force) {
@@ -94,7 +92,7 @@ public class BookRestController {
 			File thumbFile = new File(thumbPath);
 
 			if (!thumbFile.exists() || force) {
-												
+
 				File coverFile = new File(coverPath);
 
 				BufferedImage i = ImageIO.read(coverFile);
@@ -103,28 +101,30 @@ public class BookRestController {
 				ImageIO.write(scaledImg, "JPG", thumbFile);
 			}
 
-			String image = Base64.getEncoder().encodeToString(Files.readAllBytes(thumbFile.toPath()));
+			String image = Base64.getEncoder()
+					.encodeToString(Files.readAllBytes(thumbFile.toPath()));
 
 			map = new HashMap<String, String>();
 			map.put("image", image);
 		} catch (IOException e) {
-			LOG.error("Path " + thumbPath + " not exist");
+			log.error("Path " + thumbPath + " not exist");
 
 		}
 
 		return map;
 	}
-
+	//TODO MAPPING
 	@GetMapping(value = "/info", produces = MediaType.APPLICATION_JSON_VALUE)
 	public MyBook getBookInfoBy(@RequestParam int id, @RequestParam boolean local) {
 
 		MyBook myBook = null;
 
-		Optional<MyBook> optional = myBookRepository.findById(id);
+		Optional<MyBook> optional = myBookService.findById(id);
 
 		if (!optional.isPresent()) {
 			if (!local) {
-				Book book = bookRepository.findById(id).get();
+				Book book = bookService.findById(id)
+						.get();
 
 				myBook = goodReadsService.findBook(book.getTitle(), book.getAuthorSort());
 
@@ -134,7 +134,7 @@ public class BookRestController {
 
 				if (myBook != null) {
 					myBook.setId(book.getId());
-					myBookRepository.save(myBook);
+					myBookService.save(myBook);
 				}
 
 			}
@@ -144,12 +144,13 @@ public class BookRestController {
 
 		return myBook;
 	}
-
+	//TODO MAPPING
 	@GetMapping(value = "/title", produces = MediaType.APPLICATION_JSON_VALUE)
 	public Book getBookTitle(@RequestParam int id) {
-		return bookRepository.findById(id).get();
+		return bookService.findById(id)
+				.get();
 	}
-
+	//TODO MAPPING
 	@PostMapping(value = "/similar", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<Book> getSimilar(@RequestBody String similar) {
 		List<Book> list = new ArrayList<Book>();
@@ -157,56 +158,61 @@ public class BookRestController {
 		String[] data = similar.split(";");
 		for (String id : data) {
 			int bookId = Integer.parseInt(id);
-			Book book = bookRepository.findById(bookId).get();
+			Book book = bookService.findById(bookId)
+					.get();
 			list.add(book);
 		}
 		return list;
 	}
-
+	//TODO MAPPING
 	@GetMapping(value = "/recommendations", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<Book> getBookRecommendations(@RequestParam int id) {
-		int max = Integer.parseInt(configurationRepository.findById("books.recommendations").get().getValue());
-		return bookRepository.getBookRecommendations(id, PageRequest.of(0, max, Sort.by("id")));
+		int max = Integer.parseInt(configurationService.findById("books.recommendations")
+				.get()
+				.getValue());
+		return bookService.getBookRecommendations(id, PageRequest.of(0, max, Sort.by("id")));
 	}
 
 	@GetMapping(value = "/favorites", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<Book> getFavoriteBooks(@RequestParam int user) {
 		List<Book> list = new ArrayList<Book>();
 
-		List<Integer> data = myBookRepository.getFavoriteBooks(user);
+		List<Integer> data = myBookService.getFavoriteBooks(user);
 		for (Integer id : data) {
-			list.add(bookRepository.findById(id).get());
+			list.add(bookService.findById(id)
+					.get());
 		}
 
 		return list;
 	}
-
+	//TODO MAPPING
 	@GetMapping(value = "/favorite", produces = MediaType.APPLICATION_JSON_VALUE)
 	public FavoriteBook getFavoriteBook(@RequestParam int book, @RequestParam int user) {
-		FavoriteBook fb = favoriteBookRepository.getFavoriteBook(book, user);
+		FavoriteBook fb = favoriteBookService.getFavoriteBook(book, user);
 		return fb;
 	}
 
 	@PostMapping(value = "/favorite", produces = MediaType.APPLICATION_JSON_VALUE)
 	public void addFavoriteBooks(@RequestParam int book, @RequestParam int user) {
 		FavoriteBook fb = new FavoriteBook(user, book);
-		favoriteBookRepository.save(fb);
+		favoriteBookService.save(fb);
 	}
 
 	@Transactional
 	@DeleteMapping(value = "/favorite", produces = MediaType.APPLICATION_JSON_VALUE)
 	public void deleteFavoriteBooks(@RequestParam int book, @RequestParam int user) {
-		FavoriteBook fb = favoriteBookRepository.getFavoriteBook(book, user);
-		favoriteBookRepository.delete(fb);
+		FavoriteBook fb = favoriteBookService.getFavoriteBook(book, user);
+		favoriteBookService.delete(fb);
 	}
-
+	//TODO MAPPING
 	@GetMapping(value = "/sent", produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<Book> getSentBooks(@RequestParam int user) {
 		List<Book> list = new ArrayList<Book>();
 
-		List<Integer> data = myBookRepository.getSentBooks(user);
+		List<Integer> data = myBookService.getSentBooks(user);
 		for (Integer id : data) {
-			list.add(bookRepository.findById(id).get());
+			list.add(bookService.findById(id)
+					.get());
 		}
 
 		return list;

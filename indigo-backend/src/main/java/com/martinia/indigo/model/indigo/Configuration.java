@@ -5,6 +5,15 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "\"configurations\"")
 public class Configuration {
@@ -15,30 +24,5 @@ public class Configuration {
 
 	@Column(name = "\"value\"")
 	private String value;
-
-	public Configuration() {
-		super();
-	}
-
-	public Configuration(String key, String value) {
-		this.key = key;
-		this.value = value;
-	}
-
-	public String getKey() {
-		return key;
-	}
-
-	public void setKey(String key) {
-		this.key = key;
-	}
-
-	public String getValue() {
-		return value;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
-	}
 
 }
