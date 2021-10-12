@@ -1,5 +1,6 @@
 package com.martinia.indigo.services.indigo.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,8 +44,17 @@ public class MyBookServiceImpl implements MyBookService {
 	}
 
 	@Override
-	public List<Integer> getFavoriteBooks(int user) {
-		return favoriteBookRepository.findBooksByUser(user);
+	public List<Book> getFavoriteBooks(int user) {
+
+		List<Book> books = new ArrayList<Book>();
+
+		List<Integer> data = favoriteBookRepository.findBooksByUser(user);
+		for (Integer id : data) {
+			books.add(bookService.findById(id)
+					.get());
+		}
+
+		return books;
 	}
 
 	@Override

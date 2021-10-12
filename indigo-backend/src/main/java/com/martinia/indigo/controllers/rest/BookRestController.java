@@ -128,18 +128,10 @@ public class BookRestController {
 		return new ResponseEntity<>(bookService.getBookRecommendations(id), HttpStatus.OK);
 	}
 
-	// TODO Bajar a servicio?
+	// TODO MAPPING
 	@GetMapping(value = "/favorites", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Book>> getFavoriteBooks(@RequestParam int user) {
-		List<Book> books = new ArrayList<Book>();
-
-		List<Integer> data = myBookService.getFavoriteBooks(user);
-		for (Integer id : data) {
-			books.add(bookService.findById(id)
-					.get());
-		}
-
-		return new ResponseEntity<>(books, HttpStatus.OK);
+		return new ResponseEntity<>(myBookService.getFavoriteBooks(user), HttpStatus.OK);
 
 	}
 
