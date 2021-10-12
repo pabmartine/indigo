@@ -6,15 +6,28 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.martinia.indigo.model.calibre.Author;
 import com.martinia.indigo.model.indigo.MyAuthor;
 import com.martinia.indigo.repository.indigo.MyAuthorRepository;
+import com.martinia.indigo.services.calibre.AuthorService;
 import com.martinia.indigo.services.indigo.MyAuthorService;
+import com.martinia.indigo.utils.GoodReadsComponent;
+import com.martinia.indigo.utils.WikipediaComponent;
 
 @Service
 public class MyAuthorServiceImpl implements MyAuthorService {
 
 	@Autowired
 	MyAuthorRepository myAuthorRepository;
+
+	@Autowired
+	AuthorService authorService;
+
+	@Autowired
+	WikipediaComponent wikipediaService;
+
+	@Autowired
+	GoodReadsComponent goodReadsService;
 
 	@Override
 	public List<Integer> getFavoriteAuthors(int user) {
@@ -27,13 +40,28 @@ public class MyAuthorServiceImpl implements MyAuthorService {
 	}
 
 	@Override
-	public void save(MyAuthor myAuthor) {
-		myAuthorRepository.save(myAuthor);
-	}
+	public MyAuthor getAuthorInfoByName(String author, String lang) {
+		MyAuthor myAuthor = myAuthorRepository.findBySort(author);
+		if (myAuthor == null) {
 
-	@Override
-	public MyAuthor findBySort(String author) {
-		return myAuthorRepository.findBySort(author);
+			myAuthor = wikipediaService.findAuthor(author, lang);
+
+			if (myAuthor == null) {
+				myAuthor = wikipediaService.findAuthor(author, "en");
+			}
+
+			if (myAuthor == null) {
+				myAuthor = goodReadsService.findAuthor(author);
+			}
+
+			if (myAuthor != null) {
+				myAuthor.setSort(author);
+				Author auth = authorService.findBySort(author);
+				myAuthor.setId(auth.getId());
+				myAuthorRepository.save(myAuthor);
+			}
+		}
+		return myAuthor;
 	}
 
 }

@@ -13,10 +13,6 @@ public class FavoriteAuthorServiceImpl implements FavoriteAuthorService {
 	@Autowired
 	FavoriteAuthorRepository favoriteAuthorRepository;
 
-	@Override
-	public void delete(FavoriteAuthor fb) {
-		favoriteAuthorRepository.delete(fb);
-	}
 
 	@Override
 	public FavoriteAuthor getFavoriteAuthor(int author, int user) {
@@ -26,6 +22,12 @@ public class FavoriteAuthorServiceImpl implements FavoriteAuthorService {
 	@Override
 	public void save(FavoriteAuthor fb) {
 		favoriteAuthorRepository.save(fb);
+	}
+
+	@Override
+	public void deleteFavoriteAuthors(int author, int user) {
+		FavoriteAuthor fb = this.getFavoriteAuthor(author, user);
+		favoriteAuthorRepository.delete(fb);
 	}
 
 }

@@ -1,4 +1,4 @@
-package com.martinia.indigo.services;
+package com.martinia.indigo.utils;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -7,22 +7,22 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.martinia.indigo.model.indigo.MyBook;
-import com.martinia.indigo.utils.DataUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Service
-public class GoogleBooksService {
+@Component
+public class GoogleBooksComponent {
 
 	private String endpoint = "https://www.googleapis.com/books/v1/volumes?q=";
 	private String PROVIDER = "Google Books";
 
 	public static void main(String[] args) {
-		GoogleBooksService g = new GoogleBooksService();
+		GoogleBooksComponent g = new GoogleBooksComponent();
 		g.findBook("Sidi", "Perez Reverte");
 	}
 

@@ -1,4 +1,4 @@
-package com.martinia.indigo.services;
+package com.martinia.indigo.utils;
 
 import java.util.List;
 
@@ -7,20 +7,19 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.martinia.indigo.model.calibre.Book;
 import com.martinia.indigo.model.indigo.MyAuthor;
 import com.martinia.indigo.model.indigo.MyBook;
 import com.martinia.indigo.repository.calibre.BookRepository;
 import com.martinia.indigo.repository.indigo.ConfigurationRepository;
-import com.martinia.indigo.utils.DataUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Service
-public class GoodReadsService {
+@Component
+public class GoodReadsComponent {
 
 	@Autowired
 	ConfigurationRepository configurationRepository;
@@ -32,7 +31,7 @@ public class GoodReadsService {
 	private String PROVIDER = "Goodreads";
 
 	public static void main(String[] args) {
-		GoodReadsService g = new GoodReadsService();
+		GoodReadsComponent g = new GoodReadsComponent();
 //		g.findSimilarBooks("Sereno en el peligro", "Lorenzo Silva");
 	}
 

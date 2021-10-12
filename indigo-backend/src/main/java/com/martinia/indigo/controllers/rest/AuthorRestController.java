@@ -23,11 +23,11 @@ import com.martinia.indigo.model.calibre.Author;
 import com.martinia.indigo.model.indigo.FavoriteAuthor;
 import com.martinia.indigo.model.indigo.MyAuthor;
 import com.martinia.indigo.services.AsyncService;
-import com.martinia.indigo.services.GoodReadsService;
-import com.martinia.indigo.services.WikipediaService;
 import com.martinia.indigo.services.calibre.AuthorService;
 import com.martinia.indigo.services.indigo.FavoriteAuthorService;
 import com.martinia.indigo.services.indigo.MyAuthorService;
+import com.martinia.indigo.utils.GoodReadsComponent;
+import com.martinia.indigo.utils.WikipediaComponent;
 
 @RestController
 @RequestMapping("/rest/author")
@@ -42,11 +42,7 @@ public class AuthorRestController {
 	@Autowired
 	private MyAuthorService myAuthorService;
 
-	@Autowired
-	private WikipediaService wikipediaService;
 
-	@Autowired
-	private GoodReadsService goodReadsService;
 
 	@Autowired
 	private AsyncService asyncService;
@@ -74,30 +70,9 @@ public class AuthorRestController {
 	}
 
 	// TODO MAPPING
-	// TODO Bajar a servicio
 	@GetMapping(value = "/info/name", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<MyAuthor> getAuthorInfoByName(@RequestParam String author, @RequestParam String lang) {
-		MyAuthor myAuthor = myAuthorService.findBySort(author);
-		if (myAuthor == null) {
-
-			myAuthor = wikipediaService.findAuthor(author, lang);
-
-			if (myAuthor == null) {
-				myAuthor = wikipediaService.findAuthor(author, "en");
-			}
-
-			if (myAuthor == null) {
-				myAuthor = goodReadsService.findAuthor(author);
-			}
-
-			if (myAuthor != null) {
-				myAuthor.setSort(author);
-				Author auth = authorService.findBySort(author);
-				myAuthor.setId(auth.getId());
-				myAuthorService.save(myAuthor);
-			}
-		}
-		return new ResponseEntity<>(myAuthor, HttpStatus.OK);
+		return new ResponseEntity<>(myAuthorService.getAuthorInfoByName(author, lang), HttpStatus.OK);
 	}
 
 	// TODO MAPPING
@@ -132,6 +107,7 @@ public class AuthorRestController {
 	// TODO Bajar a servicio?
 	@GetMapping(value = "/favorites", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Map<String, String>>> getFavoriteBooks(@RequestParam int user) {
+		
 		List<Map<String, String>> list = new ArrayList<>();
 
 		List<Integer> dat = myAuthorService.getFavoriteAuthors(user);
@@ -164,12 +140,10 @@ public class AuthorRestController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	// TODO Bajar a servicio?
 	@Transactional
 	@DeleteMapping(value = "/favorite", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Void> deleteFavoriteAuthors(@RequestParam int author, @RequestParam int user) {
-		FavoriteAuthor fb = favoriteAuthorService.getFavoriteAuthor(author, user);
-		favoriteAuthorService.delete(fb);
+		favoriteAuthorService.deleteFavoriteAuthors(author, user);
 		return new ResponseEntity<>(HttpStatus.OK);
 
 	}

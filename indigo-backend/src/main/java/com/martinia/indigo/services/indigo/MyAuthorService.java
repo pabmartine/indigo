@@ -11,8 +11,7 @@ public interface MyAuthorService {
 
 	Optional<MyAuthor> findById(int id);
 
-	void save(MyAuthor myAuthor);
-
-	MyAuthor findBySort(String author);
+	MyAuthor getAuthorInfoByName(String author, String lang);
+	
 
 }

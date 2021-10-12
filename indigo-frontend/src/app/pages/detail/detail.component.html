@@ -90,7 +90,7 @@
     </div>
     <div class="content-body p-grid">
       <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of similar">
-        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)"
+        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book.id)"
           style="cursor: pointer;" />
         <div>
           <span class="title">{{book.title}}</span>
@@ -119,7 +119,7 @@
     </div>
     <div class="content-body p-grid">
       <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of recommendations">
-        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)"
+        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book.id)"
           style="cursor: pointer;" />
         <div>
           <span class="title">{{book.title}}</span>

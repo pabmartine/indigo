@@ -9,7 +9,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.imageio.ImageIO;
 import javax.transaction.Transactional;
@@ -17,8 +16,6 @@ import javax.transaction.Transactional;
 import org.imgscalr.Scalr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,10 +31,7 @@ import com.martinia.indigo.dto.Search;
 import com.martinia.indigo.model.calibre.Book;
 import com.martinia.indigo.model.indigo.FavoriteBook;
 import com.martinia.indigo.model.indigo.MyBook;
-import com.martinia.indigo.services.GoodReadsService;
-import com.martinia.indigo.services.GoogleBooksService;
 import com.martinia.indigo.services.calibre.BookService;
-import com.martinia.indigo.services.indigo.ConfigurationService;
 import com.martinia.indigo.services.indigo.FavoriteBookService;
 import com.martinia.indigo.services.indigo.MyBookService;
 
@@ -56,15 +50,6 @@ public class BookRestController {
 
 	@Autowired
 	private MyBookService myBookService;
-
-	@Autowired
-	private GoodReadsService goodReadsService;
-
-	@Autowired
-	private GoogleBooksService googleBooksService;
-
-	@Autowired
-	private ConfigurationService configurationService;
 
 	@Value("${book.library.path}")
 	private String libraryPath;
@@ -118,37 +103,10 @@ public class BookRestController {
 
 	}
 
-	// TODO Bajar a servicio?
 	// TODO MAPPING
 	@GetMapping(value = "/info", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<MyBook> getBookInfoBy(@RequestParam int id, @RequestParam boolean local) {
-
-		MyBook myBook = null;
-
-		Optional<MyBook> optional = myBookService.findById(id);
-
-		if (!optional.isPresent()) {
-			if (!local) {
-				Book book = bookService.findById(id)
-						.get();
-
-				myBook = goodReadsService.findBook(book.getTitle(), book.getAuthorSort());
-
-				if (myBook == null) {
-					myBook = googleBooksService.findBook(book.getTitle(), book.getAuthorSort());
-				}
-
-				if (myBook != null) {
-					myBook.setId(book.getId());
-					myBookService.save(myBook);
-				}
-
-			}
-		} else {
-			myBook = optional.get();
-		}
-
-		return new ResponseEntity<>(myBook, HttpStatus.OK);
+		return new ResponseEntity<>(myBookService.getBookInfoBy(id, local), HttpStatus.OK);
 	}
 
 	// TODO MAPPING
@@ -158,31 +116,16 @@ public class BookRestController {
 				.get(), HttpStatus.OK);
 	}
 
-	// TODO Bajar a servicio?
 	// TODO MAPPING
 	@PostMapping(value = "/similar", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Book>> getSimilar(@RequestBody String similar) {
-		List<Book> list = new ArrayList<Book>();
-
-		String[] data = similar.split(";");
-		for (String id : data) {
-			int bookId = Integer.parseInt(id);
-			Book book = bookService.findById(bookId)
-					.get();
-			list.add(book);
-		}
-		return new ResponseEntity<>(list, HttpStatus.OK);
+		return new ResponseEntity<>(bookService.getSimilar(similar), HttpStatus.OK);
 	}
 
-	// TODO Bajar a servicio?
 	// TODO MAPPING
 	@GetMapping(value = "/recommendations", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Book>> getBookRecommendations(@RequestParam int id) {
-		int max = Integer.parseInt(configurationService.findById("books.recommendations")
-				.get()
-				.getValue());
-		return new ResponseEntity<>(bookService.getBookRecommendations(id, PageRequest.of(0, max, Sort.by("id"))),
-				HttpStatus.OK);
+		return new ResponseEntity<>(bookService.getBookRecommendations(id), HttpStatus.OK);
 	}
 
 	// TODO Bajar a servicio?

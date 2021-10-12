@@ -4,10 +4,10 @@ import com.martinia.indigo.model.indigo.FavoriteAuthor;
 
 public interface FavoriteAuthorService {
 
-	void delete(FavoriteAuthor fb);
-
 	FavoriteAuthor getFavoriteAuthor(int author, int user);
 
 	void save(FavoriteAuthor fb);
+
+	void deleteFavoriteAuthors(int author, int user);
 
 }

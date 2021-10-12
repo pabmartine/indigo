@@ -20,6 +20,9 @@ import com.martinia.indigo.repository.indigo.ConfigurationRepository;
 import com.martinia.indigo.repository.indigo.MyAuthorRepository;
 import com.martinia.indigo.repository.indigo.MyBookRepository;
 import com.martinia.indigo.singletons.MetadataSingleton;
+import com.martinia.indigo.utils.GoodReadsComponent;
+import com.martinia.indigo.utils.GoogleBooksComponent;
+import com.martinia.indigo.utils.WikipediaComponent;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,13 +31,13 @@ import lombok.extern.slf4j.Slf4j;
 public class AsyncService {
 
 	@Autowired
-	WikipediaService wikipediaService;
+	WikipediaComponent wikipediaService;
 
 	@Autowired
-	GoodReadsService goodReadsService;
+	GoodReadsComponent goodReadsService;
 
 	@Autowired
-	GoogleBooksService googleBooksService;
+	GoogleBooksComponent googleBooksService;
 
 	@Autowired
 	BookRepository bookRepository;

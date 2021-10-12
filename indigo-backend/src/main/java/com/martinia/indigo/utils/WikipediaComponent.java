@@ -1,19 +1,18 @@
-package com.martinia.indigo.services;
+package com.martinia.indigo.utils;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.martinia.indigo.model.indigo.MyAuthor;
-import com.martinia.indigo.utils.DataUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Service
-public class WikipediaService {
+@Component
+public class WikipediaComponent {
 
 	private String PROVIDER = "Wikipedia";
 
