@@ -40,12 +40,14 @@ public class UtilRestController {
 	private String libraryPath;
 
 	@GetMapping(value = "/testmail", produces = MediaType.APPLICATION_JSON_VALUE)
-	public void testmail(@RequestParam int user) {
+	public ResponseEntity<Void> testmail(@RequestParam int user) {
 		mailService.testEmail(user);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
+	// TODO Bajar a servicio?
 	@GetMapping(value = "/mail", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Object> mail(@RequestParam String path, @RequestParam int user) {
+	public ResponseEntity<Void> mail(@RequestParam String path, @RequestParam int user) throws Exception {
 
 		String error = null;
 
@@ -125,9 +127,9 @@ public class UtilRestController {
 		}
 
 		if (StringUtils.isEmpty(error)) {
-			return new ResponseEntity<Object>(HttpStatus.OK);
+			return new ResponseEntity<>(HttpStatus.OK);
 		} else {
-			return new ResponseEntity<Object>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+			throw new Exception(error);
 		}
 	}
 

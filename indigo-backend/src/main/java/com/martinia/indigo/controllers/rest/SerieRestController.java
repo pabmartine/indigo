@@ -13,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -32,12 +34,14 @@ public class SerieRestController {
 	private String libraryPath;
 
 	@GetMapping("/count")
-	public long getTotal() {
-		return serieService.count();
+	public ResponseEntity<Long> getTotal() {
+		return new ResponseEntity<>(serieService.count(), HttpStatus.OK);
+
 	}
 
+	// TODO Bajar a servicio?
 	@GetMapping(value = "/numbooks", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<Map<String, String>> getNumBooksBySerie(@RequestParam int page, @RequestParam int size,
+	public ResponseEntity<List<Map<String, String>>> getNumBooksBySerie(@RequestParam int page, @RequestParam int size,
 			@RequestParam String sort, @RequestParam String order) {
 		List<Object[]> data = serieService.getNumBooksBySerie(page, size, sort, order);
 
@@ -50,20 +54,23 @@ public class SerieRestController {
 			map.put("total", o[3].toString());
 			ret.add(map);
 		}
-		return ret;
+
+		return new ResponseEntity<>(ret, HttpStatus.OK);
 	}
 
+	// TODO Bajar a servicio?
 	@GetMapping(value = "/book", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String, String> findPagesByBookId(@RequestParam int id) {
+	public ResponseEntity<Map<String, String>> findPagesByBookId(@RequestParam int id) {
 
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("serie", serieService.getSerieByBook(id));
 
-		return map;
+		return new ResponseEntity<>(map, HttpStatus.OK);
 	}
 
+	// TODO Bajar a servicio?
 	@GetMapping(value = "/cover", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String, String> getCover(@RequestParam int id) throws IOException {
+	public ResponseEntity<Map<String, String>> getCover(@RequestParam int id) throws IOException {
 		Map<String, String> map = null;
 
 		if (!libraryPath.endsWith(File.separator))
@@ -82,7 +89,7 @@ public class SerieRestController {
 		map = new HashMap<String, String>();
 		map.put("image", image);
 
-		return map;
+		return new ResponseEntity<>(map, HttpStatus.OK);
 	}
 
 }

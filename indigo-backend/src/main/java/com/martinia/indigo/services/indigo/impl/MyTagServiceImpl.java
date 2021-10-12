@@ -16,7 +16,7 @@ public class MyTagServiceImpl implements MyTagService {
 	MyTagRepository myTagRepository;
 
 	public Optional<MyTag> findById(int source) {
-		return myTagRepository.findById(null);
+		return myTagRepository.findById(source);
 	}
 
 	public void save(MyTag tag) {

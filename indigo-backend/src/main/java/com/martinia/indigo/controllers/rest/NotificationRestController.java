@@ -1,7 +1,9 @@
 package com.martinia.indigo.controllers.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -24,34 +26,37 @@ public class NotificationRestController {
 
 	@Autowired
 	private UserService userService;
+	
 	//TODO MAPPING
 	@GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Iterable<Notification> findAll() {
-		return notificationService.findAllByOrderByIdDesc();
+	public ResponseEntity<Iterable<Notification>> findAll() {
+		return new ResponseEntity<>(notificationService.findAllByOrderByIdDesc(), HttpStatus.OK);
 	}
 	//TODO MAPPING
 	@GetMapping(value = "/not_read", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Iterable<Notification> findAllNotRead() {
-		return notificationService.findNotReadAdmin();
+	public ResponseEntity<Iterable<Notification>> findAllNotRead() {
+		return new ResponseEntity<>(notificationService.findNotReadAdmin(), HttpStatus.OK);
 	}
 	//TODO MAPPING
 	@GetMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Iterable<Notification> findAllByUser(@RequestParam int user) {
-		return notificationService.findByUser(user);
+	public ResponseEntity<Iterable<Notification>> findAllByUser(@RequestParam int user) {
+		return new ResponseEntity<>(notificationService.findByUser(user), HttpStatus.OK);
 	}
 	//TODO MAPPING
 	@GetMapping(value = "/not_read_user", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Iterable<Notification> findAllNotReadByUser(@RequestParam int user) {
-		return notificationService.findNotReadUser(user);
+	public ResponseEntity<Iterable<Notification>> findAllNotReadByUser(@RequestParam int user) {
+		return new ResponseEntity<>(notificationService.findNotReadUser(user), HttpStatus.OK);
 	}
 
 	@PutMapping(value = "/save", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public void save(@RequestBody Notification notification) {
+	public ResponseEntity<Void> save(@RequestBody Notification notification) {
 		notificationService.save(notification);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
+	// TODO Bajar a servicio?
 	@GetMapping(value = "/read", produces = MediaType.APPLICATION_JSON_VALUE)
-	public void markAsRead(@RequestParam int id, @RequestParam int user) {
+	public ResponseEntity<Void> markAsRead(@RequestParam int id, @RequestParam int user) {
 		User usr = userService.findById(user)
 				.get();
 		Notification notification = notificationService.findById(id)
@@ -62,13 +67,17 @@ public class NotificationRestController {
 		else
 			notification.setReadByUser(true);
 		notificationService.save(notification);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
+	// TODO Bajar a servicio?
 	@DeleteMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)
-	public void delete(@RequestParam int id) {
+	public ResponseEntity<Void> delete(@RequestParam int id) {
 		Notification notification = notificationService.findById(id)
 				.get();
 		notificationService.delete(notification);
+		return new ResponseEntity<>(HttpStatus.OK);
+
 	}
 
 }

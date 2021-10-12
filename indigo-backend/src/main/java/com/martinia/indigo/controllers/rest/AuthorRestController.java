@@ -9,7 +9,9 @@ import java.util.Optional;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,7 +57,7 @@ public class AuthorRestController {
 	}
 
 	@GetMapping(value = "/numbooks", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<Map<String, String>> getNumBooksByAuthor(@RequestParam int page, @RequestParam int size,
+	public ResponseEntity<List<Map<String, String>>> getNumBooksByAuthor(@RequestParam int page, @RequestParam int size,
 			@RequestParam String sort, @RequestParam String order) {
 		List<Object[]> data = authorService.getNumBooksByAuthor(page, size, sort, order);
 
@@ -67,12 +69,14 @@ public class AuthorRestController {
 			map.put("total", o[2].toString());
 			ret.add(map);
 		}
-		return ret;
+
+		return new ResponseEntity<>(ret, HttpStatus.OK);
 	}
 
-	//TODO MAPPING
+	// TODO MAPPING
+	// TODO Bajar a servicio
 	@GetMapping(value = "/info/name", produces = MediaType.APPLICATION_JSON_VALUE)
-	public MyAuthor getAuthorInfoByName(@RequestParam String author, @RequestParam String lang) {
+	public ResponseEntity<MyAuthor> getAuthorInfoByName(@RequestParam String author, @RequestParam String lang) {
 		MyAuthor myAuthor = myAuthorService.findBySort(author);
 		if (myAuthor == null) {
 
@@ -93,37 +97,41 @@ public class AuthorRestController {
 				myAuthorService.save(myAuthor);
 			}
 		}
-		return myAuthor;
+		return new ResponseEntity<>(myAuthor, HttpStatus.OK);
 	}
 
-	//TODO MAPPING
+	// TODO MAPPING
 	@GetMapping(value = "/info/id", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Optional<MyAuthor> getAuthorInfoById(@RequestParam int id) {
-		return myAuthorService.findById(id);
+	public ResponseEntity<Optional<MyAuthor>> getAuthorInfoById(@RequestParam int id) {
+		return new ResponseEntity<>(myAuthorService.findById(id), HttpStatus.OK);
 	}
 
 	@GetMapping(value = "/nodata")
-	public void getAllAuthorsNoData(@RequestParam String lang) {
+	public ResponseEntity<Void> getAllAuthorsNoData(@RequestParam String lang) {
 		asyncService.getAllNoData(lang);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@GetMapping(value = "/data")
-	public void getAllAuthorsData(@RequestParam String lang) {
+	public ResponseEntity<Void> getAllAuthorsData(@RequestParam String lang) {
 		asyncService.getAllData(lang);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@GetMapping(value = "/stop")
-	public void stop() {
+	public ResponseEntity<Void> stop() {
 		asyncService.stop();
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@GetMapping(value = "/status", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Map<String, Object> getAllAuthorsState() {
-		return asyncService.getAllAuthorsState();
+	public ResponseEntity<Map<String, Object>> getAllAuthorsState() {
+		return new ResponseEntity<>(asyncService.getAllAuthorsState(), HttpStatus.OK);
 	}
 
+	// TODO Bajar a servicio?
 	@GetMapping(value = "/favorites", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<Map<String, String>> getFavoriteBooks(@RequestParam int user) {
+	public ResponseEntity<List<Map<String, String>>> getFavoriteBooks(@RequestParam int user) {
 		List<Map<String, String>> list = new ArrayList<>();
 
 		List<Integer> dat = myAuthorService.getFavoriteAuthors(user);
@@ -139,25 +147,30 @@ public class AuthorRestController {
 
 		}
 
-		return list;
+		return new ResponseEntity<>(list, HttpStatus.OK);
 	}
-	//TODO MAPPING
+
+	// TODO MAPPING
 	@GetMapping(value = "/favorite", produces = MediaType.APPLICATION_JSON_VALUE)
-	public FavoriteAuthor getFavoriteAuthor(@RequestParam int author, @RequestParam int user) {
+	public ResponseEntity<FavoriteAuthor> getFavoriteAuthor(@RequestParam int author, @RequestParam int user) {
 		FavoriteAuthor fb = favoriteAuthorService.getFavoriteAuthor(author, user);
-		return fb;
+		return new ResponseEntity<>(fb, HttpStatus.OK);
 	}
 
+	
 	@PostMapping(value = "/favorite", produces = MediaType.APPLICATION_JSON_VALUE)
-	public void addFavoriteAuthors(@RequestParam int author, @RequestParam int user) {
-		FavoriteAuthor fb = new FavoriteAuthor(user, author);
-		favoriteAuthorService.save(fb);
+	public ResponseEntity<Void> addFavoriteAuthors(@RequestParam int author, @RequestParam int user) {
+		favoriteAuthorService.save(new FavoriteAuthor(user, author));
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
+	// TODO Bajar a servicio?
 	@Transactional
 	@DeleteMapping(value = "/favorite", produces = MediaType.APPLICATION_JSON_VALUE)
-	public void deleteFavoriteAuthors(@RequestParam int author, @RequestParam int user) {
+	public ResponseEntity<Void> deleteFavoriteAuthors(@RequestParam int author, @RequestParam int user) {
 		FavoriteAuthor fb = favoriteAuthorService.getFavoriteAuthor(author, user);
 		favoriteAuthorService.delete(fb);
+		return new ResponseEntity<>(HttpStatus.OK);
+
 	}
 }

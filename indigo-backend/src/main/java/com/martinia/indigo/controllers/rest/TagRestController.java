@@ -9,7 +9,9 @@ import java.util.Optional;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,12 +33,14 @@ public class TagRestController {
 	private MyTagService myTagService;
 
 	@GetMapping("/count")
-	public long getTotal() {
-		return tagService.count();
+	public ResponseEntity<Long> getTotal() {
+		return new ResponseEntity<>(tagService.count(), HttpStatus.OK);
 	}
 
+	// TODO Bajar a servicio?
 	@GetMapping(value = "/numbooks", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<Map<String, String>> getNumBooksByTag(@RequestParam String sort, @RequestParam String order) {
+	public ResponseEntity<List<Map<String, String>>> getNumBooksByTag(@RequestParam String sort,
+			@RequestParam String order) {
 		List<Object[]> data = tagService.getNumBooksByTag(sort, order);
 
 		List<Map<String, String>> ret = new ArrayList<>(data.size());
@@ -47,32 +51,37 @@ public class TagRestController {
 			map.put("total", o[2].toString());
 			ret.add(map);
 		}
-		return ret;
+
+		return new ResponseEntity<>(ret, HttpStatus.OK);
 	}
-	//TODO MAPPING
+
+	// TODO MAPPING
 	@GetMapping(value = "/tag", produces = MediaType.APPLICATION_JSON_VALUE)
-	public Tag getTagByName(@RequestParam String name) {
-		return tagService.getTagByName(name);
+	public ResponseEntity<Tag> getTagByName(@RequestParam String name) {
+		return new ResponseEntity<>(tagService.getTagByName(name), HttpStatus.OK);
 	}
 
 	@GetMapping(value = "/book", produces = MediaType.APPLICATION_JSON_VALUE)
-	public List<String> getTagsByBookId(@RequestParam int id) {
-		return tagService.getTagsByBookId(id);
+	public ResponseEntity<List<String>> getTagsByBookId(@RequestParam int id) {
+		return new ResponseEntity<>(tagService.getTagsByBookId(id), HttpStatus.OK);
 	}
 
+	// TODO Bajar a servicio?
 	@GetMapping("/rename")
-	public void rename(@RequestParam int source, @RequestParam String target) {
+	public ResponseEntity<Void> rename(@RequestParam int source, @RequestParam String target) {
 		Optional<Tag> optional = tagService.findById(source);
 		if (optional.isPresent()) {
 			Tag tag = optional.get();
 			tag.setName(target);
 			tagService.save(tag);
 		}
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
+	// TODO Bajar a servicio?
 	@Transactional
 	@GetMapping("/merge")
-	public void merge(@RequestParam int source, @RequestParam int target) {
+	public ResponseEntity<Void> merge(@RequestParam int source, @RequestParam int target) {
 		Optional<Tag> tagSource = tagService.findById(source);
 		Optional<Tag> tagTarget = tagService.findById(target);
 		tagService.updateAllBookReferences(tagSource.get()
@@ -80,10 +89,12 @@ public class TagRestController {
 				tagTarget.get()
 						.getId());
 		tagService.delete(tagSource.get());
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
+	// TODO Bajar a servicio?
 	@GetMapping("/image")
-	public void image(@RequestParam int source, @RequestParam String image) {
+	public ResponseEntity<Void> image(@RequestParam int source, @RequestParam String image) {
 		Optional<MyTag> optional = myTagService.findById(source);
 		MyTag tag = null;
 		if (optional.isPresent()) {
@@ -93,10 +104,12 @@ public class TagRestController {
 			tag = new MyTag(source, image);
 		}
 		myTagService.save(tag);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
-	//TODO MAPPING
+
+	// TODO MAPPING
 	@GetMapping("/image/id")
-	public Optional<MyTag> getImage(@RequestParam int source) {
-		return myTagService.findById(source);
+	public ResponseEntity<Optional<MyTag>> getImage(@RequestParam int source) {
+		return new ResponseEntity<>(myTagService.findById(source), HttpStatus.OK);
 	}
 }
