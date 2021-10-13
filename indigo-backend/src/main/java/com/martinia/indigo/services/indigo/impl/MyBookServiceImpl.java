@@ -21,22 +21,22 @@ import com.martinia.indigo.utils.GoogleBooksComponent;
 public class MyBookServiceImpl implements MyBookService {
 
 	@Autowired
-	MyBookRepository myBookRepository;
+	private MyBookRepository myBookRepository;
 
 	@Autowired
-	BookService bookService;
+	private BookService bookService;
 
 	@Autowired
-	NotificationRepository notificationRepository;
+	private NotificationRepository notificationRepository;
 
 	@Autowired
-	FavoriteBookRepository favoriteBookRepository;
+	private FavoriteBookRepository favoriteBookRepository;
 
 	@Autowired
-	GoodReadsComponent goodReadsService;
+	private GoodReadsComponent goodReadsService;
 
 	@Autowired
-	GoogleBooksComponent googleBooksService;
+	private GoogleBooksComponent googleBooksService;
 
 	@Override
 	public List<Book> getSentBooks(int user) {

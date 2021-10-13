@@ -6,7 +6,7 @@ export class Book {
         public id?: number,
         public title?: string,
         public authorSort?: string,
-        public pubdate?: string,
+        public pubDate?: string,
         public lastModified?: string,
         public seriesName?: string,
         public seriesIndex?: number,

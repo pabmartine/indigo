@@ -27,16 +27,18 @@ import lombok.Setter;
 public class FavoriteBook implements Serializable {
 	private static final long serialVersionUID = 1L;
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "\"id\"")
+	private int id;
+	
 	@Column(name = "\"user\"")
 	private int user;
 
 	@Column(name = "\"book\"")
 	private int book;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "\"id\"")
-	private int id;
+
 
 	public FavoriteBook(int user, int book) {
 		super();

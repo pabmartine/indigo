@@ -1,5 +1,6 @@
 package com.martinia.indigo.services.indigo;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.martinia.indigo.model.indigo.User;
@@ -12,7 +13,7 @@ public interface UserService {
 
 	void save(User user, boolean isNew);
 
-	Iterable<User> findAll();
+	List<User> findAll();
 
 	void delete(int id);
 

@@ -26,12 +26,12 @@ import lombok.Setter;
 public class Book implements Serializable {
 	private static final long serialVersionUID = 1L;
 
-	@Column(name = "\"author_sort\"")
-	private String authorSort;
-
 	@Id
 	@Column(name = "\"id\"")
 	private int id;
+	
+	@Column(name = "\"author_sort\"")
+	private String authorSort;
 
 	@Column(name = "\"last_modified\"")
 	private String lastModified;
@@ -40,7 +40,7 @@ public class Book implements Serializable {
 	private String path;
 
 	@Column(name = "\"pubdate\"")
-	private String pubdate;
+	private String pubDate;
 
 	@Column(name = "\"series_index\"")
 	private BigDecimal seriesIndex;

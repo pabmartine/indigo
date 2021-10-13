@@ -52,7 +52,7 @@
           <p-rating [ngModel]="selected.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
         </div>
         <div>{{'locale.books.detail.pubdate' | translate}}
-          {{selected.pubdate | cdate |  date:'dd/MM/yyyy'}}</div>
+          {{selected.pubDate | cdate |  date:'dd/MM/yyyy'}}</div>
         <div>{{selected.pages}} {{'locale.books.detail.pages' | translate}}</div>
         <div class="book-detail-series" *ngIf="selected.seriesName">
           <button type="button" pButton (click)="getBooksBySerie(selected.seriesName);" [label]="selected.seriesName"

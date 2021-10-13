@@ -1,18 +1,12 @@
 package com.martinia.indigo.controllers.rest;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.imageio.ImageIO;
 import javax.transaction.Transactional;
 
-import org.imgscalr.Scalr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -26,7 +20,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.martinia.indigo.dto.BookDto;
 import com.martinia.indigo.dto.Search;
+import com.martinia.indigo.mappers.BookDtoMapper;
 import com.martinia.indigo.model.calibre.Book;
 import com.martinia.indigo.model.indigo.FavoriteBook;
 import com.martinia.indigo.model.indigo.MyBook;
@@ -35,9 +31,6 @@ import com.martinia.indigo.services.indigo.FavoriteBookService;
 import com.martinia.indigo.services.indigo.MyBookService;
 import com.martinia.indigo.utils.CoverComponent;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 @RestController
 @RequestMapping("/rest/book")
 public class BookRestController {
@@ -54,6 +47,9 @@ public class BookRestController {
 	@Autowired
 	private CoverComponent coverComponent;
 
+	@Autowired
+	protected BookDtoMapper bookDtoMapper;
+
 	@Value("${book.library.path}")
 	private String libraryPath;
 
@@ -62,18 +58,18 @@ public class BookRestController {
 		return new ResponseEntity<>(bookService.count(search), HttpStatus.OK);
 	}
 
-	// TODO MAPPING
 	@PostMapping(value = "/all/advance", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<Book>> getBooks(@RequestBody(required = false) Search search, @RequestParam int page,
+	public ResponseEntity<List<BookDto>> getBooks(@RequestBody(required = false) Search search, @RequestParam int page,
 			@RequestParam int size, @RequestParam String sort, @RequestParam String order) {
-		return new ResponseEntity<>(bookService.findAll(search, page, size, sort, order), HttpStatus.OK);
+		List<Book> books = bookService.findAll(search, page, size, sort, order);
+		List<BookDto> booksDto = bookDtoMapper.booksToBookDtos(books);
+		return new ResponseEntity<>(booksDto, HttpStatus.OK);
 	}
-
 
 	@GetMapping(value = "/cover", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Map<String, String>> getCover(@RequestParam String path, boolean force) throws IOException {
 		Map<String, String> map = null;
-		
+
 		String image = coverComponent.getCover(path, force);
 
 		map = new HashMap<String, String>();
@@ -83,43 +79,55 @@ public class BookRestController {
 
 	}
 
-	// TODO MAPPING
 	@GetMapping(value = "/info", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<MyBook> getBookInfoBy(@RequestParam int id, @RequestParam boolean local) {
-		return new ResponseEntity<>(myBookService.getBookInfoBy(id, local), HttpStatus.OK);
+	public ResponseEntity<BookDto> getBookInfoBy(@RequestParam int id, @RequestParam boolean local) {
+
+		MyBook myBook = myBookService.getBookInfoBy(id, local);
+		BookDto bookDto = bookDtoMapper.myBookToBookDto(myBook);
+		return new ResponseEntity<>(bookDto, HttpStatus.OK);
+
 	}
 
-	// TODO MAPPING
 	@GetMapping(value = "/title", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Book> getBookTitle(@RequestParam int id) {
-		return new ResponseEntity<>(bookService.findById(id)
-				.get(), HttpStatus.OK);
+	public ResponseEntity<BookDto> getBookTitle(@RequestParam int id) {
+
+		Book book = bookService.findById(id)
+				.orElse(null);
+		BookDto bookDto = bookDtoMapper.bookToBookDto(book);
+		return new ResponseEntity<>(bookDto, HttpStatus.OK);
 	}
 
-	// TODO MAPPING
 	@PostMapping(value = "/similar", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<Book>> getSimilar(@RequestBody String similar) {
-		return new ResponseEntity<>(bookService.getSimilar(similar), HttpStatus.OK);
+	public ResponseEntity<List<BookDto>> getSimilar(@RequestBody String similar) {
+
+		List<Book> books = bookService.getSimilar(similar);
+		List<BookDto> booksDto = bookDtoMapper.booksToBookDtos(books);
+		return new ResponseEntity<>(booksDto, HttpStatus.OK);
+
 	}
 
-	// TODO MAPPING
 	@GetMapping(value = "/recommendations", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<Book>> getBookRecommendations(@RequestParam int id) {
-		return new ResponseEntity<>(bookService.getBookRecommendations(id), HttpStatus.OK);
+	public ResponseEntity<List<BookDto>> getBookRecommendations(@RequestParam int id) {
+
+		List<Book> books = bookService.getBookRecommendations(id);
+		List<BookDto> booksDto = bookDtoMapper.booksToBookDtos(books);
+		return new ResponseEntity<>(booksDto, HttpStatus.OK);
+
 	}
 
-	// TODO MAPPING
 	@GetMapping(value = "/favorites", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<Book>> getFavoriteBooks(@RequestParam int user) {
-		return new ResponseEntity<>(myBookService.getFavoriteBooks(user), HttpStatus.OK);
+	public ResponseEntity<List<BookDto>> getFavoriteBooks(@RequestParam int user) {
+
+		List<Book> books = myBookService.getFavoriteBooks(user);
+		List<BookDto> booksDto = bookDtoMapper.booksToBookDtos(books);
+		return new ResponseEntity<>(booksDto, HttpStatus.OK);
 
 	}
 
-	// TODO MAPPING
 	@GetMapping(value = "/favorite", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<FavoriteBook> getFavoriteBook(@RequestParam int book, @RequestParam int user) {
-		FavoriteBook fb = favoriteBookService.getFavoriteBook(book, user);
-		return new ResponseEntity<>(fb, HttpStatus.OK);
+	public ResponseEntity<Boolean> getFavoriteBook(@RequestParam int book, @RequestParam int user) {
+		Boolean isFavorite = favoriteBookService.getFavoriteBook(book, user) != null;
+		return new ResponseEntity<>(isFavorite, HttpStatus.OK);
 	}
 
 	@PostMapping(value = "/favorite", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -135,10 +143,13 @@ public class BookRestController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	// TODO MAPPING
 	@GetMapping(value = "/sent", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<Book>> getSentBooks(@RequestParam int user) {
-		return new ResponseEntity<>(myBookService.getSentBooks(user), HttpStatus.OK);
+	public ResponseEntity<List<BookDto>> getSentBooks(@RequestParam int user) {
+
+		List<Book> books = myBookService.getSentBooks(user);
+		List<BookDto> booksDto = bookDtoMapper.booksToBookDtos(books);
+		return new ResponseEntity<>(booksDto, HttpStatus.OK);
+
 	}
 
 }

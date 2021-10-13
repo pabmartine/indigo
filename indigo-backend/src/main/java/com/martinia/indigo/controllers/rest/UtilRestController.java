@@ -12,15 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.martinia.indigo.services.MailService;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 @RestController
 @RequestMapping("/rest/util")
 public class UtilRestController {
 
 	@Autowired
-	MailService mailService;
+	private MailService mailService;
 
 	@GetMapping(value = "/testmail", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Void> testmail(@RequestParam int user) {

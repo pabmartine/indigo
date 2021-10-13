@@ -31,34 +31,34 @@ import lombok.extern.slf4j.Slf4j;
 public class AsyncService {
 
 	@Autowired
-	WikipediaComponent wikipediaService;
+	private WikipediaComponent wikipediaService;
 
 	@Autowired
-	GoodReadsComponent goodReadsService;
+	private GoodReadsComponent goodReadsService;
 
 	@Autowired
-	GoogleBooksComponent googleBooksService;
+	private GoogleBooksComponent googleBooksService;
 
 	@Autowired
-	BookRepository bookRepository;
+	private BookRepository bookRepository;
 
 	@Autowired
-	MyBookRepository myBookRepository;
+	private MyBookRepository myBookRepository;
 
 	@Autowired
-	AuthorRepository authorRepository;
+	private AuthorRepository authorRepository;
 
 	@Autowired
-	MyAuthorRepository myAuthorRepository;
+	private MyAuthorRepository myAuthorRepository;
 
 	@Autowired
-	MetadataSingleton metadataSingleton;
+	private MetadataSingleton metadataSingleton;
 
 	@Autowired
-	ConfigurationRepository configurationRepository;
+	private ConfigurationRepository configurationRepository;
 
 	@Autowired
-	BookRestController bookRestController;
+	private BookRestController bookRestController;
 
 	@Async
 	public void getAllNoData(String lang) {

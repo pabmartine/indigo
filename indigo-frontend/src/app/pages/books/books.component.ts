@@ -78,8 +78,8 @@ export class BooksComponent implements OnInit {
     this.sorts.push(
       { label: this.translate.instant('locale.books.order_by.id.desc'), value: 'id,desc' },
       { label: this.translate.instant('locale.books.order_by.id.asc'), value: 'id,asc' },
-      { label: this.translate.instant('locale.books.order_by.pubdate.desc'), value: 'pubdate,desc' },
-      { label: this.translate.instant('locale.books.order_by.pubdate.asc'), value: 'pubdate,asc' },
+      { label: this.translate.instant('locale.books.order_by.pubdate.desc'), value: 'pubDate,desc' },
+      { label: this.translate.instant('locale.books.order_by.pubdate.asc'), value: 'pubDate,asc' },
       { label: this.translate.instant('locale.books.order_by.title.asc'), value: 'title,asc' },
       { label: this.translate.instant('locale.books.order_by.title.desc'), value: 'title,desc' }
     );

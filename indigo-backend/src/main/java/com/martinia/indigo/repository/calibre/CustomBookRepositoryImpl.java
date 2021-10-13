@@ -101,13 +101,13 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 			if (null != (search.getIni())) {
 				if (select.endsWith(")"))
 					select += " and";
-				select += " ( b.pubdate >= :ini )";
+				select += " ( b.pubDate >= :ini )";
 			}
 
 			if (null != (search.getEnd())) {
 				if (select.endsWith(")"))
 					select += " and";
-				select += " ( b.pubdate <= :end )";
+				select += " ( b.pubDate <= :end )";
 			}
 
 			if (null != (search.getMin()) || null != (search.getMax())) {
@@ -251,13 +251,13 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 			if (null != (search.getIni())) {
 				if (select.endsWith(")"))
 					select += " and";
-				select += " ( b.pubdate >= :ini )";
+				select += " ( b.pubDate >= :ini )";
 			}
 
 			if (null != (search.getEnd())) {
 				if (select.endsWith(")"))
 					select += " and";
-				select += " ( b.pubdate <= :end )";
+				select += " ( b.pubDate <= :end )";
 			}
 
 			if (null != (search.getMin()) || null != (search.getMax())) {

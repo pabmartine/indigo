@@ -18,16 +18,16 @@ import com.martinia.indigo.utils.WikipediaComponent;
 public class MyAuthorServiceImpl implements MyAuthorService {
 
 	@Autowired
-	MyAuthorRepository myAuthorRepository;
+	private MyAuthorRepository myAuthorRepository;
 
 	@Autowired
-	AuthorService authorService;
+	private AuthorService authorService;
 
 	@Autowired
-	WikipediaComponent wikipediaService;
+	private WikipediaComponent wikipediaComponent;
 
 	@Autowired
-	GoodReadsComponent goodReadsService;
+	private GoodReadsComponent goodReadsComponent;
 
 	@Override
 	public List<Integer> getFavoriteAuthors(int user) {
@@ -44,14 +44,14 @@ public class MyAuthorServiceImpl implements MyAuthorService {
 		MyAuthor myAuthor = myAuthorRepository.findBySort(author);
 		if (myAuthor == null) {
 
-			myAuthor = wikipediaService.findAuthor(author, lang);
+			myAuthor = wikipediaComponent.findAuthor(author, lang);
 
 			if (myAuthor == null) {
-				myAuthor = wikipediaService.findAuthor(author, "en");
+				myAuthor = wikipediaComponent.findAuthor(author, "en");
 			}
 
 			if (myAuthor == null) {
-				myAuthor = goodReadsService.findAuthor(author);
+				myAuthor = goodReadsComponent.findAuthor(author);
 			}
 
 			if (myAuthor != null) {

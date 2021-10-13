@@ -38,8 +38,8 @@ public interface BookRepository extends PagingAndSortingRepository<Book, Integer
 			"and l.book not in (:id) " + 
 			"group by l.book having count(l.id) = (select count(t.tag) from BooksTagsLink t where t.book = :id)" + 
 			") " + 
-			"and (b.pubdate > DATE((select t.pubdate from Book t where t.id = :id), '-5 year') " + 
-			"or b.pubdate > DATE((select t.pubdate from Book t where t.id = :id), '+5 year')) " +
+			"and (b.pubDate > DATE((select t.pubDate from Book t where t.id = :id), '-5 year') " + 
+			"or b.pubDate > DATE((select t.pubDate from Book t where t.id = :id), '+5 year')) " +
 			"order by random()")
 	List<Book> getBookRecommendations(@Param("id") int id, Pageable pageable);
 

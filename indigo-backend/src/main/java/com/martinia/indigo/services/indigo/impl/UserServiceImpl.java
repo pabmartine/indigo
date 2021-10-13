@@ -1,5 +1,6 @@
 package com.martinia.indigo.services.indigo.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public Iterable<User> findAll() {
+	public List<User> findAll() {
 		return userRepository.findAll();
 	}
 

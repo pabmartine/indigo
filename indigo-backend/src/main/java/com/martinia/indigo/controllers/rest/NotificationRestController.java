@@ -1,5 +1,7 @@
 package com.martinia.indigo.controllers.rest;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -12,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.martinia.indigo.dto.NotificationDto;
+import com.martinia.indigo.mappers.NotificationDtoMapper;
 import com.martinia.indigo.model.indigo.Notification;
-import com.martinia.indigo.model.indigo.User;
 import com.martinia.indigo.services.indigo.NotificationService;
-import com.martinia.indigo.services.indigo.UserService;
 
 @RestController
 @RequestMapping("/rest/notification")
@@ -25,27 +27,34 @@ public class NotificationRestController {
 	private NotificationService notificationService;
 
 	@Autowired
-	private UserService userService;
-	
-	//TODO MAPPING
+	protected NotificationDtoMapper notificationDtoMapper;
+
 	@GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Iterable<Notification>> findAll() {
-		return new ResponseEntity<>(notificationService.findAllByOrderByIdDesc(), HttpStatus.OK);
+	public ResponseEntity<List<NotificationDto>> findAll() {
+		List<Notification> notifications = notificationService.findAllByOrderByIdDesc();
+		List<NotificationDto> notificationsDto = notificationDtoMapper.notificationsToNotificationDtos(notifications);
+		return new ResponseEntity<>(notificationsDto, HttpStatus.OK);
 	}
-	//TODO MAPPING
+
 	@GetMapping(value = "/not_read", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Iterable<Notification>> findAllNotRead() {
-		return new ResponseEntity<>(notificationService.findNotReadAdmin(), HttpStatus.OK);
+	public ResponseEntity<List<NotificationDto>> findAllNotRead() {
+		List<Notification> notifications = notificationService.findNotReadAdmin();
+		List<NotificationDto> notificationsDto = notificationDtoMapper.notificationsToNotificationDtos(notifications);
+		return new ResponseEntity<>(notificationsDto, HttpStatus.OK);
 	}
-	//TODO MAPPING
+
 	@GetMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Iterable<Notification>> findAllByUser(@RequestParam int user) {
-		return new ResponseEntity<>(notificationService.findByUser(user), HttpStatus.OK);
+	public ResponseEntity<List<NotificationDto>> findAllByUser(@RequestParam int user) {
+		List<Notification> notifications = notificationService.findByUser(user);
+		List<NotificationDto> notificationsDto = notificationDtoMapper.notificationsToNotificationDtos(notifications);
+		return new ResponseEntity<>(notificationsDto, HttpStatus.OK);
 	}
-	//TODO MAPPING
+
 	@GetMapping(value = "/not_read_user", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Iterable<Notification>> findAllNotReadByUser(@RequestParam int user) {
-		return new ResponseEntity<>(notificationService.findNotReadUser(user), HttpStatus.OK);
+	public ResponseEntity<List<NotificationDto>> findAllNotReadByUser(@RequestParam int user) {
+		List<Notification> notifications = notificationService.findNotReadUser(user);
+		List<NotificationDto> notificationsDto = notificationDtoMapper.notificationsToNotificationDtos(notifications);
+		return new ResponseEntity<>(notificationsDto, HttpStatus.OK);
 	}
 
 	@PutMapping(value = "/save", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -61,7 +70,7 @@ public class NotificationRestController {
 	}
 
 	@DeleteMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Void> delete(@RequestParam int id) {		
+	public ResponseEntity<Void> delete(@RequestParam int id) {
 		notificationService.delete(id);
 		return new ResponseEntity<>(HttpStatus.OK);
 

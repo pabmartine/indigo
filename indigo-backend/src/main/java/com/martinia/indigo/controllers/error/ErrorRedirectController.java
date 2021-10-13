@@ -14,8 +14,5 @@ public class ErrorRedirectController implements ErrorController {
 		return "forward:/";
 	}
 
-	@Override
-	public String getErrorPath() {
-		return PATH;
-	}
+
 }

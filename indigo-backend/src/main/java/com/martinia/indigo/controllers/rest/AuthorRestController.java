@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import javax.transaction.Transactional;
 
@@ -19,15 +18,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.martinia.indigo.model.calibre.Author;
+import com.martinia.indigo.dto.AuthorDto;
+import com.martinia.indigo.mappers.AuthorDtoMapper;
 import com.martinia.indigo.model.indigo.FavoriteAuthor;
 import com.martinia.indigo.model.indigo.MyAuthor;
 import com.martinia.indigo.services.AsyncService;
 import com.martinia.indigo.services.calibre.AuthorService;
 import com.martinia.indigo.services.indigo.FavoriteAuthorService;
 import com.martinia.indigo.services.indigo.MyAuthorService;
-import com.martinia.indigo.utils.GoodReadsComponent;
-import com.martinia.indigo.utils.WikipediaComponent;
 
 @RestController
 @RequestMapping("/rest/author")
@@ -42,7 +40,8 @@ public class AuthorRestController {
 	@Autowired
 	private MyAuthorService myAuthorService;
 
-
+	@Autowired
+	protected AuthorDtoMapper authorDtoMapper;
 
 	@Autowired
 	private AsyncService asyncService;
@@ -69,18 +68,20 @@ public class AuthorRestController {
 		return new ResponseEntity<>(ret, HttpStatus.OK);
 	}
 
-	// TODO MAPPING
 	@GetMapping(value = "/info/name", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<MyAuthor> getAuthorInfoByName(@RequestParam String author, @RequestParam String lang) {
-		return new ResponseEntity<>(myAuthorService.getAuthorInfoByName(author, lang), HttpStatus.OK);
+	public ResponseEntity<AuthorDto> getAuthorInfoByName(@RequestParam String author, @RequestParam String lang) {
+		MyAuthor myAuthor = myAuthorService.getAuthorInfoByName(author, lang);
+		AuthorDto authorDto = authorDtoMapper.myAuthorToAuthorDto(myAuthor);
+		return new ResponseEntity<>(authorDto, HttpStatus.OK);
 	}
 
-	// TODO MAPPING
 	@GetMapping(value = "/info/id", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Optional<MyAuthor>> getAuthorInfoById(@RequestParam int id) {
-		return new ResponseEntity<>(myAuthorService.findById(id), HttpStatus.OK);
+	public ResponseEntity<AuthorDto> getAuthorInfoById(@RequestParam int id) {
+		MyAuthor myAuthor = myAuthorService.findById(id).orElse(null);
+		AuthorDto authorDto = authorDtoMapper.myAuthorToAuthorDto(myAuthor);
+		return new ResponseEntity<>(authorDto, HttpStatus.OK);
 	}
-
+	
 	@GetMapping(value = "/nodata")
 	public ResponseEntity<Void> getAllAuthorsNoData(@RequestParam String lang) {
 		asyncService.getAllNoData(lang);
@@ -107,7 +108,7 @@ public class AuthorRestController {
 	// TODO Bajar a servicio?
 	@GetMapping(value = "/favorites", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Map<String, String>>> getFavoriteBooks(@RequestParam int user) {
-		
+
 		List<Map<String, String>> list = new ArrayList<>();
 
 		List<Integer> dat = myAuthorService.getFavoriteAuthors(user);
@@ -126,14 +127,12 @@ public class AuthorRestController {
 		return new ResponseEntity<>(list, HttpStatus.OK);
 	}
 
-	// TODO MAPPING
 	@GetMapping(value = "/favorite", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<FavoriteAuthor> getFavoriteAuthor(@RequestParam int author, @RequestParam int user) {
-		FavoriteAuthor fb = favoriteAuthorService.getFavoriteAuthor(author, user);
-		return new ResponseEntity<>(fb, HttpStatus.OK);
+	public ResponseEntity<Boolean> getFavoriteAuthor(@RequestParam int author, @RequestParam int user) {
+		Boolean isFavorite = favoriteAuthorService.getFavoriteAuthor(author, user) != null;
+		return new ResponseEntity<>(isFavorite, HttpStatus.OK);
 	}
 
-	
 	@PostMapping(value = "/favorite", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Void> addFavoriteAuthors(@RequestParam int author, @RequestParam int user) {
 		favoriteAuthorService.save(new FavoriteAuthor(user, author));
