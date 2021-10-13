@@ -22,12 +22,6 @@ public class TagServiceImpl implements TagService {
 	}
 
 	@Override
-	public void updateAllBookReferences(int sourceId, int targetId) {
-		tagRepository.updateAllBookReferences(sourceId, targetId);
-
-	}
-
-	@Override
 	public List<String> getTagsByBookId(int id) {
 		return tagRepository.getTagsByBookId(id);
 	}
@@ -37,24 +31,33 @@ public class TagServiceImpl implements TagService {
 		return tagRepository.findTagByName(name);
 	}
 
-	public void delete(Tag tag) {
-		tagRepository.delete(tag);
-	}
-
-	public Optional<Tag> findById(int target) {
-		return tagRepository.findById(target);
-	}
-
-	public void save(Tag tag) {
-		tagRepository.save(tag);
-	}
-
 	public long count() {
 		return tagRepository.count();
 	}
 
 	public List<Object[]> getNumBooksByTag(String sort, String order) {
 		return tagRepository.getNumBooksByTag(sort, order);
+	}
+
+	@Override
+	public void rename(int source, String target) {
+		Optional<Tag> optional = tagRepository.findById(source);
+		if (optional.isPresent()) {
+			Tag tag = optional.get();
+			tag.setName(target);
+			tagRepository.save(tag);
+		}
+	}
+
+	@Override
+	public void merge(int source, int target) {
+		Optional<Tag> tagSource = tagRepository.findById(source);
+		Optional<Tag> tagTarget = tagRepository.findById(target);
+		tagRepository.updateAllBookReferences(tagSource.get()
+				.getId(),
+				tagTarget.get()
+						.getId());
+		tagRepository.delete(tagSource.get());
 	}
 
 }

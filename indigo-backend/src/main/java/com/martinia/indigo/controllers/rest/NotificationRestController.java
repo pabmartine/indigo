@@ -54,28 +54,15 @@ public class NotificationRestController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	// TODO Bajar a servicio?
 	@GetMapping(value = "/read", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Void> markAsRead(@RequestParam int id, @RequestParam int user) {
-		User usr = userService.findById(user)
-				.get();
-		Notification notification = notificationService.findById(id)
-				.get();
-		if (usr.getRole()
-				.equals("ADMIN"))
-			notification.setReadByAdmin(true);
-		else
-			notification.setReadByUser(true);
-		notificationService.save(notification);
+		notificationService.markAsRead(id, user);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	// TODO Bajar a servicio?
 	@DeleteMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Void> delete(@RequestParam int id) {
-		Notification notification = notificationService.findById(id)
-				.get();
-		notificationService.delete(notification);
+	public ResponseEntity<Void> delete(@RequestParam int id) {		
+		notificationService.delete(id);
 		return new ResponseEntity<>(HttpStatus.OK);
 
 	}

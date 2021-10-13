@@ -6,8 +6,8 @@ public interface FavoriteBookService {
 
 	FavoriteBook getFavoriteBook(int book, int user);
 
-	void delete(FavoriteBook fb);
-
 	void save(FavoriteBook fb);
+
+	void deleteFavoriteBooks(int book, int user);
 
 }

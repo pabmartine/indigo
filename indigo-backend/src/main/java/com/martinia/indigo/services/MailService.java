@@ -1,11 +1,20 @@
 package com.martinia.indigo.services;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.Properties;
 
 import javax.mail.internet.MimeMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -14,8 +23,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import com.martinia.indigo.model.indigo.Configuration;
-import com.martinia.indigo.repository.indigo.ConfigurationRepository;
 import com.martinia.indigo.repository.indigo.UserRepository;
+import com.martinia.indigo.services.indigo.ConfigurationService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,36 +36,39 @@ public class MailService {
 	private JavaMailSender javaMailSender;
 
 	@Autowired
-	private ConfigurationRepository configurationRepository;
+	private ConfigurationService configurationService;
 
 	@Autowired
 	private UserRepository userRepository;
 
-	public void init() {
+	@Value("${book.library.path}")
+	private String libraryPath;
+
+	private void init() {
 		JavaMailSenderImpl ms = (JavaMailSenderImpl) javaMailSender;
-		ms.setHost(configurationRepository.findById("smtp.host")
+		ms.setHost(configurationService.findById("smtp.host")
 				.get()
 				.getValue());
-		ms.setPort(Integer.parseInt(configurationRepository.findById("smtp.port")
+		ms.setPort(Integer.parseInt(configurationService.findById("smtp.port")
 				.get()
 				.getValue()));
-		ms.setUsername(configurationRepository.findById("smtp.username")
+		ms.setUsername(configurationService.findById("smtp.username")
 				.get()
 				.getValue());
-		ms.setPassword(configurationRepository.findById("smtp.password")
+		ms.setPassword(configurationService.findById("smtp.password")
 				.get()
 				.getValue());
 
 		Properties props = ms.getJavaMailProperties();
 		props.put("mail.transport.protocol", "smtp");
 
-		if (configurationRepository.findById("smtp.encryption")
+		if (configurationService.findById("smtp.encryption")
 				.get()
 				.getValue()
 				.equals("starttls")) {
 			props.put("mail.smtp.auth", "true");
 			props.put("mail.smtp.starttls.enable", "true");
-		} else if (configurationRepository.findById("smtp.encryption")
+		} else if (configurationService.findById("smtp.encryption")
 				.get()
 				.getValue()
 				.equals("ssl/tls")) {
@@ -89,10 +101,10 @@ public class MailService {
 			config.setValue("error");
 		}
 
-		configurationRepository.save(config);
+		configurationService.save(Arrays.asList(config));
 	}
 
-	public void sendEmail(String filename, File f, int user) throws Exception {
+	private void sendEmail(String filename, File f, int user) throws Exception {
 
 		try {
 			init();
@@ -118,6 +130,87 @@ public class MailService {
 			f.delete();
 		}
 
+	}
+
+	public String mail(String path, int user) {
+
+		String error = null;
+
+		String kindlegenPath = configurationService.findById("kindlegen.path")
+				.get()
+				.getValue();
+
+		if (!libraryPath.endsWith(File.separator))
+			libraryPath += File.separator;
+
+		String basePath = libraryPath + path;
+
+		File file = new File(basePath);
+		if (file.exists()) {
+			File[] files = file.listFiles();
+			File epub = null;
+			File mobi = null;
+			for (File f : files) {
+				if (f.getName()
+						.endsWith(".epub"))
+					epub = f;
+				else if (f.getName()
+						.endsWith(".mobi"))
+					mobi = f;
+			}
+
+			if (mobi == null) {
+				try {
+
+					String name = epub.getName()
+							.substring(0, epub.getName()
+									.indexOf("."));
+					String newName = Base64.getEncoder()
+							.encodeToString(name.getBytes()) + ".epub";
+
+					File destination = new File(libraryPath + newName);
+
+					Files.copy(epub.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+					String cmd = kindlegenPath + " " + destination.getPath();
+					log.info(cmd);
+					Process process = Runtime.getRuntime()
+							.exec(cmd);
+					InputStream is = null;
+					BufferedReader br = null;
+					InputStreamReader isr = null;
+					String textLine = "";
+					is = process.getInputStream();
+					isr = new InputStreamReader(is);
+					br = new BufferedReader(isr);
+					while ((textLine = br.readLine()) != null) {
+						if (0 != textLine.length()) {
+							log.info(textLine);
+						}
+					}
+
+					mobi = new File(destination.getPath()
+							.replace(".epub", ".mobi"));
+
+					destination.delete();
+
+				} catch (IOException e) {
+					error = e.getMessage();
+					log.error(error);
+				}
+			}
+
+			if (mobi != null) {
+				try {
+					this.sendEmail(mobi.getName(), mobi, user);
+				} catch (Exception e) {
+					error = e.getMessage();
+					log.error(error);
+				}
+			}
+
+		}
+		return error;
 	}
 
 }

@@ -8,14 +8,19 @@ import org.springframework.stereotype.Service;
 
 import com.martinia.indigo.enums.StatusEnum;
 import com.martinia.indigo.model.indigo.Notification;
+import com.martinia.indigo.model.indigo.User;
 import com.martinia.indigo.repository.indigo.NotificationRepository;
 import com.martinia.indigo.services.indigo.NotificationService;
+import com.martinia.indigo.services.indigo.UserService;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
 
 	@Autowired
 	NotificationRepository notificationRepository;
+
+	@Autowired
+	private UserService userService;
 
 	@Override
 	public List<Notification> findAllByOrderByIdDesc() {
@@ -58,8 +63,24 @@ public class NotificationServiceImpl implements NotificationService {
 	}
 
 	@Override
-	public void delete(Notification notification) {
+	public void delete(int id) {
+		Notification notification = this.findById(id)
+				.get();
 		notificationRepository.delete(notification);
+	}
+
+	@Override
+	public void markAsRead(int id, int user) {
+		User usr = userService.findById(user)
+				.get();
+		Notification notification = this.findById(id)
+				.get();
+		if (usr.getRole()
+				.equals("ADMIN"))
+			notification.setReadByAdmin(true);
+		else
+			notification.setReadByUser(true);
+		this.save(notification);
 	}
 
 }

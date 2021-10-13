@@ -37,10 +37,10 @@ public class TagRestController {
 		return new ResponseEntity<>(tagService.count(), HttpStatus.OK);
 	}
 
-	// TODO Bajar a servicio?
 	@GetMapping(value = "/numbooks", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Map<String, String>>> getNumBooksByTag(@RequestParam String sort,
 			@RequestParam String order) {
+		
 		List<Object[]> data = tagService.getNumBooksByTag(sort, order);
 
 		List<Map<String, String>> ret = new ArrayList<>(data.size());
@@ -66,44 +66,22 @@ public class TagRestController {
 		return new ResponseEntity<>(tagService.getTagsByBookId(id), HttpStatus.OK);
 	}
 
-	// TODO Bajar a servicio?
 	@GetMapping("/rename")
-	public ResponseEntity<Void> rename(@RequestParam int source, @RequestParam String target) {
-		Optional<Tag> optional = tagService.findById(source);
-		if (optional.isPresent()) {
-			Tag tag = optional.get();
-			tag.setName(target);
-			tagService.save(tag);
-		}
+	public ResponseEntity<Void> rename(@RequestParam int source, @RequestParam String target) {		
+		tagService.rename(source, target);				
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	// TODO Bajar a servicio?
 	@Transactional
 	@GetMapping("/merge")
 	public ResponseEntity<Void> merge(@RequestParam int source, @RequestParam int target) {
-		Optional<Tag> tagSource = tagService.findById(source);
-		Optional<Tag> tagTarget = tagService.findById(target);
-		tagService.updateAllBookReferences(tagSource.get()
-				.getId(),
-				tagTarget.get()
-						.getId());
-		tagService.delete(tagSource.get());
+		tagService.merge(source, target);	
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	// TODO Bajar a servicio?
 	@GetMapping("/image")
 	public ResponseEntity<Void> image(@RequestParam int source, @RequestParam String image) {
-		Optional<MyTag> optional = myTagService.findById(source);
-		MyTag tag = null;
-		if (optional.isPresent()) {
-			tag = optional.get();
-			tag.setImage(image);
-		} else {
-			tag = new MyTag(source, image);
-		}
-		myTagService.save(tag);
+		myTagService.image(source, image);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 

@@ -21,12 +21,13 @@ public class PageRestController {
 	@Autowired
 	private PageService pageService;
 
-	// TODO Bajar a servicio?
 	@GetMapping(value = "/book", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Map<String, Integer>> findPagesByBookId(@RequestParam int id) {
 
+		int pages = pageService.findPagesByBookId(id);
+		
 		Map<String, Integer> map = new HashMap<String, Integer>();
-		map.put("pages", pageService.findPagesByBookId(id));
+		map.put("pages", pages);
 
 		return new ResponseEntity<>(map, HttpStatus.OK);
 

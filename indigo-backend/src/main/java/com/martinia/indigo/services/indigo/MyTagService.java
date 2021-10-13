@@ -6,8 +6,8 @@ import com.martinia.indigo.model.indigo.MyTag;
 
 public interface MyTagService {
 
-	void save(MyTag tag);
-
 	Optional<MyTag> findById(int source);
+
+	void image(int source, String image);
 
 }

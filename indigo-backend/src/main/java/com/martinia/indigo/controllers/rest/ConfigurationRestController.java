@@ -23,28 +23,20 @@ public class ConfigurationRestController {
 
 	@Autowired
 	private ConfigurationService configurationService;
-	
-	//TODO MAPPING
+
+	// TODO MAPPING
 	@GetMapping(value = "/get", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Optional<Configuration>> get(@RequestParam String key) {
 		return new ResponseEntity<>(configurationService.findById(key), HttpStatus.OK);
 
 	}
-	
-	// TODO Bajar a servicio?
-	//TODO MAPPING
+
+	// TODO MAPPING
 	@PutMapping(value = "/save", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Void> save(@RequestBody List<Configuration> configurations) {
 
-		for (Configuration configuration : configurations) {
-			Optional<Configuration> optional = configurationService.findById(configuration.getKey());
+		configurationService.save(configurations);
 
-			if (!optional.isPresent() || !optional.get()
-					.getValue()
-					.equals(configuration.getValue())) {
-				configurationService.save(configuration);
-			}
-		}
 		return new ResponseEntity<>(HttpStatus.OK);
 
 	}

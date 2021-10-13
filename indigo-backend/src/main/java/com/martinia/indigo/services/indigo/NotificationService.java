@@ -24,6 +24,8 @@ public interface NotificationService {
 
 	Optional<Notification> findById(int id);
 
-	void delete(Notification notification);
+	void delete(int id);
+
+	void markAsRead(int id, int user);
 
 }

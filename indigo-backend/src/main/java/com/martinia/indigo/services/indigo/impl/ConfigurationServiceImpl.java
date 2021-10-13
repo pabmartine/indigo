@@ -1,5 +1,6 @@
 package com.martinia.indigo.services.indigo.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,17 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 	}
 
 	@Override
-	public void save(Configuration configuration) {
-		configurationRepository.save(configuration);		
+	public void save(List<Configuration> configurations) {
+
+		for (Configuration configuration : configurations) {
+			Optional<Configuration> optional = this.findById(configuration.getKey());
+
+			if (!optional.isPresent() || !optional.get()
+					.getValue()
+					.equals(configuration.getValue())) {
+				configurationRepository.save(configuration);
+			}
+		}
+
 	}
 }

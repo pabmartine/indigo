@@ -4,7 +4,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +33,7 @@ import com.martinia.indigo.model.indigo.MyBook;
 import com.martinia.indigo.services.calibre.BookService;
 import com.martinia.indigo.services.indigo.FavoriteBookService;
 import com.martinia.indigo.services.indigo.MyBookService;
+import com.martinia.indigo.utils.CoverComponent;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,6 +51,9 @@ public class BookRestController {
 	@Autowired
 	private MyBookService myBookService;
 
+	@Autowired
+	private CoverComponent coverComponent;
+
 	@Value("${book.library.path}")
 	private String libraryPath;
 
@@ -66,39 +69,16 @@ public class BookRestController {
 		return new ResponseEntity<>(bookService.findAll(search, page, size, sort, order), HttpStatus.OK);
 	}
 
-	// TODO Bajar a servicio?
+
 	@GetMapping(value = "/cover", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Map<String, String>> getCover(@RequestParam String path, boolean force) {
+	public ResponseEntity<Map<String, String>> getCover(@RequestParam String path, boolean force) throws IOException {
 		Map<String, String> map = null;
+		
+		String image = coverComponent.getCover(path, force);
 
-		if (!libraryPath.endsWith(File.separator))
-			libraryPath += File.separator;
+		map = new HashMap<String, String>();
+		map.put("image", image);
 
-		String coverPath = libraryPath + path + "/cover.jpg";
-		String thumbPath = libraryPath + path + "/thumbails.jpg";
-
-		try {
-			File thumbFile = new File(thumbPath);
-
-			if (!thumbFile.exists() || force) {
-
-				File coverFile = new File(coverPath);
-
-				BufferedImage i = ImageIO.read(coverFile);
-				BufferedImage scaledImg = Scalr.resize(i, 250);
-
-				ImageIO.write(scaledImg, "JPG", thumbFile);
-			}
-
-			String image = Base64.getEncoder()
-					.encodeToString(Files.readAllBytes(thumbFile.toPath()));
-
-			map = new HashMap<String, String>();
-			map.put("image", image);
-		} catch (IOException e) {
-			log.error("Path " + thumbPath + " not exist");
-
-		}
 		return new ResponseEntity<>(map, HttpStatus.OK);
 
 	}
@@ -148,27 +128,17 @@ public class BookRestController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	// TODO Bajar a servicio?
 	@Transactional
 	@DeleteMapping(value = "/favorite", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Void> deleteFavoriteBooks(@RequestParam int book, @RequestParam int user) {
-		FavoriteBook fb = favoriteBookService.getFavoriteBook(book, user);
-		favoriteBookService.delete(fb);
+		favoriteBookService.deleteFavoriteBooks(book, user);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	// TODO Bajar a servicio?
 	// TODO MAPPING
 	@GetMapping(value = "/sent", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<Book>> getSentBooks(@RequestParam int user) {
-		List<Book> list = new ArrayList<Book>();
-
-		List<Integer> data = myBookService.getSentBooks(user);
-		for (Integer id : data) {
-			list.add(bookService.findById(id)
-					.get());
-		}
-		return new ResponseEntity<>(list, HttpStatus.OK);
+		return new ResponseEntity<>(myBookService.getSentBooks(user), HttpStatus.OK);
 	}
 
 }

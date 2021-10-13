@@ -57,7 +57,6 @@ public class AsyncService {
 	@Autowired
 	ConfigurationRepository configurationRepository;
 
-	// TODO esto no debería ser un controller
 	@Autowired
 	BookRestController bookRestController;
 

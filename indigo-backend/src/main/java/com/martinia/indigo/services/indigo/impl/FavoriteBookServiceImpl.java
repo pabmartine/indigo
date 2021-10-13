@@ -19,13 +19,14 @@ public class FavoriteBookServiceImpl implements FavoriteBookService {
 	}
 
 	@Override
-	public void delete(FavoriteBook fb) {
-		favoriteBookRepository.delete(fb);
+	public void save(FavoriteBook fb) {
+		favoriteBookRepository.save(fb);
 	}
 
 	@Override
-	public void save(FavoriteBook fb) {
-		favoriteBookRepository.save(fb);
+	public void deleteFavoriteBooks(int book, int user) {
+		FavoriteBook fb = this.getFavoriteBook(book, user);
+		favoriteBookRepository.delete(fb);
 	}
 
 }

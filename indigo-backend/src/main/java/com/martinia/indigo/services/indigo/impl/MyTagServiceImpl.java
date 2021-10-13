@@ -19,7 +19,16 @@ public class MyTagServiceImpl implements MyTagService {
 		return myTagRepository.findById(source);
 	}
 
-	public void save(MyTag tag) {
+	@Override
+	public void image(int source, String image) {
+		Optional<MyTag> optional = this.findById(source);
+		MyTag tag = null;
+		if (optional.isPresent()) {
+			tag = optional.get();
+			tag.setImage(image);
+		} else {
+			tag = new MyTag(source, image);
+		}
 		myTagRepository.save(tag);
 	}
 

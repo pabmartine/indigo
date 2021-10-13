@@ -7,7 +7,7 @@ import com.martinia.indigo.model.indigo.MyBook;
 
 public interface MyBookService {
 
-	List<Integer> getSentBooks(int user);
+	List<Book> getSentBooks(int user);
 
 	List<Book> getFavoriteBooks(int user);
 

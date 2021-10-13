@@ -10,10 +10,12 @@ public interface UserService {
 
 	Optional<User> findById(int user);
 
-	void delete(User user);
-
-	void save(User user);
+	void save(User user, boolean isNew);
 
 	Iterable<User> findAll();
+
+	void delete(int id);
+
+	void update(User user);
 
 }

@@ -21,12 +21,13 @@ public class CommentRestController {
 	@Autowired
 	private CommentService commentService;
 
-	// TODO Bajar a servicio?
 	@GetMapping(value = "/book", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Map<String, String>> findTextByBookId(@RequestParam int id) {
 
+		String comment = commentService.findTextByBookId(id);
+		
 		Map<String, String> map = new HashMap<String, String>();
-		map.put("comment", commentService.findTextByBookId(id));
+		map.put("comment", comment);
 
 		return new ResponseEntity<>(map, HttpStatus.OK);
 

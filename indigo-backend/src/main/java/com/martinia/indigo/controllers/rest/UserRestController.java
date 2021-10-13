@@ -24,8 +24,6 @@ public class UserRestController {
 	@Autowired
 	private UserService userService;
 
-	@Autowired
-	PasswordEncoder passwordEncoder;
 
 	// TODO MAPPING
 	@GetMapping(value = "/get", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -46,40 +44,22 @@ public class UserRestController {
 		return new ResponseEntity<>(userService.findAll(), HttpStatus.OK);
 	}
 
-	// TODO Bajar a servicio?
+
 	@PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Void> update(@RequestBody User user) {
-
-		User _user = userService.findById(user.getId())
-				.get();
-
-		if (!_user.getPassword()
-				.equals(user.getPassword()))
-			_user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-		_user.setUsername(user.getUsername());
-		_user.setLanguage(user.getLanguage());
-		_user.setKindle(user.getKindle());
-
-		userService.save(_user);
+	public ResponseEntity<Void> update(@RequestBody User user) {		
+		userService.update(user);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	// TODO Bajar a servicio?
 	@PutMapping(value = "/save", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Void> save(@RequestBody User user) {
-		user.setRole(RolesEnum.USER.name());
-		user.setPassword(passwordEncoder.encode(user.getPassword()));
-		userService.save(user);
+		userService.save(user, true);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	// TODO Bajar a servicio?
 	@DeleteMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Void> delete(@RequestParam int id) {
-		User user = userService.findById(id)
-				.get();
-		userService.delete(user);
+		userService.delete(id);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }

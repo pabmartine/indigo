@@ -39,8 +39,17 @@ public class MyBookServiceImpl implements MyBookService {
 	GoogleBooksComponent googleBooksService;
 
 	@Override
-	public List<Integer> getSentBooks(int user) {
-		return notificationRepository.getSentBooks(user);
+	public List<Book> getSentBooks(int user) {
+
+		List<Book> list = new ArrayList<Book>();
+
+		List<Integer> data = notificationRepository.getSentBooks(user);
+		for (Integer id : data) {
+			list.add(bookService.findById(id)
+					.get());
+		}
+
+		return list;
 	}
 
 	@Override
