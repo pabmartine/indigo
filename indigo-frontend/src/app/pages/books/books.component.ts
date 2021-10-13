@@ -275,8 +275,6 @@ export class BooksComponent implements OnInit {
   private doSearch() {
     this.reset();
     this.searchAuthorInfo();
-    this.count();
-    this.getAll();
 
     if (!this.adv_search) {
       this.getFavoritesBooks();
@@ -285,6 +283,9 @@ export class BooksComponent implements OnInit {
       this.favorites.length = 0;
       this.recommendations.length = 0;
     }
+
+    this.count();
+    this.getAll();
 
   }
 

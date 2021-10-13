@@ -31,7 +31,6 @@ public interface BookRepository extends PagingAndSortingRepository<Book, Integer
 	@Query("select count(*) from BooksSeriesLink l, Serie s where l.series = s.id and s.name = :name")
 	long countBooksBySerie(@Param("name") String name);
 	
-	
 	@Query("select b from Book b where id in ( "+ 
 			"select l.book from BooksTagsLink l " + 
 			"where l.tag in (select t.tag from BooksTagsLink t where t.book = :id ) " + 
