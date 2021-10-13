@@ -1,4 +1,4 @@
-package com.martinia.indigo.services;
+package com.martinia.indigo.utils;
 
 import java.util.Base64;
 import java.util.Date;
@@ -6,7 +6,7 @@ import java.util.Date;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
-public class TokenService {
+public class TokenUtils {
 
 	public String createToken(String usuario, String key, Date expiration) {
 

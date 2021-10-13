@@ -19,14 +19,14 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.martinia.indigo.filters.JWTAuthenticationFilter;
 import com.martinia.indigo.filters.JWTAuthorizationFilter;
-import com.martinia.indigo.services.JWTParserService;
 import com.martinia.indigo.services.LoginService;
+import com.martinia.indigo.utils.JWTParserComponent;
 
 @Configuration
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
-	JWTParserService jwtParserService;
+	JWTParserComponent jwtParserComponent;
 
 	@Autowired
 	LoginService userService;
@@ -51,9 +51,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.antMatchers(HttpMethod.POST, "/rest/login").permitAll()
 				.antMatchers(HttpMethod.GET, "/**").permitAll()
 				.anyRequest().authenticated().and()
-				.addFilterBefore(new JWTAuthenticationFilter("/rest/login", authenticationManager(), jwtParserService),
+				.addFilterBefore(new JWTAuthenticationFilter("/rest/login", authenticationManager(), jwtParserComponent),
 						UsernamePasswordAuthenticationFilter.class)
-				.addFilterBefore(new JWTAuthorizationFilter(authenticationManager(), jwtParserService),
+				.addFilterBefore(new JWTAuthorizationFilter(authenticationManager(), jwtParserComponent),
 						UsernamePasswordAuthenticationFilter.class)
 				.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

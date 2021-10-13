@@ -12,22 +12,22 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
-import com.martinia.indigo.services.JWTParserService;
+import com.martinia.indigo.utils.JWTParserComponent;
 
 public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
 
-	private JWTParserService jwtParserService;
+	private JWTParserComponent jwtParserComponent;
 
-	public JWTAuthorizationFilter(AuthenticationManager authenticationManager, JWTParserService jwtParserService) {
+	public JWTAuthorizationFilter(AuthenticationManager authenticationManager, JWTParserComponent jwtParserComponent) {
 		super(authenticationManager);
-		this.jwtParserService = jwtParserService;
+		this.jwtParserComponent = jwtParserComponent;
 	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 
-		Authentication authentication = jwtParserService.readToken(request);
+		Authentication authentication = jwtParserComponent.readToken(request);
 
 		if (authentication != null) {
 			SecurityContextHolder.getContext().setAuthentication(authentication);

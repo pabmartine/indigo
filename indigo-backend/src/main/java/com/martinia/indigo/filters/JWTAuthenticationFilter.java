@@ -15,16 +15,16 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.martinia.indigo.dto.auth.UserLoginDto;
-import com.martinia.indigo.services.JWTParserService;
+import com.martinia.indigo.utils.JWTParserComponent;
 
 public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
-	private JWTParserService jwtParserService;
+	private JWTParserComponent jwtParserComponent;
 
-	public JWTAuthenticationFilter(String url, AuthenticationManager manager, JWTParserService jwtParserService) {
+	public JWTAuthenticationFilter(String url, AuthenticationManager manager, JWTParserComponent jwtParserComponent) {
 
 		super(url);
-		this.jwtParserService = jwtParserService;
+		this.jwtParserComponent = jwtParserComponent;
 		setAuthenticationManager(manager);
 
 	}
@@ -46,7 +46,7 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
 		// Add header
 		String nombreUsuario = autentication.getName();
-		jwtParserService.createToken(response, nombreUsuario);
+		jwtParserComponent.createToken(response, nombreUsuario);
 
 	}
 
