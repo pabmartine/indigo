@@ -8,7 +8,6 @@ import java.util.Map;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -49,9 +48,6 @@ public class BookRestController {
 
 	@Autowired
 	protected BookDtoMapper bookDtoMapper;
-
-	@Value("${book.library.path}")
-	private String libraryPath;
 
 	@PostMapping(value = "/count/search/advance", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Long> getTotalAdvSearch(@RequestBody(required = false) Search search) {
