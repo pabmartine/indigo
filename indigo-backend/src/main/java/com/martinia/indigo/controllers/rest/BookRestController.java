@@ -102,10 +102,17 @@ public class BookRestController {
 
 	}
 
-	@GetMapping(value = "/recommendations", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<BookDto>> getBookRecommendations(@RequestParam int id) {
+	@GetMapping(value = "/recommendations/book", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<BookDto>> getBookRecommendationsByBook(@RequestParam int id) {
+		List<Book> books = bookService.getBookRecommendationsByBook(id);
+		List<BookDto> booksDto = bookDtoMapper.booksToBookDtos(books);
+		return new ResponseEntity<>(booksDto, HttpStatus.OK);
 
-		List<Book> books = bookService.getBookRecommendations(id);
+	}
+	
+	@GetMapping(value = "/recommendations/user", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<BookDto>> getBookRecommendationsByUser(@RequestParam int user) {
+		List<Book> books = bookService.getBookRecommendationsByUser(user);
 		List<BookDto> booksDto = bookDtoMapper.booksToBookDtos(books);
 		return new ResponseEntity<>(booksDto, HttpStatus.OK);
 

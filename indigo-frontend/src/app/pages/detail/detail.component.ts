@@ -110,7 +110,7 @@ export class DetailComponent implements OnInit {
   }
 
   getRecommendations(id: number) {
-    this.bookService.getRecommendations(id).subscribe(
+    this.bookService.getRecommendationsByBook(id).subscribe(
       data => {
         data.forEach((book) => {
           this.getCover(book);

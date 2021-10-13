@@ -60,7 +60,8 @@
                 "title": "Otros libros similares"
             },
             "recommendations":{
-                "title": "También pueden gustarte"
+                "title": "También pueden gustarte",
+                "title2": "Seleccionados para ti"
             },
             "favorites":{
                 "title": "Favoritos"
@@ -226,7 +227,8 @@
                     "path":{
                         "kindlegen": "Ruta a la instalación de kindlegen"
                     },
-                    "recommendations": "Número máximo de lecturas recomendadas"
+                    "recommendations": "Número máximo de lecturas recomendadas por libro",
+                    "recommendations2": "Número máximo de lecturas recomendadas por usuario"
                 },
                 "metadata":  {
                     "title": "Metadatos",

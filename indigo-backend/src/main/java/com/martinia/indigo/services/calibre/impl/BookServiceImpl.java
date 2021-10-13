@@ -1,8 +1,12 @@
 package com.martinia.indigo.services.calibre.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -14,12 +18,16 @@ import com.martinia.indigo.model.calibre.Book;
 import com.martinia.indigo.repository.calibre.BookRepository;
 import com.martinia.indigo.services.calibre.BookService;
 import com.martinia.indigo.services.indigo.ConfigurationService;
+import com.martinia.indigo.services.indigo.MyBookService;
 
 @Service
 public class BookServiceImpl implements BookService {
 
 	@Autowired
 	BookRepository bookRepository;
+
+	@Autowired
+	MyBookService myBookService;
 
 	@Autowired
 	ConfigurationService configurationService;
@@ -30,7 +38,7 @@ public class BookServiceImpl implements BookService {
 	}
 
 	@Override
-	public List<Book> getBookRecommendations(int id) {
+	public List<Book> getBookRecommendationsByBook(int id) {
 
 		int max = Integer.parseInt(configurationService.findById("books.recommendations")
 				.get()
@@ -62,6 +70,34 @@ public class BookServiceImpl implements BookService {
 		}
 
 		return list;
+	}
+
+	@Override
+	public List<Book> getBookRecommendationsByUser(int user) {
+
+		int max = Integer.parseInt(configurationService.findById("books.recommendations2")
+				.get()
+				.getValue());
+
+		Map<Integer, Book> map = new HashMap<>();
+		List<Integer> ids = new ArrayList<>();
+		List<Book> books = myBookService.getSentBooks(user);
+		for (Book book : books) {
+			ids.add(book.getId());
+			List<Book> _books = bookRepository.getBookRecommendations(book.getId(), PageRequest.of(0, max, Sort.by("id")));
+			for (Book _book : _books) {
+				if (!map.containsKey(_book.getId()) && !ids.contains(_book.getId()))
+					map.put(_book.getId(), _book);
+			}
+		}
+		return map.values()
+				.stream()
+				.collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
+					Collections.shuffle(collected);
+					return collected.stream();
+				}))
+				.limit(max)
+				.collect(Collectors.toList());
 	}
 
 }

@@ -49,8 +49,12 @@ export class BookService {
     return this.http.post(this.endpoint + "/similar", similar);
   }
 
-  getRecommendations(id: number): Observable<any> {
-    return this.http.get(this.endpoint + "/recommendations?id=" + id);
+  getRecommendationsByBook(id: number): Observable<any> {
+    return this.http.get(this.endpoint + "/recommendations/book?id=" + id);
+  }
+
+  getRecommendationsByUser(user: number): Observable<any> {
+    return this.http.get(this.endpoint + "/recommendations/user?user=" + user);
   }
 
   getFavorite(book: number, user: number): Observable<any> {

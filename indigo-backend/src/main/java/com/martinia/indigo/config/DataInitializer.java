@@ -109,6 +109,12 @@ class DataInitializer {
 			Configuration config = new Configuration("books.recommendations", "10");
 			configurationRepository.save(config);
 		}
+		
+		if (!configurationRepository.findById("books.recommendations2")
+				.isPresent()) {
+			Configuration config = new Configuration("books.recommendations2", "24");
+			configurationRepository.save(config);
+		}
 	}
 
 }

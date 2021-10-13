@@ -67,6 +67,13 @@
                                 [min]="0" [max]="50">
                             </p-inputNumber>
                         </div>
+                        <div class="p-col-12 p-md-4">
+                            {{'locale.settings.panel.global.recommendations2' | translate}}</div>
+                        <div class="p-col p-md-8">
+                            <p-inputNumber [(ngModel)]="booksRecommendations2" mode="decimal" [showButtons]="true"
+                                [min]="0" [max]="50">
+                            </p-inputNumber>
+                        </div>
                     </div>
                 </p-panel>
             </div>

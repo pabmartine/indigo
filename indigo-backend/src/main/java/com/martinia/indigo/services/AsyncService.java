@@ -9,7 +9,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import com.martinia.indigo.controllers.rest.BookRestController;
 import com.martinia.indigo.model.calibre.Author;
 import com.martinia.indigo.model.calibre.Book;
 import com.martinia.indigo.model.indigo.MyAuthor;
@@ -20,6 +19,7 @@ import com.martinia.indigo.repository.indigo.ConfigurationRepository;
 import com.martinia.indigo.repository.indigo.MyAuthorRepository;
 import com.martinia.indigo.repository.indigo.MyBookRepository;
 import com.martinia.indigo.singletons.MetadataSingleton;
+import com.martinia.indigo.utils.CoverComponent;
 import com.martinia.indigo.utils.GoodReadsComponent;
 import com.martinia.indigo.utils.GoogleBooksComponent;
 import com.martinia.indigo.utils.WikipediaComponent;
@@ -31,13 +31,13 @@ import lombok.extern.slf4j.Slf4j;
 public class AsyncService {
 
 	@Autowired
-	private WikipediaComponent wikipediaService;
+	private WikipediaComponent wikipediaComponent;
 
 	@Autowired
-	private GoodReadsComponent goodReadsService;
+	private GoodReadsComponent goodReadsComponent;
 
 	@Autowired
-	private GoogleBooksComponent googleBooksService;
+	private GoogleBooksComponent googleBooksComponent;
 
 	@Autowired
 	private BookRepository bookRepository;
@@ -58,7 +58,7 @@ public class AsyncService {
 	private ConfigurationRepository configurationRepository;
 
 	@Autowired
-	private BookRestController bookRestController;
+	private CoverComponent coverComponent;
 
 	@Async
 	public void getAllNoData(String lang) {
@@ -80,6 +80,7 @@ public class AsyncService {
 		for (int i = 0; i < countBooks; i++) {
 
 			try {
+
 				boolean serviceCalled = false;
 
 				if (!metadataSingleton.isRunning())
@@ -96,10 +97,10 @@ public class AsyncService {
 				Optional<MyBook> myBook = myBookRepository.findById(book.getId());
 
 				if (!myBook.isPresent()) {
-					MyBook _myBook = goodReadsService.findBook(book.getTitle(), book.getAuthorSort());
+					MyBook _myBook = goodReadsComponent.findBook(book.getTitle(), book.getAuthorSort());
 
 					if (_myBook == null) {
-						_myBook = googleBooksService.findBook(book.getTitle(), book.getAuthorSort());
+						_myBook = googleBooksComponent.findBook(book.getTitle(), book.getAuthorSort());
 					}
 
 					if (_myBook != null) {
@@ -118,14 +119,14 @@ public class AsyncService {
 						Optional<MyAuthor> myAuthor = myAuthorRepository.findById(author.getId());
 						if (!myAuthor.isPresent()) {
 
-							MyAuthor _myAuthor = wikipediaService.findAuthor(author.getSort(), lang);
+							MyAuthor _myAuthor = wikipediaComponent.findAuthor(author.getSort(), lang);
 
 							if (_myAuthor == null) {
-								_myAuthor = wikipediaService.findAuthor(author.getSort(), "en");
+								_myAuthor = wikipediaComponent.findAuthor(author.getSort(), "en");
 							}
 
 							if (_myAuthor == null || _myAuthor.getImage() == null) {
-								MyAuthor _myAuthor2 = goodReadsService.findAuthor(author.getSort());
+								MyAuthor _myAuthor2 = goodReadsComponent.findAuthor(author.getSort());
 								if (_myAuthor2 != null) {
 									_myAuthor = _myAuthor2;
 								}
@@ -142,7 +143,7 @@ public class AsyncService {
 					}
 
 					// Get book thumbail cover if needed
-					bookRestController.getCover(book.getPath(), false);
+					coverComponent.getCover(book.getPath(), false);
 				}
 
 				if (serviceCalled) {
@@ -188,49 +189,50 @@ public class AsyncService {
 						.getContent()
 						.get(0);
 
-//				// Get ratting
-//				MyBook _myBook = goodReadsService.findBook(book.getTitle(), book.getAuthorSort());
-//
-//				if (_myBook == null) {
-//					_myBook = googleBooksService.findBook(book.getTitle(), book.getAuthorSort());
-//				}
-//
-//				if (_myBook != null) {
-//					_myBook.setId(book.getId());
-//					myBookRepository.save(_myBook);
-//				}
-//
-//				// Get author
-//				if (!book.getAuthorSort().contains(" & ")) {// Get info if there is only one author
-//
-//					Author author = authorRepository.findBySort(book.getAuthorSort());
-//
-//					MyAuthor _myAuthor = wikipediaService.findAuthor(author.getSort(), lang);
-//
-//					if (_myAuthor == null) {
-//						_myAuthor = wikipediaService.findAuthor(author.getSort(), "en");
-//					}
-//
-//					if (_myAuthor == null || _myAuthor.getImage() == null) {
-//						MyAuthor _myAuthor2 = goodReadsService.findAuthor(author.getSort());
-//						if (_myAuthor2 != null) {
-//							_myAuthor = _myAuthor2;
-//						}
-//					}
-//
-//					if (_myAuthor != null) {
-//						_myAuthor.setSort(author.getSort());
-//						_myAuthor.setId(author.getId());
-//						myAuthorRepository.save(_myAuthor);
-//
-//					}
-//				}
+				// Get ratting
+				MyBook _myBook = goodReadsComponent.findBook(book.getTitle(), book.getAuthorSort());
+
+				if (_myBook == null) {
+					_myBook = googleBooksComponent.findBook(book.getTitle(), book.getAuthorSort());
+				}
+
+				if (_myBook != null) {
+					_myBook.setId(book.getId());
+					myBookRepository.save(_myBook);
+				}
+
+				// Get author
+				if (!book.getAuthorSort()
+						.contains(" & ")) {// Get info if there is only one author
+
+					Author author = authorRepository.findBySort(book.getAuthorSort());
+
+					MyAuthor _myAuthor = wikipediaComponent.findAuthor(author.getSort(), lang);
+
+					if (_myAuthor == null) {
+						_myAuthor = wikipediaComponent.findAuthor(author.getSort(), "en");
+					}
+
+					if (_myAuthor == null || _myAuthor.getImage() == null) {
+						MyAuthor _myAuthor2 = goodReadsComponent.findAuthor(author.getSort());
+						if (_myAuthor2 != null) {
+							_myAuthor = _myAuthor2;
+						}
+					}
+
+					if (_myAuthor != null) {
+						_myAuthor.setSort(author.getSort());
+						_myAuthor.setId(author.getId());
+						myAuthorRepository.save(_myAuthor);
+
+					}
+				}
 
 				// Get book thumbail cover if needed
-				bookRestController.getCover(book.getPath(), true);
+				coverComponent.getCover(book.getPath(), true);
 
 				// Sleept for 5 seconds
-//				Thread.sleep(pullTime);
+				Thread.sleep(pullTime);
 
 				log.info("Processed " + i + " books");
 			} catch (Exception e) {

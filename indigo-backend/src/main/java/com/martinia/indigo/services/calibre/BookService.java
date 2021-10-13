@@ -10,12 +10,14 @@ public interface BookService {
 
 	Optional<Book> findById(Integer id);
 
-	List<Book> getBookRecommendations(int id);
+	List<Book> getBookRecommendationsByBook(int id);
 
 	long count(Search search);
 
 	List<Book> findAll(Search search, int page, int size, String sort, String order);
 
 	List<Book> getSimilar(String similar);
+
+	List<Book> getBookRecommendationsByUser(int user);
 
 }

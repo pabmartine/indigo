@@ -30,6 +30,7 @@ export class SettingsComponent implements OnInit {
   metadataPull: number;
   kindlegenPath: string;
   booksRecommendations: number;
+  booksRecommendations2: number;
 
   smtpHost: string;
   smtpPort: string;
@@ -128,6 +129,16 @@ export class SettingsComponent implements OnInit {
       data => {
         if (data)
           this.booksRecommendations = Number(data.value);
+      },
+      error => {
+        console.log(error);
+      }
+    );
+
+    this.configService.get("books.recommendations2").subscribe(
+      data => {
+        if (data)
+          this.booksRecommendations2 = Number(data.value);
       },
       error => {
         console.log(error);
@@ -233,6 +244,7 @@ export class SettingsComponent implements OnInit {
     configs.push(new Config("smtp.password", this.smtpPassword));
     configs.push(new Config("kindlegen.path", this.kindlegenPath));
     configs.push(new Config("books.recommendations", String(this.booksRecommendations)));
+    configs.push(new Config("books.recommendations2", String(this.booksRecommendations2)));
 
     
     this.configService.save(configs).subscribe(

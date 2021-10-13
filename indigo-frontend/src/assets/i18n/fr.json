@@ -60,7 +60,8 @@
 				"title": "Autres livres similaires"
 			},
 			"recommendations": {
-				"title": "Vous aimerez aussi"
+				"title": "Vous aimerez aussi",
+				"title2": "Sélectionné pour vous"
 			},
 			"favorites": {
 				"title": "Favoris"
@@ -225,7 +226,8 @@
 					"path": {
 						"kindlegen": "Chemin d'installation Kindlegen"
 					},
-					"recommendations": "Nombre maximum de lectures recommandées"
+					"recommendations": "Nombre maximum de lectures recommandées par livre",
+					"recommendations2": "Nombre maximum de lectures recommandées par utilisateur"
 				},
 				"metadata": {
 					"title": "Metadata",

@@ -60,7 +60,8 @@
 				"title": "Other similar books"
 			},
 			"recommendations": {
-				"title": "You may also like"
+				"title": "You may also like",
+				"title2": "Selected for you"
 			},
 			"favorites": {
 				"title": "Favorites"
@@ -225,7 +226,8 @@
 					"path": {
 						"kindlegen": "Kindlegen installation path"
 					},
-					"recommendations": "Maximum number of recommended readings"
+					"recommendations": "Maximum number of recommended readings per book",
+					"recommendations2": "Maximum number of recommended readings per user"
 				},
 				"metadata": {
 					"title": "Metadata",

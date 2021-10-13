@@ -1,18 +1,12 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { BookService } from 'src/app/services/book.service';
 import { Book } from 'src/app/domain/book';
-import { CommentService } from 'src/app/services/comment.services';
-import { PageService } from 'src/app/services/page.services';
-import { SerieService } from 'src/app/services/serie.services';
-import { TagService } from 'src/app/services/tag.services';
 import { SelectItem } from 'primeng/api/selectitem';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthorService } from 'src/app/services/author.services';
 import { Author } from 'src/app/domain/author';
-import { UtilService } from 'src/app/services/util.service';
-import { ConfigService } from 'src/app/services/config.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { Search } from 'src/app/domain/search';
 
@@ -28,6 +22,7 @@ export class BooksComponent implements OnInit {
 
   books: Book[] = [];
   favorites: Book[] = [];
+  recommendations: Book[] = [];
   authorInfo: Author;
   title: string;
   private adv_search: Search;
@@ -165,6 +160,7 @@ export class BooksComponent implements OnInit {
     this.page = 0;
     this.books.length = 0
     this.favorites.length = 0
+    this.recommendations.length = 0
 
     this.getAll();
   }
@@ -284,8 +280,10 @@ export class BooksComponent implements OnInit {
 
     if (!this.adv_search) {
       this.getFavoritesBooks();
+      this.getRecommendationsBooks();
     } else {
       this.favorites.length = 0;
+      this.recommendations.length = 0;
     }
 
   }
@@ -336,6 +334,28 @@ export class BooksComponent implements OnInit {
         });
 
         Array.prototype.push.apply(this.favorites, data);
+      },
+      error => {
+        console.log(error);
+      }
+    );
+  }
+
+  getRecommendationsBooks() {
+    const user = JSON.parse(sessionStorage.user);
+    this.bookService.getRecommendationsByUser(user.id).subscribe(
+      data => {
+        this.recommendations.length = 0
+        data.forEach((book) => {
+          this.getCover(book);
+          this.getInfo(book, true);
+          book.authors = book.authorSort.split("&").map(function (item) {
+            return item.trim();
+          });
+
+        });
+
+        Array.prototype.push.apply(this.recommendations, data);
       },
       error => {
         console.log(error);
@@ -402,6 +422,7 @@ export class BooksComponent implements OnInit {
 
     this.books.length = 0;
     this.favorites.length = 0;
+    this.recommendations.length = 0;
 
     this.authorInfo = null;
   }
