@@ -93,10 +93,10 @@ export class HeaderComponent implements OnInit {
   fillMessages(data: Notif[], user: User) {
     this.messages = data;
     this.messages.forEach((message) => {
-      this.bookService.getBookTitle(message.book).subscribe(data => {
+      this.bookService.getBookByPath(message.book).subscribe(data => {
         const book: Book = data;
         let username: string;
-        if (user.id == message.user) {
+        if (user.username == message.user) {
           username = user.username;
           if (message.error)
             message.message = this.translate.instant('locale.messages.kindle.error', { book: book.title, user: username });
@@ -160,7 +160,7 @@ export class HeaderComponent implements OnInit {
     return JSON.parse(sessionStorage.user).role == 'ADMIN';
   }
 
-  markMessageAsRead(id: number) {
+  markMessageAsRead(id: string) {
     const user = JSON.parse(sessionStorage.user);
     this.notificationService.read(id, user.id).subscribe(
       data => {

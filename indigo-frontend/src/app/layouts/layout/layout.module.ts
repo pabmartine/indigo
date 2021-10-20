@@ -15,9 +15,6 @@ import { SearchComponent } from 'src/app/pages/search/search.component';
 import { NotificationsComponent } from 'src/app/pages/notifications/notifications.component';
 import { DetailComponent } from 'src/app/pages/detail/detail.component';
 
-//pipes
-import { CdatePipe } from 'src/app/pipes/cdate.pipe';
-
 //primeng
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -63,8 +60,7 @@ import { DatePipe } from '@angular/common';
     SettingsComponent,
     SearchComponent,
     NotificationsComponent,
-    DetailComponent,
-    CdatePipe
+    DetailComponent
   ],
   imports: [
     CommonModule,

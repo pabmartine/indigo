@@ -25,7 +25,7 @@
                 "notifications": "Notificaciones"
             }
         },
-        "messages":{
+        "messages": {
             "none": "No hay mensajes pendientes",
             "kindle": {
                 "ok": "El libro <strong>{{book}}</strong> se ha enviado al kindle de <strong>{{user}}</strong> correctamente",
@@ -56,14 +56,14 @@
                     }
                 }
             },
-            "similar":{
+            "similar": {
                 "title": "Otros libros similares"
             },
-            "recommendations":{
+            "recommendations": {
                 "title": "También pueden gustarte",
                 "title2": "Seleccionados para ti"
             },
-            "favorites":{
+            "favorites": {
                 "title": "Favoritos"
             },
             "order_by": {
@@ -78,6 +78,10 @@
                 "title": {
                     "asc": "Libros ordenados por titulo ascendente",
                     "desc": "Libros ordenados por titulo descendente"
+                },
+                "rating": {
+                    "asc": "Libros peor valorados",
+                    "desc": "Libros mejor valorados"
                 }
             },
             "error": {
@@ -101,7 +105,7 @@
                     "desc": "Autores por nombre descendente"
                 }
             },
-            "favorites":{
+            "favorites": {
                 "title": "Favoritos",
                 "add": {
                     "ok": "El autor se ha añadido a favoritos",
@@ -167,7 +171,6 @@
                 "merge": "No se ha podido realizar la operación",
                 "rename": "No se ha podido realizar la operación",
                 "image": "No se ha podido realizar la operación"
-
             }
         },
         "series": {
@@ -207,39 +210,37 @@
                 "title": "Mis lecturas"
             },
             "error": {
-                "get" : "No se ha podido recuperar el perfil",
-                "update" : "No se ha podido actualizar el perfil",
-                "save" : "No se ha podido salvar el perfil",
-                "name" : "Ya existe un usuario con ese nombre"
+                "get": "No se ha podido recuperar el perfil",
+                "update": "No se ha podido actualizar el perfil",
+                "save": "No se ha podido salvar el perfil",
+                "name": "Ya existe un usuario con ese nombre"
             },
             "ok": {
-                "update" : "Perfil actualizado correctamente"
+                "update": "Perfil actualizado correctamente"
             }
         },
         "settings": {
             "title": "Configuración",
-            "panel":{
+            "panel": {
                 "users": {
                     "title": "Usuarios"
                 },
                 "global": {
                     "title": "General",
-                    "path":{
+                    "path": {
                         "kindlegen": "Ruta a la instalación de kindlegen"
                     },
                     "recommendations": "Número máximo de lecturas recomendadas por libro",
                     "recommendations2": "Número máximo de lecturas recomendadas por usuario"
                 },
-                "metadata":  {
+                "metadata": {
                     "title": "Metadatos",
                     "pull": "Realizar una petición cada (segundos)",
                     "goodreadskey": "Clave de desarrollador de GoodReads",
-                    "authors": {
-                        "nodata" : "Actualizar metadatos (ratings, comentarios, biografía del autor, etc.) para libros nuevos",
-                        "data": "Actualizar metadatos (ratings, comentarios, biografía del autor, etc.) para toda la biblioteca. Sobreescribir existentes."
-                    }
+                    "partial": "Actualizar metadatos (ratings, comentarios, biografía del autor, etc.) para libros nuevos",
+                    "full": "Actualizar metadatos (ratings, comentarios, biografía del autor, etc.) para toda la biblioteca. Sobreescribir existentes."
                 },
-                "smtp":  {
+                "smtp": {
                     "title": "Servidor de correo",
                     "host": "Servidor",
                     "port": "Puerto",
@@ -252,7 +253,6 @@
                         "ok": "Validado",
                         "error": "Error"
                     }
-
                 }
             },
             "actions": {
@@ -260,7 +260,7 @@
                     "ok": "Configuración salvada correctamente",
                     "error": "No se ha podido salvar la configuración"
                 },
-                "start":{
+                "start": {
                     "error": "No se ha podido iniciar el servicio"
                 },
                 "stop": {
@@ -306,8 +306,8 @@
             "type": "Tipo",
             "status": "Estado",
             "sendDate": "Fecha",
-            "readByUser": "Leido por usuario",
-            "readByAdmin": "Leido por administrador",
+            "readUser": "Leido por usuario",
+            "readAdmin": "Leido por administrador",
             "error": "Error",
             "search": "Buscar por ",
             "select": "Selecciona un ",
@@ -319,12 +319,12 @@
                     "error": "No se ha podido borrar la notificación"
                 }
             },
-            "read":{
-                "true":"Sí",
-                "false":"No"
+            "read": {
+                "true": "Sí",
+                "false": "No"
             },
-            "statuses":{
-                "SEND":"Enviado",
+            "statuses": {
+                "SEND": "Enviado",
                 "NOT_SEND": "No enviado"
             },
             "types": {

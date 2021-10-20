@@ -1,14 +1,13 @@
-import { Component, OnInit, HostListener } from '@angular/core';
-import { BookService } from 'src/app/services/book.service';
-import { Book } from 'src/app/domain/book';
-import { SelectItem } from 'primeng/api/selectitem';
-import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { Component, HostListener, OnInit } from '@angular/core';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { AuthorService } from 'src/app/services/author.services';
+import { MessageService } from 'primeng/api';
+import { SelectItem } from 'primeng/api/selectitem';
 import { Author } from 'src/app/domain/author';
-import { NotificationService } from 'src/app/services/notification.service';
+import { Book } from 'src/app/domain/book';
 import { Search } from 'src/app/domain/search';
+import { AuthorService } from 'src/app/services/author.service';
+import { BookService } from 'src/app/services/book.service';
 
 
 
@@ -55,8 +54,7 @@ export class BooksComponent implements OnInit {
     private route: ActivatedRoute,
     private authorService: AuthorService,
     private messageService: MessageService,
-    public translate: TranslateService,
-    public notificationService: NotificationService) {
+    public translate: TranslateService) {
 
 
     //defines the number of elements to retrieve according to the width of the screen
@@ -76,7 +74,10 @@ export class BooksComponent implements OnInit {
       { label: this.translate.instant('locale.books.order_by.pubdate.desc'), value: 'pubDate,desc' },
       { label: this.translate.instant('locale.books.order_by.pubdate.asc'), value: 'pubDate,asc' },
       { label: this.translate.instant('locale.books.order_by.title.asc'), value: 'title,asc' },
-      { label: this.translate.instant('locale.books.order_by.title.desc'), value: 'title,desc' }
+      { label: this.translate.instant('locale.books.order_by.title.desc'), value: 'title,desc' },
+      { label: this.translate.instant('locale.books.order_by.rating.desc'), value: 'rating,desc' },
+      { label: this.translate.instant('locale.books.order_by.rating.asc'), value: 'rating,asc' }
+
     );
 
     this.adv_search = null;
@@ -84,17 +85,12 @@ export class BooksComponent implements OnInit {
 
 
 
-    //Get current data if exist in session
-    // if (sessionStorage.getItem("books")){
-    //   Array.prototype.push.apply(this.books, JSON.parse(sessionStorage.getItem("books")));
-    // }
-
     // subscribe to the router events. Store the subscription so we can
     // unsubscribe later.
     this.navigationSubscription = this.router.events.subscribe((e: any) => {
       // If it is a NavigationEnd event re-initalise the component
       if (e instanceof NavigationEnd) {
-        if (this.router.url == "/books" &&  !sessionStorage.getItem("position")) {
+        if (this.router.url == "/books" && !sessionStorage.getItem("position")) {
           this.adv_search = null;
           this.doSearch();
         }
@@ -103,10 +99,18 @@ export class BooksComponent implements OnInit {
 
     this.route.queryParams.subscribe(params => {
 
+      if (params['author']) {
+        this.authorInfo = JSON.parse(params['author']);
+      } else {
+        this.authorInfo = null;
+      }
+
       if (params['adv_search']) {
         this.adv_search = JSON.parse(params['adv_search']);
         this.doSearch();
       }
+
+
     });
 
 
@@ -166,10 +170,8 @@ export class BooksComponent implements OnInit {
   }
 
   onScroll() {
-    if (this.books.length < this.total) {
+    if (this.books.length > 0 && this.books.length < this.total) {
       this.getAll();
-    } else {
-      console.log('No more data.');
     }
   }
 
@@ -190,10 +192,10 @@ export class BooksComponent implements OnInit {
         } else if (this.isAuthorSearch(this.adv_search)) {
           let author = this.adv_search.author;
           if (this.authorInfo)
-            author = this.authorInfo.title;
+            author = this.authorInfo.name;
           this.title = this.translate.instant('locale.books.title_of') + author + "  (" + this.total + ")";
         } else if (this.isTagSearch(this.adv_search)) {
-          this.title = this.translate.instant('locale.books.title_of') + this.adv_search.selectedTags[0].tag + "  (" + this.total + ")";
+          this.title = this.translate.instant('locale.books.title_of') + this.adv_search.selectedTags.join(', ') + "  (" + this.total + ")";
         } else if (this.isSerieSearch(this.adv_search)) {
           this.title = this.translate.instant('locale.books.title_of') + this.adv_search.serie + "  (" + this.total + ")";
         } else if (this.adv_search) {
@@ -216,11 +218,6 @@ export class BooksComponent implements OnInit {
 
         data.forEach((book) => {
           this.getCover(book);
-          this.getInfo(book, true);
-          book.authors = book.authorSort.split("&").map(function (item) {
-            return item.trim();
-          });
-
         });
 
         Array.prototype.push.apply(this.books, data);
@@ -234,18 +231,6 @@ export class BooksComponent implements OnInit {
     );
   }
 
-  getInfo(book: Book, local: boolean) {
-    this.bookService.getBookInfo(book.id, local).subscribe(
-      data => {
-        if (data) {
-          book.rating = data.rating;
-        }
-      },
-      error => {
-        console.log(error);
-      }
-    );
-  }
 
   getCover(book: Book) {
     this.bookService.getCover(book.path).subscribe(
@@ -262,12 +247,10 @@ export class BooksComponent implements OnInit {
   }
 
 
-
-
-  showDetails(id: number) {
+  showDetails(book: Book) {
     //save current data in session
     sessionStorage.setItem("position", document.documentElement.scrollTop.toString());
-    this.router.navigate(["detail"], { queryParams: { book: id } });
+    this.router.navigate(["detail"], { queryParams: { book: JSON.stringify(book) } });
   }
 
 
@@ -291,25 +274,26 @@ export class BooksComponent implements OnInit {
 
   private searchAuthorInfo() {
     if (this.isAuthorSearch(this.adv_search)) {
-      this.authorService.getInfoByName(this.adv_search.author, "es").subscribe(
+      this.authorService.getByName(this.adv_search.author).subscribe(
         data => {
           if (data) {
-            this.authorInfo = new Author(data.id, null, null, data.name, data.description, data.image);
+            this.authorInfo = data;
             this.getFavoriteAuthor();
           }
-        }, error => {
+        },
+        error => {
           console.log(error);
-          this.messageService.clear();
-          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.error.data'), closable: false, life: 5000 });
-        });
+        }
+      );
+
+
     }
   }
 
   getFavoriteAuthor() {
     const user = JSON.parse(sessionStorage.user);
-    this.authorService.getFavorite(this.authorInfo.id, user.id).subscribe(
+    this.authorService.getFavorite(this.authorInfo.sort, user.id).subscribe(
       data => {
-
         if (data) {
           this.favoriteAuthor = true;
         }
@@ -327,11 +311,6 @@ export class BooksComponent implements OnInit {
         this.favorites.length = 0
         data.forEach((book) => {
           this.getCover(book);
-          this.getInfo(book, true);
-          book.authors = book.authorSort.split("&").map(function (item) {
-            return item.trim();
-          });
-
         });
 
         Array.prototype.push.apply(this.favorites, data);
@@ -349,11 +328,6 @@ export class BooksComponent implements OnInit {
         this.recommendations.length = 0
         data.forEach((book) => {
           this.getCover(book);
-          this.getInfo(book, true);
-          book.authors = book.authorSort.split("&").map(function (item) {
-            return item.trim();
-          });
-
         });
 
         Array.prototype.push.apply(this.recommendations, data);
@@ -366,7 +340,7 @@ export class BooksComponent implements OnInit {
 
   addFavoriteAuthor() {
     const user = JSON.parse(sessionStorage.user);
-    this.authorService.addFavorite(this.authorInfo.id, user.id).subscribe(
+    this.authorService.addFavorite(this.authorInfo.sort, user.id).subscribe(
       data => {
         this.favoriteAuthor = true;
         this.messageService.clear();
@@ -383,7 +357,7 @@ export class BooksComponent implements OnInit {
 
   deleteFavoriteAuthor() {
     const user = JSON.parse(sessionStorage.user);
-    this.authorService.deleteFavorite(this.authorInfo.id, user.id).subscribe(
+    this.authorService.deleteFavorite(this.authorInfo.sort, user.id).subscribe(
       data => {
         this.favoriteAuthor = false;
         this.messageService.clear();
@@ -424,8 +398,6 @@ export class BooksComponent implements OnInit {
     this.books.length = 0;
     this.favorites.length = 0;
     this.recommendations.length = 0;
-
-    this.authorInfo = null;
   }
 
   public isGlobalSearch(search: Search) {

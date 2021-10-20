@@ -5,7 +5,7 @@
     <div class="content-header p-grid">
       <div class="p-col-12 p-md-7">
         <span class="page-title">
-          {{authorInfo.title}}
+          {{authorInfo.name}}
         </span>
       </div>
       <div class="p-col-5 book-title-buttons">
@@ -53,7 +53,7 @@
     <div class="content-body p-grid" infiniteScroll [infiniteScrollDistance]="2" (scrolled)="onScroll()">
       <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of favorites">
 
-        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book.id)"
+        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)"
           style="cursor: pointer;" />
         <div>
           <span class="title">{{book.title}}</span>
@@ -85,7 +85,7 @@
     <div class="content-body p-grid" infiniteScroll [infiniteScrollDistance]="2" (scrolled)="onScroll()">
       <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of recommendations">
 
-        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book.id)"
+        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)"
           style="cursor: pointer;" />
         <div>
           <span class="title">{{book.title}}</span>
@@ -124,7 +124,7 @@
     <div class="content-body p-grid" infiniteScroll [infiniteScrollDistance]="2" (scrolled)="onScroll()">
       <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of books">
 
-        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book.id)"
+        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)"
           style="cursor: pointer;" />
         <div>
           <span class="title">{{book.title}}</span>

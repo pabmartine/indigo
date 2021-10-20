@@ -185,9 +185,7 @@ export class ProfileComponent implements OnInit {
 
         data.forEach((book) => {
           this.getCover(book);
-          book.authors = book.authorSort.split("&").map(function (item) {
-            return item.trim();
-          });
+
 
         });
 
@@ -205,8 +203,8 @@ export class ProfileComponent implements OnInit {
     this.router.navigate(["books"], { queryParams: { adv_search: JSON.stringify(search) } });
   }
 
-  showDetails(id: number) {
-    this.router.navigate(["detail"], { queryParams: { book: id } });
+  showDetails(book: Book) {
+    this.router.navigate(["detail"], { queryParams: { book: JSON.stringify(book) } });
   }
 
 }

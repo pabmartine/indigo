@@ -78,6 +78,10 @@
 				"title": {
 					"asc": "Livres classés par titre croissant",
 					"desc": "Livres triés par titre décroissant"
+				},
+				"rating": {
+					"asc": "Livres les moins bien notés",
+					"desc": "Livres les mieux notés"
 				}
 			},
 			"error": {
@@ -233,10 +237,8 @@
 					"title": "Metadata",
 					"pull": "Faire une demande toutes les (secondes)",
 					"goodreadskey": "Clé de développeur GoodReads",
-					"authors": {
-						"nodata": "Mettre à jour les métadonnées (notes, commentaires, biographie de l'auteur, etc.) pour les nouveaux livres",
-						"data": "Mettre à jour les métadonnées (notes, commentaires, biographie de l'auteur, etc.) pour toute la bibliothèque. Remplacer celles existantes."
-					}
+					"partial": "Mettre à jour les métadonnées (notes, commentaires, biographie de l'auteur, etc.) pour les nouveaux livres",
+					"full": "Mettre à jour les métadonnées (notes, commentaires, biographie de l'auteur, etc.) pour toute la bibliothèque. Remplacer celles existantes."
 				},
 				"smtp": {
 					"title": "Serveur de courrier",
@@ -302,10 +304,10 @@
 			"user": "Utilisateur",
 			"book": "Livre",
 			"type": "Type",
-			"readByUser": "Lu par l'utilisateur",
-			"readByAdmin": "Lu par l'administrateur",
+			"readUser": "Lu par l'utilisateur",
+			"readAdmin": "Lu par l'administrateur",
 			"status": "Status",
-      "sendDate": "Date",
+			"sendDate": "Date",
 			"error": "Error",
 			"search": "Rechercher par",
 			"select": "Sélectionnez un ",
@@ -325,9 +327,9 @@
 				"SEND": "Envoyé",
 				"NOT_SEND": "Non envoyé"
 			},
-            "types": {
-                "KINDLE": "Kindle"
-            }
+			"types": {
+				"KINDLE": "Kindle"
+			}
 		},
 		"buttons": {
 			"login": "Connexion",

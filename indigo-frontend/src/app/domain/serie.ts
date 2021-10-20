@@ -1,10 +1,8 @@
 export class Serie {
 
     constructor(
-        public id?:number,
         public name?: string,
-        public sort?: string,
-        public total?: number,
+        public numBooks?: number,
         public image?: string
         ) {
     }

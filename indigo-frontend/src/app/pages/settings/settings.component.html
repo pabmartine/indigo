@@ -98,29 +98,29 @@
 
 
                         <div class="p-col-12 p-md-4">
-                            {{'locale.settings.panel.metadata.authors.nodata' | translate}}
+                            {{'locale.settings.panel.metadata.partial' | translate}}
                         </div>
                         <div class="p-col-12 p-md-8">
                             <div class="p-col-11 center" style="float: left;">
-                                <p-progressBar [value]="progressBar" *ngIf="isNoData"></p-progressBar>
+                                <p-progressBar [value]="progressBar" *ngIf="isPartial"></p-progressBar>
                             </div>
                             <div class="p-col-1 right" style="float: right;">
-                                <a href="javascript:;" (click)="doExecuteNoData()">
-                                    <span class="pi" [ngClass]="{ 'pi-pause': isNoData, 'pi-play': !isNoData  }"></span>
+                                <a href="javascript:;" (click)="doExecutePartial()">
+                                    <span class="pi" [ngClass]="{ 'pi-pause': isPartial, 'pi-play': !isPartial  }"></span>
                                 </a>
                             </div>
                         </div>
 
                         <div class="p-col-12 p-md-4">
-                            {{'locale.settings.panel.metadata.authors.data' | translate}}
+                            {{'locale.settings.panel.metadata.full' | translate}}
                         </div>
                         <div class="p-col-12 p-md-8">
                             <div class="p-col-11 center" style="float: left;">
-                                <p-progressBar [value]="progressBar" *ngIf="isData"></p-progressBar>
+                                <p-progressBar [value]="progressBar" *ngIf="isFull"></p-progressBar>
                             </div>
                             <div class="p-col-1 right" style="float: right;">
-                                <a href="javascript:;" (click)="doExecuteData()">
-                                    <span class="pi" [ngClass]="{ 'pi-pause': isData, 'pi-play': !isData  }"></span>
+                                <a href="javascript:;" (click)="doExecuteFull()">
+                                    <span class="pi" [ngClass]="{ 'pi-pause': isFull, 'pi-play': !isFull  }"></span>
                                 </a></div>
                         </div>
                     </div>

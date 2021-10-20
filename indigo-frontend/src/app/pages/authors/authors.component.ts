@@ -1,7 +1,7 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { SelectItem } from 'primeng/api/selectitem';
 import { Author } from 'src/app/domain/author';
-import { AuthorService } from 'src/app/services/author.services';
+import { AuthorService } from 'src/app/services/author.service';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
@@ -42,7 +42,7 @@ export class AuthorsComponent implements OnInit {
     private messageService: MessageService,
     public translate: TranslateService) {
 
-          //defines the number of elements to retrieve according to the width of the screen
+    //defines the number of elements to retrieve according to the width of the screen
     if (window.screen.width <= 640) {
       this.size = 10;
     } else if (window.screen.width <= 1024) {
@@ -51,12 +51,12 @@ export class AuthorsComponent implements OnInit {
       this.size = 80;
     }
 
-      this.sorts.push(
-        { label: this.translate.instant('locale.authors.order_by.total.desc'), value: 'total,desc' },
-        { label: this.translate.instant('locale.authors.order_by.total.asc'), value: 'total,asc' },
-        { label: this.translate.instant('locale.authors.order_by.sort.asc'), value: 'sort,asc' },
-        { label: this.translate.instant('locale.authors.order_by.sort.desc'), value: 'sort,desc' }
-      );
+    this.sorts.push(
+      { label: this.translate.instant('locale.authors.order_by.total.desc'), value: 'numBooks,desc' },
+      { label: this.translate.instant('locale.authors.order_by.total.asc'), value: 'numBooks,asc' },
+      { label: this.translate.instant('locale.authors.order_by.sort.asc'), value: 'sort,asc' },
+      { label: this.translate.instant('locale.authors.order_by.sort.desc'), value: 'sort,desc' }
+    );
   }
 
   ngOnInit(): void {
@@ -102,8 +102,6 @@ export class AuthorsComponent implements OnInit {
   onScroll() {
     if (this.authors.length < this.total) {
       this.getAll();
-    } else {
-      console.log('No more data. Finish page!');
     }
   }
 
@@ -130,11 +128,6 @@ export class AuthorsComponent implements OnInit {
   getAll() {
     this.authorService.getAll(this.page, this.size, this.sort, this.order).subscribe(
       data => {
-        //Get author info
-        data.forEach((author) => {
-          this.getInfo(author);
-        });
-
         Array.prototype.push.apply(this.authors, data);
         this.page++;
       },
@@ -146,39 +139,22 @@ export class AuthorsComponent implements OnInit {
     );
   }
 
-  getInfo(author: Author) {
-    this.authorService.getInfoById(author.id).subscribe(
-      data => {
-        if (data) {
-          author.title = data.name;
-          author.description = data.description;
-          author.image = data.image;
-        }
-      },
-      error => {
-        console.log(error);
-      }
-    );
-  }
 
-  getBooksByAuthor(author: string) {
+
+  getBooksByAuthor(author: Author) {
     this.reset();
 
-    let search:Search = new Search();
-    search.author = author;
-    this.router.navigate(["books"], { queryParams: { adv_search: JSON.stringify(search) } });
+    let search: Search = new Search();
+    search.author = author.sort;
+    this.router.navigate(["books"], { queryParams: { adv_search: JSON.stringify(search), author: JSON.stringify(author) } });
   }
 
 
 
-  getFavorites(){
+  getFavorites() {
     const user = JSON.parse(sessionStorage.user);
     this.authorService.getFavorites(user.id).subscribe(
       data => {
-         //Get author info
-         data.forEach((author) => {
-          this.getInfo(author);
-        });
 
         Array.prototype.push.apply(this.favorites, data);
         this.page++;
@@ -189,7 +165,7 @@ export class AuthorsComponent implements OnInit {
     );
   }
 
-  
+
 
   private reset() {
     this.authors.length = 0;
@@ -197,7 +173,7 @@ export class AuthorsComponent implements OnInit {
     this.total = 0;
     this.page = 0;
     this.lastPage = 0;
-   
+
     this.selectedSort = sessionStorage.getItem('authors_order');
     if (!this.selectedSort) {
       this.sort = "sort";

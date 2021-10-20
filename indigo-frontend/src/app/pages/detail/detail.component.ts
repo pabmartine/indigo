@@ -1,23 +1,19 @@
+import { DatePipe, Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { Location } from '@angular/common';
-import { BookService } from 'src/app/services/book.service';
-import { Book } from 'src/app/domain/book';
-import { CommentService } from 'src/app/services/comment.services';
-import { PageService } from 'src/app/services/page.services';
-import { SerieService } from 'src/app/services/serie.services';
-import { TagService } from 'src/app/services/tag.services';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
-import { UtilService } from 'src/app/services/util.service';
-import { ConfigService } from 'src/app/services/config.service';
-import { NotificationService } from 'src/app/services/notification.service';
+import { MessageService } from 'primeng/api';
+import { Book } from 'src/app/domain/book';
 import { Notif } from 'src/app/domain/notif';
+import { Search } from 'src/app/domain/search';
 import { NotificationEnum } from 'src/app/enums/notification.enum.';
 import { StatusEnum } from 'src/app/enums/status.enum';
-import { Search } from 'src/app/domain/search';
-import { Tag } from 'src/app/domain/tag';
-import { DatePipe } from '@angular/common';
+import { BookService } from 'src/app/services/book.service';
+import { ConfigService } from 'src/app/services/config.service';
+import { NotificationService } from 'src/app/services/notification.service';
+import { SerieService } from 'src/app/services/serie.service';
+import { TagService } from 'src/app/services/tag.service';
+import { UtilService } from 'src/app/services/util.service';
 
 @Component({
   selector: 'app-detail',
@@ -39,8 +35,6 @@ export class DetailComponent implements OnInit {
 
   constructor(
     private bookService: BookService,
-    private commentService: CommentService,
-    private pageService: PageService,
     private serieService: SerieService,
     private tagService: TagService,
     private utilService: UtilService,
@@ -56,7 +50,7 @@ export class DetailComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
 
       if (params['book']) {
-        this.showDetails(params['book']);
+        this.showDetails(JSON.parse(params['book']));
       }
     });
 
@@ -66,59 +60,27 @@ export class DetailComponent implements OnInit {
   ngOnInit(): void {
   }
 
-
-
-  getInfo(book: Book, local: boolean) {
-    this.bookService.getBookInfo(book.id, local).subscribe(
-      data => {
-        if (data) {
-          book.rating = data.rating;
-
-          if (!local && data.similar) {
-            this.getSimilar(data.similar);
-          }
-
-          if (!local) {
-            this.getRecommendations(data.id);
-          }
-        }
-      },
-      error => {
-        console.log(error);
-      }
-    );
-  }
-
-  getSimilar(similar: string) {
-    this.bookService.getSimilar(similar).subscribe(
-      data => {
-        data.forEach((book) => {
-          this.getCover(book);
-          this.getInfo(book, true);
-          book.authors = book.authorSort.split("&").map(function (item) {
-            return item.trim();
+  getSimilar(similar: string[]) {
+    if (similar)
+      this.bookService.getSimilar(similar).subscribe(
+        data => {
+          data.forEach((book) => {
+            this.getCover(book);
           });
+          Array.prototype.push.apply(this.similar, data);
 
-        });
-        Array.prototype.push.apply(this.similar, data);
-
-      },
-      error => {
-        console.log(error);
-      }
-    );
+        },
+        error => {
+          console.log(error);
+        }
+      );
   }
 
-  getRecommendations(id: number) {
+  getRecommendations(id: string) {
     this.bookService.getRecommendationsByBook(id).subscribe(
       data => {
         data.forEach((book) => {
           this.getCover(book);
-          this.getInfo(book, true);
-          book.authors = book.authorSort.split("&").map(function (item) {
-            return item.trim();
-          });
-
         });
         Array.prototype.push.apply(this.recommendations, data);
 
@@ -142,84 +104,16 @@ export class DetailComponent implements OnInit {
       }
     );
   }
-
-  getComment(id:number) {
-    this.commentService.getComment(id).subscribe(
-      data => {
-        this.selected.description = data.comment;
-      },
-      error => {
-        console.log(error);
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.error.comment'), closable: false, life: 5000 });
-      }
-    );
-  }
-
-  getPages(id:number) {
-    this.pageService.getPages(id).subscribe(
-      data => {
-        this.selected.pages = data.pages;
-      },
-      error => {
-        console.log(error);
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.error.pages'), closable: false, life: 5000 });
-      }
-    );
-  }
-
-  getSerie(id:number) {
-    this.serieService.getSerie(id).subscribe(
-      data => {
-        this.selected.seriesName = data.serie;
-      },
-      error => {
-        console.log(error);
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.error.serie'), closable: false, life: 5000 });
-      }
-    );
-  }
-
-  getTags(id:number) {
-    this.tagService.getTags(id).subscribe(
-      data => {
-        this.selected.tags = data;
-      },
-      error => {
-        console.log(error);
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.error.tags'), closable: false, life: 5000 });
-      }
-    );
-  }
-
-  showDetails(id: number) {
+  showDetails(book: Book) {
+    this.selected = book;
     this.kindle = false;
     this.favoriteBook = false;
     this.similar.length = 0;
     this.recommendations.length = 0;
-    this.getData(id);
-    this.getComment(id);
-    this.getPages(id);
-    this.getSerie(id);
-    this.getTags(id);
+    this.getSimilar(book.similar);
+    this.getRecommendations(book.id);
     this.getKindle();
-    this.getFavoriteBook(id);
-  }
-
-  getData(id: number) {
-    this.bookService.getBookTitle(id).subscribe(
-      data => {
-        this.selected = data;
-        this.getCover(data);
-        this.getInfo(data, false);
-        data.authors = data.authorSort.split("&").map(function (item) {
-          return item.trim();
-        });
-      },
-      error => {
-        console.log(error);
-      }
-    );
+    this.getFavoriteBook(book.path);
   }
 
   getBooksByAuthor(author: string) {
@@ -232,17 +126,11 @@ export class DetailComponent implements OnInit {
   getBooksByTag(tag: string) {
     this.selected = null;
 
-    this.tagService.getTag(tag).subscribe(
-      data => {
-        this.adv_search = new Search();
-        this.adv_search.selectedTags = [];
-        this.adv_search.selectedTags.push(new Tag(data.id, data.name));
-        this.doSearch();
-      },
-      error => {
-        console.log(error);
-      }
-    );
+    this.adv_search = new Search();
+    this.adv_search.selectedTags = [];
+    this.adv_search.selectedTags.push(tag);
+    this.doSearch();
+
   }
 
   getBooksBySerie(serie: string) {
@@ -257,10 +145,10 @@ export class DetailComponent implements OnInit {
   }
 
 
-  addNotification(book: number, type: NotificationEnum, status: StatusEnum, error: string) {
+  addNotification(book: string, type: NotificationEnum, status: StatusEnum, error: string) {
     const user = JSON.parse(sessionStorage.user);
 
-    const notification = new Notif(null, book, user.id, type, status, error, this.datepipe.transform(new Date(), 'dd/MM/yyyy HH:mm:ss'));
+    const notification = new Notif(null, book, user.username, type, status, error, this.datepipe.transform(new Date(), 'dd/MM/yyyy HH:mm:ss'));
     this.notificationService.save(notification).subscribe(
       data => {
         console.log(data);
@@ -272,13 +160,13 @@ export class DetailComponent implements OnInit {
   }
 
   sendToKindle() {
-    let book = this.selected.id;
+    let book = this.selected.path;
     const user = JSON.parse(sessionStorage.user);
 
     this.messageService.clear();
     this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.kindle.todo'), closable: false, life: 5000 });
 
-    this.utilService.sendMail(this.selected.path, user.id).subscribe(
+    this.utilService.sendMail(book, user.kindle).subscribe(
       data => {
         this.messageService.clear();
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.kindle.ok'), closable: false, life: 5000 });
@@ -293,7 +181,7 @@ export class DetailComponent implements OnInit {
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.kindle.error'), closable: false, life: 5000 });
 
         //Add to notifications table
-        this.addNotification(book, NotificationEnum.KINDLE, StatusEnum.NOT_SEND, error.error);
+        this.addNotification(book + '', NotificationEnum.KINDLE, StatusEnum.NOT_SEND, error.error);
       }
     );
 
@@ -322,7 +210,7 @@ export class DetailComponent implements OnInit {
     );
   }
 
-  getFavoriteBook(id:number) {
+  getFavoriteBook(id: string) {
     const user = JSON.parse(sessionStorage.user);
     this.bookService.getFavorite(id, user.id).subscribe(
       data => {
@@ -342,7 +230,7 @@ export class DetailComponent implements OnInit {
 
   addFavoriteBook() {
     const user = JSON.parse(sessionStorage.user);
-    this.bookService.addFavorite(this.selected.id, user.id).subscribe(
+    this.bookService.addFavorite(this.selected.path, user.id).subscribe(
       data => {
         this.favoriteBook = true;
         this.messageService.clear();
@@ -360,7 +248,7 @@ export class DetailComponent implements OnInit {
 
   deleteFavoriteBook() {
     const user = JSON.parse(sessionStorage.user);
-    this.bookService.deleteFavorite(this.selected.id, user.id).subscribe(
+    this.bookService.deleteFavorite(this.selected.path, user.id).subscribe(
       data => {
         this.favoriteBook = false;
         this.messageService.clear();
@@ -375,6 +263,7 @@ export class DetailComponent implements OnInit {
   }
 
   close() {
+    //TODO actualizar la lista de favoritos en la vista pricipal
     this.location.back();
   }
 

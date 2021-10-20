@@ -10,7 +10,7 @@ export class Search {
         public min?: number,
         public max?: number,
         public serie?: string,
-        public selectedTags?: Tag[],
+        public selectedTags?: string[],
         public path?: string
         ) {
     }

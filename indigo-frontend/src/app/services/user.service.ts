@@ -32,11 +32,11 @@ export class UserService {
     return this.http.put<User>(this.endpoint + "/save",user);
   }
 
-  public delete(id:number):Observable<any> {
+  public delete(id:string):Observable<any> {
     return this.http.delete<any>(this.endpoint + "/delete?id="+id);
   }
 
-  public getById(id:number):Observable<User> {
+  public getById(id:string):Observable<User> {
     return this.http.get<any>(this.endpoint + "/getById?id="+id);
   }
 

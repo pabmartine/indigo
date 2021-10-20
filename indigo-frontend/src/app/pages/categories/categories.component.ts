@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { TagService } from 'src/app/services/tag.services';
+import { TagService } from 'src/app/services/tag.service';
 import { Router } from '@angular/router';
 import { Tag } from 'src/app/domain/tag';
 import { SelectItem } from 'primeng/api/selectitem';
@@ -53,8 +53,8 @@ export class CategoriesComponent implements OnInit {
     public translate: TranslateService) {
 
     this.sorts.push(
-      { label: this.translate.instant('locale.tags.order_by.total.desc'), value: 'total,desc' },
-      { label: this.translate.instant('locale.tags.order_by.total.asc'), value: 'total,asc' },
+      { label: this.translate.instant('locale.tags.order_by.total.desc'), value: 'numBooks,desc' },
+      { label: this.translate.instant('locale.tags.order_by.total.asc'), value: 'numBooks,asc' },
       { label: this.translate.instant('locale.tags.order_by.name.asc'), value: 'name,asc' },
       { label: this.translate.instant('locale.tags.order_by.name.desc'), value: 'name,desc' }
     );
@@ -97,11 +97,7 @@ export class CategoriesComponent implements OnInit {
     this.tagService.getAll(this.sort, this.order).subscribe(
       data => {
         this.tags = data;
-        this.title = this.translate.instant('locale.tags.title') + " (" + this.tags.length + ")";
-        //Get author info
-        data.forEach((tag) => {
-          this.getImage(tag);
-        });
+        this.title = this.translate.instant('locale.tags.title') + " (" + this.tags.length + ")";      
 
       },
       error => {
@@ -117,7 +113,7 @@ export class CategoriesComponent implements OnInit {
     
     let search:Search = new Search();
     search.selectedTags = [];
-    search.selectedTags.push(tag);
+    search.selectedTags.push(tag.name);
     this.router.navigate(["books"], { queryParams: { adv_search: JSON.stringify(search) } });
   }
 
@@ -128,17 +124,17 @@ export class CategoriesComponent implements OnInit {
   showRename() {
     this.messageService.clear();
     this.sortedTags = Object.assign([], this.tags);
-    this.sortedTags.sort((a, b) => (a.tag > b.tag) ? 1 : -1);
+    this.sortedTags.sort((a, b) => (a.name > b.name) ? 1 : -1);
     this.rename = true;
 
-    console.log(this.sourceTag.tag);
+    console.log(this.sourceTag.name);
 
   }
 
   showMerge() {
     this.messageService.clear();
     this.sortedTags = Object.assign([], this.tags);
-    this.sortedTags.sort((a, b) => (a.tag > b.tag) ? 1 : -1);
+    this.sortedTags.sort((a, b) => (a.name > b.name) ? 1 : -1);
     this.targetTag = this.sortedTags[0];
     this.merge = true;
   }
@@ -146,13 +142,13 @@ export class CategoriesComponent implements OnInit {
   showImage() {
     this.messageService.clear();
     this.sortedTags = Object.assign([], this.tags);
-    this.sortedTags.sort((a, b) => (a.tag > b.tag) ? 1 : -1);
+    this.sortedTags.sort((a, b) => (a.name > b.name) ? 1 : -1);
     this.image = true;
   }
 
   validateRename(event) {
     var found = this.sortedTags.filter(tag => {
-      return tag.tag === this.newTag;
+      return tag.name === this.newTag;
     })[0];
 
     this.messageService.clear();
@@ -162,7 +158,7 @@ export class CategoriesComponent implements OnInit {
       this.messageService.add({ key: "rename", severity: 'error', detail: this.translate.instant('locale.tags.actions.rename.error'), closable: false, life: 5000 });
     } else {
       this.renameValid = true;
-      this.messageService.add({ key: "rename", severity: 'info', detail: this.translate.instant('locale.tags.actions.rename.info', { source: this.sourceTag.tag, target: this.newTag }), closable: false, life: 5000 });
+      this.messageService.add({ key: "rename", severity: 'info', detail: this.translate.instant('locale.tags.actions.rename.info', { source: this.sourceTag.name, target: this.newTag }), closable: false, life: 5000 });
     }
   }
 
@@ -175,7 +171,7 @@ export class CategoriesComponent implements OnInit {
       this.messageService.add({ key: "merge", severity: 'error', detail: this.translate.instant('locale.tags.actions.merge.error'), closable: false, life: 5000 });
     } else {
       this.mergeValid = true;
-      this.messageService.add({ key: "merge", severity: 'info', detail: this.translate.instant('locale.tags.actions.merge.info', { source: this.sourceTag.tag, target: this.targetTag.tag }), closable: false, life: 5000 });
+      this.messageService.add({ key: "merge", severity: 'info', detail: this.translate.instant('locale.tags.actions.merge.info', { source: this.sourceTag.name, target: this.targetTag.name }), closable: false, life: 5000 });
     }
   }
 
@@ -248,29 +244,14 @@ export class CategoriesComponent implements OnInit {
     this.background_image = null;
   }
 
-  getImage(tag: Tag) {
-    this.tagService.getImage(tag.id).subscribe(
-      data => {
-        if (data) {
-          tag.image = data.image;
-        }
-      },
-      error => {
-        console.log(error);
-      }
-    );
-  }
-
-
-
-  private reset() {
+   private reset() {
     this.tags.length = 0;
     this.total = 0;
 
 
     this.selectedSort = sessionStorage.getItem('tags_order');
     if (!this.selectedSort) {
-      this.sort = "tag";
+      this.sort = "name";
       this.order = "asc";
       this.selectedSort = this.sort + "," + this.order;
     }

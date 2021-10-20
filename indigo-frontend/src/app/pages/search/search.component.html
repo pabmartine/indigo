@@ -50,7 +50,7 @@
                         [showToggleAll]="true" [showHeader]="true">
                         <ng-template let-value pTemplate="selectedItems">
                             <div *ngFor="let val of value" class="multiselected-item-token ui-corner-all">
-                                <span>{{val.tag}}</span>
+                                <span>{{val}}</span>
                             </div>
                             <span *ngIf="!value || value.length === 0"
                                 class="multiselected-empty-token ui-corner-all"> </span>

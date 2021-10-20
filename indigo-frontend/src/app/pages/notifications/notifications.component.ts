@@ -73,7 +73,6 @@ export class NotificationsComponent implements OnInit {
         if (data) {
           this.notifications = data;
           this.notifications.forEach((notif) => {
-            this.getUser(notif);
             this.getBook(notif);
           });
         }
@@ -85,21 +84,8 @@ export class NotificationsComponent implements OnInit {
     );
   }
 
-  getUser(notif: Notif) {
-    this.userService.getById(notif.user).subscribe(
-      data => {
-        if (data) {
-          notif.username = data.username;
-        }
-      },
-      error => {
-        console.log(error);
-      }
-    );
-  }
-
   getBook(notif: Notif) {
-    this.bookService.getBookTitle(notif.book).subscribe(
+    this.bookService.getBookByPath(notif.book).subscribe(
       data => {
         if (data) {
           notif.title = data.title;
@@ -112,7 +98,7 @@ export class NotificationsComponent implements OnInit {
     );
   }
 
-  deleteNotification(id: number) {
+  deleteNotification(id: string) {
     this.notificationService.delete(id).subscribe(
       data => {
         this.getNotifications();

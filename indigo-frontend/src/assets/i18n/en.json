@@ -78,6 +78,10 @@
 				"title": {
 					"asc": "Books ordered by ascending title",
 					"desc": "Books sorted by descending title"
+				},
+				"rating": {
+					"asc": "Lowest rated books",
+					"desc": "Best rated books"
 				}
 			},
 			"error": {
@@ -233,10 +237,8 @@
 					"title": "Metadata",
 					"pull": "Make a request every (seconds)",
 					"goodreadskey": "GoodReads Developer Key",
-					"authors": {
-						"nodata": "Update metadata (ratings, comments, author biography, etc.) for new books",
-						"data": "Update metadata (ratings, comments, author biography, etc.) for the entire library. Overwrite existing ones."
-					}
+					"partial": "Update metadata (ratings, comments, author biography, etc.) for new books",
+					"full": "Update metadata (ratings, comments, author biography, etc.) for the entire library. Overwrite existing ones."
 				},
 				"smtp": {
 					"title": "Mail server",
@@ -302,10 +304,10 @@
 			"user": "User",
 			"book": "Book",
 			"type": "Type",
-			"readByUser": "Read by user",
-			"readByAdmin": "Read by administrator",
+			"readUser": "Read by user",
+			"readAdmin": "Read by administrator",
 			"status": "Status",
-      "sendDate": "Date",
+			"sendDate": "Date",
 			"error": "Error",
 			"search": "Search by ",
 			"select": "Select a ",
@@ -325,9 +327,9 @@
 				"SEND": "Sent",
 				"NOT_SEND": "Not sent"
 			},
-            "types": {
-                "KINDLE": "Kindle"
-            }
+			"types": {
+				"KINDLE": "Kindle"
+			}
 		},
 		"buttons": {
 			"login": "Enter",

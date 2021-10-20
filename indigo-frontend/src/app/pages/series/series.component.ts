@@ -1,7 +1,7 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { SelectItem } from 'primeng/api/selectitem';
 import { Serie } from 'src/app/domain/serie';
-import { SerieService } from 'src/app/services/serie.services';
+import { SerieService } from 'src/app/services/serie.service';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
@@ -52,10 +52,10 @@ export class SeriesComponent implements OnInit {
     }
 
     this.sorts.push(
-      { label: this.translate.instant('locale.series.order_by.total.desc'), value: 'total,desc' },
-      { label: this.translate.instant('locale.series.order_by.total.asc'), value: 'total,asc' },
-      { label: this.translate.instant('locale.series.order_by.sort.asc'), value: 'sort,asc' },
-      { label: this.translate.instant('locale.series.order_by.sort.desc'), value: 'sort,desc' }
+      { label: this.translate.instant('locale.series.order_by.total.desc'), value: 'numBooks,desc' },
+      { label: this.translate.instant('locale.series.order_by.total.asc'), value: 'numBooks,asc' },
+      { label: this.translate.instant('locale.series.order_by.sort.asc'), value: '_id,asc' },
+      { label: this.translate.instant('locale.series.order_by.sort.desc'), value: '_id,desc' }
     );
 
   }
@@ -100,9 +100,7 @@ export class SeriesComponent implements OnInit {
   onScroll() {
     if (this.series.length < this.total) {
       this.getAll();
-    } else {
-      console.log('No more data. Finish page!');
-    }
+    } 
   }
 
   scrollTop() {
@@ -146,7 +144,7 @@ export class SeriesComponent implements OnInit {
   }
 
   getCover(serie: Serie) {
-    this.serieService.getCover(serie.id).subscribe(
+    this.serieService.getCover(serie.name).subscribe(
       data => {
         let objectURL = 'data:image/jpeg;base64,' + data.image;
         serie.image = objectURL;
@@ -173,7 +171,7 @@ export class SeriesComponent implements OnInit {
 
     this.selectedSort = sessionStorage.getItem('series_order');
     if (!this.selectedSort) {
-      this.sort = "sort";
+      this.sort = "_id";
       this.order = "asc";
       this.selectedSort = this.sort + "," + this.order;
     }

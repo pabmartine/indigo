@@ -1,12 +1,13 @@
 export class Author {
 
     constructor(
-        public id:number,
+        public id:string,
+        public name:string,
         public sort?: string,
-        public total?: number,
-        public title?: string,
         public description?: any,
-        public image?:string
+        public provider?: string,
+        public image?:string,
+        public numBooks?: number
         ) {
     }
 }

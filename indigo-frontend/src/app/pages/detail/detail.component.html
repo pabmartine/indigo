@@ -51,13 +51,12 @@
         <div *ngIf="selected.rating">
           <p-rating [ngModel]="selected.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
         </div>
-        <div>{{'locale.books.detail.pubdate' | translate}}
-          {{selected.pubDate | cdate |  date:'dd/MM/yyyy'}}</div>
+        <div>{{'locale.books.detail.pubdate' | translate}} {{selected.pubDate}}</div>
         <div>{{selected.pages}} {{'locale.books.detail.pages' | translate}}</div>
-        <div class="book-detail-series" *ngIf="selected.seriesName">
-          <button type="button" pButton (click)="getBooksBySerie(selected.seriesName);" [label]="selected.seriesName"
+        <div class="book-detail-series" *ngIf="selected.serie && selected.serie.name">
+          <button type="button" pButton (click)="getBooksBySerie(selected.serie.name);" [label]="selected.serie.name"
             class="book-detail-serie p-button-info"></button>
-          <span class="book-detail-serie-num">{{selected.seriesIndex}}</span>
+          <span class="book-detail-serie-num">{{selected.serie.index}}</span>
         </div>
         <div class="book-detail-tags" *ngIf="selected.tags">
           <button type="button" pButton (click)="getBooksByTag(tag);" [label]="tag"
@@ -65,7 +64,7 @@
         </div>
 
 
-        <div class="book-detail-comment" [innerHTML]="selected.description"></div>
+        <div class="book-detail-comment" [innerHTML]="selected.comment"></div>
 
         <div class="book-detail-buttons">
 
@@ -90,7 +89,7 @@
     </div>
     <div class="content-body p-grid">
       <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of similar">
-        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book.id)"
+        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)"
           style="cursor: pointer;" />
         <div>
           <span class="title">{{book.title}}</span>
@@ -119,7 +118,7 @@
     </div>
     <div class="content-body p-grid">
       <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of recommendations">
-        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book.id)"
+        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)"
           style="cursor: pointer;" />
         <div>
           <span class="title">{{book.title}}</span>

@@ -23,7 +23,7 @@
           <img [src]="tag.image" class="tag-list-image" (click)="getBooksByTag(tag)" *ngIf="tag.image">
           <img src="./assets/images/unknown.jpg" class="tag-list-image" (click)="getBooksByTag(tag)" *ngIf="!tag.image">
           <div class="tag1">
-            <div class="tag-title" (click)="getBooksByTag(tag)">{{tag.tag}}</div>
+            <div class="tag-title" (click)="getBooksByTag(tag)">{{tag.name}}</div>
 
             <a href="javascript:;" (click)="sourceTag = tag; menu.toggle($event)" *ngIf="showMenu()">
               <span class="tag-list-icon pi pi-ellipsis-v"></span>
@@ -31,7 +31,7 @@
 
           </div>
           <div class="tag2" (click)="getBooksByTag(tag)">
-            <div class="tag-subtitle">{{tag.total}} {{'locale.tags.total' | translate}}</div>
+            <div class="tag-subtitle">{{tag.numBooks}} {{'locale.tags.total' | translate}}</div>
           </div>
 
         </div>
@@ -50,7 +50,7 @@
     <div class="rename p-fluid">
       <div class="p-field">
         <label for="source">{{'locale.tags.actions.rename.description.source' | translate}}</label>
-        <input id="source" type="text" pInputText [(ngModel)]="sourceTag.tag" readonly="true">
+        <input id="source" type="text" pInputText [(ngModel)]="sourceTag.name" readonly="true">
       </div>
 
       <div class="p-field">
@@ -76,12 +76,12 @@
     <div class="merge p-fluid">
       <div class="p-field">
         <label for="source">{{'locale.tags.actions.merge.description.source' | translate}}</label>
-        <input id="source" type="text" pInputText [(ngModel)]="sourceTag.tag" readonly="true">
+        <input id="source" type="text" pInputText [(ngModel)]="sourceTag.name" readonly="true">
       </div>
 
       <div class="p-field">
         <label for="target">{{'locale.tags.actions.merge.description.source' | translate}}</label>
-        <p-dropdown [options]="sortedTags" [(ngModel)]="targetTag" optionLabel="tag" [showClear]="true"
+        <p-dropdown [options]="sortedTags" [(ngModel)]="targetTag" optionLabel="name" [showClear]="true"
           (onChange)="validateMerge($event)"></p-dropdown>
       </div>
 
@@ -104,7 +104,7 @@
     <div class="image p-fluid">
       <div class="p-field">
         <label for="source">{{'locale.tags.actions.image.description.source' | translate}}</label>
-        <input id="source" type="text" pInputText [(ngModel)]="sourceTag.tag" readonly="true">
+        <input id="source" type="text" pInputText [(ngModel)]="sourceTag.name" readonly="true">
       </div>
 
       <div class="p-field">

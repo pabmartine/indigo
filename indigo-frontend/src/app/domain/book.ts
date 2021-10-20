@@ -1,23 +1,23 @@
-import { Page } from './page';
+import { SerieBook } from './serieBook';
 
 export class Book {
 
     constructor(
-        public id?: number,
+        public id?: string,
         public title?: string,
-        public authorSort?: string,
+        public path?: string,
+        public comment?: string,
+        public provider?: string,
+        public serie?: SerieBook,
         public pubDate?: string,
         public lastModified?: string,
-        public seriesName?: string,
-        public seriesIndex?: number,
-        public path?: string,
-        public pages?: Page,
-        public image?: string,
-        public description?: string,
-        public tags?:string[],
+        public pages?: number,
+        public rating?: number,
         public authors?:string[],
-        public rating?:number,
-        public similar?:string
+        public tags?:string[],
+        public similar?:string[],
+        public languages?:string[],
+        public image?: string,
         ) {
     }
 }

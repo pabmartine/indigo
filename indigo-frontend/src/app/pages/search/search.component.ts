@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { TagService } from 'src/app/services/tag.services';
+import { TagService } from 'src/app/services/tag.service';
 import { Tag } from 'src/app/domain/tag';
 import { SelectItem } from 'primeng/api';
 import { Search } from 'src/app/domain/search';
@@ -38,7 +38,7 @@ export class SearchComponent implements OnInit {
     this.tagService.getAll("name", "asc").subscribe(
       data => {
         data.forEach((tag) => {
-          this.tags.push({ label: tag.tag, value: tag });
+          this.tags.push({ label: tag.tag, value: tag.tag });
         });
       }
     );

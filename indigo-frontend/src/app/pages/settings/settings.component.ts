@@ -1,7 +1,8 @@
 import { Component, OnInit, SimpleChanges } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageService, SelectItem } from 'primeng/api';
-import { AuthorService } from 'src/app/services/author.services';
+import { AuthorService } from 'src/app/services/author.service';
+import { MetadataService } from 'src/app/services/metadata.service';
 import { ConfigService } from 'src/app/services/config.service';
 import { Config } from 'src/app/domain/config';
 import { UtilService } from 'src/app/services/util.service';
@@ -18,8 +19,8 @@ import { Router } from '@angular/router';
 export class SettingsComponent implements OnInit {
 
 
-  isData: boolean = false;
-  isNoData: boolean = false;
+  isFull: boolean = false;
+  isPartial: boolean = false;
   isSendTestMail: boolean = false;
   current: number = 0;
   total: number = 0;
@@ -50,6 +51,7 @@ export class SettingsComponent implements OnInit {
   constructor(private messageService: MessageService,
     public translate: TranslateService,
     public authorService: AuthorService,
+    public metadataService: MetadataService,
     public configService: ConfigService,
     public utilService: UtilService,
     public userService: UserService,
@@ -81,14 +83,14 @@ export class SettingsComponent implements OnInit {
   }
 
   getDataStatus() {
-    this.authorService.getDataStatus().subscribe(
+    this.metadataService.getDataStatus().subscribe(
       data => {
         if (data.type == 'data') {
-          this.isData = data.status;
-          this.isNoData = null;
+          this.isFull = data.status;
+          this.isPartial = null;
         } else {
-          this.isData = null;
-          this.isNoData = data.status;
+          this.isFull = null;
+          this.isPartial = data.status;
         }
         this.current = data.current;
         this.total = data.total;
@@ -261,15 +263,15 @@ export class SettingsComponent implements OnInit {
 
   }
 
-  doExecuteNoData() {
-    this.isNoData = !this.isNoData;
-    this.isData = false;
+  doExecutePartial() {
+    this.isPartial = !this.isPartial;
+    this.isFull = false;
 
-    this.authorService.stopData().subscribe(
+    this.metadataService.stopData().subscribe(
       data => {
-        if (this.isNoData) {
+        if (this.isPartial) {
 
-          this.authorService.startNoData("es").subscribe(
+          this.metadataService.startPartial("es").subscribe(
             data => {
             },
             error => {
@@ -288,20 +290,20 @@ export class SettingsComponent implements OnInit {
 
   }
 
-  doExecuteData() {
-    this.isData = !this.isData;
-    this.isNoData = false;
+  doExecuteFull() {
+    this.isFull = !this.isFull;
+    this.isPartial = false;
 
 
 
-    this.authorService.stopData().subscribe(
+    this.metadataService.stopData().subscribe(
       data => {
-        if (this.isData) {
-          this.authorService.startData("es").subscribe(
+        if (this.isFull) {
+          this.metadataService.startFull("es").subscribe(
             data => {
               console.log("Arrancado servicio data");
             },
-            error => {
+            error => { 
               console.log(error);
               this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.start.error'), closable: false, life: 5000 });
             }
@@ -344,7 +346,7 @@ export class SettingsComponent implements OnInit {
   }
 
   
-  deleteUser(id: number) {
+  deleteUser(id: string) {
     this.userService.delete(id).subscribe(
       data => {
         this.getUsers();

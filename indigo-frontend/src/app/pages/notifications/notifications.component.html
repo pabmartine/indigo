@@ -16,16 +16,14 @@
                     [rowsPerPageOptions]="[10,25,50]">
                     <ng-template pTemplate="header">
                         <tr>
-                            <th class="center" pSortableColumn="id">{{'locale.notifications.id' | translate}}
-                                <p-sortIcon field="id"></p-sortIcon>
-                            </th>
+                            
                             <th class="center" pSortableColumn="type">
                                 {{'locale.notifications.type' | translate}}
                                 <p-sortIcon field="type"></p-sortIcon>
                             </th>
-                            <th class="center" pSortableColumn="username">
+                            <th class="center" pSortableColumn="user">
                                 {{'locale.notifications.user' | translate}}
-                                <p-sortIcon field="username"></p-sortIcon>
+                                <p-sortIcon field="user"></p-sortIcon>
                             </th>
                             <th class="center" pSortableColumn="title">
                                 {{'locale.notifications.book' | translate}}
@@ -35,13 +33,13 @@
                               {{'locale.notifications.sendDate' | translate}}
                               <p-sortIcon field="sendDate"></p-sortIcon>
                           </th>
-                            <th class="center" pSortableColumn="readByUser">
-                                {{'locale.notifications.readByUser' | translate}}
-                                <p-sortIcon field="readByUser"></p-sortIcon>
+                            <th class="center" pSortableColumn="readUser">
+                                {{'locale.notifications.readUser' | translate}}
+                                <p-sortIcon field="readUser"></p-sortIcon>
                             </th>
-                            <th class="center" pSortableColumn="readByAdmin">
-                                {{'locale.notifications.readByAdmin' | translate}}
-                                <p-sortIcon field="readByAdmin"></p-sortIcon>
+                            <th class="center" pSortableColumn="readAdmin">
+                                {{'locale.notifications.readAdmin' | translate}}
+                                <p-sortIcon field="readAdmin"></p-sortIcon>
                             </th>
                             <th class="center" pSortableColumn="status">
                                 {{'locale.notifications.status' | translate}}
@@ -54,11 +52,7 @@
                             <th class="table-buttons"></th>
                         </tr>
                         <tr>
-                            <th>
-                                <input pInputText type="text" (input)="dt.filter($event.target.value, 'id', 'equals')"
-                                    placeholder="{{'locale.notifications.search' | translate}}{{'locale.notifications.id' | translate}}"
-                                    class="p-column-filter">
-                            </th>
+                           
                             <th>
                                 <p-dropdown [options]="types" (onChange)="dt.filter($event.value, 'type', 'equals')"
                                     styleClass="p-column-filter"
@@ -70,7 +64,7 @@
                                 </p-dropdown>
                             </th>
                             <th>
-                                <p-dropdown [options]="users" (onChange)="dt.filter($event.value, 'username', 'equals')"
+                                <p-dropdown [options]="users" (onChange)="dt.filter($event.value, 'user', 'equals')"
                                     styleClass="p-column-filter"
                                     placeholder="{{'locale.notifications.select' | translate}}{{'locale.notifications.user' | translate}}"
                                     [showClear]="true">
@@ -90,7 +84,7 @@
                               placeholder="{{'locale.notifications.search' | translate}}{{'locale.notifications.sendDate' | translate}}"
                               class="p-column-filter"></th>
                             <th>
-                                <p-dropdown [options]="read" (onChange)="dt.filter($event.value, 'readByUser', 'equals')"
+                                <p-dropdown [options]="read" (onChange)="dt.filter($event.value, 'readUser', 'equals')"
                                     styleClass="p-column-filter"
                                     placeholder="{{'locale.notifications.select' | translate}}{{'locale.notifications.status' | translate}}"
                                     [showClear]="true">
@@ -100,7 +94,7 @@
                                 </p-dropdown>
                             </th>
                             <th>
-                                <p-dropdown [options]="read" (onChange)="dt.filter($event.value, 'readByAdmin', 'equals')"
+                                <p-dropdown [options]="read" (onChange)="dt.filter($event.value, 'readAdmin', 'equals')"
                                     styleClass="p-column-filter"
                                     placeholder="{{'locale.notifications.select' | translate}}{{'locale.notifications.status' | translate}}"
                                     [showClear]="true">
@@ -132,18 +126,17 @@
                     </ng-template>
                     <ng-template pTemplate="body" let-notif>
                         <tr>
-                            <td>{{notif.id}}
-                            </td>
+                           
                             <td>{{'locale.notifications.types.' + notif.type | translate}}
                             </td>
-                            <td>{{notif.username}}
+                            <td>{{notif.user}}
                             </td>
                             <td (mouseover)="cover=notif.image;op.toggle($event)">{{notif.title}}
                             </td>
                             <td>{{notif.sendDate}}</td>
-                            <td>{{'locale.notifications.read.' + notif.readByUser | translate}}
+                            <td>{{'locale.notifications.read.' + notif.readUser | translate}}
                             </td>
-                            <td>{{'locale.notifications.read.' + notif.readByAdmin | translate}}
+                            <td>{{'locale.notifications.read.' + notif.readAdmin | translate}}
                             </td>
                             <td>{{'locale.notifications.statuses.' + notif.status | translate}}
                             </td>

@@ -25,23 +25,19 @@ export class NotificationService {
     return this.http.get(this.endpoint + "/not_read");
   }
 
-  public findAllByUser(user: number): Observable<any> {
+  public findAllByUser(user: string): Observable<any> {
     return this.http.get(this.endpoint + "/user?user=" + user);
-  }
-
-  public findAllNotReadByUser(user: number): Observable<any> {
-    return this.http.get(this.endpoint + "/not_read_user?user=" + user);
   }
 
   public save(notification: Notif): Observable<any> {
     return this.http.put<Notif>(this.endpoint + "/save", notification);
   }
 
-  public read(id: number, user:number): Observable<any> {
+  public read(id: string, user:string): Observable<any> {
     return this.http.get<Notif>(this.endpoint + "/read?id=" + id + "&user=" + user);
   }
 
-  public delete(id: number): Observable<any> {
+  public delete(id: string): Observable<any> {
     return this.http.delete<Notif>(this.endpoint + "/delete?id=" + id);
   }
 }

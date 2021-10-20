@@ -79,7 +79,7 @@
 
         <div class="content-body p-grid">
             <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of books">
-                <img [src]="book.image" height="225" class="list-image" style="cursor: pointer;"  (click)="showDetails(book.id)"/>
+                <img [src]="book.image" height="225" class="list-image" style="cursor: pointer;"  (click)="showDetails(book)"/>
                 <div>
                     <span class="title">{{book.title}}</span>
                 </div>

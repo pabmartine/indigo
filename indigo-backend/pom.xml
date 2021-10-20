@@ -19,7 +19,7 @@
 		<java.version>11</java.version>
 		<!-- automatically run annotation processors within the incremental compilation -->
 		<m2e.apt.activation>jdt_apt</m2e.apt.activation>
-	
+
 	</properties>
 
 	<dependencies>
@@ -39,6 +39,10 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-mongodb</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -113,7 +117,7 @@
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>				
+				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
