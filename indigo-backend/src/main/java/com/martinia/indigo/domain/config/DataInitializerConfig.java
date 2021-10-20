@@ -40,9 +40,17 @@ class DataInitializerConfig {
 
 		log.info("Initializating config...");
 		if (configurationRepository.findByKey("metadata.pull") == null) {
-			configurationRepository.save(new Configuration("metadata.pull", "5000"));
+			configurationRepository.save(new Configuration("metadata.pull", "1000"));
 		}
 
+		if (configurationRepository.findByKey("books.recommendations") == null) {
+			configurationRepository.save(new Configuration("books.recommendations", "10"));
+		}
+
+		if (configurationRepository.findByKey("books.recommendations2") == null) {
+			configurationRepository.save(new Configuration("books.recommendations2", "24"));
+		}
+		
 		// TODO: Estas configuraciones son solo para pruebas, luego borrarlas
 		if (configurationRepository.findByKey("kindlegen.path") == null) {
 			configurationRepository.save(
@@ -69,15 +77,9 @@ class DataInitializerConfig {
 			configurationRepository.save(new Configuration("smtp.password", "escribano82"));
 		}
 		if (configurationRepository.findByKey("smtp.status") == null) {
-			configurationRepository.save(new Configuration("smtp.status", "ok"));
+			configurationRepository.save(new Configuration("smtp.status", "error"));
 		}
-		if (configurationRepository.findByKey("books.recommendations") == null) {
-			configurationRepository.save(new Configuration("books.recommendations", "10"));
-		}
-
-		if (configurationRepository.findByKey("books.recommendations2") == null) {
-			configurationRepository.save(new Configuration("books.recommendations2", "24"));
-		}
+		
 	}
 
 }
