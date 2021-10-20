@@ -216,7 +216,7 @@ public class MetadataServiceImpl implements MetadataService {
 					e.printStackTrace();
 				}
 
-				log.info("Obtained {}/{} metadata", cont, numBooks);
+				log.info("Obtained {}/{} metadata", cont-numBooks, numBooks);
 			}
 
 			page++;

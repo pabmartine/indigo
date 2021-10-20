@@ -180,7 +180,7 @@ export class ProfileComponent implements OnInit {
 
   getBooks() {
     const user = JSON.parse(sessionStorage.user);
-    this.bookService.getSent(user.id).subscribe(
+    this.bookService.getSent(user.username).subscribe(
       data => {
 
         data.forEach((book) => {

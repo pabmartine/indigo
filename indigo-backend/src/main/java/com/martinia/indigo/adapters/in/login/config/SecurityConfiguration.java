@@ -47,31 +47,42 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http.csrf().disable().cors().and()
+		http.csrf()
+				.disable()
+				.cors()
+				.and()
 				.authorizeRequests()
-				.antMatchers(HttpMethod.POST, "/rest/login").permitAll()
-				.antMatchers(HttpMethod.GET, "/**").permitAll()
-				.anyRequest().authenticated().and()
-				.addFilterBefore(new JWTAuthenticationFilter("/rest/login", authenticationManager(), jwtParserComponent),
+				.antMatchers(HttpMethod.POST, "/rest/login")
+				.permitAll()
+				.antMatchers(HttpMethod.GET, "/**")
+				.permitAll()
+				.anyRequest()
+				.authenticated()
+				.and()
+				.addFilterBefore(
+						new JWTAuthenticationFilter("/rest/login", authenticationManager(), jwtParserComponent),
 						UsernamePasswordAuthenticationFilter.class)
 				.addFilterBefore(new JWTAuthorizationFilter(authenticationManager(), jwtParserComponent),
 						UsernamePasswordAuthenticationFilter.class)
-				.exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and()
-				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+				.exceptionHandling()
+				.authenticationEntryPoint(authenticationEntryPoint)
+				.and()
+				.sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
 	}
 
-	@Bean
-	CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowCredentials(true);
-		configuration.setAllowedOriginPatterns(List.of("*"));
-		configuration.addAllowedHeader("*");
-		configuration.addExposedHeader("Authorization");
-		configuration.addAllowedMethod("*");
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration);
-		return source;
-	}
+//	@Bean
+//	CorsConfigurationSource corsConfigurationSource() {
+//		CorsConfiguration configuration = new CorsConfiguration();
+//		configuration.setAllowCredentials(true);
+//		configuration.setAllowedOriginPatterns(List.of("*"));
+//		configuration.addAllowedHeader("*");
+//		configuration.addExposedHeader("Authorization");
+//		configuration.addAllowedMethod("*");
+//		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//		source.registerCorsConfiguration("/**", configuration);
+//		return source;
+//	}
 
 }

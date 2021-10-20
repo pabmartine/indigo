@@ -153,7 +153,7 @@ export class AuthorsComponent implements OnInit {
 
   getFavorites() {
     const user = JSON.parse(sessionStorage.user);
-    this.authorService.getFavorites(user.id).subscribe(
+    this.authorService.getFavorites(user.username).subscribe(
       data => {
 
         Array.prototype.push.apply(this.favorites, data);

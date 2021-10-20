@@ -292,7 +292,7 @@ export class BooksComponent implements OnInit {
 
   getFavoriteAuthor() {
     const user = JSON.parse(sessionStorage.user);
-    this.authorService.getFavorite(this.authorInfo.sort, user.id).subscribe(
+    this.authorService.getFavorite(this.authorInfo.sort, user.username).subscribe(
       data => {
         if (data) {
           this.favoriteAuthor = true;
@@ -306,7 +306,7 @@ export class BooksComponent implements OnInit {
 
   getFavoritesBooks() {
     const user = JSON.parse(sessionStorage.user);
-    this.bookService.getFavorites(user.id).subscribe(
+    this.bookService.getFavorites(user.username).subscribe(
       data => {
         this.favorites.length = 0
         data.forEach((book) => {
@@ -323,7 +323,7 @@ export class BooksComponent implements OnInit {
 
   getRecommendationsBooks() {
     const user = JSON.parse(sessionStorage.user);
-    this.bookService.getRecommendationsByUser(user.id).subscribe(
+    this.bookService.getRecommendationsByUser(user.username).subscribe(
       data => {
         this.recommendations.length = 0
         data.forEach((book) => {
@@ -340,7 +340,7 @@ export class BooksComponent implements OnInit {
 
   addFavoriteAuthor() {
     const user = JSON.parse(sessionStorage.user);
-    this.authorService.addFavorite(this.authorInfo.sort, user.id).subscribe(
+    this.authorService.addFavorite(this.authorInfo.sort, user.username).subscribe(
       data => {
         this.favoriteAuthor = true;
         this.messageService.clear();
@@ -357,7 +357,7 @@ export class BooksComponent implements OnInit {
 
   deleteFavoriteAuthor() {
     const user = JSON.parse(sessionStorage.user);
-    this.authorService.deleteFavorite(this.authorInfo.sort, user.id).subscribe(
+    this.authorService.deleteFavorite(this.authorInfo.sort, user.username).subscribe(
       data => {
         this.favoriteAuthor = false;
         this.messageService.clear();

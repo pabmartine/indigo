@@ -212,7 +212,7 @@ export class DetailComponent implements OnInit {
 
   getFavoriteBook(id: string) {
     const user = JSON.parse(sessionStorage.user);
-    this.bookService.getFavorite(id, user.id).subscribe(
+    this.bookService.getFavorite(id, user.username).subscribe(
       data => {
         console.log("*********************** FAVORITE")
         if (data) {

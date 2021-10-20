@@ -18,7 +18,7 @@
     </div>
 
     <div class="content-body p-grid">
-      <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let tag of tags">
+      <div class="p-sm-6 p-md-4 p-lg-3 p-xl-2" *ngFor="let tag of tags">
         <div class="container">
           <img [src]="tag.image" class="tag-list-image" (click)="getBooksByTag(tag)" *ngIf="tag.image">
           <img src="./assets/images/unknown.jpg" class="tag-list-image" (click)="getBooksByTag(tag)" *ngIf="!tag.image">

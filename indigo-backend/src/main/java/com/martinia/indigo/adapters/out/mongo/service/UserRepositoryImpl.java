@@ -33,8 +33,7 @@ public class UserRepositoryImpl implements UserRepository {
 	@Override
 	public void addFavoriteAuthor(String user, String author) {
 
-		UserMongoEntity _user = userMongoRepository.findById(user)
-				.get();
+		UserMongoEntity _user = userMongoRepository.findByUsername(user);
 		if (CollectionUtils.isEmpty(_user.getFavoriteAuthors()) || !_user.getFavoriteAuthors()
 				.contains(author)) {
 			if (_user.getFavoriteAuthors() == null)
@@ -48,8 +47,7 @@ public class UserRepositoryImpl implements UserRepository {
 	@Override
 	public void addFavoriteBook(String user, String book) {
 
-		UserMongoEntity _user = userMongoRepository.findById(user)
-				.get();
+		UserMongoEntity _user = userMongoRepository.findByUsername(user);
 		if (CollectionUtils.isEmpty(_user.getFavoriteBooks()) || !_user.getFavoriteBooks()
 				.contains(book)) {
 			if (_user.getFavoriteBooks() == null)
@@ -69,8 +67,7 @@ public class UserRepositoryImpl implements UserRepository {
 
 	@Override
 	public void deleteFavoriteAuthor(String user, String author) {
-		UserMongoEntity _user = userMongoRepository.findById(user)
-				.get();
+		UserMongoEntity _user = userMongoRepository.findByUsername(user);
 		_user.getFavoriteAuthors()
 				.remove(author);
 		userMongoRepository.save(_user);
@@ -78,8 +75,7 @@ public class UserRepositoryImpl implements UserRepository {
 
 	@Override
 	public void deleteFavoriteBook(String user, String book) {
-		UserMongoEntity _user = userMongoRepository.findById(user)
-				.get();
+		UserMongoEntity _user = userMongoRepository.findByUsername(user);
 		_user.getFavoriteBooks()
 				.remove(book);
 		userMongoRepository.save(_user);
@@ -108,8 +104,7 @@ public class UserRepositoryImpl implements UserRepository {
 	@Override
 	public List<Book> getFavoriteBooks(String user) {
 
-		List<String> books = userMongoRepository.findById(user)
-				.get()
+		List<String> books = userMongoRepository.findByUsername(user)
 				.getFavoriteBooks();
 		List<Book> ret = new ArrayList<Book>(books.size());
 		for (String book : books) {
@@ -122,8 +117,7 @@ public class UserRepositoryImpl implements UserRepository {
 
 	@Override
 	public List<Author> getFavoriteAuthors(String user) {
-		List<String> authors = userMongoRepository.findById(user)
-				.get()
+		List<String> authors = userMongoRepository.findByUsername(user)
 				.getFavoriteAuthors();
 		List<Author> ret = new ArrayList<Author>(authors.size());
 		for (String author : authors) {
@@ -135,8 +129,7 @@ public class UserRepositoryImpl implements UserRepository {
 	@Override
 	public Boolean isFavoriteAuthor(String user, String author) {
 		boolean ret = false;
-		UserMongoEntity _user = userMongoRepository.findById(user)
-				.get();
+		UserMongoEntity _user = userMongoRepository.findByUsername(user);
 		if (!CollectionUtils.isEmpty(_user.getFavoriteAuthors()) && _user.getFavoriteAuthors()
 				.contains(author)) {
 			ret = true;
@@ -147,8 +140,7 @@ public class UserRepositoryImpl implements UserRepository {
 	@Override
 	public Boolean isFavoriteBook(String user, String book) {
 		boolean ret = false;
-		UserMongoEntity _user = userMongoRepository.findById(user)
-				.get();
+		UserMongoEntity _user = userMongoRepository.findByUsername(user);
 		if (!CollectionUtils.isEmpty(_user.getFavoriteBooks()) && _user.getFavoriteBooks()
 				.contains(book)) {
 			ret = true;
