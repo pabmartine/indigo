@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 
 //components
 import { BooksComponent } from 'src/app/pages/books/books.component';
+import { RecommendationsComponent } from 'src/app/pages/recommendations/recommendations.component';
 import { AuthorsComponent } from 'src/app/pages/authors/authors.component';
 import { CategoriesComponent } from 'src/app/pages/categories/categories.component';
 import { SeriesComponent } from 'src/app/pages/series/series.component';
@@ -47,12 +48,12 @@ import { TranslateModule } from '@ngx-translate/core';
 import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 
 //cache
-import {CustomReuseStrategy} from 'src/app/utils/cache.routes'
 import { DatePipe } from '@angular/common';
 
 @NgModule({
   declarations: [
     BooksComponent,
+    RecommendationsComponent,
     AuthorsComponent,
     CategoriesComponent,
     SeriesComponent,

@@ -9,8 +9,10 @@ import { SettingsComponent } from 'src/app/pages/settings/settings.component';
 import { SearchComponent } from 'src/app/pages/search/search.component';
 import { NotificationsComponent } from 'src/app/pages/notifications/notifications.component';
 import { DetailComponent } from 'src/app/pages/detail/detail.component';
+import { RecommendationsComponent } from "src/app/pages/recommendations/recommendations.component";
 
 export const LayoutRoutes: Routes = [
+    { path: "recommendations", component: RecommendationsComponent, canActivate: [AuthGuard]},
     { path: "books", component: BooksComponent, canActivate: [AuthGuard], data: {reuseRoute: true}}, //cache
     { path: "authors", component: AuthorsComponent, canActivate: [AuthGuard]},
     { path: "categories", component: CategoriesComponent, canActivate: [AuthGuard]},

@@ -1,0 +1,36 @@
+<p-toast position="top-center" [showTransformOptions]="'translateY(-100%)'"></p-toast>
+
+<div class="book">
+  <p-card>
+    <div class="content-header p-grid">
+      <div class="p-col-12 p-md-6">
+        <span class="page-title">
+          {{'locale.books.recommendations.title2' | translate}}
+        </span>
+      </div>
+      <div class="p-col-12 p-md-6" style="text-align: right;">
+       
+      </div>
+    </div>
+
+    <div class="content-body p-grid" infiniteScroll [infiniteScrollDistance]="2">
+      <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of books">
+
+        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)"
+          style="cursor: pointer;" />
+        <div>
+          <span class="title">{{book.title}}</span>
+        </div>
+        <div>
+          <span class="subtitle" *ngFor="let author of book.authors">
+            <a href="javascript:;" (click)="getBooksByAuthor(author)">{{author}}</a><span
+              *ngIf="author != book.authors[book.authors.length-1]"> & </span></span>
+        </div>
+        <div *ngIf="book.rating">
+          <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+        </div>
+      </div>
+    </div>
+
+  </p-card>
+</div>

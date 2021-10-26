@@ -36,6 +36,12 @@ export class SidebarComponent implements OnInit {
     const menu: MenuItem[] = [
       
       {
+        label: this.translate.instant('locale.sidebar.menu.recommendations'),
+        icon: 'menu-item-icon pi pi-star-o',
+        routerLink: ['/recommendations'],
+        routerLinkActiveOptions: { exact: true },
+        command: () => this.show = false
+      },{
         label: this.translate.instant('locale.sidebar.menu.books'),
         icon: 'menu-item-icon pi pi-clone',
         routerLink: ['/books'],

@@ -16,6 +16,7 @@ export class Book {
         public authors?:string[],
         public tags?:string[],
         public similar?:string[],
+        public recommendations?:string[],
         public languages?:string[],
         public image?: string,
         ) {

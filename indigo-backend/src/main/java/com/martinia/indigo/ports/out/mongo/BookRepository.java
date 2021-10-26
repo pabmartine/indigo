@@ -10,26 +10,28 @@ public interface BookRepository {
 
 	Long count(Search search);
 
+	void dropCollection();
+
 	List<Book> findAll(Search search, int page, int size, String sort, String order);
 
 	List<Book> findBooksBySerie(String serie);
 
 	Book findById(String id);
 
-	List<Book> getBookRecommendationsByBook(String id, int num);
-
-	List<Book> getBookRecommendationsByUser(String user, int num);
+	Book findByPath(String path);
 
 	Map<String, Long> getNumBooksBySerie(int page, int size, String sort, String order);
 
 	Long getNumSeries();
 
+	List<Book> getRecommendationsByBook(List<String> recommendations, int num);
+
+	List<Book> getRecommendationsByBook(String id);
+
+	List<Book> getRecommendationsByUser(String user, int num);
+
 	List<Book> getSimilar(List<String> similar);
 
 	void save(Book book);
-
-	void dropCollection();
-
-	Book findByPath(String path);
 
 }

@@ -156,7 +156,7 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 											}
 
 											if (similarContains) {
-												similar += book.getTitle() + ";";
+												similar += book.getId() + ";";
 											}
 										}
 									}

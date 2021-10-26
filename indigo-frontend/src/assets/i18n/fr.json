@@ -17,6 +17,7 @@
 		"sidebar": {
 			"menu": {
 				"books": "Livres",
+				"recommendations": "Pour toi",
 				"authors": "Auteurs",
 				"tags": "Catégories",
 				"series": "Series",
@@ -238,7 +239,10 @@
 					"pull": "Faire une demande toutes les (secondes)",
 					"goodreadskey": "Clé de développeur GoodReads",
 					"partial": "Mettre à jour les métadonnées (notes, commentaires, biographie de l'auteur, etc.) pour les nouveaux livres",
-					"full": "Mettre à jour les métadonnées (notes, commentaires, biographie de l'auteur, etc.) pour toute la bibliothèque. Remplacer celles existantes."
+					"full": "Mettre à jour les métadonnées (notes, commentaires, biographie de l'auteur, etc.) pour toute la bibliothèque. Remplacer celles existantes.",
+					"indexing_books": "Bibliothèque d'indexation ...",
+                    "filling_recommendations": "Générer des recommandations ...",
+                    "obtaining_metadata": "Obtenir des métadonnées ..."
 				},
 				"smtp": {
 					"title": "Serveur de courrier",

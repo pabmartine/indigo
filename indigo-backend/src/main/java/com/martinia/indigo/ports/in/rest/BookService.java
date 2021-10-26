@@ -18,9 +18,9 @@ public interface BookService {
 
 	List<Book> getSimilar(List<String> similar);
 
-	List<Book> getBookRecommendationsByBook(String id);
+	List<Book> getRecommendationsByBook(List<String> recommendations);
 
-	List<Book> getBookRecommendationsByUser(String user);
+	List<Book> getRecommendationsByUser(String user);
 
 	Map<String, Long> getNumBooksBySerie(int page, int size, String sort, String order);
 

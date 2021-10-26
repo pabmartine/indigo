@@ -24,6 +24,7 @@ export class SettingsComponent implements OnInit {
   isSendTestMail: boolean = false;
   current: number = 0;
   total: number = 0;
+  message: string;
   progressBar: number = 0;
 
   userList: User[];
@@ -85,7 +86,7 @@ export class SettingsComponent implements OnInit {
   getDataStatus() {
     this.metadataService.getDataStatus().subscribe(
       data => {
-        if (data.type == 'data') {
+        if (data.type == 'full') {
           this.isFull = data.status;
           this.isPartial = null;
         } else {
@@ -94,6 +95,10 @@ export class SettingsComponent implements OnInit {
         }
         this.current = data.current;
         this.total = data.total;
+        this.message = data.message;
+        if (this.message){
+          this.message = this.translate.instant('locale.settings.panel.metadata.' + this.message);
+        }
 
         if (this.total != 0)
           this.progressBar = Math.round((this.current * 100) / this.total);

@@ -35,8 +35,6 @@ export class DetailComponent implements OnInit {
 
   constructor(
     private bookService: BookService,
-    private serieService: SerieService,
-    private tagService: TagService,
     private utilService: UtilService,
     private configService: ConfigService,
     private router: Router,
@@ -76,19 +74,20 @@ export class DetailComponent implements OnInit {
       );
   }
 
-  getRecommendations(id: string) {
-    this.bookService.getRecommendationsByBook(id).subscribe(
-      data => {
-        data.forEach((book) => {
-          this.getCover(book);
-        });
-        Array.prototype.push.apply(this.recommendations, data);
+  getRecommendations(recommendations: string[]) {
+    if (recommendations)
+      this.bookService.getRecommendationsByBook(recommendations).subscribe(
+        data => {
+          data.forEach((book) => {
+            this.getCover(book);
+          });
+          Array.prototype.push.apply(this.recommendations, data);
 
-      },
-      error => {
-        console.log(error);
-      }
-    );
+        },
+        error => {
+          console.log(error);
+        }
+      );
   }
 
   getCover(book: Book) {
@@ -111,9 +110,10 @@ export class DetailComponent implements OnInit {
     this.similar.length = 0;
     this.recommendations.length = 0;
     this.getSimilar(book.similar);
-    this.getRecommendations(book.id);
+    this.getRecommendations(book.recommendations);
     this.getKindle();
     this.getFavoriteBook(book.path);
+    this.view(book.path);
   }
 
   getBooksByAuthor(author: string) {
@@ -225,8 +225,14 @@ export class DetailComponent implements OnInit {
     );
   }
 
-
-
+  view(id: string) {
+    const user = JSON.parse(sessionStorage.user);
+    this.bookService.view(id, user.username).subscribe(
+      error => {
+        console.log(error);
+      }
+    );
+  }
 
   addFavoriteBook() {
     const user = JSON.parse(sessionStorage.user);

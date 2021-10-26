@@ -6,15 +6,17 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
 import com.martinia.indigo.adapters.out.mongo.entities.NotificationMongoEntity;
+import com.martinia.indigo.adapters.out.mongo.repository.custom.CustomNotificationMongoRepository;
 import com.martinia.indigo.domain.enums.StatusEnum;
 
-public interface NotificationMongoRepository extends MongoRepository<NotificationMongoEntity, String> {
+public interface NotificationMongoRepository
+		extends MongoRepository<NotificationMongoEntity, String>, CustomNotificationMongoRepository {
 
 	List<NotificationMongoEntity> findAllByOrderBySendDateDesc();
 
 	@Query("{ 'user' : ?0 }")
 	List<NotificationMongoEntity> findByUser(String user);
-	
+
 	List<NotificationMongoEntity> findByUserAndStatus(String user, StatusEnum status);
 
 	List<NotificationMongoEntity> findByStatus(StatusEnum status);

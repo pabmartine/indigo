@@ -106,12 +106,13 @@ public class UserRepositoryImpl implements UserRepository {
 
 		List<String> books = userMongoRepository.findByUsername(user)
 				.getFavoriteBooks();
-		List<Book> ret = new ArrayList<Book>(books.size());
-		for (String book : books) {
-			Book _book = bookMongoRepository.findByPath(book);
-			if (_book != null)
-				ret.add(_book);
-		}
+		List<Book> ret = new ArrayList<Book>(books != null ? books.size() : 0);
+		if (books != null)
+			for (String book : books) {
+				Book _book = bookMongoRepository.findByPath(book);
+				if (_book != null)
+					ret.add(_book);
+			}
 		return ret;
 	}
 
@@ -119,10 +120,11 @@ public class UserRepositoryImpl implements UserRepository {
 	public List<Author> getFavoriteAuthors(String user) {
 		List<String> authors = userMongoRepository.findByUsername(user)
 				.getFavoriteAuthors();
-		List<Author> ret = new ArrayList<Author>(authors.size());
-		for (String author : authors) {
-			ret.add(authorMongoRepository.findBySort(author));
-		}
+		List<Author> ret = new ArrayList<Author>(authors != null ? authors.size() : 0);
+		if (authors != null)
+			for (String author : authors) {
+				ret.add(authorMongoRepository.findBySort(author));
+			}
 		return ret;
 	}
 

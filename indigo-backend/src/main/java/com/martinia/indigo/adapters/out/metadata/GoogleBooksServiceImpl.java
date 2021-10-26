@@ -53,8 +53,13 @@ public class GoogleBooksServiceImpl implements GoogleBooksService {
 						LinkedHashMap<String, Object> volumeInfo = (LinkedHashMap<String, Object>) item
 								.get("volumeInfo");
 
-						String name = volumeInfo.get("title")
-								.toString();
+						String name;
+						try {
+							name = volumeInfo.get("title")
+									.toString();
+						} catch (Exception e) {
+							throw e;
+						}
 						String filterName = StringUtils.stripAccents(name)
 								.replaceAll("[^a-zA-Z0-9]", " ")
 								.replaceAll("\\s+", " ")

@@ -23,9 +23,11 @@ import com.martinia.indigo.adapters.in.rest.dtos.BookDto;
 import com.martinia.indigo.adapters.in.rest.mappers.BookDtoMapper;
 import com.martinia.indigo.domain.model.Book;
 import com.martinia.indigo.domain.model.Search;
+import com.martinia.indigo.domain.model.View;
 import com.martinia.indigo.ports.in.rest.BookService;
 import com.martinia.indigo.ports.in.rest.NotificationService;
 import com.martinia.indigo.ports.in.rest.UserService;
+import com.martinia.indigo.ports.in.rest.ViewService;
 
 @RestController
 @RequestMapping("/rest/book")
@@ -36,6 +38,9 @@ public class BookRestController {
 
 	@Autowired
 	private UserService userService;
+
+	@Autowired
+	private ViewService viewService;
 
 	@Autowired
 	private NotificationService notificationService;
@@ -60,7 +65,9 @@ public class BookRestController {
 	public ResponseEntity<Map<String, String>> getCover(@RequestParam String path, boolean force) throws IOException {
 		Map<String, String> map = null;
 
-		String image = bookService.getCover(path.replace("@_@", "&").replace("@-@", "[").replace("@¡@", "]"), force);
+		String image = bookService.getCover(path.replace("@_@", "&")
+				.replace("@-@", "[")
+				.replace("@¡@", "]"), force);
 
 		map = new HashMap<String, String>();
 		map.put("image", image);
@@ -76,7 +83,7 @@ public class BookRestController {
 		BookDto bookDto = bookDtoMapper.domain2Dto(book);
 		return new ResponseEntity<>(bookDto, HttpStatus.OK);
 	}
-	
+
 	@GetMapping(value = "/path", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<BookDto> getBookByPath(@RequestParam String path) {
 
@@ -87,16 +94,15 @@ public class BookRestController {
 
 	@PostMapping(value = "/similar", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<BookDto>> getSimilar(@RequestBody List<String> similar) {
-
 		List<Book> books = bookService.getSimilar(similar);
 		List<BookDto> booksDto = bookDtoMapper.domains2Dtos(books);
 		return new ResponseEntity<>(booksDto, HttpStatus.OK);
 
 	}
 
-	@GetMapping(value = "/recommendations/book", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<BookDto>> getBookRecommendationsByBook(@RequestParam String id) {
-		List<Book> books = bookService.getBookRecommendationsByBook(id);
+	@PostMapping(value = "/recommendations/book", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<BookDto>> getBookRecommendationsByBook(@RequestBody List<String> recommendations) {
+		List<Book> books = bookService.getRecommendationsByBook(recommendations);
 		List<BookDto> booksDto = bookDtoMapper.domains2Dtos(books);
 		return new ResponseEntity<>(booksDto, HttpStatus.OK);
 
@@ -104,7 +110,7 @@ public class BookRestController {
 
 	@GetMapping(value = "/recommendations/user", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<BookDto>> getBookRecommendationsByUser(@RequestParam String user) {
-		List<Book> books = bookService.getBookRecommendationsByUser(user);
+		List<Book> books = bookService.getRecommendationsByUser(user);
 		List<BookDto> booksDto = bookDtoMapper.domains2Dtos(books);
 		return new ResponseEntity<>(booksDto, HttpStatus.OK);
 
@@ -143,6 +149,13 @@ public class BookRestController {
 		List<Book> books = notificationService.getSentBooks(user);
 		List<BookDto> booksDto = bookDtoMapper.domains2Dtos(books);
 		return new ResponseEntity<>(booksDto, HttpStatus.OK);
+
+	}
+
+	@PostMapping(value = "/view", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Void> view(@RequestParam String book, @RequestParam String user) {
+		viewService.save(new View(book, user));
+		return new ResponseEntity<>(HttpStatus.OK);
 
 	}
 

@@ -1,10 +1,11 @@
 package com.martinia.indigo.adapters.out.mongo.repository.custom;
 
+import static com.mongodb.client.model.Filters.in;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,6 +14,10 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.BsonNull;
 import org.bson.Document;
+import org.bson.codecs.configuration.CodecRegistry;
+import org.bson.codecs.pojo.PojoCodecProvider;
+import org.bson.conversions.Bson;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -24,8 +29,14 @@ import org.springframework.util.CollectionUtils;
 
 import com.martinia.indigo.adapters.out.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.domain.model.Search;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository {
 
 	@Autowired
@@ -198,10 +209,9 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 	}
 
 	@Override
-	public List<BookMongoEntity> getBookRecommendations(String id, int page, int size, String sort, String order) {
+	public List<BookMongoEntity> getRecommendationsByBook(String id) {
 
-		Query query = new Query()
-				.with(PageRequest.of(page, Integer.MAX_VALUE, Sort.by(Direction.fromString(order), sort)));
+		Query query = new Query();
 
 		List<Criteria> criterias = new ArrayList<>();
 
@@ -237,15 +247,7 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 
 		query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
 
-		List<BookMongoEntity> books = mongoTemplate.find(query, BookMongoEntity.class);
-		Collections.shuffle(books);
-
-		if (books.size() > size) {
-			books = books.subList(0, size);
-		}
-
-		return books;
-
+		return mongoTemplate.find(query, BookMongoEntity.class);
 	}
 
 	public Map<String, Long> getNumBooksBySerie(int page, int size, String sort, String order) {
@@ -296,6 +298,114 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 					.get("count")
 					.toString());
 		}
+
+		return ret;
+	}
+
+	@Override
+	public List<BookMongoEntity> getSimilar(List<String> similar) {
+		List<BookMongoEntity> ret = new ArrayList<>(similar.size());
+		List<ObjectId> list = new ArrayList<>(similar.size());
+		for (String s : similar) {
+			list.add(new ObjectId(s));
+		}
+		Bson filter = in("_id", list);
+
+		CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
+				MongoClientSettings.getDefaultCodecRegistry(),
+				org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder()
+						.automatic(true)
+						.build()));
+
+		FindIterable<BookMongoEntity> data = mongoTemplate.getCollection("books")
+				.withCodecRegistry(pojoCodecRegistry)
+				.find(filter, BookMongoEntity.class);
+
+		data.iterator()
+				.forEachRemaining(ret::add);
+		
+
+		return ret;
+	}
+
+	@Override
+	public List<BookMongoEntity> getRecommendationsByBook(List<String> recommendations, int num) {
+		
+		
+//		--> HACER UN MERGE TB CON LA TABLA DE NOTIFICACIONES
+
+		CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
+				MongoClientSettings.getDefaultCodecRegistry(),
+				org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder()
+						.automatic(true)
+						.build()));
+
+		MongoCollection<Document> collection = mongoTemplate.getCollection("views").withCodecRegistry(pojoCodecRegistry);
+
+		AggregateIterable<BookMongoEntity> views = collection.aggregate(Arrays.asList(new Document("$match", 
+			    new Document("user", "admin")), 
+			    new Document("$lookup", 
+			    new Document("from", "books")
+			            .append("localField", "book")
+			            .append("foreignField", "path")
+			            .append("as", "typeCategory")), 
+			    new Document("$match", 
+			    new Document("typeCategory.recommendations", 
+			    new Document("$ne", 
+			    new BsonNull()))), 
+			    new Document("$project", 
+			    new Document("typeCategory.recommendations", 1L)
+			            .append("_id", 0L)), 
+			    new Document("$unwind", 
+			    new Document("path", "$typeCategory")), 
+			    new Document("$unwind", 
+			    new Document("path", "$typeCategory.recommendations")), 
+			    new Document("$project", 
+			    new Document("_id", 
+			    new Document("$toObjectId", "$typeCategory.recommendations"))), 
+			    new Document("$group", 
+			    new Document("_id", "$_id")
+			            .append("count", 
+			    new Document("$sum", 1L))), 
+			    new Document("$sort", 
+			    new Document("count", -1L)), 
+			    new Document("$lookup", 
+			    new Document("from", "books")
+			            .append("localField", "_id")
+			            .append("foreignField", "_id")
+			            .append("as", "book")), 
+			    new Document("$replaceRoot", 
+			    new Document("newRoot", 
+			    new Document("$mergeObjects", Arrays.asList(new Document("$arrayElemAt", Arrays.asList("$book", 0L)), "$$ROOT")))), 
+			    new Document("$unset", Arrays.asList("book", "count"))), BookMongoEntity.class);
+		
+
+		Iterator<BookMongoEntity> it = views.iterator();
+		while (it.hasNext()) {
+			BookMongoEntity bookMongoEntity = it.next();
+			log.info(bookMongoEntity.getId());
+		}
+		
+		List<BookMongoEntity> ret = new ArrayList<>(recommendations.size());
+		List<ObjectId> list = new ArrayList<>(recommendations.size());
+		for (String s : recommendations) {
+			list.add(new ObjectId(s));
+		}
+		Bson filter = in("_id", list);
+
+//		CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
+//				MongoClientSettings.getDefaultCodecRegistry(),
+//				org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder()
+//						.automatic(true)
+//						.build()));
+
+		FindIterable<BookMongoEntity> books = mongoTemplate.getCollection("books")
+				.withCodecRegistry(pojoCodecRegistry)
+				.find(filter, BookMongoEntity.class).limit(num);
+
+		books.iterator()
+				.forEachRemaining(ret::add);
+		
 
 		return ret;
 	}

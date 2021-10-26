@@ -42,8 +42,8 @@ export class BookService {
     return this.http.post(this.endpoint + "/similar", similar);
   }
 
-  getRecommendationsByBook(id: string): Observable<any> {
-    return this.http.get(this.endpoint + "/recommendations/book?id=" + id);
+  getRecommendationsByBook(recommendations: string[]): Observable<any> {
+    return this.http.post(this.endpoint + "/recommendations/book", recommendations);
   }
 
   getRecommendationsByUser(user: string): Observable<any> {
@@ -76,5 +76,9 @@ export class BookService {
 
   getSent(user: string): Observable<any> {
     return this.http.get(this.endpoint + "/sent?user=" + user);
+  }
+
+  view(book: string, user: string): Observable<any> {
+    return this.http.post(this.endpoint + "/view?user=" + user + "&book=" + book, null);
   }
 }

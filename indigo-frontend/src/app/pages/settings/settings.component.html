@@ -71,7 +71,7 @@
                             {{'locale.settings.panel.global.recommendations2' | translate}}</div>
                         <div class="p-col p-md-8">
                             <p-inputNumber [(ngModel)]="booksRecommendations2" mode="decimal" [showButtons]="true"
-                                [min]="0" [max]="50">
+                                [min]="0" [max]="1000">
                             </p-inputNumber>
                         </div>
                     </div>
@@ -103,6 +103,7 @@
                         <div class="p-col-12 p-md-8">
                             <div class="p-col-11 center" style="float: left;">
                                 <p-progressBar [value]="progressBar" *ngIf="isPartial"></p-progressBar>
+                                <span *ngIf="isPartial">{{message}}</span>
                             </div>
                             <div class="p-col-1 right" style="float: right;">
                                 <a href="javascript:;" (click)="doExecutePartial()">
@@ -117,6 +118,7 @@
                         <div class="p-col-12 p-md-8">
                             <div class="p-col-11 center" style="float: left;">
                                 <p-progressBar [value]="progressBar" *ngIf="isFull"></p-progressBar>
+                                <span *ngIf="isFull">{{message}}</span>
                             </div>
                             <div class="p-col-1 right" style="float: right;">
                                 <a href="javascript:;" (click)="doExecuteFull()">

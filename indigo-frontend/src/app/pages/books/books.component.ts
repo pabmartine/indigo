@@ -1,4 +1,5 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Location } from '@angular/common';
+import { Component, HostListener, OnInit, } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
@@ -21,7 +22,6 @@ export class BooksComponent implements OnInit {
 
   books: Book[] = [];
   favorites: Book[] = [];
-  recommendations: Book[] = [];
   authorInfo: Author;
   title: string;
   private adv_search: Search;
@@ -48,14 +48,18 @@ export class BooksComponent implements OnInit {
   mobHeight: any;
   mobWidth: any;
 
+  searched: boolean;
+
   constructor(
     private bookService: BookService,
     private router: Router,
     private route: ActivatedRoute,
     private authorService: AuthorService,
     private messageService: MessageService,
-    public translate: TranslateService) {
+    public translate: TranslateService,
+    private location: Location) {
 
+    console.log("init -->" + this.searched);
 
     //defines the number of elements to retrieve according to the width of the screen
     if (window.screen.width < 640) {
@@ -90,7 +94,7 @@ export class BooksComponent implements OnInit {
     this.navigationSubscription = this.router.events.subscribe((e: any) => {
       // If it is a NavigationEnd event re-initalise the component
       if (e instanceof NavigationEnd) {
-        if (this.router.url == "/books" && !sessionStorage.getItem("position")) {
+        if (this.router.url == "/books" && !sessionStorage.getItem("position") && !this.searched) {
           this.adv_search = null;
           this.doSearch();
         }
@@ -120,7 +124,7 @@ export class BooksComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
+    console.log("init -->" + this.searched);
   }
 
   ngAfterViewChecked() {
@@ -164,7 +168,6 @@ export class BooksComponent implements OnInit {
     this.page = 0;
     this.books.length = 0
     this.favorites.length = 0
-    this.recommendations.length = 0
 
     this.getAll();
   }
@@ -261,14 +264,14 @@ export class BooksComponent implements OnInit {
 
     if (!this.adv_search) {
       this.getFavoritesBooks();
-      this.getRecommendationsBooks();
     } else {
       this.favorites.length = 0;
-      this.recommendations.length = 0;
     }
 
     this.count();
     this.getAll();
+
+    this.searched = true;
 
   }
 
@@ -314,23 +317,6 @@ export class BooksComponent implements OnInit {
         });
 
         Array.prototype.push.apply(this.favorites, data);
-      },
-      error => {
-        console.log(error);
-      }
-    );
-  }
-
-  getRecommendationsBooks() {
-    const user = JSON.parse(sessionStorage.user);
-    this.bookService.getRecommendationsByUser(user.username).subscribe(
-      data => {
-        this.recommendations.length = 0
-        data.forEach((book) => {
-          this.getCover(book);
-        });
-
-        Array.prototype.push.apply(this.recommendations, data);
       },
       error => {
         console.log(error);
@@ -397,7 +383,6 @@ export class BooksComponent implements OnInit {
 
     this.books.length = 0;
     this.favorites.length = 0;
-    this.recommendations.length = 0;
   }
 
   public isGlobalSearch(search: Search) {
@@ -414,6 +399,11 @@ export class BooksComponent implements OnInit {
 
   public isSerieSearch(search: Search) {
     return search && search.serie && !search.title && !search.ini && !search.end && !search.min && !search.max && !search.selectedTags && !search.author && !search.path;
+  }
+
+  close() {
+    //TODO actualizar la lista de favoritos en la vista pricipal
+    this.location.back();
   }
 
 }

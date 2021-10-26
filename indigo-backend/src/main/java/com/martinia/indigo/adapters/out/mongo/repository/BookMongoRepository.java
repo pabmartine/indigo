@@ -9,7 +9,8 @@ import com.martinia.indigo.adapters.out.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.adapters.out.mongo.repository.custom.CustomBookMongoRepository;
 import com.martinia.indigo.adapters.out.mongo.repository.custom.CustomGlobalMongoRepository;
 
-public interface BookMongoRepository extends MongoRepository<BookMongoEntity, String>, CustomBookMongoRepository, CustomGlobalMongoRepository {
+public interface BookMongoRepository
+		extends MongoRepository<BookMongoEntity, String>, CustomBookMongoRepository, CustomGlobalMongoRepository {
 
 	@Query("{ 'serie.name' : ?0 }")
 	List<BookMongoEntity> findBooksBySerie(String serie);

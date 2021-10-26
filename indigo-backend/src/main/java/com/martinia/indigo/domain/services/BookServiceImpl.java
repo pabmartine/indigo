@@ -56,17 +56,17 @@ public class BookServiceImpl implements BookService {
 	}
 
 	@Override
-	public List<Book> getBookRecommendationsByBook(String id) {
+	public List<Book> getRecommendationsByBook(List<String> recommendations) {
 		int num = Integer.parseInt(configurationRepository.findByKey("books.recommendations")
 				.getValue());
-		return bookRepository.getBookRecommendationsByBook(id, num);
+		return bookRepository.getRecommendationsByBook(recommendations, num);
 	}
 
 	@Override
-	public List<Book> getBookRecommendationsByUser(String user) {
+	public List<Book> getRecommendationsByUser(String user) {
 		int num = Integer.parseInt(configurationRepository.findByKey("books.recommendations2")
 				.getValue());
-		return bookRepository.getBookRecommendationsByUser(user, num);
+		return bookRepository.getRecommendationsByUser(user, num);
 	}
 
 	@Override

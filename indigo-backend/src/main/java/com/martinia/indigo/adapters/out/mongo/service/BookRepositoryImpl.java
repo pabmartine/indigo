@@ -1,10 +1,9 @@
 package com.martinia.indigo.adapters.out.mongo.service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +12,11 @@ import org.springframework.stereotype.Component;
 import com.martinia.indigo.adapters.out.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.adapters.out.mongo.mapper.BookMongoMapper;
 import com.martinia.indigo.adapters.out.mongo.repository.BookMongoRepository;
+import com.martinia.indigo.adapters.out.mongo.repository.NotificationMongoRepository;
+import com.martinia.indigo.adapters.out.mongo.repository.ViewMongoRepository;
 import com.martinia.indigo.domain.model.Book;
 import com.martinia.indigo.domain.model.Search;
 import com.martinia.indigo.ports.out.mongo.BookRepository;
-import com.martinia.indigo.ports.out.mongo.NotificationRepository;
 
 @Component
 public class BookRepositoryImpl implements BookRepository {
@@ -25,7 +25,10 @@ public class BookRepositoryImpl implements BookRepository {
 	BookMongoRepository bookMongoRepository;
 
 	@Autowired
-	NotificationRepository notificationRepository;
+	NotificationMongoRepository notificationMongoRepository;
+
+	@Autowired
+	ViewMongoRepository viewMongoRepository;
 
 	@Autowired
 	BookMongoMapper bookMongoMapper;
@@ -34,7 +37,6 @@ public class BookRepositoryImpl implements BookRepository {
 	public Long count(Search search) {
 		return bookMongoRepository.count(search);
 	}
-
 
 	@Override
 	public List<Book> findAll(Search search, int page, int size, String sort, String order) {
@@ -58,32 +60,49 @@ public class BookRepositoryImpl implements BookRepository {
 	}
 
 	@Override
-	public List<Book> getBookRecommendationsByBook(String id, int num) {
-		return bookMongoMapper.entities2Domains(bookMongoRepository.getBookRecommendations(id, 0, num, "id", "ASC"));
+	public List<Book> getRecommendationsByBook(String id) {
+		return bookMongoMapper.entities2Domains(bookMongoRepository.getRecommendationsByBook(id));
 	}
 
 	@Override
-	public List<Book> getBookRecommendationsByUser(String user, int num) {
+	public List<Book> getRecommendationsByBook(List<String> recommendations, int num) {
+		return bookMongoMapper.entities2Domains(bookMongoRepository.getRecommendationsByBook(recommendations, num));
+	}
 
-		Map<String, Book> map = new HashMap<>();
-		List<String> ids = new ArrayList<>();
-		List<Book> books = notificationRepository.getSentBooks(user);
-		for (Book book : books) {
-			ids.add(book.getId());
-			List<Book> _books = this.getBookRecommendationsByBook(book.getId(), num);
-			for (Book _book : _books) {
-				if (!map.containsKey(_book.getId()) && !ids.contains(_book.getId()))
-					map.put(_book.getId(), _book);
-			}
+	@Override
+	public List<Book> getRecommendationsByUser(String user, int num) {
+		List<Book> ret = null;
+
+		List<Book> books = bookMongoMapper.entities2Domains(notificationMongoRepository.getRecommendations(user, num));
+		List<Book> books2 = bookMongoMapper.entities2Domains(viewMongoRepository.getRecommendations(user, num));
+
+		Map<String, Book> map1 = books.stream()
+				.collect(
+                        LinkedHashMap::new,                           
+                        (map, item) -> map.put(item.getId(), item), 
+                        Map::putAll);
+
+		Map<String, Book> map2 = books2.stream()
+				.collect(LinkedHashMap::new,                           
+                        (map, item) -> map.put(item.getId(), item), 
+                        Map::putAll);
+
+		Map<String, Book> map3 = new LinkedHashMap<>();
+
+		map3.putAll(map1);
+		map3.putAll(map2);
+
+		if (map3 != null && !map3.isEmpty()) {
+			ret = map3.entrySet()
+					.stream()
+					.map(Map.Entry::getValue)
+					.collect(Collectors.toList())
+					.subList(0, num > map3.entrySet()
+							.size() ? map3.entrySet()
+									.size() : num);
 		}
-		return map.values()
-				.stream()
-				.collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
-					Collections.shuffle(collected);
-					return collected.stream();
-				}))
-				.limit(num)
-				.collect(Collectors.toList());
+		return ret;
+
 	}
 
 	@Override
@@ -98,13 +117,7 @@ public class BookRepositoryImpl implements BookRepository {
 
 	@Override
 	public List<Book> getSimilar(List<String> similar) {
-		List<Book> ret = new ArrayList<>(similar.size());
-		for (String s : similar) {
-			Book book = this.findByTitle(s);
-			if (book != null)
-				ret.add(book);
-		}
-		return ret;
+		return bookMongoMapper.entities2Domains(bookMongoRepository.getSimilar(similar));
 	}
 
 	@Override
@@ -112,12 +125,10 @@ public class BookRepositoryImpl implements BookRepository {
 		bookMongoRepository.save(bookMongoMapper.domain2Entity(book));
 	}
 
-
 	@Override
 	public void dropCollection() {
 		bookMongoRepository.dropCollection(BookMongoEntity.class);
 	}
-
 
 	public Book findByPath(String path) {
 		return bookMongoMapper.entity2Domain(bookMongoRepository.findByPath(path));

@@ -32,6 +32,7 @@ public class BookDto implements Serializable {
 	private List<String> authors;
 	private List<String> tags;
 	private List<String> similar;
+	private List<String> recommendations;
 	private List<String> languages;
 
 }

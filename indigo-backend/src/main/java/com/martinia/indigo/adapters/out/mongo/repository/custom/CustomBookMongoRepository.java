@@ -15,10 +15,14 @@ public interface CustomBookMongoRepository {
 
 	long count(Search search);
 
-	List<BookMongoEntity> getBookRecommendations(String id, int page, int size, String sort, String order);
-
 	Map<String, Long> getNumBooksBySerie(int page, int size, String sort, String order);
 
 	Long getNumSeries();
+
+	List<BookMongoEntity> getSimilar(List<String> similar);
+
+	List<BookMongoEntity> getRecommendationsByBook(String id);
+
+	List<BookMongoEntity> getRecommendationsByBook(List<String> recommendations, int num);
 
 }

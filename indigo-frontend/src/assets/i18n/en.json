@@ -17,6 +17,7 @@
 		"sidebar": {
 			"menu": {
 				"books": "Books",
+				"recommendations": "For you",
 				"authors": "Authors",
 				"tags": "Categories",
 				"series": "Series",
@@ -238,7 +239,10 @@
 					"pull": "Make a request every (seconds)",
 					"goodreadskey": "GoodReads Developer Key",
 					"partial": "Update metadata (ratings, comments, author biography, etc.) for new books",
-					"full": "Update metadata (ratings, comments, author biography, etc.) for the entire library. Overwrite existing ones."
+					"full": "Update metadata (ratings, comments, author biography, etc.) for the entire library. Overwrite existing ones.",
+					"indexing_books": "Indexing library ...",
+                    "filling_recommendations": "Generating recommendations ...",
+                    "obtaining_metadata": "Obtaining metadata ..."
 				},
 				"smtp": {
 					"title": "Mail server",
