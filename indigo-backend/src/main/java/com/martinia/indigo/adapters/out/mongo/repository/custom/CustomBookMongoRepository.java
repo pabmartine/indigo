@@ -22,7 +22,11 @@ public interface CustomBookMongoRepository {
 	List<BookMongoEntity> getSimilar(List<String> similar);
 
 	List<BookMongoEntity> getRecommendationsByBook(String id);
+	
+	List<BookMongoEntity> getRecommendationsByUser(String user, int page, int size, String sort, String order);
 
 	List<BookMongoEntity> getRecommendationsByBook(List<String> recommendations, int num);
+
+	Long countRecommendationsByUser(String user);
 
 }

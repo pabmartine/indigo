@@ -46,8 +46,15 @@ export class BookService {
     return this.http.post(this.endpoint + "/recommendations/book", recommendations);
   }
 
-  getRecommendationsByUser(user: string): Observable<any> {
-    return this.http.get(this.endpoint + "/recommendations/user?user=" + user);
+  countRecommendationsByUser(user: string): Observable<any> {
+    return this.http.get(this.endpoint + "/recommendations/user/count?user=" + user);
+  }
+
+  getRecommendationsByUser(user: string, page: number,
+    size: number,
+    sort: string,
+    order: string): Observable<any> {
+    return this.http.get(this.endpoint + "/recommendations/user?user=" + user+ "&page=" + page + "&size=" + size + "&sort=" + sort + "&order=" + order);
   }
 
   getFavorite(book: string, user: string): Observable<any> {

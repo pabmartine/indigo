@@ -69,20 +69,24 @@
 			},
 			"order_by": {
 				"id": {
-					"asc": "Livres ajoutés plus anciens",
-					"desc": "Livres récemment ajoutés"
+					"asc": "Ajoutés plus anciens",
+					"desc": "Récemment ajoutés"
 				},
 				"pubdate": {
-					"asc": "Premiers livres publiés",
-					"desc": "Derniers livres publiés"
+					"asc": "Premiers publiés",
+					"desc": "Derniers publiés"
 				},
 				"title": {
-					"asc": "Livres classés par titre croissant",
-					"desc": "Livres triés par titre décroissant"
+					"asc": "Titre croissant",
+					"desc": "Titre décroissant"
 				},
 				"rating": {
-					"asc": "Livres les moins bien notés",
-					"desc": "Livres les mieux notés"
+					"asc": "Moins bien notés",
+					"desc": "Mieux notés"
+				},
+				"count": {
+					"desc": "Plus recommandés",
+					"asc": "Moins recommandés"
 				}
 			},
 			"error": {

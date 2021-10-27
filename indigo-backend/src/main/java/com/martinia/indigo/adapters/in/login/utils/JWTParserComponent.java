@@ -33,6 +33,7 @@ public class JWTParserComponent {
 
 		response.addHeader(HTTP_HEADER, AUTH_TYPE + " " + JWT);
 
+
 	}
 
 	public Authentication readToken(HttpServletRequest request) {

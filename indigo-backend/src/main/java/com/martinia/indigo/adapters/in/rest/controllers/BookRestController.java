@@ -108,9 +108,15 @@ public class BookRestController {
 
 	}
 
+	@GetMapping(value = "/recommendations/user/count")
+	public ResponseEntity<Long> countBookRecommendationsByUser(@RequestParam String user) {
+		return new ResponseEntity<>(bookService.countRecommendationsByUser(user), HttpStatus.OK);
+	}
+
 	@GetMapping(value = "/recommendations/user", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<BookDto>> getBookRecommendationsByUser(@RequestParam String user) {
-		List<Book> books = bookService.getRecommendationsByUser(user);
+	public ResponseEntity<List<BookDto>> getBookRecommendationsByUser(@RequestParam String user, @RequestParam int page,
+			@RequestParam int size, @RequestParam String sort, @RequestParam String order) {
+		List<Book> books = bookService.getRecommendationsByUser(user, page, size, sort, order);
 		List<BookDto> booksDto = bookDtoMapper.domains2Dtos(books);
 		return new ResponseEntity<>(booksDto, HttpStatus.OK);
 

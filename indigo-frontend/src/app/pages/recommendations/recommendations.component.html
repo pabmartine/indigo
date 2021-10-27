@@ -5,15 +5,19 @@
     <div class="content-header p-grid">
       <div class="p-col-12 p-md-6">
         <span class="page-title">
-          {{'locale.books.recommendations.title2' | translate}}
+          {{title}}
         </span>
       </div>
       <div class="p-col-12 p-md-6" style="text-align: right;">
-       
+        <p-dropdown [options]="sorts" [(ngModel)]="selectedSort" (onChange)="onChange($event)" class="sortBy">
+          <ng-template let-item pTemplate="selectedItem">
+            <span style="vertical-align:middle">{{item.label}}</span>
+          </ng-template>
+        </p-dropdown>
       </div>
     </div>
 
-    <div class="content-body p-grid" infiniteScroll [infiniteScrollDistance]="2">
+    <div class="content-body p-grid" infiniteScroll [infiniteScrollDistance]="2" (scrolled)="onScroll()">
       <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of books">
 
         <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)"

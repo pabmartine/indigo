@@ -3,7 +3,6 @@ package com.martinia.indigo.adapters.out.mongo.service;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,38 +67,26 @@ public class BookRepositoryImpl implements BookRepository {
 	public List<Book> getRecommendationsByBook(List<String> recommendations, int num) {
 		return bookMongoMapper.entities2Domains(bookMongoRepository.getRecommendationsByBook(recommendations, num));
 	}
+	
+	@Override
+	public Long countRecommendationsByUser(String user) {
+		return bookMongoRepository.countRecommendationsByUser(user);
+	}
 
 	@Override
-	public List<Book> getRecommendationsByUser(String user, int num) {
+	public List<Book> getRecommendationsByUser(String user, int page, int size, String sort, String order) {
 		List<Book> ret = null;
 
-		List<Book> books = bookMongoMapper.entities2Domains(notificationMongoRepository.getRecommendations(user, num));
-		List<Book> books2 = bookMongoMapper.entities2Domains(viewMongoRepository.getRecommendations(user, num));
+		List<Book> books = bookMongoMapper.entities2Domains(bookMongoRepository.getRecommendationsByUser(user, page, size, sort, order));
 
-		Map<String, Book> map1 = books.stream()
-				.collect(
-                        LinkedHashMap::new,                           
-                        (map, item) -> map.put(item.getId(), item), 
-                        Map::putAll);
+		Map<String, Book> map = books.stream()
+				.collect(LinkedHashMap::new, (_map, item) -> _map.put(item.getId(), item), Map::putAll);
 
-		Map<String, Book> map2 = books2.stream()
-				.collect(LinkedHashMap::new,                           
-                        (map, item) -> map.put(item.getId(), item), 
-                        Map::putAll);
-
-		Map<String, Book> map3 = new LinkedHashMap<>();
-
-		map3.putAll(map1);
-		map3.putAll(map2);
-
-		if (map3 != null && !map3.isEmpty()) {
-			ret = map3.entrySet()
+		if (map != null && !map.isEmpty()) {
+			ret = map.entrySet()
 					.stream()
 					.map(Map.Entry::getValue)
-					.collect(Collectors.toList())
-					.subList(0, num > map3.entrySet()
-							.size() ? map3.entrySet()
-									.size() : num);
+					.collect(Collectors.toList());
 		}
 		return ret;
 

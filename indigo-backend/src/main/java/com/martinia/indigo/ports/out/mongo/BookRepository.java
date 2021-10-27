@@ -28,10 +28,12 @@ public interface BookRepository {
 
 	List<Book> getRecommendationsByBook(String id);
 
-	List<Book> getRecommendationsByUser(String user, int num);
+	List<Book> getRecommendationsByUser(String user, int page, int size, String sort, String order);
 
 	List<Book> getSimilar(List<String> similar);
 
 	void save(Book book);
+
+	Long countRecommendationsByUser(String user);
 
 }

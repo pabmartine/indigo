@@ -69,20 +69,24 @@
 			},
 			"order_by": {
 				"id": {
-					"asc": "Older added books",
-					"desc": "Recently added books"
+					"asc": "Older added",
+					"desc": "Recently added"
 				},
 				"pubdate": {
-					"asc": "First published books",
-					"desc": "Latest published books"
+					"asc": "First published",
+					"desc": "Latest published"
 				},
 				"title": {
-					"asc": "Books ordered by ascending title",
-					"desc": "Books sorted by descending title"
+					"asc": "Ascending title",
+					"desc": "Descending title"
 				},
 				"rating": {
-					"asc": "Lowest rated books",
-					"desc": "Best rated books"
+					"asc": "Lowest rated",
+					"desc": "Best rated"
+				},
+				"count": {
+					"desc": "Most recommended",
+					"asc": "Less recommended"
 				}
 			},
 			"error": {

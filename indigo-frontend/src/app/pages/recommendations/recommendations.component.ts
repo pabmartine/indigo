@@ -1,9 +1,7 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { MessageService } from 'primeng/api';
-import { SelectItem } from 'primeng/api/selectitem';
-import { Author } from 'src/app/domain/author';
+import { MessageService, SelectItem } from 'primeng/api';
 import { Book } from 'src/app/domain/book';
 import { Search } from 'src/app/domain/search';
 import { AuthorService } from 'src/app/services/author.service';
@@ -22,10 +20,21 @@ export class RecommendationsComponent implements OnInit {
   books: Book[] = [];
 
   title: string;
+  total: number;
+
+  private page: number;
+  private lastPage: number;
+
+  private size: number;
+  private sort: string;
+  private order: string;
 
   showGoUpButton: boolean;
   private showScrollHeight = 400;
   private hideScrollHeight = 200;
+
+  sorts: SelectItem[] = [];
+  selectedSort: string;
 
   navigationSubscription: any;
 
@@ -41,6 +50,26 @@ export class RecommendationsComponent implements OnInit {
     private messageService: MessageService,
     public translate: TranslateService) {
 
+    //defines the number of elements to retrieve according to the width of the screen
+    if (window.screen.width < 640) {
+      this.size = 10;
+    } else if (window.screen.width < 1024) {
+      this.size = 20;
+    } else {
+      this.size = 60;
+    }
+
+    this.sorts.push(
+      { label: this.translate.instant('locale.books.order_by.count.desc'), value: 'count,desc' },
+      // { label: this.translate.instant('locale.books.order_by.count.asc'), value: 'count,asc' },
+      { label: this.translate.instant('locale.books.order_by.pubdate.desc'), value: 'pubDate,desc' },
+      { label: this.translate.instant('locale.books.order_by.pubdate.asc'), value: 'pubDate,asc' },
+      { label: this.translate.instant('locale.books.order_by.title.asc'), value: 'title,asc' },
+      { label: this.translate.instant('locale.books.order_by.title.desc'), value: 'title,desc' },
+      { label: this.translate.instant('locale.books.order_by.rating.desc'), value: 'rating,desc' },
+      { label: this.translate.instant('locale.books.order_by.rating.asc'), value: 'rating,asc' }
+
+    );
 
     this.showGoUpButton = false;
 
@@ -91,6 +120,69 @@ export class RecommendationsComponent implements OnInit {
     }
   }
 
+  onChange(event) {
+
+    const index = this.selectedSort.indexOf(",");
+    this.sort = this.selectedSort.slice(0, index);
+    this.order = this.selectedSort.slice(index + 1);
+
+    sessionStorage.setItem('books_order', this.selectedSort);
+
+    this.page = 0;
+    this.books.length = 0
+
+    this.getAll();
+  }
+
+  onScroll() {
+    if (this.books.length > 0 && this.books.length < this.total) {
+      this.getAll();
+    }
+  }
+
+  scrollTop() {
+    document.body.scrollTop = 0; // Safari
+    document.documentElement.scrollTop = 0; // Other
+  }
+
+  count() {
+    const user = JSON.parse(sessionStorage.user);
+
+    this.bookService.countRecommendationsByUser(user.username).subscribe(
+      data => {
+        this.total = data;
+        this.lastPage = this.total / this.size;
+        this.title = this.translate.instant('locale.books.recommendations.title2') + " (" + this.total + ")";
+      },
+      error => {
+        console.log(error);
+        this.messageService.clear();
+        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.error.data'), closable: false, life: 5000 });
+      }
+    );
+  }
+
+  getAll() {
+    const user = JSON.parse(sessionStorage.user);
+    this.bookService.getRecommendationsByUser(user.username, this.page, this.size, this.sort, this.order).subscribe(
+      data => {
+
+        data.forEach((book) => {
+          this.getCover(book);
+        });
+
+        Array.prototype.push.apply(this.books, data);
+        this.page++;
+
+      },
+      error => {
+        console.log(error);
+        this.messageService.clear();
+        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.error.data'), closable: false, life: 5000 });
+      }
+    );
+  }
+
 
   getCover(book: Book) {
     this.bookService.getCover(book.path).subscribe(
@@ -117,27 +209,12 @@ export class RecommendationsComponent implements OnInit {
 
   private doSearch() {
     this.reset();
+    this.count();
     this.getAll();
   }
 
 
 
-  getAll() {
-    const user = JSON.parse(sessionStorage.user);
-    this.bookService.getRecommendationsByUser(user.username).subscribe(
-      data => {
-        this.books.length = 0
-        data.forEach((book) => {
-          this.getCover(book);
-        });
-
-        Array.prototype.push.apply(this.books, data);
-      },
-      error => {
-        console.log(error);
-      }
-    );
-  }
 
 
   getBooksByAuthor(author: string) {
@@ -147,6 +224,21 @@ export class RecommendationsComponent implements OnInit {
   }
 
   private reset() {
+    this.total = 0;
+    this.page = 0;
+    this.lastPage = 0;
+    this.selectedSort = sessionStorage.getItem('books_order');
+    if (!this.selectedSort) {
+      this.sort = null;
+      this.order = "desc";
+      this.selectedSort = this.sort + "," + this.order;
+    }
+    else {
+      const index = this.selectedSort.indexOf(",");
+      this.sort = this.selectedSort.slice(0, index);
+      this.order = this.selectedSort.slice(index + 1);
+    }
+
     this.books.length = 0;
   }
 

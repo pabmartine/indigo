@@ -61,12 +61,15 @@ public class BookServiceImpl implements BookService {
 				.getValue());
 		return bookRepository.getRecommendationsByBook(recommendations, num);
 	}
+	
+	@Override
+	public Long countRecommendationsByUser(String user) {
+		return bookRepository.countRecommendationsByUser(user);
+	}
 
 	@Override
-	public List<Book> getRecommendationsByUser(String user) {
-		int num = Integer.parseInt(configurationRepository.findByKey("books.recommendations2")
-				.getValue());
-		return bookRepository.getRecommendationsByUser(user, num);
+	public List<Book> getRecommendationsByUser(String user, int page, int size, String sort, String order) {
+		return bookRepository.getRecommendationsByUser(user, page, size, sort, order);
 	}
 
 	@Override

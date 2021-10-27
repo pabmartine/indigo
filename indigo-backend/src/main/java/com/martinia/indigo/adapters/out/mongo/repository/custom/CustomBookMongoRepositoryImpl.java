@@ -323,16 +323,12 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 
 		data.iterator()
 				.forEachRemaining(ret::add);
-		
 
 		return ret;
 	}
 
 	@Override
 	public List<BookMongoEntity> getRecommendationsByBook(List<String> recommendations, int num) {
-		
-		
-//		--> HACER UN MERGE TB CON LA TABLA DE NOTIFICACIONES
 
 		CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
 				MongoClientSettings.getDefaultCodecRegistry(),
@@ -340,52 +336,6 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 						.automatic(true)
 						.build()));
 
-		MongoCollection<Document> collection = mongoTemplate.getCollection("views").withCodecRegistry(pojoCodecRegistry);
-
-		AggregateIterable<BookMongoEntity> views = collection.aggregate(Arrays.asList(new Document("$match", 
-			    new Document("user", "admin")), 
-			    new Document("$lookup", 
-			    new Document("from", "books")
-			            .append("localField", "book")
-			            .append("foreignField", "path")
-			            .append("as", "typeCategory")), 
-			    new Document("$match", 
-			    new Document("typeCategory.recommendations", 
-			    new Document("$ne", 
-			    new BsonNull()))), 
-			    new Document("$project", 
-			    new Document("typeCategory.recommendations", 1L)
-			            .append("_id", 0L)), 
-			    new Document("$unwind", 
-			    new Document("path", "$typeCategory")), 
-			    new Document("$unwind", 
-			    new Document("path", "$typeCategory.recommendations")), 
-			    new Document("$project", 
-			    new Document("_id", 
-			    new Document("$toObjectId", "$typeCategory.recommendations"))), 
-			    new Document("$group", 
-			    new Document("_id", "$_id")
-			            .append("count", 
-			    new Document("$sum", 1L))), 
-			    new Document("$sort", 
-			    new Document("count", -1L)), 
-			    new Document("$lookup", 
-			    new Document("from", "books")
-			            .append("localField", "_id")
-			            .append("foreignField", "_id")
-			            .append("as", "book")), 
-			    new Document("$replaceRoot", 
-			    new Document("newRoot", 
-			    new Document("$mergeObjects", Arrays.asList(new Document("$arrayElemAt", Arrays.asList("$book", 0L)), "$$ROOT")))), 
-			    new Document("$unset", Arrays.asList("book", "count"))), BookMongoEntity.class);
-		
-
-		Iterator<BookMongoEntity> it = views.iterator();
-		while (it.hasNext()) {
-			BookMongoEntity bookMongoEntity = it.next();
-			log.info(bookMongoEntity.getId());
-		}
-		
 		List<BookMongoEntity> ret = new ArrayList<>(recommendations.size());
 		List<ObjectId> list = new ArrayList<>(recommendations.size());
 		for (String s : recommendations) {
@@ -393,19 +343,123 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 		}
 		Bson filter = in("_id", list);
 
-//		CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
-//				MongoClientSettings.getDefaultCodecRegistry(),
-//				org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder()
-//						.automatic(true)
-//						.build()));
-
 		FindIterable<BookMongoEntity> books = mongoTemplate.getCollection("books")
 				.withCodecRegistry(pojoCodecRegistry)
-				.find(filter, BookMongoEntity.class).limit(num);
+				.find(filter, BookMongoEntity.class)
+				.limit(num);
 
 		books.iterator()
 				.forEachRemaining(ret::add);
-		
+
+		return ret;
+	}
+
+	@Override
+	public Long countRecommendationsByUser(String user) {
+		Long ret = null;
+
+		CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
+				MongoClientSettings.getDefaultCodecRegistry(),
+				org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder()
+						.automatic(true)
+						.build()));
+
+		MongoCollection<Document> collection = mongoTemplate.getCollection("notifications")
+				.withCodecRegistry(pojoCodecRegistry);
+
+		AggregateIterable<Document> data = collection
+				.aggregate(
+						Arrays.asList(
+								new Document("$unionWith",
+										new Document("coll", "views").append("pipeline",
+												Arrays.asList(new Document("$set", new Document("_id", "$_id"))))),
+								new Document("$match", new Document("user", user)),
+								new Document("$project", new Document("_id", 0L).append("book", 1L)),
+								new Document("$lookup", new Document("from", "books").append("localField", "book")
+										.append("foreignField", "path")
+										.append("as", "typeCategory")),
+								new Document("$match",
+										new Document("typeCategory.recommendations",
+												new Document("$ne", new BsonNull()))),
+								new Document("$unwind", new Document("path", "$typeCategory")),
+								new Document("$unwind", new Document("path", "$typeCategory.recommendations")),
+								new Document("$project",
+										new Document("_id",
+												new Document("$toObjectId", "$typeCategory.recommendations"))),
+								new Document("$group",
+										new Document("_id", "$_id").append("count", new Document("$sum", 1L))),
+								new Document("$sort", new Document("count",
+										-1L)),
+								new Document("$lookup", new Document("from", "books").append("localField", "_id")
+										.append("foreignField", "_id")
+										.append("as", "book")),
+								new Document("$replaceRoot", new Document("newRoot",
+										new Document("$mergeObjects", Arrays.asList(
+												new Document("$arrayElemAt", Arrays.asList("$book", 0L)), "$$ROOT")))),
+								new Document("$count", "total")));
+
+		if (data.iterator()
+				.hasNext()) {
+			ret = Long.parseLong(data.iterator()
+					.next()
+					.get("total")
+					.toString());
+		}
+
+		return ret;
+	}
+
+	@Override
+	public List<BookMongoEntity> getRecommendationsByUser(String user, int page, int size, String sort, String order) {
+		List<BookMongoEntity> ret = new ArrayList<>();
+
+		CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
+				MongoClientSettings.getDefaultCodecRegistry(),
+				org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder()
+						.automatic(true)
+						.build()));
+
+		MongoCollection<Document> collection = mongoTemplate.getCollection("notifications")
+				.withCodecRegistry(pojoCodecRegistry);
+
+		AggregateIterable<BookMongoEntity> data = collection
+				.aggregate(
+						Arrays.asList(
+								new Document("$unionWith",
+										new Document("coll", "views").append("pipeline",
+												Arrays.asList(new Document("$set", new Document("_id", "$_id"))))),
+								new Document("$match", new Document("user", user)),
+								new Document("$project", new Document("_id", 0L).append("book", 1L)),
+								new Document("$lookup", new Document("from", "books").append("localField", "book")
+										.append("foreignField", "path")
+										.append("as", "typeCategory")),
+								new Document("$match",
+										new Document("typeCategory.recommendations",
+												new Document("$ne", new BsonNull()))),
+								new Document("$unwind", new Document("path", "$typeCategory")),
+								new Document("$unwind", new Document("path", "$typeCategory.recommendations")),
+								new Document("$project",
+										new Document("_id",
+												new Document("$toObjectId", "$typeCategory.recommendations"))),
+								new Document("$group",
+										new Document("_id", "$_id").append("count", new Document("$sum", 1L))),
+								new Document("$sort", new Document("count",
+										-1L)),
+								new Document("$lookup", new Document("from", "books").append("localField", "_id")
+										.append("foreignField", "_id")
+										.append("as", "book")),
+								new Document("$replaceRoot",
+										new Document("newRoot", new Document("$mergeObjects",
+												Arrays.asList(new Document("$arrayElemAt", Arrays.asList("$book", 0L)),
+														"$$ROOT")))),
+								new Document("$sort",
+										new Document(sort, (order.equals("asc") ? 1 : -1)).append("_id", -1L)),
+								new Document("$skip", page * size), new Document("$limit", size - 1),
+								new Document("$unset", Arrays.asList("book", "count"))),
+						BookMongoEntity.class);
+
+		data.iterator()
+				.forEachRemaining(ret::add);
 
 		return ret;
 	}

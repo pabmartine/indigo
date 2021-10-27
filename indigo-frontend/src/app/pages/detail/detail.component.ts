@@ -11,8 +11,6 @@ import { StatusEnum } from 'src/app/enums/status.enum';
 import { BookService } from 'src/app/services/book.service';
 import { ConfigService } from 'src/app/services/config.service';
 import { NotificationService } from 'src/app/services/notification.service';
-import { SerieService } from 'src/app/services/serie.service';
-import { TagService } from 'src/app/services/tag.service';
 import { UtilService } from 'src/app/services/util.service';
 
 @Component({

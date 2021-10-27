@@ -1,5 +1,6 @@
 package com.martinia.indigo.adapters.in.login.config;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,10 +77,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowCredentials(true);
-		configuration.setAllowedOriginPatterns(List.of("*"));
+		configuration.setAllowedOriginPatterns(Arrays.asList("*"));
 		configuration.addAllowedHeader("*");
 		configuration.addExposedHeader("Authorization");
 		configuration.addAllowedMethod("*");
+		configuration.setMaxAge(36000L);
+
+		
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
 		return source;

@@ -20,7 +20,7 @@ public interface BookService {
 
 	List<Book> getRecommendationsByBook(List<String> recommendations);
 
-	List<Book> getRecommendationsByUser(String user);
+	List<Book> getRecommendationsByUser(String user, int page, int size, String sort, String order);
 
 	Map<String, Long> getNumBooksBySerie(int page, int size, String sort, String order);
 
@@ -29,5 +29,7 @@ public interface BookService {
 	List<Book> findBooksBySerie(String serie);
 
 	Book findByPath(String path);
+
+	Long countRecommendationsByUser(String user);
 
 }
