@@ -27,6 +27,6 @@ public interface CustomBookMongoRepository {
 
 	List<BookMongoEntity> getRecommendationsByBook(List<String> recommendations, int num);
 
-	Long countRecommendationsByUser(String user);
+	long countRecommendationsByUser(String user);
 
 }

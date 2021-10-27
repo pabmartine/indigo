@@ -3,6 +3,19 @@ version: '3.7'
  
 # Define services
 services:
+  mongo:
+    image: mongo
+    environment:
+      - MONGO_INITDB_DATABASE=MongoDB
+    #  - MONGO_INITDB_ROOT_USERNAME=admin
+    #  - MONGO_INITDB_ROOT_PASSWORD=padmin
+    #volumes:
+    #  - ./mongo-volume:/data/db
+    ports:
+      - 27017:27017
+    networks: # Networks to join (Services on the same network can communicate with each other using their name)
+      - backend      
+      
   # App backend service
   indigo-backend:
     # Configuration for building the docker image for the backend service
@@ -15,6 +28,8 @@ services:
       - C:/Users/pmarti14/Documents/Personal/EPL:/EPL
       - C:/Users/pmarti14/Documents/Personal/kindlegen_win32_v2_9:/kindlegen
     restart: always
+    depends_on:
+      - mongo
     networks: # Networks to join (Services on the same network can communicate with each other using their name)
       - backend
       - frontend

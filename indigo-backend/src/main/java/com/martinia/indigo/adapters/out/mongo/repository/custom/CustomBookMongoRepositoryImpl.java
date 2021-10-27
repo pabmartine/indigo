@@ -355,7 +355,7 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 	}
 
 	@Override
-	public Long countRecommendationsByUser(String user) {
+	public long countRecommendationsByUser(String user) {
 		Long ret = null;
 
 		CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
