@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  endpoint: '/rest/',
+  endpoint: 'http://indigo-backend/rest/',
 };
