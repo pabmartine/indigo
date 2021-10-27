@@ -4,30 +4,33 @@ version: '3.7'
 # Define services
 services:
   # App backend service
-  app-server:
+  indigo-backend:
     # Configuration for building the docker image for the backend service
     build:
       context: indigo-backend # Use an image built from the specified dockerfile in the `spring-boot-oauth2-social-login` directory.
       dockerfile: Dockerfile
     ports:
-      - "8080:8080" # Forward the exposed port 8080 on the container to port 8080 on the host machine
+      - "8081:8080" # Forward the exposed port 8080 on the container to port 8080 on the host machine
+    volumes:
+      - C:/Users/pmarti14/Documents/Personal/EPL:/EPL
+      - C:/Users/pmarti14/Documents/Personal/kindlegen_win32_v2_9:/kindlegen
     restart: always
     networks: # Networks to join (Services on the same network can communicate with each other using their name)
       - backend
       - frontend
  
   # Frontend Service 
-  app-client:
+  indigo-frontend:
     build:
       context: indigo-frontend # Use an image built from the specified dockerfile in the `angular-11-social-login` directory.
       dockerfile: Dockerfile
       args:
         API_BASE_URL: http://127.0.0.1:8080/
     ports:
-      - "8081:80" # Map the exposed port 80 on the container to port 8081 on the host machine
+      - "8080:80" # Map the exposed port 80 on the container to port 8081 on the host machine
     restart: always
     depends_on:
-      - app-server
+      - indigo-backend
     networks:
       - frontend  
    
