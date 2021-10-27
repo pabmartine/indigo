@@ -14,7 +14,7 @@ services:
     ports:
       - 27017:27017
     networks: # Networks to join (Services on the same network can communicate with each other using their name)
-      - backend      
+      - indigonet      
       
   # App backend service
   indigo-backend:
@@ -31,8 +31,7 @@ services:
     depends_on:
       - mongo
     networks: # Networks to join (Services on the same network can communicate with each other using their name)
-      - backend
-      - frontend
+      - indigonet
  
   # Frontend Service 
   indigo-frontend:
@@ -47,9 +46,8 @@ services:
     depends_on:
       - indigo-backend
     networks:
-      - frontend  
+      - indigonet  
    
 # Networks to be created to facilitate communication between containers
 networks:
-  backend:
-  frontend: 
+  indigonet: 

@@ -3,6 +3,17 @@ version: '3.7'
  
 # Define services
 services:
+  mongo:
+    image: mongo
+    environment:
+      - MONGO_INITDB_DATABASE=MongoDB
+    volumes:
+      - /volume1/docker/mongodb:/data/db
+    ports:
+      - 27017:27017
+    networks: # Networks to join (Services on the same network can communicate with each other using their name)
+      - indigonet      
+      
   # App backend service
   indigo-backend:
     # Configuration for building the docker image for the backend service
@@ -12,12 +23,13 @@ services:
     ports:
       - "8081:8080" # Forward the exposed port 8080 on the container to port 8080 on the host machine
     volumes:
-      - /volume1/documentos/Calibre/EPL:/EPL
+      - /volume1/documentos/Calibre/EPL:/EPL 
       - /volume1/documentos/Calibre/kindlegen:/kindlegen
     restart: always
+    depends_on:
+      - mongo
     networks: # Networks to join (Services on the same network can communicate with each other using their name)
-      - backend
-      - frontend
+      - indigonet
  
   # Frontend Service 
   indigo-frontend:
@@ -32,9 +44,8 @@ services:
     depends_on:
       - indigo-backend
     networks:
-      - frontend  
+      - indigonet  
    
 # Networks to be created to facilitate communication between containers
 networks:
-  backend:
-  frontend: 
+  indigonet: 
