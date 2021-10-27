@@ -51,6 +51,7 @@ import { LoadingBarModule } from '@ngx-loading-bar/core';
 
 //Cache
 import { CustomReuseStrategy } from './utils/cache.routes';
+import { environment } from 'src/environments/environment';
 
 @NgModule({
   declarations: [
@@ -102,8 +103,8 @@ import { CustomReuseStrategy } from './utils/cache.routes';
           }
           return token;
         },
-        whitelistedDomains: ["*"],
-        blacklistedRoutes: ["*/rest/login"],
+        whitelistedDomains: environment.whiteList,
+        blacklistedRoutes: environment.blackList,
       },
     }),
   ],
