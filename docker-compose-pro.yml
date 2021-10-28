@@ -15,7 +15,6 @@ services:
       - indigonet      
       
   indigo-backend:
-    image: indigo-backend
     build:
       context: indigo-backend
       dockerfile: Dockerfile
@@ -31,7 +30,6 @@ services:
       - indigonet
  
   indigo-frontend:
-  image: indigo-frontend
     build:
       context: indigo-frontend
       dockerfile: Dockerfile
