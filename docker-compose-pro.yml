@@ -15,6 +15,7 @@ services:
       - indigonet      
       
   indigo-backend:
+    image: indigo-backend:v1
     build:
       context: indigo-backend
       dockerfile: Dockerfile
@@ -30,6 +31,7 @@ services:
       - indigonet
  
   indigo-frontend:
+    image: indigo-backend:v2
     build:
       context: indigo-frontend
       dockerfile: Dockerfile
@@ -39,7 +41,7 @@ services:
       - "8080:80"
     restart: always
     depends_on:
-      - indigo-backend
+      - indigo-backend:v2
     networks:
       - indigonet  
    
