@@ -2,7 +2,6 @@ package com.martinia.indigo.domain.model;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.UUID;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,8 +26,6 @@ public class User implements Serializable {
 	private List<String> favoriteAuthors;
 
 	public User(String username, String password, String role, String language) {
-		this.id = UUID.randomUUID()
-				.toString();
 		this.username = username;
 		this.password = password;
 		this.role = role;

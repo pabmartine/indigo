@@ -1,7 +1,6 @@
 package com.martinia.indigo.domain.model;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,7 +21,6 @@ public class Configuration implements Serializable {
 	private String value;
 	
 	public Configuration(String key, String value) {
-		this.id = UUID.randomUUID().toString();
 		this.key = key;
 		this.value = value;
 	}

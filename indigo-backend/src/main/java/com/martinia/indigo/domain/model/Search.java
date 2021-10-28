@@ -7,8 +7,6 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
-import com.martinia.indigo.adapters.out.sqlite.entities.TagSqliteEntity;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
