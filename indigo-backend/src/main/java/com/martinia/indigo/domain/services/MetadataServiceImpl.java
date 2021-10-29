@@ -91,6 +91,9 @@ public class MetadataServiceImpl implements MetadataService {
 		int page = 0;
 		int size = BATCH_SIZE;
 		while (page * size < numBooks) {
+			
+			if (!metadataSingleton.isRunning())
+				break;
 
 			List<Book> books = calibreRepository.findAll(null, page, size, "id", "asc");
 
@@ -151,6 +154,10 @@ public class MetadataServiceImpl implements MetadataService {
 		int page = 0;
 		int size = BATCH_SIZE;
 		while (page * size < numBooks) {
+			
+			if (!metadataSingleton.isRunning())
+				break;
+			
 			List<Book> books = bookRepository.findAll(null, page, size, "id", "asc");
 
 			for (Book book : books) {
@@ -190,6 +197,10 @@ public class MetadataServiceImpl implements MetadataService {
 		int page = 0;
 		int size = BATCH_SIZE;
 		while (page * size < numBooks) {
+			
+			if (!metadataSingleton.isRunning())
+				break;
+			
 			List<Book> books = bookRepository.findAll(null, page, size, "id", "asc");
 
 			for (Book book : books) {
@@ -274,6 +285,8 @@ public class MetadataServiceImpl implements MetadataService {
 
 	}
 
+	@Override
+	@Async
 	public void noFilledMetadata(String lang) {
 
 		if (metadataSingleton.isRunning()) {
@@ -282,6 +295,9 @@ public class MetadataServiceImpl implements MetadataService {
 
 		metadataSingleton.start("partial");
 		metadataSingleton.setMessage("obtaining_metadata");
+		
+		goodreads = configurationRepository.findByKey("goodreads.key")
+				.getValue();
 
 		long pullTime = Long.parseLong(configurationRepository.findByKey("metadata.pull")
 				.getValue());
@@ -298,6 +314,10 @@ public class MetadataServiceImpl implements MetadataService {
 		int size = BATCH_SIZE;
 
 		while (page * size < numBooks) {
+			
+			if (!metadataSingleton.isRunning())
+				break;
+			
 			List<Book> books = bookRepository.findAll(null, page, size, "id", "asc");
 
 			for (Book book : books) {
