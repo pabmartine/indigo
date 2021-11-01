@@ -20,7 +20,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "\"custom_column_5\"")
+@Table(name = "\"custom_column_3\"")
 public class PagesSqliteEntity implements Serializable {
 	private static final long serialVersionUID = 1L;
 

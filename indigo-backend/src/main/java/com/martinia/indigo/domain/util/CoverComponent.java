@@ -44,7 +44,7 @@ public class CoverComponent {
 			image = Base64.getEncoder()
 					.encodeToString(Files.readAllBytes(thumbFile.toPath()));
 		} catch (Exception e) {
-			log.error(e.getMessage());
+			log.debug(e.getMessage());
 		}
 
 		return image;

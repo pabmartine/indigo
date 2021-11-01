@@ -28,7 +28,7 @@ public class UtilRestController {
 	@GetMapping(value = "/mail", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Void> mail(@RequestParam String path, @RequestParam String user) throws Exception {
 
-		String error = mailService.mail(path.replace("@_@", "&").replace("@-@", "[").replace("@¡@", "]"), user);
+		String error = mailService.mail(path.replace("@_@", "&").replace("@-@", "[").replace("@¡@", "]").replace("@!@", "`"), user);
 
 		if (StringUtils.isEmpty(error)) {
 			return new ResponseEntity<>(HttpStatus.OK);

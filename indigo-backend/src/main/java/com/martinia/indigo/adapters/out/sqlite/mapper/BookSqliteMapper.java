@@ -77,7 +77,9 @@ public class BookSqliteMapper {
 				domain.getAuthors()
 						.add(author.trim());
 			}
-			domain.setPages(pageSqliteRepository.findPagesByBookId(entity.getId()));
+
+			domain.setPages(pageSqliteRepository.findPagesByBookId(entity.getId()).orElse(0));
+
 			domain.setTags(tagSqliteRepository.getTagsByBookId(entity.getId()));
 			domain.setComment(commentSqliteRepository.findTextByBookId(entity.getId()));
 			domain.setLanguages(languageSqliteRepository.getLanguageByBookId(entity.getId()));

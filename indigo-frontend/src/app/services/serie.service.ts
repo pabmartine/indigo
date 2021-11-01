@@ -32,6 +32,7 @@ export class SerieService {
     serie = serie.replace('&', '@_@');
     serie = serie.replace('[', '@-@');
     serie = serie.replace(']', '@¡@');
+    serie = serie.replace('`', '@!@');
     return this.http.get(this.endpoint + "/cover?serie=" + serie);
   }
 

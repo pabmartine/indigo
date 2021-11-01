@@ -26,6 +26,7 @@ export class UtilService {
     path = path.replace('&', '@_@');
     path = path.replace('[', '@-@');
     path = path.replace(']', '@¡@');
+    path = path.replace('`', '@!@');
     return this.http.get(this.endpoint+"/mail?path="+path + "&user="+user);
   }
 }

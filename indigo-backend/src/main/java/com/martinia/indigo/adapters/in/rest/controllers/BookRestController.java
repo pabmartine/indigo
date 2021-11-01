@@ -67,7 +67,8 @@ public class BookRestController {
 
 		String image = bookService.getCover(path.replace("@_@", "&")
 				.replace("@-@", "[")
-				.replace("@¡@", "]"), force);
+				.replace("@¡@", "]")
+				.replace("@!@", "`"), force);
 
 		map = new HashMap<String, String>();
 		map.put("image", image);

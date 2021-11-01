@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
+import com.martinia.indigo.adapters.out.sqlite.entities.AuthorSqliteEntity;
 import com.martinia.indigo.adapters.out.sqlite.entities.BookSqliteEntity;
 import com.martinia.indigo.adapters.out.sqlite.mapper.AuthorSqliteMapper;
 import com.martinia.indigo.adapters.out.sqlite.mapper.BookSqliteMapper;
@@ -46,16 +47,11 @@ public class CalibreRepositoryImpl implements CalibreRepository {
 	}
 
 	@Override
-	public Author findBySort(String author) {
-		try {
-			return authorSqliteMapper.entity2Domain(authorSqliteRepository.findBySort(author)
-					.stream()
-					.findFirst()
-					.orElse(null));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
+	public List<Author> findAuthorsByBook(String book) {
+		List<AuthorSqliteEntity> entities = authorSqliteRepository.findAuthors(Integer.parseInt(book));
+		return authorSqliteMapper.entities2Domains(entities);
 	}
+
+
 
 }
