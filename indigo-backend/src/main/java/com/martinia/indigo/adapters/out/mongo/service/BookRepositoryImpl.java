@@ -59,8 +59,8 @@ public class BookRepositoryImpl implements BookRepository {
 	}
 
 	@Override
-	public List<Book> getRecommendationsByBook(String id) {
-		return bookMongoMapper.entities2Domains(bookMongoRepository.getRecommendationsByBook(id));
+	public List<Book> getRecommendationsByBook(Book book) {
+		return bookMongoMapper.entities2Domains(bookMongoRepository.getRecommendationsByBook(bookMongoMapper.domain2Entity(book)));
 	}
 
 	@Override

@@ -22,29 +22,34 @@ public class CoverComponent {
 
 	public String getCover(String path, boolean force) {
 		String image = null;
-		try {
-			if (!libraryPath.endsWith(File.separator))
-				libraryPath += File.separator;
 
-			String coverPath = libraryPath + path + "/cover.jpg";
-			String thumbPath = libraryPath + path + "/thumbails.jpg";
+		if (!libraryPath.endsWith(File.separator))
+			libraryPath += File.separator;
 
-			File thumbFile = new File(thumbPath);
+		path = libraryPath + path;
 
-			if (!thumbFile.exists() || force) {
+		if ((new File(path)).exists()) {
+			try {
+				String coverPath = path + "/cover.jpg";
+				String thumbPath = path + "/thumbails.jpg";
 
-				File coverFile = new File(coverPath);
+				File thumbFile = new File(thumbPath);
 
-				BufferedImage i = ImageIO.read(coverFile);
-				BufferedImage scaledImg = Scalr.resize(i, 250);
+				if (!thumbFile.exists() || force) {
 
-				ImageIO.write(scaledImg, "JPG", thumbFile);
+					File coverFile = new File(coverPath);
+
+					BufferedImage i = ImageIO.read(coverFile);
+					BufferedImage scaledImg = Scalr.resize(i, 250);
+
+					ImageIO.write(scaledImg, "JPG", thumbFile);
+				}
+
+				image = Base64.getEncoder()
+						.encodeToString(Files.readAllBytes(thumbFile.toPath()));
+			} catch (Exception e) {
+				log.debug(e.getMessage());
 			}
-
-			image = Base64.getEncoder()
-					.encodeToString(Files.readAllBytes(thumbFile.toPath()));
-		} catch (Exception e) {
-			log.debug(e.getMessage());
 		}
 
 		return image;

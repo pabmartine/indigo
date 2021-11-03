@@ -63,6 +63,7 @@ public class MetadataServiceImpl implements MetadataService {
 	private CoverComponent coverComponent;
 
 	private String goodreads;
+	private long pullTime;
 
 	private final int BATCH_SIZE = 500;
 
@@ -79,13 +80,15 @@ public class MetadataServiceImpl implements MetadataService {
 
 		goodreads = configurationRepository.findByKey("goodreads.key")
 				.getValue();
+		pullTime = Long.parseLong(configurationRepository.findByKey("metadata.pull")
+				.getValue());
 
 		tagRepository.dropCollection();
 		authorRepository.dropCollection();
 		bookRepository.dropCollection();
 
 		Long numBooks = calibreRepository.count(null);
-		metadataSingleton.setTotal(numBooks * 3);
+		metadataSingleton.setTotal(numBooks);
 
 		int cont = 0;
 		int page = 0;
@@ -100,6 +103,8 @@ public class MetadataServiceImpl implements MetadataService {
 
 			for (Book book : books) {
 
+				book.setId(null);
+
 				if (!metadataSingleton.isRunning())
 					break;
 
@@ -107,28 +112,6 @@ public class MetadataServiceImpl implements MetadataService {
 
 				try {
 					coverComponent.getCover(book.getPath(), false);
-
-					// Authors
-					if (!CollectionUtils.isEmpty(book.getAuthors())) {
-
-						List<Author> authors = calibreRepository.findAuthorsByBook(book.getId());
-
-						if (!CollectionUtils.isEmpty(authors)) {
-
-							for (Author author : authors) {
-
-								com.martinia.indigo.domain.model.Author domainAuthor = new com.martinia.indigo.domain.model.Author();
-								domainAuthor.setName(author.getName());
-								domainAuthor.setSort(author.getSort());
-								domainAuthor.setNumBooks(1);
-
-								authorRepository.save(domainAuthor);
-
-							}
-
-						}
-
-					}
 
 					tagRepository.save(book.getTags());
 					bookRepository.save(book);
@@ -146,17 +129,79 @@ public class MetadataServiceImpl implements MetadataService {
 
 		}
 
-		fillRecommendations(cont);
-		fillMetadata(lang, cont);
+		fillAuthors();
+		fillRecommendations();
+		fillMetadataBooks(lang, true);
+		fillMetadataAuthors(lang, true);
 		stop();
 	}
 
-	private void fillRecommendations(int cont) {
+	private void fillAuthors() {
+
+		metadataSingleton.setMessage("filling_authors");
+
+		Long numBooks = bookRepository.count(null);
+
+		metadataSingleton.setTotal(numBooks);
+
+		int cont = 0;
+		int page = 0;
+		int size = BATCH_SIZE;
+		while (page * size < numBooks) {
+
+			if (!metadataSingleton.isRunning())
+				break;
+
+			List<Book> books = calibreRepository.findAll(null, page, size, "id", "asc");
+
+			for (Book book : books) {
+
+				if (!metadataSingleton.isRunning())
+					break;
+
+				metadataSingleton.setCurrent(cont++);
+
+				// Authors
+				if (!CollectionUtils.isEmpty(book.getAuthors())) {
+
+					List<Author> authors = calibreRepository.findAuthorsByBook(book.getId());
+
+					if (!CollectionUtils.isEmpty(authors)) {
+
+						for (Author author : authors) {
+
+							com.martinia.indigo.domain.model.Author domainAuthor = new com.martinia.indigo.domain.model.Author();
+							domainAuthor.setName(author.getName());
+							domainAuthor.setSort(author.getSort());
+							domainAuthor.setNumBooks(1);
+
+							authorRepository.save(domainAuthor);
+
+						}
+
+					}
+
+				}
+
+				log.debug("Filling {}/{} authors", cont, numBooks);
+
+			}
+
+			log.info("Filled {}/{} authors", cont, numBooks);
+			page++;
+		}
+
+	}
+
+	private void fillRecommendations() {
 
 		metadataSingleton.setMessage("filling_recommendations");
 
 		Long numBooks = bookRepository.count(null);
 
+		metadataSingleton.setTotal(numBooks);
+
+		int cont = 0;
 		int page = 0;
 		int size = BATCH_SIZE;
 		while (page * size < numBooks) {
@@ -173,7 +218,7 @@ public class MetadataServiceImpl implements MetadataService {
 
 				metadataSingleton.setCurrent(cont++);
 
-				List<Book> recommendations = bookRepository.getRecommendationsByBook(book.getId());
+				List<Book> recommendations = bookRepository.getRecommendationsByBook(book);
 				if (!CollectionUtils.isEmpty(recommendations)) {
 					book.setRecommendations(new ArrayList<>());
 					recommendations.forEach(b -> book.getRecommendations()
@@ -181,25 +226,25 @@ public class MetadataServiceImpl implements MetadataService {
 					bookRepository.save(book);
 				}
 
-				log.debug("Generated {}/{} recommendations", cont - numBooks, numBooks);
+				log.debug("Generated {}/{} recommendations", cont, numBooks);
 
 			}
 
-			log.info("Generated {}/{} recommendations", cont - numBooks, numBooks);
+			log.info("Generated {}/{} recommendations", cont, numBooks);
 			page++;
 		}
 
 	}
 
-	private void fillMetadata(String lang, int cont) {
+	private void fillMetadataBooks(String lang, boolean override) {
 
-		metadataSingleton.setMessage("obtaining_metadata");
-
-		long pullTime = Long.parseLong(configurationRepository.findByKey("metadata.pull")
-				.getValue());
+		metadataSingleton.setMessage("obtaining_metadata_books");
 
 		Long numBooks = bookRepository.count(null);
 
+		metadataSingleton.setTotal(numBooks);
+
+		int cont = 0;
 		int page = 0;
 		int size = BATCH_SIZE;
 		while (page * size < numBooks) {
@@ -209,85 +254,139 @@ public class MetadataServiceImpl implements MetadataService {
 
 			List<Book> books = bookRepository.findAll(null, page, size, "id", "asc");
 
-			for (Book book : books) {
+			if (!CollectionUtils.isEmpty(books)) {
+				for (Book book : books) {
 
-				if (!metadataSingleton.isRunning())
-					break;
+					if (!metadataSingleton.isRunning())
+						break;
 
-				metadataSingleton.setCurrent(cont++);
+					metadataSingleton.setCurrent(cont++);
 
-				try {
-					String[] goodReads = goodReadsComponent.findBook(goodreads, books, book.getTitle(),
-							book.getAuthors());
+					if (override || book.getRating() == 0 || book.getProvider() == null
+							|| CollectionUtils.isEmpty(book.getSimilar())) {
 
-					boolean updateBook = false;
-					// Ratings && similar books
-					if (goodReads != null) {
-						book.setRating(Float.valueOf(goodReads[0]));
-						book.setProvider(goodReads[2]);
+						try {
 
-						if (StringUtils.isNotEmpty(goodReads[1]))
-							book.setSimilar(Arrays.asList(goodReads[1].split("\\\\s*;\\\\s*")));
+							String[] goodReads = goodReadsComponent.findBook(goodreads, books, book.getTitle(),
+									book.getAuthors());
 
-						updateBook = true;
-					} else {
-						String[] googleBooks = googleBooksComponent.findBook(book.getTitle(), book.getAuthors());
+							Thread.sleep(pullTime);
 
-						if (googleBooks != null) {
-							book.setRating(Float.valueOf(googleBooks[0]));
-							book.setProvider(googleBooks[1]);
+							boolean updateBook = false;
+							// Ratings && similar books
+							if (goodReads != null) {
+								book.setRating(Float.valueOf(goodReads[0]));
+								book.setProvider(goodReads[2]);
 
-							updateBook = true;
+								if (StringUtils.isNotEmpty(goodReads[1]))
+									book.setSimilar(Arrays.asList(goodReads[1].split("\\\\s*;\\\\s*")));
+
+								updateBook = true;
+							} else {
+								String[] googleBooks = googleBooksComponent.findBook(book.getTitle(),
+										book.getAuthors());
+
+								if (googleBooks != null) {
+									book.setRating(Float.valueOf(googleBooks[0]));
+									book.setProvider(googleBooks[1]);
+
+									updateBook = true;
+								}
+							}
+
+							if (updateBook) {
+								bookRepository.save(book);
+							}
+
+							log.debug("Obtained {}/{} books metadata", cont, numBooks);
+						} catch (Exception e) {
+							e.printStackTrace();
 						}
 					}
+				}
+			}
+			page++;
 
-					if (updateBook)
-						bookRepository.save(book);
+		}
 
-					// Authors
-					if (!CollectionUtils.isEmpty(book.getAuthors())) {
-						for (String authorSort : book.getAuthors()) {
+		log.info("Obtained {}/{} books metadata", cont, numBooks);
 
-							Author author = authorRepository.findBySort(authorSort);
+	}
 
-							String[] wikipedia = wikipediaComponent.findAuthor(authorSort, lang);
+	private void fillMetadataAuthors(String lang, boolean override) {
+
+		metadataSingleton.setMessage("obtaining_metadata_authors");
+
+		Long numAuthors = authorRepository.count();
+
+		metadataSingleton.setTotal(numAuthors);
+
+		int cont = 0;
+		int page = 0;
+		int size = BATCH_SIZE;
+		while (page * size < numAuthors) {
+
+			if (!metadataSingleton.isRunning())
+				break;
+
+			List<Author> authors = authorRepository.findAll(page, size, "id", "asc");
+
+			if (!CollectionUtils.isEmpty(authors)) {
+				for (Author author : authors) {
+
+					if (!metadataSingleton.isRunning())
+						break;
+
+					metadataSingleton.setCurrent(cont++);
+
+					if (override || author == null || StringUtils.isEmpty(author.getDescription())
+							|| StringUtils.isEmpty(author.getImage()) || StringUtils.isEmpty(author.getProvider())) {
+
+						try {
+
+							String[] wikipedia = wikipediaComponent.findAuthor(author.getName(), lang);
 
 							if (wikipedia == null && !lang.equals("en")) {
-								wikipedia = wikipediaComponent.findAuthor(authorSort, "en");
+								wikipedia = wikipediaComponent.findAuthor(author.getName(), "en");
 							}
 
 							if (wikipedia == null || wikipedia[1] == null) {
-								String[] _goodReads = goodReadsComponent.findAuthor(goodreads, authorSort);
+								String[] _goodReads = goodReadsComponent.findAuthor(goodreads, author.getName());
 								if (_goodReads != null) {
 									author.setDescription(_goodReads[0]);
 									author.setImage(_goodReads[1]);
 									author.setProvider(_goodReads[2]);
 								}
+								Thread.sleep(pullTime);
 							}
 
 							if (wikipedia != null) {
-								author.setDescription(wikipedia[0]);
-								author.setImage(wikipedia[1]);
-								author.setProvider(wikipedia[2]);
+								if (StringUtils.isEmpty(author.getDescription()) && !StringUtils.isEmpty(wikipedia[0]))
+									author.setDescription(wikipedia[0]);
+								if (StringUtils.isEmpty(author.getImage()) && !StringUtils.isEmpty(wikipedia[1]))
+									author.setImage(wikipedia[1]);
+								if (StringUtils.isEmpty(author.getProvider()) && !StringUtils.isEmpty(wikipedia[2]))
+									author.setProvider(wikipedia[2]);
+							}
 
+							if (!StringUtils.isEmpty(author.getDescription())
+									|| !StringUtils.isEmpty(author.getImage())) {
 								authorRepository.save(author);
 							}
 
+							log.debug("Obtained {}/{} authors metadata", cont - numAuthors, numAuthors);
+						} catch (Exception e) {
+							e.printStackTrace();
 						}
 					}
-
-					Thread.sleep(pullTime);
-
-				} catch (Exception e) {
-					e.printStackTrace();
 				}
-
-				log.debug("Obtained {}/{} metadata", cont - numBooks, numBooks);
 			}
 
-			log.info("Obtained {}/{} metadata", cont - numBooks, numBooks);
 			page++;
+
 		}
+
+		log.info("Obtained {}/{} authors metadata", cont - numAuthors, numAuthors);
 
 	}
 
@@ -304,135 +403,14 @@ public class MetadataServiceImpl implements MetadataService {
 
 		goodreads = configurationRepository.findByKey("goodreads.key")
 				.getValue();
-
-		long pullTime = Long.parseLong(configurationRepository.findByKey("metadata.pull")
+		pullTime = Long.parseLong(configurationRepository.findByKey("metadata.pull")
 				.getValue());
 
 		Long numBooks = bookRepository.count(null);
 		metadataSingleton.setTotal(numBooks);
 
-		int cont = 0;
-		int updatedBooks = 0;
-		int updatedAuthors = 0;
-		int toUpdateBooks = 0;
-		int toUpdateAuthors = 0;
-		int page = 0;
-		int size = BATCH_SIZE;
-
-		while (page * size < numBooks) {
-
-			if (!metadataSingleton.isRunning())
-				break;
-
-			List<Book> books = bookRepository.findAll(null, page, size, "id", "asc");
-
-			for (Book book : books) {
-
-				if (!metadataSingleton.isRunning())
-					break;
-
-				metadataSingleton.setCurrent(cont++);
-
-				try {
-
-					boolean has2Sleep = false;
-
-					if (book.getRating() == 0 || book.getProvider() == null
-							|| CollectionUtils.isEmpty(book.getSimilar())) {
-
-						toUpdateBooks++;
-
-						String[] goodReads = goodReadsComponent.findBook(goodreads, books, book.getTitle(),
-								book.getAuthors());
-
-						boolean updateBook = false;
-
-						// Ratings && similar books
-						if (goodReads != null) {
-							book.setRating(Float.valueOf(goodReads[0]));
-							book.setProvider(goodReads[2]);
-
-							if (StringUtils.isNotEmpty(goodReads[1]))
-								book.setSimilar(Arrays.asList(goodReads[1].split("\\\\s*;\\\\s*")));
-
-							updateBook = true;
-						} else {
-							String[] googleBooks = googleBooksComponent.findBook(book.getTitle(), book.getAuthors());
-
-							if (googleBooks != null) {
-								book.setRating(Float.valueOf(googleBooks[0]));
-								book.setProvider(googleBooks[1]);
-
-								updateBook = true;
-							}
-						}
-
-						if (updateBook) {
-							bookRepository.save(book);
-							updatedBooks++;
-						}
-
-						has2Sleep = true;
-					}
-
-					// Authors
-					if (!CollectionUtils.isEmpty(book.getAuthors())) {
-						for (String authorSort : book.getAuthors()) {
-
-							Author author = authorRepository.findBySort(authorSort);
-
-							if (author == null || StringUtils.isEmpty(author.getDescription())
-									|| StringUtils.isEmpty(author.getImage())
-									|| StringUtils.isEmpty(author.getProvider())) {
-
-								toUpdateAuthors++;
-
-								String[] wikipedia = wikipediaComponent.findAuthor(authorSort, lang);
-
-								if (wikipedia == null && !lang.equals("en")) {
-									wikipedia = wikipediaComponent.findAuthor(authorSort, "en");
-								}
-
-								if (wikipedia == null || wikipedia[1] == null) {
-									String[] _goodReads = goodReadsComponent.findAuthor(goodreads, authorSort);
-									if (_goodReads != null) {
-										author.setDescription(_goodReads[0]);
-										author.setImage(_goodReads[1]);
-										author.setProvider(_goodReads[2]);
-									}
-								}
-
-								if (wikipedia != null) {
-									author.setDescription(wikipedia[0]);
-									author.setImage(wikipedia[1]);
-									author.setProvider(wikipedia[2]);
-
-									authorRepository.save(author);
-									updatedAuthors++;
-								}
-
-								has2Sleep = true;
-							}
-						}
-					}
-
-					if (has2Sleep)
-						Thread.sleep(pullTime);
-
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-
-				log.debug("Obtained {}/{} metadata", cont, numBooks);
-
-			}
-
-			log.info("Obtained {}/{} metadata", cont, numBooks);
-			page++;
-		}
-
-		log.info("Updated {}/{} books", updatedBooks, toUpdateBooks);
-		log.info("Updated {}/{} authors", updatedAuthors, toUpdateAuthors);
+		fillMetadataBooks(lang, false);
+		fillMetadataAuthors(lang, false);
 
 	}
 

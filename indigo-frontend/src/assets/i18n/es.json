@@ -244,9 +244,11 @@
                     "goodreadskey": "Clave de desarrollador de GoodReads",
                     "partial": "Actualizar metadatos (ratings, comentarios, biografía del autor, etc.) para libros nuevos",
                     "full": "Actualizar metadatos (ratings, comentarios, biografía del autor, etc.) para toda la biblioteca. Sobreescribir existentes.",
-                    "indexing_books":"Indexando biblioteca ...",
-                    "filling_recommendations":"Generando recomendaciones ...",
-                    "obtaining_metadata":"Obteniendo metadatos ..."
+                    "indexing_books":"Indexando biblioteca (1/5) ...",
+                    "filling_recommendations":"Generando recomendaciones (3/5) ...",
+                    "obtaining_metadata_books":"Obteniendo metadatos de libros (4/5) ...",
+                    "obtaining_metadata_authors":"Obteniendo metadatos de autores (5/5) ...",
+                    "filling_authors": "Rellenando autores (2/5) ..."
                 },
                 "smtp": {
                     "title": "Servidor de correo",

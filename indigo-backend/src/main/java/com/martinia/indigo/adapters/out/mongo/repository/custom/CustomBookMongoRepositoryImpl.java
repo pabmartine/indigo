@@ -209,13 +209,11 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 	}
 
 	@Override
-	public List<BookMongoEntity> getRecommendationsByBook(String id) {
+	public List<BookMongoEntity> getRecommendationsByBook(BookMongoEntity book) {
 
 		Query query = new Query();
 
 		List<Criteria> criterias = new ArrayList<>();
-
-		BookMongoEntity book = mongoTemplate.findById(id, BookMongoEntity.class);
 
 		criterias.add(Criteria.where("id")
 				.ne(book.getId()));

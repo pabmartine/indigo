@@ -26,7 +26,7 @@ public interface BookRepository {
 
 	List<Book> getRecommendationsByBook(List<String> recommendations, int num);
 
-	List<Book> getRecommendationsByBook(String id);
+	List<Book> getRecommendationsByBook(Book book);
 
 	List<Book> getRecommendationsByUser(String user, int page, int size, String sort, String order);
 

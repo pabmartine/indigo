@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.stereotype.Repository;
 
 import com.martinia.indigo.adapters.out.mongo.entities.BookMongoEntity;
+import com.martinia.indigo.domain.model.Book;
 import com.martinia.indigo.domain.model.Search;
 
 @Repository
@@ -21,7 +22,7 @@ public interface CustomBookMongoRepository {
 
 	List<BookMongoEntity> getSimilar(List<String> similar);
 
-	List<BookMongoEntity> getRecommendationsByBook(String id);
+	List<BookMongoEntity> getRecommendationsByBook(BookMongoEntity book);
 	
 	List<BookMongoEntity> getRecommendationsByUser(String user, int page, int size, String sort, String order);
 

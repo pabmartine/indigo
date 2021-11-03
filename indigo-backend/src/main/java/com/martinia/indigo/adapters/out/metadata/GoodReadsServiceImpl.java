@@ -274,11 +274,12 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 							.get(0)
 							.text();
 
-					if (StringUtils.isNotEmpty(name) && StringUtils.isNotEmpty(description)) {
+					if (StringUtils.isNotEmpty(name)) {
 						ret = new String[] { description, image, PROVIDER };
 					}
 				}
 			}
+
 		} catch (Exception e) {
 			log.error(endpoint + "author/show/" + id + "?format=xml&key=" + key);
 			e.printStackTrace();

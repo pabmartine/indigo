@@ -25,7 +25,7 @@ public class DataUtils {
 			}
 			ret = data;
 		} catch (Exception e) {
-			log.error(e.getMessage());
+			log.error("Not found: {}", e.getMessage());
 		}
 		return ret;
 	}

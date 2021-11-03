@@ -244,9 +244,11 @@
 					"goodreadskey": "Clé de développeur GoodReads",
 					"partial": "Mettre à jour les métadonnées (notes, commentaires, biographie de l'auteur, etc.) pour les nouveaux livres",
 					"full": "Mettre à jour les métadonnées (notes, commentaires, biographie de l'auteur, etc.) pour toute la bibliothèque. Remplacer celles existantes.",
-					"indexing_books": "Bibliothèque d'indexation ...",
-                    "filling_recommendations": "Générer des recommandations ...",
-                    "obtaining_metadata": "Obtenir des métadonnées ..."
+					"indexing_books": "Bibliothèque d'indexation (1/5) ...",
+                    "filling_recommendations": "Générer des recommandations (3/5) ...",
+                    "obtaining_metadata_books": "Obtenir des métadonnées du livre (4/5) ...",
+					"obtaining_metadata_authors": "Obtenir des métadonnées de l'auteurs (5/5) ...",
+					"filling_authors": "Remplir les auteurs (2/5) ..."
 				},
 				"smtp": {
 					"title": "Serveur de courrier",

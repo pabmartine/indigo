@@ -244,9 +244,11 @@
 					"goodreadskey": "GoodReads Developer Key",
 					"partial": "Update metadata (ratings, comments, author biography, etc.) for new books",
 					"full": "Update metadata (ratings, comments, author biography, etc.) for the entire library. Overwrite existing ones.",
-					"indexing_books": "Indexing library ...",
-                    "filling_recommendations": "Generating recommendations ...",
-                    "obtaining_metadata": "Obtaining metadata ..."
+					"indexing_books": "Indexing library (1/5) ...",
+                    "filling_recommendations": "Generating recommendations (3/5) ...",
+                    "obtaining_metadata_books": "Obtaining books metadata (4/5) ...",
+					"obtaining_metadata_authors": "Obtaining authors metadata (5/5) ...",
+					"filling_authors": "Filling authors (2/5) ..."
 				},
 				"smtp": {
 					"title": "Mail server",

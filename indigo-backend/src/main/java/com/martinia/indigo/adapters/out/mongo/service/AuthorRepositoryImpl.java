@@ -55,7 +55,7 @@ public class AuthorRepositoryImpl implements AuthorRepository {
 		AuthorMongoEntity entity = authorMongoRepository.findByName(author.getName());
 		if (entity != null) {
 			mapping.setId(entity.getId());
-			mapping.setNumBooks(mapping.getNumBooks() + 1);
+			mapping.setNumBooks(entity.getNumBooks() + 1);
 		}
 		authorMongoRepository.save(mapping);
 
