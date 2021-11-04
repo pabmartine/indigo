@@ -20,15 +20,15 @@ public class UtilRestController {
 	private MailServiceImpl mailService;
 
 	@GetMapping(value = "/testmail", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Void> testmail(@RequestParam String user) {
-		mailService.testEmail(user);
+	public ResponseEntity<Void> testmail(@RequestParam String address) {
+		mailService.testEmail(address);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@GetMapping(value = "/mail", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Void> mail(@RequestParam String path, @RequestParam String user) throws Exception {
+	public ResponseEntity<Void> mail(@RequestParam String path, @RequestParam String address) throws Exception {
 
-		String error = mailService.mail(path.replace("@_@", "&").replace("@-@", "[").replace("@¡@", "]").replace("@!@", "`"), user);
+		String error = mailService.mail(path.replace("@_@", "&").replace("@-@", "[").replace("@¡@", "]").replace("@!@", "`"), address);
 
 		if (StringUtils.isEmpty(error)) {
 			return new ResponseEntity<>(HttpStatus.OK);

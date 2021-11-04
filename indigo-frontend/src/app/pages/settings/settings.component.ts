@@ -329,7 +329,7 @@ export class SettingsComponent implements OnInit {
     this.isSendTestMail = true;
 
     const user = JSON.parse(sessionStorage.user);
-    this.utilService.sendTestMail(user.id).subscribe(
+    this.utilService.sendTestMail(user.kindle).subscribe(
       data => {
         this.getSmtp();
         this.isSendTestMail = false;

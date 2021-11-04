@@ -38,7 +38,9 @@ public class MailServiceImpl implements MailService {
 	@Override
 	public void testEmail(String address) {
 		boolean ret = mailSender.testEmail(address, getEmailConfig());
-		configurationRepository.save(new Configuration("smtp.status", ret ? "ok" : "error"));
+		Configuration configuration = configurationRepository.findByKey("smtp.status");
+		configuration.setValue(ret ? "ok" : "error");
+		configurationRepository.save(configuration);
 	}
 
 	@Override
