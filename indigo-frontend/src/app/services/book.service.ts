@@ -35,6 +35,7 @@ export class BookService {
     path = path.replace('&', '@_@');
     path = path.replace('[', '@-@');
     path = path.replace(']', '@¡@');
+    path = path.replace('`', '@!@');
     return this.http.get(this.endpoint + "/cover?path=" + path);
   }
 
