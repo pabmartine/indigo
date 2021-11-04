@@ -18,11 +18,11 @@ export class UtilService {
    }
 
  
-  public sendTestMail(user:number):Observable<any> {
+  public sendTestMail(user:string):Observable<any> {
     return this.http.get<any>(this.endpoint + "/testmail&user="+user);
   }
 
-  sendMail(path:string, user:number) : Observable<any> {
+  sendMail(path:string, user:string) : Observable<any> {
     path = path.replace('&', '@_@');
     path = path.replace('[', '@-@');
     path = path.replace(']', '@¡@');
