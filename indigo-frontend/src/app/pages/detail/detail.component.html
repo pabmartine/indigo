@@ -86,8 +86,7 @@
   </p-card>
 
   <p-dialog (onShow)="showDialogMaximized(dialDetail)" #dialDetail [style]="{width: '500px'}" [(visible)]="showEpub"
-    [modal]="true" [baseZIndex]="10000" [draggable]="false" [closable]="true" [resizable]="false"
-    [focusOnShow]="false">
+    [modal]="true" [baseZIndex]="10000" [draggable]="false" [closable]="true" [resizable]="false" [focusOnShow]="false">
 
     <p-header> {{ selected.title }} </p-header>
     <div class="p-grid">
@@ -99,7 +98,11 @@
         </p-card>
       </div>
       <div class="p-col-12 p-md-9">
-        <div id="viewer" class="spreads" #viewer></div>
+        <p-card>
+          <div class="test">
+            <div id="viewer" class="spreads" #viewer></div>
+          </div>
+        </p-card>
       </div>
     </div>
     <div class="overlay">

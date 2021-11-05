@@ -32,7 +32,7 @@
               "src/assets/css/default.css"
             ],
             "scripts": [
-              "node_modules/epubjs/dist/epub.min.js",
+              "node_modules/epubjs/dist/epub.js",
               "node_modules/jszip/dist/jszip.min.js",
               "node_modules/jquery/dist/jquery.min.js"
               ]

@@ -881,6 +881,11 @@ body a {
 	text-align: justify;
 }
 
+.book > body{
+	height: 500px !important;
+	padding-top: 60px !important;
+}
+
 @media (max-width: 640px) {
 	.book .book-detail-image {
 		max-width: 180px;

@@ -1,6 +1,5 @@
 #viewer {
     width: 100%;
-    border-bottom: 1px solid #ddd;
     box-sizing: border-box;
     display: flex;
     align-items: center;
@@ -66,10 +65,9 @@
 
 #viewer.spreads {
     position: relative;
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 20%), 0 1px 1px 0 rgb(0 0 0 / 14%), 0 2px 1px -1px rgb(0 0 0 / 12%);
     cursor: pointer;
     margin-bottom: 0.5em;
-    height: 800px;
+    height: 745px;
     background: white;
 }
 
@@ -94,3 +92,6 @@
   }
 
 
+  .test{
+      height: 745px;
+  }
