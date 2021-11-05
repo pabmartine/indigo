@@ -15,7 +15,7 @@ import org.springframework.util.CollectionUtils;
 import com.martinia.indigo.domain.model.Author;
 import com.martinia.indigo.domain.model.Book;
 import com.martinia.indigo.domain.singletons.MetadataSingleton;
-import com.martinia.indigo.domain.util.CoverComponent;
+import com.martinia.indigo.domain.util.UtilComponent;
 import com.martinia.indigo.ports.in.rest.MetadataService;
 import com.martinia.indigo.ports.out.calibre.CalibreRepository;
 import com.martinia.indigo.ports.out.metadata.GoodReadsService;
@@ -60,7 +60,7 @@ public class MetadataServiceImpl implements MetadataService {
 	private MetadataSingleton metadataSingleton;
 
 	@Autowired
-	private CoverComponent coverComponent;
+	private UtilComponent coverComponent;
 
 	private String goodreads;
 	private long pullTime;

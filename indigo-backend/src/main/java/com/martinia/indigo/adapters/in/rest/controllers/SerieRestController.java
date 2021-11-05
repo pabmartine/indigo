@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.martinia.indigo.domain.model.Book;
-import com.martinia.indigo.domain.util.CoverComponent;
+import com.martinia.indigo.domain.util.UtilComponent;
 import com.martinia.indigo.ports.in.rest.BookService;
 
 @RestController
@@ -29,7 +29,7 @@ public class SerieRestController {
 	private BookService bookService;
 
 	@Autowired
-	private CoverComponent coverComponent;
+	private UtilComponent coverComponent;
 
 	@GetMapping("/count")
 	public ResponseEntity<Long> getNumSeries() {

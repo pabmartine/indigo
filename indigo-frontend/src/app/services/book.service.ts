@@ -39,6 +39,16 @@ export class BookService {
     return this.http.get(this.endpoint + "/cover?path=" + path);
   }
 
+  getEpub(path: string): Observable<Blob> {
+    path = path.replace('&', '@_@');
+    path = path.replace('[', '@-@');
+    path = path.replace(']', '@¡@');
+    path = path.replace('`', '@!@');
+    return this.http.get(this.endpoint + "/epub?path=" + path, {
+      responseType: 'blob'
+    });
+  }
+
   getSimilar(similar: string[]): Observable<any> {
     return this.http.post(this.endpoint + "/similar", similar);
   }
@@ -55,7 +65,7 @@ export class BookService {
     size: number,
     sort: string,
     order: string): Observable<any> {
-    return this.http.get(this.endpoint + "/recommendations/user?user=" + user+ "&page=" + page + "&size=" + size + "&sort=" + sort + "&order=" + order);
+    return this.http.get(this.endpoint + "/recommendations/user?user=" + user + "&page=" + page + "&size=" + size + "&sort=" + sort + "&order=" + order);
   }
 
   getFavorite(book: string, user: string): Observable<any> {

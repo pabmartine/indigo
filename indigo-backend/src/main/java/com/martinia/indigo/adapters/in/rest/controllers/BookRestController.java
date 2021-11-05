@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -74,6 +75,18 @@ public class BookRestController {
 		map.put("image", image);
 
 		return new ResponseEntity<>(map, HttpStatus.OK);
+
+	}
+
+	@GetMapping(value = "/epub")
+	public ResponseEntity<Resource> getEpub(@RequestParam String path) throws IOException {
+
+		Resource epub = bookService.getEpub(path.replace("@_@", "&")
+				.replace("@-@", "[")
+				.replace("@¡@", "]")
+				.replace("@!@", "`"));
+
+		return new ResponseEntity<>(epub, HttpStatus.OK);
 
 	}
 

@@ -770,7 +770,8 @@ body a {
 .book #deleteFavoriteBook span,
 .book #deleteFavoriteBookSmall span,
 .book #send2Kindle span,
-.book #send2KindleSmall span {
+.book #send2KindleSmall span,
+.book #viewEpub span {
 	font-size: 24px;
 }
 
@@ -896,6 +897,30 @@ body a {
 		width: 10%;
 		float: left;
 	}
+}
+
+.book .p-dialog .p-dialog-content {
+    background: #eceff4 !important;
+	padding-top: 15px;
+}
+
+.book .p-dialog .p-dialog-header {
+    border-bottom: 0 none;
+    background: #fff;
+    color: #495057;
+    padding: 0.5rem;
+    z-index: 999;
+    box-shadow: 0 3px 5px 0 rgb(0 0 0 / 10%);
+    border-bottom: 0 none;
+    height: 50px;
+	border-top-right-radius: 0px;
+	border-top-left-radius: 0px;
+}
+
+.book .p-dialog .p-dialog-header .p-dialog-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+    padding-left: 34px;
 }
 
 

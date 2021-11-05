@@ -1,8 +1,9 @@
 import { DatePipe, Location } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
+import { Dialog } from 'primeng/dialog';
 import { Book } from 'src/app/domain/book';
 import { Notif } from 'src/app/domain/notif';
 import { Search } from 'src/app/domain/search';
@@ -12,6 +13,7 @@ import { BookService } from 'src/app/services/book.service';
 import { ConfigService } from 'src/app/services/config.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { UtilService } from 'src/app/services/util.service';
+import * as epub from 'node_modules/epubjs/dist/epub.js';
 
 @Component({
   selector: 'app-detail',
@@ -28,8 +30,31 @@ export class DetailComponent implements OnInit {
   title: string;
   kindle: boolean;
   favoriteBook: boolean;
+  showEpub: boolean;
 
   private adv_search: Search;
+
+  // public isSpread: boolean;
+  // public isEnd: boolean = false;
+  // public isStart: boolean = false;
+  public chapterList = [];
+
+  // public currentProgress: number = 0;
+  // public currentCfi: string;
+  // public savedcfi;
+
+
+  public book;
+  public rendition;
+  public displayed;
+
+  @ViewChild('viewer') viewer: ElementRef;
+
+
+  // @HostListener('document:keydown', ['$event'])
+  // handleKeyboardEvent(event: KeyboardEvent) {
+  //   this.handleKeypress(event);
+  // }
 
   constructor(
     private bookService: BookService,
@@ -50,6 +75,9 @@ export class DetailComponent implements OnInit {
       }
     });
 
+    // this.savedcfi = localStorage.getItem('cfi');
+    // var content = new epub.hooks(this);
+    // content.register(function () { })
 
   }
 
@@ -101,6 +129,7 @@ export class DetailComponent implements OnInit {
       }
     );
   }
+
   showDetails(book: Book) {
     this.selected = book;
     this.kindle = false;
@@ -266,12 +295,167 @@ export class DetailComponent implements OnInit {
     );
   }
 
+  viewEpub() {
+    this.showEpub = true;
+
+    this.bookService.getEpub(this.selected.path).subscribe(
+      data => {
+        if (data) {
+          var file = new File([data], "name");
+          this.book = new epub(file);
+          // const b64 = data.epub.replace('data:application/epub+zip;base64,', '');
+          // this.book.open(b64);
+
+          // this.book = new epub("../assets/file.epub");
+          this.rendition = this.book.renderTo("viewer", { flow: "paginated", method: "continuous", width: "100%", height: "90vh" });
+          this.displayed = this.rendition.display();
+
+          this.displayed.then((renderer) => {
+            console.log(this.rendition);
+          });
+
+          this.book.ready.then(() => {
+            this.book.loaded.navigation.then((toc) => {
+              toc.forEach((chapter) => {
+                var ch = chapter;
+                this.chapterList.push(ch);
+              })
+            })
+      
+            this.book.locations.generate(64); // Generates CFI for every X characters (Characters per/page
+          })
+
+        }
+      },
+      error => {
+        console.log(error);
+      }
+    );
+
+
+
+    
+
+
+
+    // this.loadEpub();
+  }
+
+  showDialogMaximized(dialog: Dialog) {
+    dialog.maximize();
+  }
+
+  public prev() {
+    this.rendition.prev().then(() => {
+      // if (this.rendition.location) {
+      //   this.currentCfi = this.rendition.location.start.cfi;
+      //   localStorage.setItem('cfi', this.currentCfi);
+      // }
+    })
+  }
+  public next() {
+    this.rendition.next().then(() => {
+      // if (this.rendition.location) {
+      //   this.currentCfi = this.rendition.location.start.cfi;
+      //   localStorage.setItem('cfi', this.currentCfi);
+      // }
+    })
+  }
+
+  // public brighten() { };
+  // public dim() { };
+
+  // public handleKeypress(event) {
+  //   switch (event.keyCode) {
+  //     case 37: this.prev();
+  //       break;
+
+  //     case 39: this.next();
+  //       break;
+
+  //     case 38: this.brighten();
+  //       break;
+
+  //     case 40: this.dim();
+  //       break;
+
+  //     default: break;
+  //   }
+  // }
+
+  public changeChapter(url) {
+    this.rendition.display(url);
+    return false;
+  }
+
+  // public gotocfi(cfi) {
+  //   this.rendition.display(cfi);
+  // }
+
+  // public go() {
+  //   this.gotocfi(this.savedcfi);
+  // }
+
+  // loadEpub() {
+  //   this.displayed.then((renderer) => {
+  //     console.log(this.rendition);
+  //   });
+
+  //   this.book.ready.then(() => {
+  //     this.book.loaded.navigation.then((toc) => {
+  //       toc.forEach((chapter) => {
+  //         var ch = chapter;
+  //         this.chapterList.push(ch);
+  //       })
+  //     })
+
+  //     this.book.locations.generate(64); // Generates CFI for every X characters (Characters per/page
+
+  //   })
+
+
+  //   this.rendition.on("layout", function (layout) {
+  //     if (layout.divisor == 2) {
+  //       this.isSpread = true;
+  //     } else {
+  //       this.isSpread = false;
+  //     }
+  //   });
+
+  //   this.rendition.themes.default({
+  //     h2: {
+  //       'font-size': '42px',
+  //     },
+  //     p: {
+  //       "margin": '10px'
+  //     }
+  //   });
+
+
+  //   this.rendition.on("relocated", function (location) {
+  //     this.currentCfi = location.start.cfi;
+  //     localStorage.setItem('cfi', this.currentCfi);
+
+  //     if (location.atEnd) {
+  //       this.isEnd = true;
+  //     } else {
+  //       this.isEnd = false;
+  //     }
+
+  //     if (location.atStart) {
+  //       this.isStart = true;
+  //     } else {
+  //       this.isStart = false;
+  //     }
+
+  //     this.currentProgress = this.book.locations.percentageFromCfi(location.start.cfi);
+  //   })
+  // }
+
   close() {
     //TODO actualizar la lista de favoritos en la vista pricipal
     this.location.back();
   }
-
-
 
 }
 

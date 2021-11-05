@@ -50,6 +50,9 @@ import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 //cache
 import { DatePipe } from '@angular/common';
 
+//epub
+// import { AngularEpubViewerModule } from 'angular-epub-viewer';
+
 @NgModule({
   declarations: [
     BooksComponent,
@@ -90,7 +93,8 @@ import { DatePipe } from '@angular/common';
     InputNumberModule,
     CalendarModule,
     AutoCompleteModule,
-    OverlayPanelModule
+    OverlayPanelModule,
+    // AngularEpubViewerModule
   ],
   exports: [
 

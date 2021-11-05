@@ -1,5 +1,4 @@
 <p-toast position="top-center" [showTransformOptions]="'translateY(-100%)'"></p-toast>
-
 <div class="book" *ngIf="selected">
   <p-card>
     <div class="content-header p-grid">
@@ -9,6 +8,10 @@
         </span>
       </div>
       <div class="p-col-5 book-title-buttons">
+
+        <button id="viewEpub" type="button" pButton (click)="viewEpub();" icon="pi pi-eye"
+          title="{{'locale.buttons.view' | translate}}" class="book-title-button"></button>
+
         <button id="send2Kindle" type="button" pButton (click)="sendToKindle();" icon="pi pi-share-alt"
           title="{{'locale.buttons.send' | translate}}" class="book-title-button" *ngIf="kindle"></button>
 
@@ -23,10 +26,12 @@
     </div>
     <div class="content-body p-grid">
       <div class="p-col-12 p-md-4 p-lg-2 p-xl-1">
-        <div  class="book-title-image">
+        <div class="book-title-image">
           <img [src]="selected.image" class="book-detail-image" />
         </div>
         <div class="book-title-buttons-side">
+
+
           <button id="addFavoriteBookSmall" type="button" pButton (click)="addFavoriteBook();" icon="pi pi-heart"
             title="{{'locale.buttons.favorite.add' | translate}}" class="book-title-button"
             *ngIf="!favoriteBook"></button>
@@ -37,6 +42,9 @@
 
           <button id="send2KindleSmall" type="button" pButton (click)="sendToKindle();" icon="pi pi-share-alt"
             title="{{'locale.buttons.send' | translate}}" class="book-title-button" *ngIf="kindle"></button>
+
+          <button id="viewEpub" type="button" pButton (click)="viewEpub();" icon="pi pi-eye"
+            title="{{'locale.buttons.view' | translate}}" class="book-title-button"></button>
 
         </div>
 
@@ -76,6 +84,32 @@
       </div>
     </div>
   </p-card>
+
+  <p-dialog (onShow)="showDialogMaximized(dialDetail)" #dialDetail [style]="{width: '500px'}" [(visible)]="showEpub"
+    [modal]="true" [baseZIndex]="10000" [draggable]="false" [closable]="true" [resizable]="false"
+    [focusOnShow]="false">
+
+    <p-header> {{ selected.title }} </p-header>
+    <div class="p-grid">
+      <div class="p-col-12 p-md-3">
+        <p-card>
+          <div class="chapters">
+            <div class="ch" *ngFor="let item of chapterList" (click)="changeChapter(item.href)">{{item.label}}</div>
+          </div>
+        </p-card>
+      </div>
+      <div class="p-col-12 p-md-9">
+        <div id="viewer" class="spreads" #viewer></div>
+      </div>
+    </div>
+    <div class="overlay">
+      <div class="options">
+        <button (click)="prev()">Previous</button>
+        <button (click)="next()">Next</button>
+      </div>
+    </div>
+
+  </p-dialog>
 </div>
 
 <div class="book" *ngIf="similar?.length > 0">
@@ -89,8 +123,7 @@
     </div>
     <div class="content-body p-grid">
       <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of similar">
-        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)"
-          style="cursor: pointer;" />
+        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)" style="cursor: pointer;" />
         <div>
           <span class="title">{{book.title}}</span>
         </div>
@@ -118,8 +151,7 @@
     </div>
     <div class="content-body p-grid">
       <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of recommendations">
-        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)"
-          style="cursor: pointer;" />
+        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)" style="cursor: pointer;" />
         <div>
           <span class="title">{{book.title}}</span>
         </div>

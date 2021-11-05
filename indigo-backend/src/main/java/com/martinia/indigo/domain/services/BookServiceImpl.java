@@ -4,11 +4,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import com.martinia.indigo.domain.model.Book;
 import com.martinia.indigo.domain.model.Search;
-import com.martinia.indigo.domain.util.CoverComponent;
+import com.martinia.indigo.domain.util.UtilComponent;
 import com.martinia.indigo.ports.in.rest.BookService;
 import com.martinia.indigo.ports.out.mongo.BookRepository;
 import com.martinia.indigo.ports.out.mongo.ConfigurationRepository;
@@ -27,7 +28,7 @@ public class BookServiceImpl implements BookService {
 	NotificationRepository notificationRepository;
 
 	@Autowired
-	CoverComponent coverComponent;
+	UtilComponent utilComponent;
 
 	@Override
 	public Long count(Search search) {
@@ -74,7 +75,12 @@ public class BookServiceImpl implements BookService {
 
 	@Override
 	public String getCover(String path, boolean force) {
-		return coverComponent.getCover(path, force);
+		return utilComponent.getCover(path, force);
+	}
+	
+	@Override
+	public Resource getEpub(String path) {
+		return utilComponent.getEpub(path);
 	}
 
 	@Override
@@ -91,5 +97,7 @@ public class BookServiceImpl implements BookService {
 	public List<Book> getSimilar(List<String> similar) {
 		return bookRepository.getSimilar(similar);
 	}
+
+
 
 }
