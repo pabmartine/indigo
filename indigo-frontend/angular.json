@@ -33,7 +33,6 @@
             ],
             "scripts": [
               "src/assets/js/epub.js",
-              "node_modules/jszip/dist/jszip.js",
               "node_modules/jquery/dist/jquery.min.js"
               ]
           },
