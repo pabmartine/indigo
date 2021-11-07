@@ -93,7 +93,12 @@
       <div class="p-col-12 p-md-3">
         <p-card>
           <div class="chapters">
-            <div class="ch" *ngFor="let item of chapterList" (click)="changeChapter(item.href)">{{item.label}}</div>
+            <div style="text-align:center">
+              <img [src]="selected.image" class="chapter-image" />
+            </div>
+            <ul>
+              <li class="ch" *ngFor="let item of chapterList" (click)="changeChapter(item.href)">{{item.label}}</li>
+            </ul>
           </div>
         </p-card>
       </div>
@@ -105,11 +110,12 @@
         </p-card>
       </div>
     </div>
-    <div class="overlay">
-      <div class="options">
-        <button (click)="prev()">Previous</button>
-        <button (click)="next()">Next</button>
-      </div>
+    <div class="overlay-left book-detail-buttons">
+      <button type="button" pButton (click)="prev()" class="book-detail-button" label="Previous"></button>
+    </div>
+
+    <div class="overlay-right book-detail-buttons">
+      <button type="button" pButton (click)="next()" class="book-detail-button" label="Next"></button>
     </div>
 
   </p-dialog>

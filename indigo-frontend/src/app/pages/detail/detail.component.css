@@ -7,58 +7,70 @@
 }
 
 
-.overlay {
+.overlay-left {
     z-index: 100;
     position: absolute;
     height: 20%;
-    left: 0;
+    left: 27.5%;
     right: 0;
-    bottom: 0;
+    bottom: 10%;
     background-color: transparent;
     display: flex;
     align-items: flex-end;
     justify-content: center;
 }
 
-.overlay button {
-    border: 1px solid white;
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #333;
-    color: white;
-    border-radius: 20px;
-    margin: 10px;
-    outline: none;
-    cursor: pointer;
-    transition-duration: 0.1s;
-}
-.overlay button:active {
-    border: 1px solid black;
-}
-.overlay button:hover {
-    background-color: rgba(51, 51, 51, 0.7);
-}
-
-.overlay .chapters {
+.overlay-right {
+    z-index: 100;
+    position: absolute;
+    height: 20%;
+    left: 90%;
+    right: 0;
+    bottom: 10%;
+    background-color: transparent;
     display: flex;
-    flex-direction: column;
-    overflow: scroll;
-    height: 80px;
+    align-items: flex-end;
+    justify-content: center;
 }
 
-.overlay .chapters .ch {
-    cursor: pointer;
-    margin: 10px 5px;
+@media (max-width: 640px) {
+
+    .overlay-left {
+        z-index: 100;
+        position: absolute;
+        height: 20%;
+        left: 7.5%;
+        right: 0;
+        bottom: 40%;
+        background-color: transparent;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+    }
+    
+    .overlay-right {
+        z-index: 100;
+        position: absolute;
+        height: 20%;
+        left: 70%;
+        right: 0;
+        bottom: 40%;
+        background-color: transparent;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+    }
+
 }
 
 .chapters{
-    height: 744px;
+    height: 745px;
     overflow-y: auto;
 }
 
 @media (max-width: 640px) {
     .chapters{
-        height: 150px;
+        height: 300px;
         overflow-y: auto;
     }
 }
@@ -95,3 +107,11 @@
   .test{
       height: 745px;
   }
+
+  .chapter-image {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 20%), 0 1px 1px 0 rgb(0 0 0 / 14%), 0 2px 1px -1px rgb(0 0 0 / 12%);
+    cursor: pointer;
+    margin-bottom: 0.5em;
+    max-width: 100%;
+    height: 200px;
+}
