@@ -1,5 +1,5 @@
 ### STAGE 1:BUILD ###
-FROM node:12.14-alpine AS node
+FROM node AS node
 WORKDIR /app
 RUN npm cache clean --force
 COPY . .
