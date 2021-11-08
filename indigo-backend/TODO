@@ -1,7 +1,8 @@
-v - Revisar querys names
-v - ErrorHandler
-v - ResponseEntity
-Validaciones
-v - Dtos
-v - Mappers
-Hexagonal
+- Maquetar correctamente la página de lectura de epubs
+- Llevar a BBDD o a disco las imágenes de los autores
+- Probar a llevar a BBDD las covers de los libros
+- Arreglar la asignación de libros enviados en la tabla usuarios y vistos
+- Revisar el algoritmo de recomendados para ver como optimizarlo o si es conveniente llevarlo a una tabla a parte o realizar un preprocesado
+- Cambiar el iconos de Libros en el menu
+- Favoritos a una sección nueva del menú
+- Actualizar librerías de angular
