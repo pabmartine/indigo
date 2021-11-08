@@ -104,19 +104,21 @@
       </div>
       <div class="p-col-12 p-md-9">
         <p-card>
-          <div class="test">
-            <div id="viewer" class="spreads" #viewer></div>
+          <div class="content">
+            <div id="viewer" class="spreads" #viewer></div>           
+          </div>
+          <div class="overlay-left">
+            <button type="button" pButton (click)="prev()" label="{{'locale.buttons.previous' | translate}}"></button>
+          </div>
+          <div class="overlay-right">
+            <button type="button" pButton (click)="next()" label="{{'locale.buttons.next' | translate}}"></button>
           </div>
         </p-card>
       </div>
     </div>
-    <div class="overlay-left book-detail-buttons">
-      <button type="button" pButton (click)="prev()" class="book-detail-button" label="Previous"></button>
-    </div>
+   
 
-    <div class="overlay-right book-detail-buttons">
-      <button type="button" pButton (click)="next()" class="book-detail-button" label="Next"></button>
-    </div>
+    
 
   </p-dialog>
 </div>

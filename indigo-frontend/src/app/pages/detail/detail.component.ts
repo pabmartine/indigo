@@ -307,7 +307,7 @@ export class DetailComponent implements OnInit {
           // this.book.open(b64);
 
           // this.book = new epub("../assets/file.epub");
-          this.rendition = this.book.renderTo("viewer", { flow: "paginated", method: "continuous", width: "100%", height: "95%" });
+          this.rendition = this.book.renderTo("viewer", { flow: "paginated", method: "continuous", width: "100%", height: "97%" });
           this.displayed = this.rendition.display();
 
           this.displayed.then((renderer) => {

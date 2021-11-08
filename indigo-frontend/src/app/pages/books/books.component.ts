@@ -253,7 +253,7 @@ export class BooksComponent implements OnInit {
   showDetails(book: Book) {
     //save current data in session
     sessionStorage.setItem("position", document.documentElement.scrollTop.toString());
-    this.router.navigate(["detail"], { queryParams: { book: JSON.stringify(book) } });
+    this.router.navigate(["detail"], { queryParams: { book: JSON.stringify(book) }, skipLocationChange: true });
   }
 
 

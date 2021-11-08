@@ -352,6 +352,8 @@
 			"new": "New",
 			"add": "Add",
 			"search": "Search",
+			"next": "Next",
+            "previous": "Previous",
 			"favorite": {
 				"add": "Add to favorites",
 				"delete": "Remove from favorites"

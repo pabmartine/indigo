@@ -8,70 +8,54 @@
 
 
 .overlay-left {
-    z-index: 100;
-    position: absolute;
-    height: 20%;
-    left: 27.5%;
-    right: 0;
-    bottom: 10%;
-    background-color: transparent;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
+    float: left;
+    padding-left: 10px;
 }
 
 .overlay-right {
-    z-index: 100;
-    position: absolute;
-    height: 20%;
-    left: 90%;
-    right: 0;
-    bottom: 10%;
-    background-color: transparent;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
+    text-align: right;
+    padding-right: 10px;
 }
 
 @media (max-width: 640px) {
 
     .overlay-left {
-        z-index: 100;
-        position: absolute;
-        height: 20%;
-        left: 7.5%;
-        right: 0;
-        bottom: 40%;
-        background-color: transparent;
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
+        float: left;
+        padding-left: 10px;
     }
     
     .overlay-right {
-        z-index: 100;
-        position: absolute;
-        height: 20%;
-        left: 70%;
-        right: 0;
-        bottom: 40%;
-        background-color: transparent;
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
+        text-align: right;
+        padding-right: 10px;
     }
 
 }
 
 .chapters{
-    height: 745px;
+    height: 750px;
     overflow-y: auto;
+}
+
+.ch {
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 5px;
 }
 
 @media (max-width: 640px) {
     .chapters{
         height: 300px;
         overflow-y: auto;
+    }
+}
+
+.content{
+    height: 712px;
+}
+
+@media (max-width: 640px) {
+    .content{
+    height: 735px;
     }
 }
 
@@ -104,9 +88,7 @@
   }
 
 
-  .test{
-      height: 745px;
-  }
+
 
   .chapter-image {
     box-shadow: 0 1px 3px 0 rgb(0 0 0 / 20%), 0 1px 1px 0 rgb(0 0 0 / 14%), 0 2px 1px -1px rgb(0 0 0 / 12%);

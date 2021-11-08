@@ -4,14 +4,14 @@
     <span [ngClass]="{'header-title':messages.length==0, 'header-title-message':messages.length>0}">{{'locale.header.title' | translate}}</span>
     
     <button id="topbar-menu-button" pButton type="button" icon="pi pi-ellipsis-v" class="button-search no-shadow" (click)="toggleTopBar($event)"></button>
-    <button id="messages-menu-button" pButton type="button" icon="pi pi-envelope" class="button-messages no-shadow" (click)="msg.toggle($event)" *ngIf="messages.length==0"></button>
+    <button id="messages-menu-button" pButton type="button" icon="pi pi-envelope" class="button-messages no-shadow" (click)="msg.toggle($event)" [ngClass]="{ 'active': messages.length > 0 }" *ngIf="messages.length>0"></button>
 
     <div id="header-icons">
         <span class="header-search">
             <input type="text" placeholder="{{'locale.header.search' | translate}}" [(ngModel)]="search" (keyup.enter)="doSearch()"/>
             <span class="header-search-icon pi pi-search"></span>
         </span>     
-        <a href="javascript:;" (click)="msg.toggle($event)">
+        <a href="javascript:;" (click)="msg.toggle($event)" *ngIf="messages.length > 0">
             <span class="header-icon pi pi-envelope" [ngClass]="{ 'active': messages.length > 0 }"></span>
         </a>  
         <a href="javascript:;" (click)="menu.toggle($event)">
