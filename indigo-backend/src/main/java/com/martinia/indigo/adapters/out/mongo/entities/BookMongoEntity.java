@@ -7,8 +7,6 @@ import java.util.List;
 import javax.persistence.Id;
 
 import org.bson.BsonType;
-import org.bson.codecs.pojo.annotations.BsonId;
-import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.bson.codecs.pojo.annotations.BsonRepresentation;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -28,7 +26,7 @@ public class BookMongoEntity implements Serializable {
 
 	private static final long serialVersionUID = 7913092341598911896L;
 
-	 @BsonRepresentation(BsonType.OBJECT_ID)    
+	@BsonRepresentation(BsonType.OBJECT_ID)
 	@Id
 	private String id;
 	private String title;
@@ -40,6 +38,7 @@ public class BookMongoEntity implements Serializable {
 	private Date lastModified;
 	private int pages;
 	private float rating;
+	private String image;
 	private List<String> authors;
 	private List<String> tags;
 	private List<String> similar;

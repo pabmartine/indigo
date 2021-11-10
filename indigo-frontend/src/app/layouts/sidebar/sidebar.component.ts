@@ -43,7 +43,7 @@ export class SidebarComponent implements OnInit {
         command: () => this.show = false
       },{
         label: this.translate.instant('locale.sidebar.menu.books'),
-        icon: 'menu-item-icon pi pi-clone',
+        icon: 'menu-item-icon pi pi-book',
         routerLink: ['/books'],
         routerLinkActiveOptions: { exact: true },
         command: () => this.show = false

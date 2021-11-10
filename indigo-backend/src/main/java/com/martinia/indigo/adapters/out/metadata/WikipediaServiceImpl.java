@@ -17,8 +17,15 @@ public class WikipediaServiceImpl implements WikipediaService {
 
 	private String PROVIDER = "Wikipedia";
 
+	public static void main(String[] args) {
+
+		// TODO probar con José Luis de Vilallonga
+		WikipediaServiceImpl imp = new WikipediaServiceImpl();
+		imp.findAuthor("José Luis de Vilallonga", "es", 0);
+	}
+
 	@Override
-	public String[] findAuthor(String subject, String lang) {
+	public String[] findAuthor(String subject, String lang, int cont) {
 
 		String[] ret = null;
 
@@ -44,7 +51,7 @@ public class WikipediaServiceImpl implements WikipediaService {
 
 				String strTitle = null;
 				String[] terms = subject.split(" ");
-				if (search.isArray()) {
+				if (search.isArray() && !search.isEmpty()) {
 					for (final JsonNode objNode : search) {
 						JsonNode title = objNode.get("title");
 						strTitle = title.asText();
@@ -55,13 +62,14 @@ public class WikipediaServiceImpl implements WikipediaService {
 								.toLowerCase()
 								.trim();
 
-						boolean contains = true;
+						boolean contains = false;
 						for (String term : terms) {
 							term = StringUtils.stripAccents(term)
 									.toLowerCase()
 									.trim();
-							if (!filterTitle.contains(term)) {
-								contains = false;
+							if (filterTitle.contains(term)) {
+								contains = true;
+								break;
 							}
 						}
 
@@ -70,6 +78,15 @@ public class WikipediaServiceImpl implements WikipediaService {
 						else
 							strTitle = null;
 
+					}
+				} else if (query.get("searchinfo") != null && query.get("searchinfo")
+						.get("suggestion") != null && cont < 5) {
+					String auth = query.get("searchinfo")
+							.get("suggestion")
+							.asText();
+					if (!StringUtils.stripAccents(auth).equals(StringUtils.stripAccents(subject))) {
+						log.warn("	Retry with {}", auth);
+						return findAuthor(auth, lang, ++cont);
 					}
 				}
 
@@ -123,15 +140,16 @@ public class WikipediaServiceImpl implements WikipediaService {
 							.trim();
 
 					String[] terms = subject.split(" ");
-					boolean contains = true;
+					boolean contains = false;
 					for (String term : terms) {
 
 						term = StringUtils.stripAccents(term)
 								.toLowerCase()
 								.trim();
 
-						if (!filterTitle.contains(term)) {
-							contains = false;
+						if (filterTitle.contains(term)) {
+							contains = true;
+							break;
 						}
 					}
 

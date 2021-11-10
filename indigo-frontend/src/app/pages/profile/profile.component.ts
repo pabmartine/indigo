@@ -164,29 +164,14 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  getCover(book: Book) {
-    this.bookService.getCover(book.path).subscribe(
-      data => {
-        if (data) {
-          let objectURL = 'data:image/jpeg;base64,' + data.image;
-          book.image = objectURL;
-        }
-      },
-      error => {
-        console.log(error);
-      }
-    );
-  }
-
-  getBooks() {
+   getBooks() {
     const user = JSON.parse(sessionStorage.user);
     this.bookService.getSent(user.username).subscribe(
       data => {
 
         data.forEach((book) => {
-          this.getCover(book);
-
-
+          let objectURL = 'data:image/jpeg;base64,' + book.image;
+          book.image = objectURL;
         });
 
         Array.prototype.push.apply(this.books, data);

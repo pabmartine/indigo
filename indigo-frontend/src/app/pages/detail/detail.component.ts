@@ -89,7 +89,8 @@ export class DetailComponent implements OnInit {
       this.bookService.getSimilar(similar).subscribe(
         data => {
           data.forEach((book) => {
-            this.getCover(book);
+            let objectURL = 'data:image/jpeg;base64,' + book.image;
+            book.image = objectURL;
           });
           Array.prototype.push.apply(this.similar, data);
 
@@ -105,7 +106,8 @@ export class DetailComponent implements OnInit {
       this.bookService.getRecommendationsByBook(recommendations).subscribe(
         data => {
           data.forEach((book) => {
-            this.getCover(book);
+            let objectURL = 'data:image/jpeg;base64,' + book.image;
+            book.image = objectURL;
           });
           Array.prototype.push.apply(this.recommendations, data);
 
@@ -116,19 +118,7 @@ export class DetailComponent implements OnInit {
       );
   }
 
-  getCover(book: Book) {
-    this.bookService.getCover(book.path).subscribe(
-      data => {
-        if (data) {
-          let objectURL = 'data:image/jpeg;base64,' + data.image;
-          book.image = objectURL;
-        }
-      },
-      error => {
-        console.log(error);
-      }
-    );
-  }
+  
 
   showDetails(book: Book) {
     this.selected = book;
@@ -263,7 +253,7 @@ export class DetailComponent implements OnInit {
 
   addFavoriteBook() {
     const user = JSON.parse(sessionStorage.user);
-    this.bookService.addFavorite(this.selected.path, user.id).subscribe(
+    this.bookService.addFavorite(this.selected.path, user.username).subscribe(
       data => {
         this.favoriteBook = true;
         this.messageService.clear();
@@ -281,7 +271,7 @@ export class DetailComponent implements OnInit {
 
   deleteFavoriteBook() {
     const user = JSON.parse(sessionStorage.user);
-    this.bookService.deleteFavorite(this.selected.path, user.id).subscribe(
+    this.bookService.deleteFavorite(this.selected.path, user.username).subscribe(
       data => {
         this.favoriteBook = false;
         this.messageService.clear();

@@ -59,7 +59,7 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 								.trim();
 
 						String[] terms = title.split(" ");
-						boolean contains = true;
+						boolean contains = false;
 						for (String term : terms) {
 
 							term = StringUtils.stripAccents(term)
@@ -67,7 +67,8 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 									.trim();
 
 							if (!filterName.contains(term)) {
-								contains = false;
+								contains = true;
+								break;
 							}
 						}
 
@@ -221,7 +222,7 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 								.trim();
 
 						String[] terms = subject.split(" ");
-						boolean contains = true;
+						boolean contains = false;
 						for (String term : terms) {
 
 							term = StringUtils.stripAccents(term)
@@ -229,14 +230,15 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 									.trim();
 
 							if (!filterName.contains(term)) {
-								contains = false;
+								contains = true;
+								break;
 							}
 						}
 
 						if (contains)
 							ret = getAuthorInfo(key, id);
 						else
-							log.info("************************** " + subject + " is not contained in " + name);
+							log.debug("************************** " + subject + " is not contained in " + name);
 
 					}
 				}

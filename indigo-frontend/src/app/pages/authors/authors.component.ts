@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, ChangeDetectorRef } from '@angular/core';
 import { SelectItem } from 'primeng/api/selectitem';
 import { Author } from 'src/app/domain/author';
 import { AuthorService } from 'src/app/services/author.service';
@@ -40,7 +40,8 @@ export class AuthorsComponent implements OnInit {
   constructor(private authorService: AuthorService,
     private router: Router,
     private messageService: MessageService,
-    public translate: TranslateService) {
+    public translate: TranslateService,
+    private changeDetectorRef: ChangeDetectorRef) {
 
     //defines the number of elements to retrieve according to the width of the screen
     if (window.screen.width <= 640) {
@@ -128,7 +129,17 @@ export class AuthorsComponent implements OnInit {
   getAll() {
     this.authorService.getAll(this.page, this.size, this.sort, this.order).subscribe(
       data => {
-        Array.prototype.push.apply(this.authors, data);
+
+        data.forEach(author => {
+          if (author.image){
+            let objectURL = 'data:image/jpeg;base64,' + author.image;
+            author.image = objectURL;
+          }
+        });
+
+        Array.prototype.push.apply(this.authors, data); 
+        this.changeDetectorRef.detectChanges();
+        
         this.page++;
       },
       error => {

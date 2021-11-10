@@ -18,4 +18,6 @@ public interface AuthorRepository {
 
 	void dropCollection();
 
+	void update(Author author);
+
 }

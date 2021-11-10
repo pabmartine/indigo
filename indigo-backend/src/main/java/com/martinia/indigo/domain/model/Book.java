@@ -29,6 +29,7 @@ public class Book implements Serializable {
 	private Date lastModified;
 	private int pages;
 	private float rating;
+	private String image;
 	private List<String> authors;
 	private List<String> tags;
 	private List<String> similar;

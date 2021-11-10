@@ -89,7 +89,8 @@ export class NotificationsComponent implements OnInit {
       data => {
         if (data) {
           notif.title = data.title;
-          this.getCover(notif, data.path);
+          let objectURL = 'data:image/jpeg;base64,' + data.image;
+          notif.image = objectURL;
         }
       },
       error => {
@@ -107,20 +108,6 @@ export class NotificationsComponent implements OnInit {
       error => {
         console.log(error);
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.notifications.actions.delete.error'), closable: false, life: 5000 });
-      }
-    );
-  }
-
-  getCover(notif:Notif, path: string) {
-    this.bookService.getCover(path).subscribe(
-      data => {
-        if (data) {
-          let objectURL = 'data:image/jpeg;base64,' + data.image;
-          notif.image = objectURL;
-        }
-      },
-      error => {
-        console.log(error);
       }
     );
   }

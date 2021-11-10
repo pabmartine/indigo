@@ -60,6 +60,18 @@ public class AuthorRepositoryImpl implements AuthorRepository {
 		authorMongoRepository.save(mapping);
 
 	}
+	
+	@Override
+	public void update(Author author) {
+
+		AuthorMongoEntity mapping = authorMongoMapper.domain2Entity(author);
+		AuthorMongoEntity entity = authorMongoRepository.findByName(author.getName());
+		if (entity != null) {
+			mapping.setId(entity.getId());
+		}
+		authorMongoRepository.save(mapping);
+
+	}
 
 	@Override
 	public void dropCollection() {

@@ -220,7 +220,8 @@ export class BooksComponent implements OnInit {
       data => {
 
         data.forEach((book) => {
-          this.getCover(book);
+          let objectURL = 'data:image/jpeg;base64,' + book.image;
+          book.image = objectURL;
         });
 
         Array.prototype.push.apply(this.books, data);
@@ -235,19 +236,7 @@ export class BooksComponent implements OnInit {
   }
 
 
-  getCover(book: Book) {
-    this.bookService.getCover(book.path).subscribe(
-      data => {
-        if (data) {
-          let objectURL = 'data:image/jpeg;base64,' + data.image;
-          book.image = objectURL;
-        }
-      },
-      error => {
-        console.log(error);
-      }
-    );
-  }
+
 
 
   showDetails(book: Book) {
@@ -281,6 +270,10 @@ export class BooksComponent implements OnInit {
         data => {
           if (data) {
             this.authorInfo = data;
+            if (this.authorInfo.image){
+              let objectURL = 'data:image/jpeg;base64,' + data.image;
+              this.authorInfo.image = objectURL;
+            }
             this.getFavoriteAuthor();
           }
         },
@@ -313,7 +306,8 @@ export class BooksComponent implements OnInit {
       data => {
         this.favorites.length = 0
         data.forEach((book) => {
-          this.getCover(book);
+          let objectURL = 'data:image/jpeg;base64,' + book.image;
+          book.image = objectURL;
         });
 
         Array.prototype.push.apply(this.favorites, data);

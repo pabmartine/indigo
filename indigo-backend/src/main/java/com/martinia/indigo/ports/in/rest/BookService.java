@@ -14,7 +14,7 @@ public interface BookService {
 
 	List<Book> findAll(Search search, int page, int size, String sort, String order);
 
-	String getCover(String path, boolean force);
+//	String getCover(String path, boolean force);
 
 	Book findById(String id);
 

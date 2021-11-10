@@ -73,10 +73,10 @@ public class BookServiceImpl implements BookService {
 		return bookRepository.getRecommendationsByUser(user, page, size, sort, order);
 	}
 
-	@Override
-	public String getCover(String path, boolean force) {
-		return utilComponent.getCover(path, force);
-	}
+//	@Override
+//	public String getCover(String path, boolean force) {
+//		return utilComponent.getCover(path, force);
+//	}
 	
 	@Override
 	public Resource getEpub(String path) {

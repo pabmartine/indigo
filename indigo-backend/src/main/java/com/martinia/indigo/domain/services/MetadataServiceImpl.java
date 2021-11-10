@@ -60,7 +60,7 @@ public class MetadataServiceImpl implements MetadataService {
 	private MetadataSingleton metadataSingleton;
 
 	@Autowired
-	private UtilComponent coverComponent;
+	private UtilComponent utilComponent;
 
 	private String goodreads;
 	private long pullTime;
@@ -111,7 +111,8 @@ public class MetadataServiceImpl implements MetadataService {
 				metadataSingleton.setCurrent(cont++);
 
 				try {
-					coverComponent.getCover(book.getPath(), false);
+					String image = utilComponent.getBase64Cover(book.getPath());
+					book.setImage(image);
 
 					tagRepository.save(book.getTags());
 					bookRepository.save(book);
@@ -344,10 +345,10 @@ public class MetadataServiceImpl implements MetadataService {
 
 						try {
 
-							String[] wikipedia = wikipediaComponent.findAuthor(author.getName(), lang);
+							String[] wikipedia = wikipediaComponent.findAuthor(author.getName(), lang, 0);
 
 							if (wikipedia == null && !lang.equals("en")) {
-								wikipedia = wikipediaComponent.findAuthor(author.getName(), "en");
+								wikipedia = wikipediaComponent.findAuthor(author.getName(), "en", 0);
 							}
 
 							if (wikipedia == null || wikipedia[1] == null) {
@@ -371,7 +372,10 @@ public class MetadataServiceImpl implements MetadataService {
 
 							if (!StringUtils.isEmpty(author.getDescription())
 									|| !StringUtils.isEmpty(author.getImage())) {
-								authorRepository.save(author);
+								author.setImage(utilComponent.getBase64Url(author.getImage()));
+								authorRepository.update(author);
+							} else {
+								log.warn("Not found data for author {}", author.getName());
 							}
 
 							log.debug("Obtained {}/{} authors metadata", cont - numAuthors, numAuthors);
@@ -412,6 +416,7 @@ public class MetadataServiceImpl implements MetadataService {
 		fillMetadataBooks(lang, false);
 		fillMetadataAuthors(lang, false);
 
+		stop();
 	}
 
 	public Map<String, Object> getStatus() {

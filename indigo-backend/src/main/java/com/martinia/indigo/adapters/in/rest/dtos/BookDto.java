@@ -16,9 +16,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class BookDto implements Serializable {
 
-
 	private static final long serialVersionUID = 3010775368721977810L;
-	
+
 	private String id;
 	private String title;
 	private String path;
@@ -29,6 +28,7 @@ public class BookDto implements Serializable {
 	private String lastModified;
 	private int pages;
 	private float rating;
+	private String image;
 	private List<String> authors;
 	private List<String> tags;
 	private List<String> similar;

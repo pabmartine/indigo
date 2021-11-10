@@ -31,14 +31,6 @@ export class BookService {
     return this.http.post(url, adv_search);
   }
 
-  getCover(path: string): Observable<any> {
-    path = path.replace('&', '@_@');
-    path = path.replace('[', '@-@');
-    path = path.replace(']', '@¡@');
-    path = path.replace('`', '@!@');
-    return this.http.get(this.endpoint + "/cover?path=" + path);
-  }
-
   getEpub(path: string): Observable<Blob> {
     path = path.replace('&', '@_@');
     path = path.replace('[', '@-@');

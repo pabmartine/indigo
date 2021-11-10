@@ -368,9 +368,9 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 		AggregateIterable<Document> data = collection
 				.aggregate(
 						Arrays.asList(
-								new Document("$unionWith",
-										new Document("coll", "views").append("pipeline",
-												Arrays.asList(new Document("$set", new Document("_id", "$_id"))))),
+//								new Document("$unionWith",
+//										new Document("coll", "views").append("pipeline",
+//												Arrays.asList(new Document("$set", new Document("_id", "$_id"))))),
 								new Document("$match", new Document("user", user)),
 								new Document("$project", new Document("_id", 0L).append("book", 1L)),
 								new Document("$lookup", new Document("from", "books").append("localField", "book")
@@ -423,9 +423,9 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 		AggregateIterable<BookMongoEntity> data = collection
 				.aggregate(
 						Arrays.asList(
-								new Document("$unionWith",
-										new Document("coll", "views").append("pipeline",
-												Arrays.asList(new Document("$set", new Document("_id", "$_id"))))),
+//								new Document("$unionWith",
+//										new Document("coll", "views").append("pipeline",
+//												Arrays.asList(new Document("$set", new Document("_id", "$_id"))))),
 								new Document("$match", new Document("user", user)),
 								new Document("$project", new Document("_id", 0L).append("book", 1L)),
 								new Document("$lookup", new Document("from", "books").append("localField", "book")

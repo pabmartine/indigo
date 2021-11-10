@@ -75,8 +75,7 @@ public class SerieRestController {
 						.getIndex()))
 				.collect(Collectors.toList());
 
-		String image = coverComponent.getCover(sorted.get(0)
-				.getPath(), false);
+		String image = sorted.get(0).getImage();
 
 		map = new HashMap<String, String>();
 		map.put("image", image);

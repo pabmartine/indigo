@@ -1,9 +1,7 @@
 package com.martinia.indigo.adapters.in.rest.controllers;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.transaction.Transactional;
 
@@ -62,21 +60,21 @@ public class BookRestController {
 		return new ResponseEntity<>(booksDto, HttpStatus.OK);
 	}
 
-	@GetMapping(value = "/cover", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<Map<String, String>> getCover(@RequestParam String path, boolean force) throws IOException {
-		Map<String, String> map = null;
-
-		String image = bookService.getCover(path.replace("@_@", "&")
-				.replace("@-@", "[")
-				.replace("@¡@", "]")
-				.replace("@!@", "`"), force);
-
-		map = new HashMap<String, String>();
-		map.put("image", image);
-
-		return new ResponseEntity<>(map, HttpStatus.OK);
-
-	}
+//	@GetMapping(value = "/cover", produces = MediaType.APPLICATION_JSON_VALUE)
+//	public ResponseEntity<Map<String, String>> getCover(@RequestParam String path, boolean force) throws IOException {
+//		Map<String, String> map = null;
+//
+//		String image = bookService.getCover(path.replace("@_@", "&")
+//				.replace("@-@", "[")
+//				.replace("@¡@", "]")
+//				.replace("@!@", "`"), force);
+//
+//		map = new HashMap<String, String>();
+//		map.put("image", image);
+//
+//		return new ResponseEntity<>(map, HttpStatus.OK);
+//
+//	}
 
 	@GetMapping(value = "/epub")
 	public ResponseEntity<Resource> getEpub(@RequestParam String path) throws IOException {
