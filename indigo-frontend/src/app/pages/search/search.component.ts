@@ -38,7 +38,7 @@ export class SearchComponent implements OnInit {
     this.tagService.getAll("name", "asc").subscribe(
       data => {
         data.forEach((tag) => {
-          this.tags.push({ label: tag.tag, value: tag.tag });
+          this.tags.push({ label: tag.name, value: tag.name });
         });
       }
     );
