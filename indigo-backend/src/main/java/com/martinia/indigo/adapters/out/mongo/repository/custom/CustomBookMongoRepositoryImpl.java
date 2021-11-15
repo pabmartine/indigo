@@ -73,12 +73,9 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 
 			if (StringUtils.isNoneEmpty(search.getAuthor())) {
 
-				String author = (search.getAuthor());
-				String[] terms = author.split(" ");
-				for (String term : terms) {
-					criterias.add(Criteria.where("authors")
-							.regex(term, "i"));
-				}
+				criterias.add(Criteria.where("authors")
+						.is(search.getAuthor()));
+
 			}
 
 			if (null != (search.getIni())) {
@@ -115,7 +112,12 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 
 			if (StringUtils.isNoneEmpty(search.getSerie())) {
 				criterias.add(Criteria.where("serie.name")
-						.regex(search.getSerie(), "i"));
+						.is(search.getSerie()));
+			}
+
+			if (!CollectionUtils.isEmpty(search.getLanguages())) {
+				criterias.add(Criteria.where("languages")
+						.in(search.getLanguages()));
 			}
 
 			query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
@@ -155,12 +157,8 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 
 			if (StringUtils.isNoneEmpty(search.getAuthor())) {
 
-				String author = (search.getAuthor());
-				String[] terms = author.split(" ");
-				for (String term : terms) {
-					criterias.add(Criteria.where("authors")
-							.regex(term, "i"));
-				}
+				criterias.add(Criteria.where("authors")
+						.is(search.getAuthor()));
 			}
 
 			if (null != (search.getIni())) {
@@ -197,7 +195,12 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 
 			if (StringUtils.isNoneEmpty(search.getSerie())) {
 				criterias.add(Criteria.where("serie.name")
-						.regex(search.getSerie(), "i"));
+						.is(search.getSerie()));
+			}
+
+			if (!CollectionUtils.isEmpty(search.getLanguages())) {
+				criterias.add(Criteria.where("languages")
+						.in(search.getLanguages()));
 			}
 
 			query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
@@ -248,12 +251,15 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 		return mongoTemplate.find(query, BookMongoEntity.class);
 	}
 
-	public Map<String, Long> getNumBooksBySerie(int page, int size, String sort, String order) {
+	@Override
+	public Map<String, Long> getNumBooksBySerie(List<String> languages, int page, int size, String sort, String order) {
 
 		Map<String, Long> map = new LinkedHashMap<>();
 
 		List<Document> list = Arrays.asList(
-				new Document("$match", new Document("serie.name", new Document("$ne", new BsonNull()))),
+				new Document("$match",
+						new Document("serie.name", new Document("$ne", new BsonNull())).append("languages",
+								new Document("$in", languages))),
 				new Document("$project", new Document("serie.name", 1L)),
 				new Document("$group", new Document("_id", "$serie.name").append("count", new Document("$sum", 1L))),
 				new Document("$sort",
@@ -279,10 +285,12 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 	}
 
 	@Override
-	public Long getNumSeries() {
+	public Long getNumSeries(List<String> languages) {
 		Long ret = null;
 		List<Document> list = Arrays.asList(
-				new Document("$match", new Document("serie.name", new Document("$ne", new BsonNull()))),
+				new Document("$match",
+						new Document("serie.name", new Document("$ne", new BsonNull())).append("languages",
+								new Document("$in", languages))),
 				new Document("$project", new Document("serie.name", 1L)),
 				new Document("$group", new Document("_id", "$serie.name").append("count", new Document("$sum", 1L))),
 				new Document("$group", new Document("_id", "$serie.name").append("count", new Document("$sum", 1L))));
@@ -365,36 +373,30 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 		MongoCollection<Document> collection = mongoTemplate.getCollection("notifications")
 				.withCodecRegistry(pojoCodecRegistry);
 
-		AggregateIterable<Document> data = collection
-				.aggregate(
-						Arrays.asList(
+		AggregateIterable<Document> data = collection.aggregate(Arrays.asList(
 //								new Document("$unionWith",
 //										new Document("coll", "views").append("pipeline",
 //												Arrays.asList(new Document("$set", new Document("_id", "$_id"))))),
-								new Document("$match", new Document("user", user)),
-								new Document("$project", new Document("_id", 0L).append("book", 1L)),
-								new Document("$lookup", new Document("from", "books").append("localField", "book")
-										.append("foreignField", "path")
-										.append("as", "typeCategory")),
-								new Document("$match",
-										new Document("typeCategory.recommendations",
-												new Document("$ne", new BsonNull()))),
-								new Document("$unwind", new Document("path", "$typeCategory")),
-								new Document("$unwind", new Document("path", "$typeCategory.recommendations")),
-								new Document("$project",
-										new Document("_id",
-												new Document("$toObjectId", "$typeCategory.recommendations"))),
-								new Document("$group",
-										new Document("_id", "$_id").append("count", new Document("$sum", 1L))),
-								new Document("$sort", new Document("count",
-										-1L)),
-								new Document("$lookup", new Document("from", "books").append("localField", "_id")
-										.append("foreignField", "_id")
-										.append("as", "book")),
-								new Document("$replaceRoot", new Document("newRoot",
-										new Document("$mergeObjects", Arrays.asList(
-												new Document("$arrayElemAt", Arrays.asList("$book", 0L)), "$$ROOT")))),
-								new Document("$count", "total")));
+				new Document("$match", new Document("user", user)),
+				new Document("$project", new Document("_id", 0L).append("book", 1L)),
+				new Document("$lookup", new Document("from", "books").append("localField", "book")
+						.append("foreignField", "path")
+						.append("as", "typeCategory")),
+				new Document("$match",
+						new Document("typeCategory.recommendations", new Document("$ne", new BsonNull()))),
+				new Document("$unwind", new Document("path", "$typeCategory")),
+				new Document("$unwind", new Document("path", "$typeCategory.recommendations")),
+				new Document("$project",
+						new Document("_id", new Document("$toObjectId", "$typeCategory.recommendations"))),
+				new Document("$group", new Document("_id", "$_id").append("count", new Document("$sum", 1L))),
+				new Document("$sort", new Document("count", -1L)),
+				new Document("$lookup", new Document("from", "books").append("localField", "_id")
+						.append("foreignField", "_id")
+						.append("as", "book")),
+				new Document("$replaceRoot", new Document("newRoot",
+						new Document("$mergeObjects",
+								Arrays.asList(new Document("$arrayElemAt", Arrays.asList("$book", 0L)), "$$ROOT")))),
+				new Document("$count", "total")));
 
 		if (data.iterator()
 				.hasNext()) {
@@ -420,44 +422,66 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 		MongoCollection<Document> collection = mongoTemplate.getCollection("notifications")
 				.withCodecRegistry(pojoCodecRegistry);
 
-		AggregateIterable<BookMongoEntity> data = collection
-				.aggregate(
-						Arrays.asList(
+		AggregateIterable<BookMongoEntity> data = collection.aggregate(Arrays.asList(
 //								new Document("$unionWith",
 //										new Document("coll", "views").append("pipeline",
 //												Arrays.asList(new Document("$set", new Document("_id", "$_id"))))),
-								new Document("$match", new Document("user", user)),
-								new Document("$project", new Document("_id", 0L).append("book", 1L)),
-								new Document("$lookup", new Document("from", "books").append("localField", "book")
-										.append("foreignField", "path")
-										.append("as", "typeCategory")),
-								new Document("$match",
-										new Document("typeCategory.recommendations",
-												new Document("$ne", new BsonNull()))),
-								new Document("$unwind", new Document("path", "$typeCategory")),
-								new Document("$unwind", new Document("path", "$typeCategory.recommendations")),
-								new Document("$project",
-										new Document("_id",
-												new Document("$toObjectId", "$typeCategory.recommendations"))),
-								new Document("$group",
-										new Document("_id", "$_id").append("count", new Document("$sum", 1L))),
-								new Document("$sort", new Document("count",
-										-1L)),
-								new Document("$lookup", new Document("from", "books").append("localField", "_id")
-										.append("foreignField", "_id")
-										.append("as", "book")),
-								new Document("$replaceRoot",
-										new Document("newRoot", new Document("$mergeObjects",
-												Arrays.asList(new Document("$arrayElemAt", Arrays.asList("$book", 0L)),
-														"$$ROOT")))),
-								new Document("$sort",
-										new Document(sort, (order.equals("asc") ? 1 : -1)).append("_id", -1L)),
-								new Document("$skip", page * size), new Document("$limit", size - 1),
-								new Document("$unset", Arrays.asList("book", "count"))),
-						BookMongoEntity.class);
+				new Document("$match", new Document("user", user)),
+				new Document("$project", new Document("_id", 0L).append("book", 1L)),
+				new Document("$lookup", new Document("from", "books").append("localField", "book")
+						.append("foreignField", "path")
+						.append("as", "typeCategory")),
+				new Document("$match",
+						new Document("typeCategory.recommendations", new Document("$ne", new BsonNull()))),
+				new Document("$unwind", new Document("path", "$typeCategory")),
+				new Document("$unwind", new Document("path", "$typeCategory.recommendations")),
+				new Document("$project",
+						new Document("_id", new Document("$toObjectId", "$typeCategory.recommendations"))),
+				new Document("$group", new Document("_id", "$_id").append("count", new Document("$sum", 1L))),
+				new Document("$sort", new Document("count", -1L)),
+				new Document("$lookup", new Document("from", "books").append("localField", "_id")
+						.append("foreignField", "_id")
+						.append("as", "book")),
+				new Document("$replaceRoot", new Document("newRoot",
+						new Document("$mergeObjects",
+								Arrays.asList(new Document("$arrayElemAt", Arrays.asList("$book", 0L)), "$$ROOT")))),
+				new Document("$sort", new Document(sort, (order.equals("asc") ? 1 : -1)).append("_id", -1L)),
+				new Document("$skip", page * size), new Document("$limit", size - 1),
+				new Document("$unset", Arrays.asList("book", "count"))), BookMongoEntity.class);
 
 		data.iterator()
 				.forEachRemaining(ret::add);
+
+		return ret;
+	}
+
+	@Override
+	public List<String> getBookLanguages() {
+		List<String> ret = new ArrayList<>();
+
+		CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
+				MongoClientSettings.getDefaultCodecRegistry(),
+				org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder()
+						.automatic(true)
+						.build()));
+
+		MongoCollection<Document> collection = mongoTemplate.getCollection("books")
+				.withCodecRegistry(pojoCodecRegistry);
+
+		AggregateIterable<Document> data = collection.aggregate(Arrays.asList(
+				new Document("$project", new Document("languages", 1L)),
+				new Document("$unwind", new Document("path", "$languages")),
+				new Document("$group",
+						new Document("_id", "null").append("languages", new Document("$addToSet", "$languages"))),
+				new Document("$unwind", new Document("path", "$languages")),
+				new Document("$project", new Document("_id", 0L))));
+
+		Iterator<Document> it = data.iterator();
+		while (it.hasNext()) {
+			Document document = it.next();
+			ret.add(document.get("languages")
+					.toString());
+		}
 
 		return ret;
 	}

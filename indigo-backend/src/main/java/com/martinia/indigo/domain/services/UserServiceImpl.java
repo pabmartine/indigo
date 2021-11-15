@@ -61,6 +61,7 @@ public class UserServiceImpl implements UserService {
 
 		_user.setUsername(user.getUsername());
 		_user.setLanguage(user.getLanguage());
+		_user.setLanguageBooks(user.getLanguageBooks());
 		_user.setKindle(user.getKindle());
 
 		this.save(_user, false);

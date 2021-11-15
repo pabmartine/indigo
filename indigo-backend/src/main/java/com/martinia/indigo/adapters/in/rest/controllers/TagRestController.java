@@ -28,14 +28,10 @@ public class TagRestController {
 	@Autowired
 	protected TagDtoMapper tagDtoMapper;
 
-//	@GetMapping("/count")
-//	public ResponseEntity<Long> getTotal() {
-//		return new ResponseEntity<>(tagService.count(), HttpStatus.OK);
-//	}
-
 	@GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<TagDto>> getAll(@RequestParam String sort, @RequestParam String order) {
-		List<Tag> tags = tagService.findAll(sort, order);
+	public ResponseEntity<List<TagDto>> getAll(@RequestParam List<String> languages, @RequestParam String sort,
+			@RequestParam String order) {
+		List<Tag> tags = tagService.findAll(languages, sort, order);
 		List<TagDto> tagsDto = tagDtoMapper.domains2Dtos(tags);
 		return new ResponseEntity<>(tagsDto, HttpStatus.OK);
 	}

@@ -93,13 +93,13 @@ public class BookRepositoryImpl implements BookRepository {
 	}
 
 	@Override
-	public Map<String, Long> getNumBooksBySerie(int page, int size, String sort, String order) {
-		return bookMongoRepository.getNumBooksBySerie(page, size, sort, order);
+	public Map<String, Long> getNumBooksBySerie(List<String> languages, int page, int size, String sort, String order) {
+		return bookMongoRepository.getNumBooksBySerie(languages, page, size, sort, order);
 	}
 
 	@Override
-	public Long getNumSeries() {
-		return bookMongoRepository.getNumSeries();
+	public Long getNumSeries(List<String> languages) {
+		return bookMongoRepository.getNumSeries(languages);
 	}
 
 	@Override
@@ -120,6 +120,11 @@ public class BookRepositoryImpl implements BookRepository {
 	public Book findByPath(String path) {
 		return bookMongoMapper.entity2Domain(bookMongoRepository.findByPath(path));
 
+	}
+
+	@Override
+	public List<String> getBookLanguages() {
+		return bookMongoRepository.getBookLanguages();
 	}
 
 }

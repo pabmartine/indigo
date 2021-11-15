@@ -80,7 +80,7 @@ public class WikipediaServiceImpl implements WikipediaService {
 
 					}
 				} else if (query.get("searchinfo") != null && query.get("searchinfo")
-						.get("suggestion") != null && cont < 5) {
+						.get("suggestion") != null && cont < 2) {
 					String auth = query.get("searchinfo")
 							.get("suggestion")
 							.asText();

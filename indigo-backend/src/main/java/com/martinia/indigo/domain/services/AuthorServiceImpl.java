@@ -16,13 +16,13 @@ public class AuthorServiceImpl implements AuthorService {
 	AuthorRepository authorRepository;
 
 	@Override
-	public Long count() {
-		return authorRepository.count();
+	public Long count(List<String> languages) {
+		return authorRepository.count(languages);
 	}
 
 	@Override
-	public List<Author> findAll(int page, int size, String sort, String order) {
-		return authorRepository.findAll(page, size, sort, order);
+	public List<Author> findAll(List<String> languages, int page, int size, String sort, String order) {
+		return authorRepository.findAll(languages, page, size, sort, order);
 	}
 
 	@Override

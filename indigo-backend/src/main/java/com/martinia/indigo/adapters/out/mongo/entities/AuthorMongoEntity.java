@@ -6,6 +6,8 @@ import javax.persistence.Id;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.martinia.indigo.adapters.out.mongo.beans.NumBooksMongoBean;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,6 +29,6 @@ public class AuthorMongoEntity implements Serializable {
 	private String description;
 	private String provider;
 	private String image;
-	private int numBooks;
+	private NumBooksMongoBean numBooks;
 
 }

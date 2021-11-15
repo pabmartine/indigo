@@ -23,5 +23,7 @@ public interface BookMongoRepository
 
 	@Query("{ 'path' : ?0 }")
 	BookMongoEntity findByPath(String path);
+	
+	
 
 }

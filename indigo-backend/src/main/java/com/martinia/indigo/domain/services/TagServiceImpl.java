@@ -20,10 +20,6 @@ public class TagServiceImpl implements TagService {
 		return tagRepository.findByName(name);
 	}
 
-//	public long count() {
-//		return tagRepository.count();
-//	}
-
 	@Override
 	public void rename(String source, String target) {
 		tagRepository.rename(source, target);
@@ -43,8 +39,8 @@ public class TagServiceImpl implements TagService {
 	}
 
 	@Override
-	public List<Tag> findAll(String sort, String order) {
-		return tagRepository.findAll(sort, order);
+	public List<Tag> findAll(List<String> languages, String sort, String order) {
+		return tagRepository.findAll(languages, sort, order);
 	}
 
 }

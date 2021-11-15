@@ -2,6 +2,8 @@ package com.martinia.indigo.domain.model;
 
 import java.io.Serializable;
 
+import com.martinia.indigo.domain.model.inner.NumBooks;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +23,6 @@ public class Author implements Serializable {
 	private String description;
 	private String provider;
 	private String image;
-	private int numBooks;
+	private NumBooks numBooks;
 
 }

@@ -201,7 +201,8 @@
 				"title": "Account",
 				"username": "Utilisateur",
 				"password": "Mot de passe",
-				"language": "Langue",
+				"language": "Langue de l'interface",
+				"languages": "Langue des livres",				
 				"role": "Rôle",
 				"kindle": "Adresse e-mail de l'appareil Kindle",
 				"kindle_short": "Kindle",
@@ -245,8 +246,8 @@
 					"partial": "Mettre à jour les métadonnées (notes, commentaires, biographie de l'auteur, etc.) pour les nouveaux livres",
 					"full": "Mettre à jour les métadonnées (notes, commentaires, biographie de l'auteur, etc.) pour toute la bibliothèque. Remplacer celles existantes.",
 					"indexing_books": "Bibliothèque d'indexation (1/5) ...",
-                    "filling_recommendations": "Générer des recommandations (3/5) ...",
-                    "obtaining_metadata_books": "Obtenir des métadonnées du livre (4/5) ...",
+					"filling_recommendations": "Générer des recommandations (3/5) ...",
+					"obtaining_metadata_books": "Obtenir des métadonnées du livre (4/5) ...",
 					"obtaining_metadata_authors": "Obtenir des métadonnées de l'auteurs (5/5) ...",
 					"filling_authors": "Remplir les auteurs (2/5) ..."
 				},
@@ -353,7 +354,7 @@
 			"add": "Ajouter",
 			"search": "Chercher",
 			"next": "Suivant",
-            "previous": "Précédent",
+			"previous": "Précédent",
 			"favorite": {
 				"add": "Ajouter aux favoris",
 				"delete": "Supprimer des favoris"
@@ -362,7 +363,18 @@
 		"languages": {
 			"es": "Espagnol",
 			"en": "Anglais",
-			"fr": "Français"
+			"fr": "Français",
+			"eus": "Basque",
+			"glg": "Galicien",
+			"ita": "Italien",
+			"swe": "suédois",
+			"spa": "Espagnol",
+			"chat": "Catalan",
+			"deu": "Allemand",
+			"por": "Portugais",
+			"eng": "Anglais",
+			"epo": "Espéranto",
+			"fra": "français"
 		},
 		"session": {
 			"title": "Session expirée",

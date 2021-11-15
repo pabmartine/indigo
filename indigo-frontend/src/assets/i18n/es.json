@@ -202,7 +202,8 @@
                 "username": "Usuario",
                 "password": "Contraseña",
                 "role": "Rol",
-                "language": "Idioma",
+                "language": "Idioma de la interfaz",
+                "languages": "Idioma de los libros", 
                 "kindle": "Dirección email del dispositivo Kindle",
                 "kindle_short": "Kindle",
                 "account": "Cuenta"
@@ -362,7 +363,18 @@
         "languages": {
             "es": "Español",
             "en": "Inglés",
-            "fr": "Francés"
+            "fr": "Francés",
+            "eus": "Euskera",
+			"glg": "Gallego",
+			"ita": "Italiano",
+			"swe": "Sueco",
+			"spa": "Spanish",
+			"cat": "Catalán",
+			"deu": "Alemán",
+			"por": "Portugues",
+			"eng": "Inglés",
+			"epo": "Esperanto",
+			"fra": "Francés"
         },
         "session": {
             "title": "Sesión caducada",

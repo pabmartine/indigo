@@ -6,9 +6,9 @@ import com.martinia.indigo.domain.model.Author;
 
 public interface AuthorRepository {
 
-	Long count();
+	Long count(List<String> languages);
 
-	List<Author> findAll(int page, int size, String sort, String order);
+	List<Author> findAll(List<String> languages, int page, int size, String sort, String order);
 
 	Author findById(String id);
 

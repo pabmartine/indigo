@@ -60,22 +60,6 @@ public class BookRestController {
 		return new ResponseEntity<>(booksDto, HttpStatus.OK);
 	}
 
-//	@GetMapping(value = "/cover", produces = MediaType.APPLICATION_JSON_VALUE)
-//	public ResponseEntity<Map<String, String>> getCover(@RequestParam String path, boolean force) throws IOException {
-//		Map<String, String> map = null;
-//
-//		String image = bookService.getCover(path.replace("@_@", "&")
-//				.replace("@-@", "[")
-//				.replace("@¡@", "]")
-//				.replace("@!@", "`"), force);
-//
-//		map = new HashMap<String, String>();
-//		map.put("image", image);
-//
-//		return new ResponseEntity<>(map, HttpStatus.OK);
-//
-//	}
-
 	@GetMapping(value = "/epub")
 	public ResponseEntity<Resource> getEpub(@RequestParam String path) throws IOException {
 
@@ -120,6 +104,7 @@ public class BookRestController {
 
 	}
 
+	//Todo ver como filtrar estos libros también por idioma
 	@GetMapping(value = "/recommendations/user/count")
 	public ResponseEntity<Long> countBookRecommendationsByUser(@RequestParam String user) {
 		return new ResponseEntity<>(bookService.countRecommendationsByUser(user), HttpStatus.OK);
@@ -174,6 +159,14 @@ public class BookRestController {
 	public ResponseEntity<Void> view(@RequestParam String book, @RequestParam String user) {
 		viewService.save(new View(book, user));
 		return new ResponseEntity<>(HttpStatus.OK);
+
+	}
+
+	@GetMapping(value = "/languages", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<String>> getBookLanguages() {
+
+		List<String> languages = bookService.getBookLanguages();
+		return new ResponseEntity<>(languages, HttpStatus.OK);
 
 	}
 

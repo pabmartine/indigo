@@ -28,6 +28,7 @@ public class UserMongoEntity implements Serializable {
 	private String kindle;
 	private String role;
 	private String language;
+	private List<String> languageBooks;
 	private List<String> favoriteBooks;
 	private List<String> favoriteAuthors;
 

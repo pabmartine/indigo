@@ -29,20 +29,33 @@ public class TagRepositoryImpl implements TagRepository {
 	TagMongoMapper tagMongoMapper;
 
 	@Override
-	public List<Tag> findAll(String sort, String order) {
-		return tagMongoMapper
-				.entities2Domains(tagMongoRepository.findAll(Sort.by(Sort.Direction.fromString(order), sort)));
+	public List<Tag> findAll(List<String> languages, String sort, String order) {
+
+		List<TagMongoEntity> tags = tagMongoRepository.findAll(languages,
+				Sort.by(Sort.Direction.fromString(order), sort));
+
+		for (TagMongoEntity tag : tags) {
+			int total = 0;
+			for (String key : tag.getNumBooks()
+					.getLanguages()
+					.keySet()) {
+				if (languages.contains(key)) {
+					total += tag.getNumBooks()
+							.getLanguages()
+							.get(key);
+				}
+			}
+			tag.getNumBooks()
+					.setTotal(total);
+		}
+
+		return tagMongoMapper.entities2Domains(tags);
 	}
 
 	@Override
 	public Tag findByName(String name) {
 		return tagMongoMapper.entity2Domain(tagMongoRepository.findByName(name));
 	}
-
-//	@Override
-//	public long count() {
-//		return tagMongoRepository.count();
-//	}
 
 	@Override
 	public void image(String source, String image) {
@@ -67,7 +80,33 @@ public class TagRepositoryImpl implements TagRepository {
 		}
 		bookMongoRepository.saveAll(books);
 
-		entityTarget.setNumBooks(entityTarget.getNumBooks() + entitySource.getNumBooks());
+		entityTarget.getNumBooks()
+				.setTotal(entityTarget.getNumBooks()
+						.getTotal()
+						+ entitySource.getNumBooks()
+								.getTotal());
+		for (String lang : entitySource.getNumBooks()
+				.getLanguages()
+				.keySet()) {
+			if (entityTarget.getNumBooks()
+					.getLanguages()
+					.get(lang) != null) {
+				entityTarget.getNumBooks()
+						.getLanguages()
+						.put(lang, entityTarget.getNumBooks()
+								.getLanguages()
+								.get(lang)
+								+ entitySource.getNumBooks()
+										.getLanguages()
+										.get(lang));
+			} else {
+				entityTarget.getNumBooks()
+						.getLanguages()
+						.put(lang, entitySource.getNumBooks()
+								.getLanguages()
+								.get(lang));
+			}
+		}
 		tagMongoRepository.save(entityTarget);
 		tagMongoRepository.delete(entitySource);
 
@@ -92,13 +131,30 @@ public class TagRepositoryImpl implements TagRepository {
 	}
 
 	@Override
-	public void save(List<String> tags) {
+	public void save(List<String> tags, List<String> languages) {
 		for (String tag : tags) {
 			TagMongoEntity entity = tagMongoRepository.findByName(tag);
 			if (entity == null) {
-				tagMongoRepository.save(new TagMongoEntity(tag));
+				tagMongoRepository.save(new TagMongoEntity(tag, languages));
 			} else {
-				entity.setNumBooks(entity.getNumBooks() + 1);
+				for (String lang : languages) {
+					if (entity.getNumBooks()
+							.getLanguages()
+							.get(lang) != null) {
+						entity.getNumBooks()
+								.getLanguages()
+								.put(lang, entity.getNumBooks()
+										.getLanguages()
+										.get(lang) + 1);
+					} else {
+						entity.getNumBooks()
+								.getLanguages()
+								.put(lang, 1);
+					}
+				}
+				entity.getNumBooks()
+						.setTotal(entity.getNumBooks()
+								.getTotal() + 1);
 				tagMongoRepository.save(entity);
 			}
 		}

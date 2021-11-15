@@ -11,7 +11,9 @@ export class Search {
         public max?: number,
         public serie?: string,
         public selectedTags?: string[],
-        public path?: string
+        public path?: string,
+        public languages?: string[],
+
         ) {
     }
 

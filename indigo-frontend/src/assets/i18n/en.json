@@ -202,7 +202,8 @@
 				"username": "User",
 				"password": "Password",
 				"role": "Role",
-				"language": "Language",
+				"language": "Interface language",
+				"languages": "Language of books",				
 				"kindle": "Kindle device email address",
 				"kindle_short": "Kindle",
 				"account": "Account"
@@ -245,8 +246,8 @@
 					"partial": "Update metadata (ratings, comments, author biography, etc.) for new books",
 					"full": "Update metadata (ratings, comments, author biography, etc.) for the entire library. Overwrite existing ones.",
 					"indexing_books": "Indexing library (1/5) ...",
-                    "filling_recommendations": "Generating recommendations (3/5) ...",
-                    "obtaining_metadata_books": "Obtaining books metadata (4/5) ...",
+					"filling_recommendations": "Generating recommendations (3/5) ...",
+					"obtaining_metadata_books": "Obtaining books metadata (4/5) ...",
 					"obtaining_metadata_authors": "Obtaining authors metadata (5/5) ...",
 					"filling_authors": "Filling authors (2/5) ..."
 				},
@@ -353,7 +354,7 @@
 			"add": "Add",
 			"search": "Search",
 			"next": "Next",
-            "previous": "Previous",
+			"previous": "Previous",
 			"favorite": {
 				"add": "Add to favorites",
 				"delete": "Remove from favorites"
@@ -362,7 +363,18 @@
 		"languages": {
 			"es": "Spanish",
 			"en": "English",
-			"fr": "French"
+			"fr": "French",
+			"eus": "Basque",
+			"glg": "Galician",
+			"ita": "Italian",
+			"swe": "Swedish",
+			"spa": "Spanish",
+			"cat": "Catalan",
+			"deu": "German",
+			"por": "Portugues",
+			"eng": "English",
+			"epo": "Esperanto",
+			"fra": "French"
 		},
 		"session": {
 			"title": "Session expired",

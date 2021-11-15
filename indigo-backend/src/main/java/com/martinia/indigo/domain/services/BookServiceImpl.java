@@ -62,7 +62,7 @@ public class BookServiceImpl implements BookService {
 				.getValue());
 		return bookRepository.getRecommendationsByBook(recommendations, num);
 	}
-	
+
 	@Override
 	public Long countRecommendationsByUser(String user) {
 		return bookRepository.countRecommendationsByUser(user);
@@ -73,24 +73,19 @@ public class BookServiceImpl implements BookService {
 		return bookRepository.getRecommendationsByUser(user, page, size, sort, order);
 	}
 
-//	@Override
-//	public String getCover(String path, boolean force) {
-//		return utilComponent.getCover(path, force);
-//	}
-	
 	@Override
 	public Resource getEpub(String path) {
 		return utilComponent.getEpub(path);
 	}
 
 	@Override
-	public Map<String, Long> getNumBooksBySerie(int page, int size, String sort, String order) {
-		return bookRepository.getNumBooksBySerie(page, size, sort, order);
+	public Map<String, Long> getNumBooksBySerie(List<String> languages, int page, int size, String sort, String order) {
+		return bookRepository.getNumBooksBySerie(languages, page, size, sort, order);
 	}
 
 	@Override
-	public Long getNumSeries() {
-		return bookRepository.getNumSeries();
+	public Long getNumSeries(List<String> languages) {
+		return bookRepository.getNumSeries(languages);
 	}
 
 	@Override
@@ -98,6 +93,9 @@ public class BookServiceImpl implements BookService {
 		return bookRepository.getSimilar(similar);
 	}
 
-
+	@Override
+	public List<String> getBookLanguages() {
+		return bookRepository.getBookLanguages();
+	}
 
 }

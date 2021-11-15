@@ -1,10 +1,10 @@
 ### STAGE 1:BUILD ###
-FROM node AS node
+FROM node:16.13.0 AS node
 WORKDIR /app
 RUN npm cache clean --force
 COPY . .
 RUN npm install
-RUN npm run build
+RUN npm run build --prod
 
 
 ### STAGE 2:RUN ###

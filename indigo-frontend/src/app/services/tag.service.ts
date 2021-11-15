@@ -17,8 +17,8 @@ export class TagService {
     this.endpoint=environment.endpoint+this.service;
    }
 
- getAll(sort: string, order: string) : Observable<any> {
-    return this.http.get<any>(this.endpoint+"/all?sort=" + sort + "&order=" + order);
+ getAll(languages: string[], sort: string, order: string) : Observable<any> {
+    return this.http.get<any>(this.endpoint+"/all?languages=" + languages.map(x=>x).join(",") + "&sort=" + sort + "&order=" + order);
   }  
 
   rename(source:number, target: string) : Observable<any> {

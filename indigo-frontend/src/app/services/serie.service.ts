@@ -16,15 +16,15 @@ export class SerieService {
     this.endpoint = environment.endpoint + this.service;
   }
 
-  count(): Observable<any> {
-    return this.http.get<any>(this.endpoint + "/count");
+  count(languages: string[]): Observable<any> {
+    return this.http.get<any>(this.endpoint + "/count?languages=" + languages.map(x=>x).join(","));
   }
 
-  getAll(page: number,
+  getAll(languages: string[], page: number,
     size: number,
     sort: string,
     order: string): Observable<any> {
-    return this.http.get<any>(this.endpoint + "/all?page=" + page + "&size=" + size + "&sort=" + sort + "&order=" + order);
+    return this.http.get<any>(this.endpoint + "/all?languages=" + languages.map(x=>x).join(",") + "&page=" + page + "&size=" + size + "&sort=" + sort + "&order=" + order);
   }
 
 

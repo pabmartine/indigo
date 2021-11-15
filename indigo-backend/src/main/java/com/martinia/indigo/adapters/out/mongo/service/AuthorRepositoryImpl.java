@@ -23,15 +23,32 @@ public class AuthorRepositoryImpl implements AuthorRepository {
 	AuthorMongoMapper authorMongoMapper;
 
 	@Override
-	public Long count() {
-		return authorMongoRepository.count();
+	public Long count(List<String> languages) {
+		return authorMongoRepository.count(languages);
 	}
 
 	@Override
-	public List<Author> findAll(int page, int size, String sort, String order) {
-		return authorMongoMapper.entities2Domains(authorMongoRepository
-				.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(order), sort)))
-				.getContent());
+	public List<Author> findAll(List<String> languages, int page, int size, String sort, String order) {
+
+		List<AuthorMongoEntity> authors = authorMongoRepository.findAll(languages,
+				PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(order), sort)));
+
+		for (AuthorMongoEntity author : authors) {
+			int total = 0;
+			for (String key : author.getNumBooks()
+					.getLanguages()
+					.keySet()) {
+				if (languages.contains(key)) {
+					total += author.getNumBooks()
+							.getLanguages()
+							.get(key);
+				}
+			}
+			author.getNumBooks()
+					.setTotal(total);
+		}
+
+		return authorMongoMapper.entities2Domains(authors);
 	}
 
 	@Override
@@ -55,12 +72,36 @@ public class AuthorRepositoryImpl implements AuthorRepository {
 		AuthorMongoEntity entity = authorMongoRepository.findByName(author.getName());
 		if (entity != null) {
 			mapping.setId(entity.getId());
-			mapping.setNumBooks(entity.getNumBooks() + 1);
+			mapping.getNumBooks()
+					.setTotal(entity.getNumBooks()
+							.getTotal() + 1);
+			for (String key : entity.getNumBooks()
+					.getLanguages()
+					.keySet()) {
+				if (mapping.getNumBooks()
+						.getLanguages()
+						.get(key) != null) {
+					mapping.getNumBooks()
+							.getLanguages()
+							.put(key, mapping.getNumBooks()
+									.getLanguages()
+									.get(key)
+									+ entity.getNumBooks()
+											.getLanguages()
+											.get(key));
+				} else {
+					mapping.getNumBooks()
+							.getLanguages()
+							.put(key, entity.getNumBooks()
+									.getLanguages()
+									.get(key));
+				}
+			}
 		}
 		authorMongoRepository.save(mapping);
 
 	}
-	
+
 	@Override
 	public void update(Author author) {
 

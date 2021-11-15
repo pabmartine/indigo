@@ -46,6 +46,8 @@ export class CategoriesComponent implements OnInit {
   mergeValid: boolean = false;
   imageValid: boolean = false;
 
+  user = JSON.parse(sessionStorage.user);
+
 
   constructor(private tagService: TagService,
     private router: Router,
@@ -94,7 +96,7 @@ export class CategoriesComponent implements OnInit {
   }
 
   getAll() {
-    this.tagService.getAll(this.sort, this.order).subscribe(
+    this.tagService.getAll(this.user.languageBooks, this.sort, this.order).subscribe(
       data => {
         this.tags = data;
         this.title = this.translate.instant('locale.tags.title') + " (" + this.tags.length + ")";      

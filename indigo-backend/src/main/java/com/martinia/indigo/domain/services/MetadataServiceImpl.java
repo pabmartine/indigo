@@ -14,6 +14,7 @@ import org.springframework.util.CollectionUtils;
 
 import com.martinia.indigo.domain.model.Author;
 import com.martinia.indigo.domain.model.Book;
+import com.martinia.indigo.domain.model.inner.NumBooks;
 import com.martinia.indigo.domain.singletons.MetadataSingleton;
 import com.martinia.indigo.domain.util.UtilComponent;
 import com.martinia.indigo.ports.in.rest.MetadataService;
@@ -114,7 +115,7 @@ public class MetadataServiceImpl implements MetadataService {
 					String image = utilComponent.getBase64Cover(book.getPath());
 					book.setImage(image);
 
-					tagRepository.save(book.getTags());
+					tagRepository.save(book.getTags(), book.getLanguages());
 					bookRepository.save(book);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -174,7 +175,12 @@ public class MetadataServiceImpl implements MetadataService {
 							com.martinia.indigo.domain.model.Author domainAuthor = new com.martinia.indigo.domain.model.Author();
 							domainAuthor.setName(author.getName());
 							domainAuthor.setSort(author.getSort());
-							domainAuthor.setNumBooks(1);
+							domainAuthor.setNumBooks(new NumBooks());
+							for (String lang : book.getLanguages()) {
+								domainAuthor.getNumBooks()
+										.getLanguages()
+										.put(lang, 1);
+							}
 
 							authorRepository.save(domainAuthor);
 
@@ -318,7 +324,8 @@ public class MetadataServiceImpl implements MetadataService {
 
 		metadataSingleton.setMessage("obtaining_metadata_authors");
 
-		Long numAuthors = authorRepository.count();
+		List<String> languages = bookRepository.getBookLanguages();
+		Long numAuthors = authorRepository.count(languages);
 
 		metadataSingleton.setTotal(numAuthors);
 
@@ -330,7 +337,7 @@ public class MetadataServiceImpl implements MetadataService {
 			if (!metadataSingleton.isRunning())
 				break;
 
-			List<Author> authors = authorRepository.findAll(page, size, "id", "asc");
+			List<Author> authors = authorRepository.findAll(languages, page, size, "id", "asc");
 
 			if (!CollectionUtils.isEmpty(authors)) {
 				for (Author author : authors) {

@@ -35,14 +35,14 @@ public class AuthorRestController {
 	protected AuthorDtoMapper authorDtoMapper;
 
 	@GetMapping("/count")
-	public ResponseEntity<Long> count() {
-		return new ResponseEntity<>(authorService.count(), HttpStatus.OK);
+	public ResponseEntity<Long> count(@RequestParam List<String> languages) {
+		return new ResponseEntity<>(authorService.count(languages), HttpStatus.OK);
 	}
 
 	@GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<AuthorDto>> getAll(@RequestParam int page, @RequestParam int size,
+	public ResponseEntity<List<AuthorDto>> getAll(@RequestParam List<String> languages, @RequestParam int page, @RequestParam int size,
 			@RequestParam String sort, @RequestParam String order) {
-		List<Author> authors = authorService.findAll(page, size, sort, order);
+		List<Author> authors = authorService.findAll(languages, page, size, sort, order);
 		List<AuthorDto> authorsDto = authorDtoMapper.domains2Dtos(authors);
 		return new ResponseEntity<>(authorsDto, HttpStatus.OK);
 	}

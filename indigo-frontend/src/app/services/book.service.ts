@@ -91,4 +91,8 @@ export class BookService {
   view(book: string, user: string): Observable<any> {
     return this.http.post(this.endpoint + "/view?user=" + user + "&book=" + book, null);
   }
+
+  getLanguages(): Observable<any> {
+    return this.http.get(this.endpoint + "/languages");
+  }
 }

@@ -9,14 +9,12 @@ public interface TagService {
 
 	Tag findByName(String name);
 
-//	long count();
-
 	void rename(String source, String target);
 
 	void merge(String source, String target);
 
 	void image(String source, String image);
 
-	List<Tag> findAll(String sort, String order);
+	List<Tag> findAll(List<String> languages, String sort, String order);
 
 }

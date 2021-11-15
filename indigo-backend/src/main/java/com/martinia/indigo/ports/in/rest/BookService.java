@@ -14,8 +14,6 @@ public interface BookService {
 
 	List<Book> findAll(Search search, int page, int size, String sort, String order);
 
-//	String getCover(String path, boolean force);
-
 	Book findById(String id);
 
 	List<Book> getSimilar(List<String> similar);
@@ -24,9 +22,9 @@ public interface BookService {
 
 	List<Book> getRecommendationsByUser(String user, int page, int size, String sort, String order);
 
-	Map<String, Long> getNumBooksBySerie(int page, int size, String sort, String order);
+	Map<String, Long> getNumBooksBySerie(List<String> languages, int page, int size, String sort, String order);
 
-	Long getNumSeries();
+	Long getNumSeries(List<String> languages);
 
 	List<Book> findBooksBySerie(String serie);
 
@@ -35,5 +33,7 @@ public interface BookService {
 	Long countRecommendationsByUser(String user);
 
 	Resource getEpub(String path);
+
+	List<String> getBookLanguages();
 
 }

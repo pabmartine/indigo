@@ -1,10 +1,13 @@
 package com.martinia.indigo.adapters.out.mongo.entities;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Id;
 
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.martinia.indigo.adapters.out.mongo.beans.NumBooksMongoBean;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,16 +22,22 @@ import lombok.Setter;
 public class TagMongoEntity implements Serializable {
 
 
+	
 	private static final long serialVersionUID = 3821856920529740875L;
 
 	@Id
 	private String id;
 	private String name;
 	private String image;
-	private int numBooks;
+	private NumBooksMongoBean numBooks;
 	
-	public TagMongoEntity(String tag) {
+	public TagMongoEntity(String tag, List<String> languages) {
 		this.name = tag;
-		this.numBooks = 1;
+		this.numBooks = new NumBooksMongoBean();
+		this.numBooks.setTotal(1);
+		for (String lang : languages) {
+			this.numBooks.getLanguages().put(lang, 1);
+		}
 	}
+	
 }

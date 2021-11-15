@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { TranslateService, TranslationChangeEvent } from '@ngx-translate/core';
 import { MessageService, SelectItem } from 'primeng/api';
 import { User } from 'src/app/domain/user';
@@ -7,6 +7,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Book } from 'src/app/domain/book';
 import { BookService } from 'src/app/services/book.service';
 import { Search } from 'src/app/domain/search';
+import { MultiSelect } from 'primeng/multiselect';
 
 @Component({
   selector: 'app-profile',
@@ -16,12 +17,16 @@ import { Search } from 'src/app/domain/search';
 })
 export class ProfileComponent implements OnInit {
 
+  
   param: any;
   user: User;
   languages: SelectItem[];
+  languageBooks: SelectItem[] = [];
   permissions: String[];
   changedLang:boolean;
   books: Book[] = [];
+
+  chooseLanguageBooks = '';
 
   constructor(
     private messageService: MessageService, 
@@ -40,6 +45,9 @@ export class ProfileComponent implements OnInit {
   ngOnInit(): void {
 
     this.setLanguages();
+    this.setBookLanguages();
+    this.chooseLanguageBooks = 'Select';
+
 
     this.user = new User();
 
@@ -53,9 +61,9 @@ export class ProfileComponent implements OnInit {
           const user = JSON.parse(sessionStorage.user);
           this.param = { username: user.username };
           this.user = user;
+
         } 
     });
-
     this.getBooks();
   }
 
@@ -88,6 +96,18 @@ export class ProfileComponent implements OnInit {
       { label: this.translate.instant('locale.languages.en'), value: 'en' },
       { label: this.translate.instant('locale.languages.fr'), value: 'fr' }
     ];
+  }
+
+  setBookLanguages(){
+    this.languageBooks.length = 0;
+    this.bookService.getLanguages().subscribe(
+      data => {
+        data.forEach((lang) => {
+          this.languageBooks.push({ label: this.translate.instant('locale.languages.' + lang), value: lang });
+        });
+        
+      }
+    );
   }
 
   update() {

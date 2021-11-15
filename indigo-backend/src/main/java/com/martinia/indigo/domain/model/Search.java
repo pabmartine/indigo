@@ -26,6 +26,7 @@ public class Search implements Serializable {
 	private String serie;
 	private List<String> selectedTags;
 	private String path;
+	private List<String> languages;
 
 	public boolean isEmpty() {
 		boolean ret = false;

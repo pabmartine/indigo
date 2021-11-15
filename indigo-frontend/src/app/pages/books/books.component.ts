@@ -50,6 +50,9 @@ export class BooksComponent implements OnInit {
 
   searched: boolean;
 
+  user = JSON.parse(sessionStorage.user);
+
+
   constructor(
     private bookService: BookService,
     private router: Router,
@@ -252,10 +255,13 @@ export class BooksComponent implements OnInit {
     this.searchAuthorInfo();
 
     if (!this.adv_search) {
+      this.adv_search = new Search();
       this.getFavoritesBooks();
     } else {
       this.favorites.length = 0;
     }
+
+    this.adv_search.languages = this.user.languageBooks;
 
     this.count();
     this.getAll();
@@ -270,7 +276,7 @@ export class BooksComponent implements OnInit {
         data => {
           if (data) {
             this.authorInfo = data;
-            if (this.authorInfo.image){
+            if (this.authorInfo.image) {
               let objectURL = 'data:image/jpeg;base64,' + data.image;
               this.authorInfo.image = objectURL;
             }
@@ -287,8 +293,7 @@ export class BooksComponent implements OnInit {
   }
 
   getFavoriteAuthor() {
-    const user = JSON.parse(sessionStorage.user);
-    this.authorService.getFavorite(this.authorInfo.sort, user.username).subscribe(
+    this.authorService.getFavorite(this.authorInfo.sort, this.user.username).subscribe(
       data => {
         if (data) {
           this.favoriteAuthor = true;
@@ -301,8 +306,7 @@ export class BooksComponent implements OnInit {
   }
 
   getFavoritesBooks() {
-    const user = JSON.parse(sessionStorage.user);
-    this.bookService.getFavorites(user.username).subscribe(
+    this.bookService.getFavorites(this.user.username).subscribe(
       data => {
         this.favorites.length = 0
         data.forEach((book) => {
@@ -319,8 +323,7 @@ export class BooksComponent implements OnInit {
   }
 
   addFavoriteAuthor() {
-    const user = JSON.parse(sessionStorage.user);
-    this.authorService.addFavorite(this.authorInfo.sort, user.username).subscribe(
+    this.authorService.addFavorite(this.authorInfo.sort, this.user.username).subscribe(
       data => {
         this.favoriteAuthor = true;
         this.messageService.clear();
@@ -336,8 +339,7 @@ export class BooksComponent implements OnInit {
 
 
   deleteFavoriteAuthor() {
-    const user = JSON.parse(sessionStorage.user);
-    this.authorService.deleteFavorite(this.authorInfo.sort, user.username).subscribe(
+    this.authorService.deleteFavorite(this.authorInfo.sort, this.user.username).subscribe(
       data => {
         this.favoriteAuthor = false;
         this.messageService.clear();

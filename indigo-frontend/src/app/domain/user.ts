@@ -6,6 +6,7 @@ export class User {
         public password?:string, 
         public role?:string, 
         public language?:string,
+        public languageBooks?:string[],
         public kindle?:string,
         public token?:string,
         ) {

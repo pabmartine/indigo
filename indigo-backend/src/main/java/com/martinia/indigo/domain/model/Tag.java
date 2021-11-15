@@ -2,6 +2,8 @@ package com.martinia.indigo.domain.model;
 
 import java.io.Serializable;
 
+import com.martinia.indigo.domain.model.inner.NumBooks;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +20,6 @@ public class Tag implements Serializable {
 	private String id;
 	private String name;
 	private String image;
-	private int numBooks;
+	private NumBooks numBooks;
 
 }

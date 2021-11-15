@@ -1,6 +1,7 @@
 package com.martinia.indigo.adapters.in.rest.dtos;
 
 import java.io.Serializable;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +21,7 @@ public class UserDto implements Serializable {
 	private String kindle;
 	private String role;
 	private String language;
+	private List<String> languageBooks;
 	private boolean showRandomBooks;
 
 }

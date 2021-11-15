@@ -36,6 +36,9 @@ export class SeriesComponent implements OnInit {
   private showScrollHeight = 400;
   private hideScrollHeight = 200;
 
+  user = JSON.parse(sessionStorage.user);
+
+
   constructor(private serieService: SerieService,
     private router: Router,
     private messageService: MessageService,
@@ -109,7 +112,7 @@ export class SeriesComponent implements OnInit {
   }
 
   count() {
-    this.serieService.count().subscribe(
+    this.serieService.count(this.user.languageBooks).subscribe(
       data => {
         this.total = data;
         this.lastPage = this.total / this.size;
@@ -124,7 +127,7 @@ export class SeriesComponent implements OnInit {
   }
 
   getAll() {
-    this.serieService.getAll(this.page, this.size, this.sort, this.order).subscribe(
+    this.serieService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order).subscribe(
       data => {
 
         //Get cover

@@ -37,6 +37,9 @@ export class AuthorsComponent implements OnInit {
   private showScrollHeight = 400;
   private hideScrollHeight = 200;
 
+  user = JSON.parse(sessionStorage.user);
+
+
   constructor(private authorService: AuthorService,
     private router: Router,
     private messageService: MessageService,
@@ -53,8 +56,8 @@ export class AuthorsComponent implements OnInit {
     }
 
     this.sorts.push(
-      { label: this.translate.instant('locale.authors.order_by.total.desc'), value: 'numBooks,desc' },
-      { label: this.translate.instant('locale.authors.order_by.total.asc'), value: 'numBooks,asc' },
+      { label: this.translate.instant('locale.authors.order_by.total.desc'), value: 'numBooks.total,desc' },
+      { label: this.translate.instant('locale.authors.order_by.total.asc'), value: 'numBooks.total,asc' },
       { label: this.translate.instant('locale.authors.order_by.sort.asc'), value: 'sort,asc' },
       { label: this.translate.instant('locale.authors.order_by.sort.desc'), value: 'sort,desc' }
     );
@@ -112,7 +115,7 @@ export class AuthorsComponent implements OnInit {
   }
 
   count() {
-    this.authorService.count().subscribe(
+    this.authorService.count(this.user.languageBooks).subscribe(
       data => {
         this.total = data;
         this.lastPage = this.total / this.size;
@@ -127,7 +130,7 @@ export class AuthorsComponent implements OnInit {
   }
 
   getAll() {
-    this.authorService.getAll(this.page, this.size, this.sort, this.order).subscribe(
+    this.authorService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order).subscribe(
       data => {
 
         data.forEach(author => {
