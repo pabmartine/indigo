@@ -36,7 +36,7 @@ export class SearchComponent implements OnInit {
 
   getAllTags() {
     this.tags.length = 0;
-    this.tagService.getAll(this.user.languages, "name", "asc").subscribe(
+    this.tagService.getAll(this.user.languageBooks, "name", "asc").subscribe(
       data => {
         data.forEach((tag) => {
           this.tags.push({ label: tag.name, value: tag.name });
