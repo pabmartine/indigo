@@ -25,6 +25,7 @@ import com.martinia.indigo.ports.out.metadata.WikipediaService;
 import com.martinia.indigo.ports.out.mongo.AuthorRepository;
 import com.martinia.indigo.ports.out.mongo.BookRepository;
 import com.martinia.indigo.ports.out.mongo.ConfigurationRepository;
+import com.martinia.indigo.ports.out.mongo.NotificationRepository;
 import com.martinia.indigo.ports.out.mongo.TagRepository;
 
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 public class MetadataServiceImpl implements MetadataService {
+
+	@Autowired
+	private NotificationRepository notificationRepository;
 
 	@Autowired
 	private BookRepository bookRepository;
@@ -77,6 +81,7 @@ public class MetadataServiceImpl implements MetadataService {
 		}
 
 		metadataSingleton.start("full");
+
 		metadataSingleton.setMessage("indexing_books");
 
 		goodreads = configurationRepository.findByKey("goodreads.key")
@@ -275,7 +280,7 @@ public class MetadataServiceImpl implements MetadataService {
 						try {
 
 							String[] goodReads = goodReadsComponent.findBook(goodreads, books, book.getTitle(),
-									book.getAuthors());
+									book.getAuthors(), false);
 
 							Thread.sleep(pullTime);
 

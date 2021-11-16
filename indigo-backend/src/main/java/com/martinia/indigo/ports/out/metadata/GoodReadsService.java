@@ -8,6 +8,6 @@ public interface GoodReadsService {
 
 	String[] findAuthor(String key, String subject);
 
-	String[] findBook(String key, List<Book> list, String title, List<String> authors);
+	String[] findBook(String key, List<Book> list, String title, List<String> authors, boolean withAuthor);
 
 }

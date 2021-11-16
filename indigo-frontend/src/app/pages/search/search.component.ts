@@ -18,6 +18,7 @@ export class SearchComponent implements OnInit {
   tags: SelectItem[] = [];
   search?: Search;
 
+  user = JSON.parse(sessionStorage.user);
 
   constructor(public translate: TranslateService, private tagService: TagService, private router: Router) {
     this.search = new Search();
@@ -35,7 +36,7 @@ export class SearchComponent implements OnInit {
 
   getAllTags() {
     this.tags.length = 0;
-    this.tagService.getAll("name", "asc").subscribe(
+    this.tagService.getAll(this.user.languages, "name", "asc").subscribe(
       data => {
         data.forEach((tag) => {
           this.tags.push({ label: tag.name, value: tag.name });

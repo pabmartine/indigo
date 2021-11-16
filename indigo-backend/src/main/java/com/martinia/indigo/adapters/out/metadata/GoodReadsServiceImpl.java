@@ -23,7 +23,7 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 	private String PROVIDER = "Goodreads";
 
 	@Override
-	public String[] findBook(String key, List<Book> list, String title, List<String> authors) {
+	public String[] findBook(String key, List<Book> list, String title, List<String> authors, boolean withAuthor) {
 
 		String[] ret = null;
 
@@ -39,6 +39,10 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 					.replaceAll("\\s+", " ");
 
 			String url = endpoint + "book/title.xml?title=" + title.replace(" ", "-") + "&key=" + key;
+			if (withAuthor) {
+				url += "&author=" + author.replace(" ", "%20");
+			}
+
 			String xml = DataUtils.getData(url);
 
 			if (xml != null) {
@@ -171,6 +175,8 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 										PROVIDER };
 								break;
 
+							} else if (!withAuthor) {
+								ret = findBook(key, list, title, authors, true);
 							}
 
 						}
