@@ -22,6 +22,5 @@ public class UserDto implements Serializable {
 	private String role;
 	private String language;
 	private List<String> languageBooks;
-	private boolean showRandomBooks;
 
 }

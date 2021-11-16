@@ -22,7 +22,6 @@ export class ProfileComponent implements OnInit {
   user: User;
   languages: SelectItem[];
   languageBooks: SelectItem[] = [];
-  permissions: String[];
   changedLang:boolean;
   books: Book[] = [];
 
@@ -37,9 +36,6 @@ export class ProfileComponent implements OnInit {
     private bookService: BookService
     ) {
    
-    this.permissions = [
-      'show_random_books'
-    ];
   }
 
   ngOnInit(): void {
