@@ -175,9 +175,7 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 										PROVIDER };
 								break;
 
-							} else if (!withAuthor) {
-								ret = findBook(key, list, title, authors, true);
-							}
+							} 
 
 						}
 					}
@@ -188,6 +186,11 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 			e.printStackTrace();
 		}
 
+		
+		if (ret == null && !withAuthor) {
+			ret = findBook(key, list, title, authors, true);
+		}
+		
 		return ret;
 
 	}
