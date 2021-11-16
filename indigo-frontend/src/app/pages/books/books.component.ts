@@ -204,8 +204,8 @@ export class BooksComponent implements OnInit {
           this.title = this.translate.instant('locale.books.title_of') + this.adv_search.selectedTags.join(', ') + "  (" + this.total + ")";
         } else if (this.isSerieSearch(this.adv_search)) {
           this.title = this.translate.instant('locale.books.title_of') + this.adv_search.serie + "  (" + this.total + ")";
-        } else if (this.adv_search) {
-          this.title = this.translate.instant('locale.books.search_results').slice(0, -2) + " (" + this.total + ")";
+        // } else if (this.adv_search) {
+        //   this.title = this.translate.instant('locale.books.search_results').slice(0, -2) + " (" + this.total + ")";
         } else {
           this.title = this.translate.instant('locale.books.title') + " (" + this.total + ")";
         }

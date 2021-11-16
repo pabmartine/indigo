@@ -444,7 +444,7 @@ export class DetailComponent implements OnInit {
 
   close() {
     //TODO actualizar la lista de favoritos en la vista pricipal
-    this.location.back();
+    this.router.navigate(["books"]);
   }
 
 }
