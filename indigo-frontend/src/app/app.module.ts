@@ -103,8 +103,8 @@ import { environment } from 'src/environments/environment';
           }
           return token;
         },
-        whitelistedDomains: environment.whiteList,
-        blacklistedRoutes: environment.blackList,
+        allowedDomains: environment.whiteList,
+        disallowedRoutes: environment.blackList,
       },
     }),
   ],

@@ -40,7 +40,7 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 
 			String url = endpoint + "book/title.xml?title=" + title.replace(" ", "-") + "&key=" + key;
 			if (withAuthor) {
-				url += "&author=" + author.replace(" ", "%20");
+				url += "&authors=" + author.replace(" ", "%20");
 			}
 
 			String xml = DataUtils.getData(url);

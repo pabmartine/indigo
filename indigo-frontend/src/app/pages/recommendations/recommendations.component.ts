@@ -215,7 +215,7 @@ export class RecommendationsComponent implements OnInit {
     this.lastPage = 0;
     this.selectedSort = sessionStorage.getItem('books_order');
     if (!this.selectedSort) {
-      this.sort = null;
+      this.sort = "count";
       this.order = "desc";
       this.selectedSort = this.sort + "," + this.order;
     }

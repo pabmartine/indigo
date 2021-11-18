@@ -24,9 +24,6 @@ public class BookRepositoryImpl implements BookRepository {
 	BookMongoRepository bookMongoRepository;
 
 	@Autowired
-	NotificationMongoRepository notificationMongoRepository;
-
-	@Autowired
 	ViewMongoRepository viewMongoRepository;
 
 	@Autowired
