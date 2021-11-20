@@ -19,117 +19,128 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class GoogleBooksServiceImpl implements GoogleBooksService {
 
-	private String endpoint = "https://www.googleapis.com/books/v1/volumes?q=";
-	private String PROVIDER = "Google Books";
+  private String endpoint = "https://www.googleapis.com/books/v1/volumes?q=";
 
-	@Override
-	public String[] findBook(String title, List<String> authors) {
+  private String PROVIDER = "Google Books";
 
-		String[] ret = null;
+  @Override
+  public String[] findBook(String title, List<String> authors) {
 
-		try {
+    String[] ret = null;
 
-			String author = String.join(" ", authors);
+    try {
 
-			author = StringUtils.stripAccents(author)
-					.replaceAll("[^a-zA-Z0-9]", " ")
-					.replaceAll("\\s+", " ");
-			title = StringUtils.stripAccents(title.replaceAll("ñ", "-"))
-					.replaceAll("[^a-zA-Z0-9]", " ")
-					.replaceAll("\\s+", " ")
-					.replaceAll(" ", "%20");
+      String author = String.join(" ", authors);
 
-			String url = endpoint + "intitle:" + title;
-			String json = DataUtils.getData(url);
+      author = StringUtils.stripAccents(author)
+          .replaceAll("[^a-zA-Z0-9]", " ")
+          .replaceAll("\\s+", " ");
+      title = StringUtils.stripAccents(title.replaceAll("ñ", "-"))
+          .replaceAll("[^a-zA-Z0-9]", " ")
+          .replaceAll("\\s+", " ")
+          .replaceAll(" ", "%20");
 
-			if (json != null) {
-				JsonParser springParser = JsonParserFactory.getJsonParser();
-				Map<String, Object> map = springParser.parseMap(json);
+      String url = endpoint + "intitle:" + title;
+      String json = DataUtils.getData(url);
 
-				if (map.containsKey("items")) {
-					ArrayList<LinkedHashMap<String, Object>> items = (ArrayList<LinkedHashMap<String, Object>>) map
-							.get("items");
-					for (LinkedHashMap<String, Object> item : items) {
-						LinkedHashMap<String, Object> volumeInfo = (LinkedHashMap<String, Object>) item
-								.get("volumeInfo");
+      if (json != null) {
+        JsonParser springParser = JsonParserFactory.getJsonParser();
+        Map<String, Object> map = springParser.parseMap(json);
 
-						String name;
-						try {
-							name = volumeInfo.get("title")
-									.toString();
-						} catch (Exception e) {
-							throw e;
-						}
-						String filterName = StringUtils.stripAccents(name)
-								.replaceAll("[^a-zA-Z0-9]", " ")
-								.replaceAll("\\s+", " ")
-								.toLowerCase()
-								.trim();
+        if (map.containsKey("items")) {
+          ArrayList<LinkedHashMap<String, Object>> items = (ArrayList<LinkedHashMap<String, Object>>) map
+              .get("items");
+          for (LinkedHashMap<String, Object> item : items) {
+            LinkedHashMap<String, Object> volumeInfo = (LinkedHashMap<String, Object>) item
+                .get("volumeInfo");
 
-						String[] terms = title.split("%20");
-						boolean contains = true;
-						for (String term : terms) {
+            String name;
+            try {
+              name = volumeInfo.get("title")
+                  .toString();
+            } catch (Exception e) {
+              throw e;
+            }
+            String filterName = StringUtils.stripAccents(name)
+                .replaceAll("[^a-zA-Z0-9]", " ")
+                .replaceAll("\\s+", " ")
+                .toLowerCase()
+                .trim();
 
-							term = StringUtils.stripAccents(term)
-									.toLowerCase()
-									.trim();
+            String[] terms = title.split("%20");
+            boolean contains = true;
+            int hasTerms = 0;
+            for (String term : terms) {
 
-							if (!filterName.contains(term)) {
-								contains = false;
-							}
-						}
+              term = StringUtils.stripAccents(term)
+                  .toLowerCase()
+                  .trim();
 
-						if (contains) {
-							ArrayList<String> _authors = (ArrayList<String>) volumeInfo.get("authors");
-							if (_authors != null)
-								for (String _author : _authors) {
+              if (!filterName.contains(term)) {
+                hasTerms++;
+              }
+            }
 
-									String filterAuthor = StringUtils.stripAccents(_author)
-											.replaceAll("[^a-zA-Z0-9]", " ")
-											.replaceAll("\\s+", " ")
-											.toLowerCase()
-											.trim();
+            if (terms.length == 1 && hasTerms > 0 || terms.length > 1 && hasTerms > 1) {
+              contains = true;
+            }
 
-									terms = author.split(" ");
+            if (contains) {
+              ArrayList<String> _authors = (ArrayList<String>) volumeInfo.get("authors");
+              if (_authors != null)
+                for (String _author : _authors) {
 
-									contains = true;
-									for (String term : terms) {
+                  String filterAuthor = StringUtils.stripAccents(_author)
+                      .replaceAll("[^a-zA-Z0-9]", " ")
+                      .replaceAll("\\s+", " ")
+                      .toLowerCase()
+                      .trim();
 
-										term = StringUtils.stripAccents(term)
-												.toLowerCase()
-												.trim();
+                  terms = author.split(" ");
 
-										if (!filterAuthor.contains(term)) {
-											contains = false;
-										}
-									}
+                  contains = true;
+                  hasTerms = 0;
+                  for (String term : terms) {
 
-									if (contains) {
-										if (volumeInfo.get("averageRating") != null) {
-											String rating = volumeInfo.get("averageRating")
-													.toString();
-											ret = new String[] { rating, PROVIDER };
-											break;
-										}
-									}
-								}
+                    term = StringUtils.stripAccents(term)
+                        .toLowerCase()
+                        .trim();
 
-							if (ret != null) {
-								break;
-							}
-						}
-					}
-				}
+                    if (!filterAuthor.contains(term)) {
+                      hasTerms++;
+                    }
+                  }
 
-			}
+                  if (terms.length == 1 && hasTerms > 0 || terms.length > 1 && hasTerms > 1) {
+                    contains = true;
+                  }
 
-		} catch (
+                  if (contains) {
+                    if (volumeInfo.get("averageRating") != null) {
+                      String rating = volumeInfo.get("averageRating")
+                          .toString();
+                      ret = new String[]{rating, PROVIDER};
+                      break;
+                    }
+                  }
+                }
 
-		Exception e) {
-			log.error(endpoint + "intitle:" + title);
-			e.printStackTrace();
-		}
+              if (ret != null) {
+                break;
+              }
+            }
+          }
+        }
 
-		return ret;
-	}
+      }
+
+    } catch (
+
+    Exception e) {
+      log.error(endpoint + "intitle:" + title);
+      e.printStackTrace();
+    }
+
+    return ret;
+  }
 }
