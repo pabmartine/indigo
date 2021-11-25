@@ -14,7 +14,8 @@
         <div class="content-body">
 
             <div class="p-col">
-                <p-panel header="{{'locale.settings.panel.users.title' | translate}}" [toggleable]="true" [collapsed]="true">
+                <p-panel header="{{'locale.settings.panel.users.title' | translate}}" [toggleable]="true"
+                    [collapsed]="true">
                     <p-table [value]="userList" [responsive]="true">
                         <ng-template pTemplate="header">
                             <tr>
@@ -50,7 +51,8 @@
                 </p-panel>
             </div>
             <div class="p-col">
-                <p-panel header="{{'locale.settings.panel.global.title' | translate}}" [toggleable]="true" [collapsed]="true">
+                <p-panel header="{{'locale.settings.panel.global.title' | translate}}" [toggleable]="true"
+                    [collapsed]="true">
                     <div class="p-grid p-fluid">
                         <div class="p-col-12 p-md-4">
                             {{'locale.settings.panel.global.path.kindlegen' | translate}}
@@ -67,19 +69,14 @@
                                 [min]="0" [max]="50">
                             </p-inputNumber>
                         </div>
-                        <div class="p-col-12 p-md-4">
-                            {{'locale.settings.panel.global.recommendations2' | translate}}</div>
-                        <div class="p-col p-md-8">
-                            <p-inputNumber [(ngModel)]="booksRecommendations2" mode="decimal" [showButtons]="true"
-                                [min]="0" [max]="1000">
-                            </p-inputNumber>
-                        </div>
+
                     </div>
                 </p-panel>
             </div>
 
             <div class="p-col">
-                <p-panel header="{{'locale.settings.panel.metadata.title' | translate}}" [toggleable]="true" [collapsed]="true">
+                <p-panel header="{{'locale.settings.panel.metadata.title' | translate}}" [toggleable]="true"
+                    [collapsed]="true">
                     <div class="p-grid p-fluid">
                         <div class="p-col-12 p-md-4">{{'locale.settings.panel.metadata.pull' | translate}}
                         </div>
@@ -96,58 +93,139 @@
                             <input type="text" pInputText autocomplete="off" [(ngModel)]="goodReadsKey" />
                         </div>
 
+                        <div class="p-grid p-col-12 metadata">
+                            <div class="p-col-12 p-md-6">
+                                <div class="metadata-box">
+                                    <span class="metadata-icon pi pi-book"></span>
+                                    <div class="metadata-title">Biblioteca</div>
+                                    <div class="metadata-subtitle">Actualizar toda la bilioteca</div>
+                                    <div class="metadata-subinfo p-grid">
+                                        <div class="p-col-10">
+                                            <div class="progress">
+                                                <p-progressBar [value]="progressBar" *ngIf="isAllFull()"></p-progressBar>
+                                            </div>
+                                        </div>
+                                        <div class="p-col-1">
+                                            <span *ngIf="isAllFull()">{{progressBar}}%</span>
+                                            <span *ngIf="!isAllFull()">0%</span>
+                                        </div>
+                                        <div class="p-col-1">
+                                            <a href="javascript:;" (click)="doExecuteMetadata('full', 'all')">
+                                                <span class="metadata-action-icon pi"
+                                                [ngClass]="{ 'pi-pause': isAllFull(), 'pi-play': !isAllFull()  }"></span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-col-12 p-md-6">
+                                <div class="metadata-box">
+                                    <span class="metadata-icon pi pi-book"></span>
+                                    <div class="metadata-title">Biblioteca</div>
+                                    <div class="metadata-subtitle">Actualizar biblioteca sin datos</div>
+                                    <div class="metadata-subinfo p-grid">
+                                        <div class="p-col-10">
+                                            <div class="progress">
+                                                <p-progressBar [value]="progressBar"  *ngIf="isAllPartial()"></p-progressBar>
+                                            </div>
+                                        </div>
+                                        <div class="p-col-1">
+                                            <span *ngIf="isAllPartial()">{{progressBar}}%</span>
+                                            <span *ngIf="!isAllPartial()">0%</span>
+                                        </div>
+                                        <div class="p-col-1">
+                                            <a href="javascript:;" (click)="doExecuteMetadata('partial', 'all')">
+                                                <span class="metadata-action-icon pi"
+                                                    [ngClass]="{ 'pi-pause': isAllPartial(), 'pi-play': !isAllPartial()  }"></span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-col-12 p-md-6">
+                                <div class="metadata-box">
+                                    <span class="metadata-icon pi pi-user-edit"></span>
+                                    <div class="metadata-title">Autores</div>
+                                    <div class="metadata-subtitle">Actualizar todos los autores</div>
+                                    <div class="metadata-subinfo p-grid">
+                                        <div class="p-col-10">
+                                            <div class="progress">
+                                                <p-progressBar [value]="progressBar" *ngIf="isAuthorsFull()"></p-progressBar>
+                                            </div>
+                                        </div>
+                                        <div class="p-col-1">
+                                            <span *ngIf="isAuthorsFull()">{{progressBar}}%</span>
+                                            <span *ngIf="!isAuthorsFull()">0%</span>
+                                        </div>
+                                        <div class="p-col-1">
+                                            <a href="javascript:;" (click)="doExecuteMetadata('full', 'authors')">
+                                                <span class="metadata-action-icon pi"
+                                                    [ngClass]="{ 'pi-pause': isAuthorsFull(), 'pi-play': !isAuthorsFull()  }"></span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-col-12 p-md-6">
+                                <div class="metadata-box">
+                                    <span class="metadata-icon pi pi-user-edit"></span>
+                                    <div class="metadata-title">Autores</div>
+                                    <div class="metadata-subtitle">Actualizar autores sin datos</div>
+                                    <div class="metadata-subinfo p-grid">
+                                        <div class="p-col-10">
+                                            <div class="progress">
+                                                <p-progressBar [value]="progressBar" *ngIf="isAuthorsPartial()"></p-progressBar>
+                                            </div>
+                                        </div>
+                                        <div class="p-col-1">
+                                            <span *ngIf="isAuthorsPartial()">{{progressBar}}%</span>
+                                            <span *ngIf="!isAuthorsPartial()">0%</span>
+                                        </div>
+                                        <div class="p-col-1">
+                                            <a href="javascript:;" (click)="doExecuteMetadata('partial', 'authors')">
+                                                <span class="metadata-action-icon pi"
+                                                    [ngClass]="{ 'pi-pause': isAuthorsPartial(), 'pi-play': !isAuthorsPartial()  }"></span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                        <div class="p-col-12 p-md-4">
-                            {{'locale.settings.panel.metadata.partial' | translate}}
-                        </div>
-                        <div class="p-col-12 p-md-8">
-                            <div class="p-col-11 center" style="float: left;">
-                                <p-progressBar [value]="progressBar" *ngIf="isPartial"></p-progressBar>
-                                <span *ngIf="isPartial">{{message}}</span>
-                            </div>
-                            <div class="p-col-1 right" style="float: right;">
-                                <a href="javascript:;" (click)="doExecutePartial()">
-                                    <span class="pi" [ngClass]="{ 'pi-pause': isPartial, 'pi-play': !isPartial  }"></span>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="p-col-12 p-md-4">
-                            {{'locale.settings.panel.metadata.full' | translate}}
-                        </div>
-                        <div class="p-col-12 p-md-8">
-                            <div class="p-col-11 center" style="float: left;">
-                                <p-progressBar [value]="progressBar" *ngIf="isFull"></p-progressBar>
-                                <span *ngIf="isFull">{{message}}</span>
-                            </div>
-                            <div class="p-col-1 right" style="float: right;">
-                                <a href="javascript:;" (click)="doExecuteFull()">
-                                    <span class="pi" [ngClass]="{ 'pi-pause': isFull, 'pi-play': !isFull  }"></span>
-                                </a></div>
-                        </div>
+                       
                     </div>
                 </p-panel>
             </div>
 
             <div class="p-col">
-                <p-panel header="{{'locale.settings.panel.smtp.title' | translate}}" [toggleable]="true" [collapsed]="true">
+                <p-panel header="{{'locale.settings.panel.smtp.title' | translate}}" [toggleable]="true"
+                    [collapsed]="true">
                     <div class="p-grid p-fluid">
-                        <div class="p-col-12 p-md-4">{{'locale.settings.panel.smtp.host' | translate}}</div>
-                        <div class="p-col-12 p-md-8">
-                            <input type="text" pInputText autocomplete="off" [(ngModel)]="smtpHost" />
-                        </div>
 
-                        <div class="p-col-12 p-md-4">{{'locale.settings.panel.smtp.port' | translate}}</div>
-                        <div class="p-col-12 p-md-8">
-                            <input type="text" pInputText autocomplete="off" [(ngModel)]="smtpPort" />
-                        </div>
-
-                        <div class="p-col-12 p-md-4">{{'locale.settings.panel.smtp.encryption' | translate}}
+                        <div class="p-col-12 p-md-4">{{'locale.settings.panel.smtp.provider' | translate}}
                         </div>
                         <div class="p-col-12 p-md-8">
-                            <p-dropdown [options]="encryptions" [(ngModel)]="smtpEncryption"></p-dropdown>
+                            <p-dropdown [options]="providers" [(ngModel)]="smtpProvider" (onChange)="onChange($event)">
+                            </p-dropdown>
                         </div>
 
+                        <div class="p-col-12 p-grid" *ngIf="smtpProvider === 'other'">
+                            <div class="p-col-12 p-md-4">{{'locale.settings.panel.smtp.host' | translate}}</div>
+                            <div class="p-col-12 p-md-8">
+                                <input type="text" pInputText autocomplete="off" [(ngModel)]="smtpHost" />
+                            </div>
+
+                            <div class="p-col-12 p-md-4">{{'locale.settings.panel.smtp.port' | translate}}</div>
+                            <div class="p-col-12 p-md-8">
+                                <input type="text" pInputText autocomplete="off" [(ngModel)]="smtpPort" />
+                            </div>
+
+                            <div class="p-col-12 p-md-4">{{'locale.settings.panel.smtp.encryption' | translate}}
+                            </div>
+                            <div class="p-col-12 p-md-8">
+                                <p-dropdown [options]="encryptions" [(ngModel)]="smtpEncryption"></p-dropdown>
+                            </div>
+                        </div>
                         <div class="p-col-12 p-md-4">{{'locale.settings.panel.smtp.username' | translate}}
                         </div>
                         <div class="p-col-12 p-md-8">
@@ -164,7 +242,8 @@
                         <div class="p-col-12 p-md-8">
                             <div class="p-col-11" style="float: left;">
                                 <span
-                                    [ngClass]="{ 'success': smtpStatus==='ok','error': smtpStatus==='error', 'warn': smtpStatus === 'unknown'}">{{'locale.settings.panel.smtp.status.' + smtpStatus | translate}}</span>
+                                    [ngClass]="{ 'success': smtpStatus==='ok','error': smtpStatus==='error', 'warn': smtpStatus === 'unknown'}">{{'locale.settings.panel.smtp.status.'
+                                    + smtpStatus | translate}}</span>
                             </div>
                             <div class="p-col-1 right" style="float: right;">
                                 <a href="javascript:;" (click)="doSendTestMail()"
@@ -178,10 +257,9 @@
                 </p-panel>
             </div>
 
-        
+
             <div class="p-col-12 page-buttons">
-                <button type="button" pButton label="{{'locale.buttons.save' | translate}}"
-                    class="page-button"
+                <button type="button" pButton label="{{'locale.buttons.save' | translate}}" class="page-button"
                     (click)="save()">
                 </button>
             </div>

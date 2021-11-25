@@ -9,6 +9,7 @@ import { Book } from 'src/app/domain/book';
 import { Search } from 'src/app/domain/search';
 import { AuthorService } from 'src/app/services/author.service';
 import { BookService } from 'src/app/services/book.service';
+import { MetadataService } from 'src/app/services/metadata.service';
 
 
 
@@ -59,6 +60,7 @@ export class BooksComponent implements OnInit {
     private route: ActivatedRoute,
     private authorService: AuthorService,
     private messageService: MessageService,
+    private metadataService: MetadataService,
     public translate: TranslateService,
     private location: Location) {
 
@@ -204,8 +206,8 @@ export class BooksComponent implements OnInit {
           this.title = this.translate.instant('locale.books.title_of') + this.adv_search.selectedTags.join(', ') + "  (" + this.total + ")";
         } else if (this.isSerieSearch(this.adv_search)) {
           this.title = this.translate.instant('locale.books.title_of') + this.adv_search.serie + "  (" + this.total + ")";
-        // } else if (this.adv_search) {
-        //   this.title = this.translate.instant('locale.books.search_results').slice(0, -2) + " (" + this.total + ")";
+          // } else if (this.adv_search) {
+          //   this.title = this.translate.instant('locale.books.search_results').slice(0, -2) + " (" + this.total + ")";
         } else {
           this.title = this.translate.instant('locale.books.title') + " (" + this.total + ")";
         }
@@ -357,6 +359,32 @@ export class BooksComponent implements OnInit {
     this.adv_search = new Search();
     this.adv_search.author = author;
     this.doSearch();
+  }
+
+  isAdmin() {
+    return JSON.parse(sessionStorage.user).role == 'ADMIN';
+  }
+
+  refreshAuthor() {
+    this.messageService.clear();
+    this.messageService.add({ severity: 'success', detail: 'Actualizando datos', closable: false, life: 5000 });
+    this.metadataService.findAuthor("es", this.authorInfo.sort).subscribe(
+      data => {
+        this.authorInfo = data;
+
+        if (data.image) {
+          let objectURL = 'data:image/jpeg;base64,' + data.image;
+          this.authorInfo.image = objectURL;
+        }
+        this.messageService.clear();
+        this.messageService.add({ severity: 'success', detail: 'Datos actualizados correctamente', closable: false, life: 5000 });
+      },
+      error => {
+        console.log(error);
+        this.messageService.clear();
+        this.messageService.add({ severity: 'error', detail: 'Se ha producido un error', closable: false, life: 5000 });
+      }
+    );
   }
 
   private reset() {

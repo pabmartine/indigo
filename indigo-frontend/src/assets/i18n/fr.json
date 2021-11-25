@@ -243,8 +243,14 @@
 					"title": "Metadata",
 					"pull": "Faire une demande toutes les (secondes)",
 					"goodreadskey": "Clé de développeur GoodReads",
-					"partial": "Mettre à jour les métadonnées (notes, commentaires, biographie de l'auteur, etc.) pour les nouveaux livres",
-					"full": "Mettre à jour les métadonnées (notes, commentaires, biographie de l'auteur, etc.) pour toute la bibliothèque. Remplacer celles existantes.",
+					"all": {
+						"partial": "Mettre à jour toutes les métadonnées (notes, commentaires, biographie de l'auteur, etc.) pour les nouveaux livres",
+						"full": "Mettre à jour toutes les métadonnées (notes, commentaires, biographie de l'auteur, etc.) pour toute la bibliothèque. Remplacer celles existantes.",
+					},
+					"authors": {
+						"partial": "Mettre à jour les métadonnées de l'auteur pour les nouveaux livres",
+						"full": "Mettre à jour les métadonnées de l'auteur pour l'ensemble de la bibliothèque. Écraser celles existantes."
+					},
 					"indexing_books": "Bibliothèque d'indexation (1/5) ...",
 					"filling_recommendations": "Générer des recommandations (3/5) ...",
 					"obtaining_metadata_books": "Obtenir des métadonnées du livre (4/5) ...",
@@ -256,6 +262,7 @@
 					"host": "Serveur",
 					"port": "Port",
 					"encryption": "Chiffrement",
+					"provider": "Fournisseur",
 					"username": "Utilisateur",
 					"password": "Mot de passe",
 					"test": "Vérifier la configuration du serveur",
@@ -263,6 +270,11 @@
 						"unknown": "Inconnu",
 						"ok": "Validé",
 						"error": "Erreur"
+					},
+					"providers": {
+						"gmail": "Gmail",
+						"outlook": "Outlook",
+						"other": "Autre"
 					}
 				}
 			},

@@ -765,6 +765,8 @@ body a {
 .book #addFavoriteAuthorSmall span,
 .book #deleteFavoriteAuthor span,
 .book #deleteFavoriteAuthorSmall span,
+.book #refreshAuthor span,
+.book #refreshAuthorSmall span,
 .book #addFavoriteBook span,
 .book #addFavoriteBookSmall span,
 .book #deleteFavoriteBook span,
@@ -995,6 +997,73 @@ body a {
 
 .settings .warning {
 	color: #A37518;
+}
+
+
+.settings .metadata {
+    margin:0;
+}
+
+.settings .metadata-box {
+    padding-top: 18px;
+    color: #ffffff;
+    background-color: #698ebf;    
+}
+
+.settings .metadata-title {
+    margin-left: 12px;
+    margin-bottom: 8px;
+    font-size: 20px;
+}
+
+.settings .metadata-subtitle {
+    margin-left: 12px;
+    margin-bottom: 20px;
+    font-size: 13px;
+}
+
+.settings .metadata-subinfo {
+    background-color: #E9E9E9;
+    height: 38px;
+    font-size: 13px;
+    border: 1px solid #dedede;
+    margin: 0;
+}
+
+.settings .metadata-subinfo span {
+    color: #585858;
+    width: auto;
+    line-height: 22px;
+}
+
+.settings .progress {
+    height: 10px;
+    background-color: #B3B0B0;
+    border-radius: 5px;
+    padding: 0;
+    margin: 6px 0 0px 10px;
+}
+
+.settings .metadata-icon {
+    float: right;
+    margin-right: 20px;
+    font-size: 50px;
+}
+
+.settings .metadata-action-icon {
+    color: #6c757d !important;
+}
+
+.settings  .p-progressbar {
+    height: 10px;
+    background: #B3B0B0;
+    border-radius: 5px;
+    padding: 0;
+    margin: 0px 0 0px 0;
+}
+
+.settings .p-progressbar-determinate .p-progressbar-label {
+    display: none !important;
 }
 
 

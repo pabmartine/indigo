@@ -9,6 +9,10 @@
         </span>
       </div>
       <div class="p-col-5 book-title-buttons">
+
+        <button id="refreshAuthor" type="button" pButton (click)="refreshAuthor();" icon="pi pi-refresh"
+          title="{{'locale.buttons.refresh' | translate}}" class="book-title-button" *ngIf="isAdmin()"></button>
+
         <button id="addFavoriteAuthor" type="button" pButton (click)="addFavoriteAuthor();" icon="pi pi-heart"
           title="{{'locale.buttons.favorite.add' | translate}}" class="book-title-button"
           *ngIf="!favoriteAuthor"></button>
@@ -24,6 +28,7 @@
           <img [src]="authorInfo.image" class="book-detail-image" />
         </div>
         <div class="book-title-buttons-side">
+
           <button id="addFavoriteAuthorSmall" type="button" pButton (click)="addFavoriteAuthor();" icon="pi pi-heart"
             title="{{'locale.buttons.favorite.add' | translate}}" class="book-title-button"
             *ngIf="!favoriteAuthor"></button>
@@ -31,6 +36,9 @@
           <button id="deleteFavoriteAuthorSmall" type="button" pButton (click)="deleteFavoriteAuthor();"
             icon="pi pi-heart" title="{{'locale.buttons.favorite.delete' | translate}}"
             class="book-title-button-favorite" *ngIf="favoriteAuthor"></button>
+
+          <button id="refreshAuthorSmall" type="button" pButton (click)="refreshAuthor();" icon="pi pi-refresh"
+            title="{{'locale.buttons.refresh' | translate}}" class="book-title-button" *ngIf="isAdmin()"></button>
         </div>
       </div>
       <div class="p-col-12 p-md-8 p-lg-10 p-xl-11">
@@ -40,10 +48,10 @@
 
           <button type="button" pButton label="{{'locale.buttons.close' | translate}}" (click)="close()"
             class="book-detail-button"></button>
-  
+
         </div>
       </div>
-     
+
     </div>
   </p-card>
 </div>
@@ -61,8 +69,7 @@
     <div class="content-body p-grid" infiniteScroll [infiniteScrollDistance]="2" (scrolled)="onScroll()">
       <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of favorites">
 
-        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)"
-          style="cursor: pointer;" />
+        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)" style="cursor: pointer;" />
         <div>
           <span class="title">{{book.title}}</span>
         </div>
@@ -100,8 +107,7 @@
     <div class="content-body p-grid" infiniteScroll [infiniteScrollDistance]="2" (scrolled)="onScroll()">
       <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of books">
 
-        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)"
-          style="cursor: pointer;" />
+        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)" style="cursor: pointer;" />
         <div>
           <span class="title">{{book.title}}</span>
         </div>

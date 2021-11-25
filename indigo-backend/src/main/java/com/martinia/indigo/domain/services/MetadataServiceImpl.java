@@ -66,15 +66,7 @@ public class MetadataServiceImpl implements MetadataService {
 
   private final int BATCH_SIZE = 500;
 
-  @Override
-  @Async
-  public void initialLoad(String lang) {
-
-    if (metadataSingleton.isRunning()) {
-      stop();
-    }
-
-    metadataSingleton.start("full");
+  private void initialLoad(String lang) {
 
     metadataSingleton.setMessage("indexing_books");
 
@@ -348,52 +340,9 @@ public class MetadataServiceImpl implements MetadataService {
 
           metadataSingleton.setCurrent(cont++);
 
-          if (override
-              || author == null || StringUtils.isEmpty(author.getDescription())
-              || StringUtils.isEmpty(author.getImage()) || StringUtils.isEmpty(author.getProvider())) {
+          findAuthorMetadata(lang, override, author);
+          log.debug("Obtained {}/{} authors metadata", cont, numAuthors);
 
-            try {
-
-              String[] wikipedia = wikipediaComponent.findAuthor(author.getName(), lang, 0);
-
-              if (wikipedia == null && !lang.equals("en")) {
-                wikipedia = wikipediaComponent.findAuthor(author.getName(), "en", 0);
-              }
-
-              if (wikipedia == null || wikipedia[1] == null) {
-                String[] _goodReads = goodReadsComponent.findAuthor(goodreads, author.getName());
-                if (_goodReads != null) {
-                  author.setDescription(_goodReads[0]);
-                  author.setImage(_goodReads[1]);
-                  author.setProvider(_goodReads[2]);
-
-                  Thread.sleep(pullTime);
-                }
-
-              }
-
-              if (wikipedia != null) {
-                if (StringUtils.isEmpty(author.getDescription()) && !StringUtils.isEmpty(wikipedia[0]))
-                  author.setDescription(wikipedia[0]);
-                if (StringUtils.isEmpty(author.getImage()) && !StringUtils.isEmpty(wikipedia[1]))
-                  author.setImage(wikipedia[1]);
-                if (StringUtils.isEmpty(author.getProvider()) && !StringUtils.isEmpty(wikipedia[2]))
-                  author.setProvider(wikipedia[2]);
-              }
-
-              if (!StringUtils.isEmpty(author.getDescription())
-                  || !StringUtils.isEmpty(author.getImage())) {
-                author.setImage(utilComponent.getBase64Url(author.getImage()));
-                authorRepository.update(author);
-              } else {
-                log.warn("Not found data for author {}", author.getName());
-              }
-
-              log.debug("Obtained {}/{} authors metadata", cont - numAuthors, numAuthors);
-            } catch (Exception e) {
-              e.printStackTrace();
-            }
-          }
         }
       }
 
@@ -401,19 +350,68 @@ public class MetadataServiceImpl implements MetadataService {
 
     }
 
-    log.info("Obtained {}/{} authors metadata", cont - numAuthors, numAuthors);
+    log.info("Obtained {}/{} authors metadata", cont, numAuthors);
 
   }
 
-  @Override
-  @Async
-  public void noFilledMetadata(String lang) {
+  private Author findAuthorMetadata(String lang, boolean override, Author author) {
+    if (override
+        || author == null || StringUtils.isEmpty(author.getDescription())
+        || StringUtils.isEmpty(author.getImage()) || StringUtils.isEmpty(author.getProvider())) {
 
-    if (metadataSingleton.isRunning()) {
-      stop();
+      try {
+
+        author.setDescription(null);
+        author.setImage(null);
+        author.setProvider(null);
+
+        String[] wikipedia = wikipediaComponent.findAuthor(author.getName(), lang, 0);
+
+        if (wikipedia == null && !lang.equals("en")) {
+          wikipedia = wikipediaComponent.findAuthor(author.getName(), "en", 0);
+        }
+
+        if (wikipedia == null || wikipedia[1] == null) {
+          String[] _goodReads = goodReadsComponent.findAuthor(goodreads, author.getName());
+          if (_goodReads != null) {
+            author.setDescription(_goodReads[0]);
+            author.setImage(_goodReads[1]);
+            author.setProvider(_goodReads[2]);
+
+            Thread.sleep(pullTime);
+          }
+
+        }
+
+        if (wikipedia != null) {
+          if (StringUtils.isEmpty(author.getDescription()) && !StringUtils.isEmpty(wikipedia[0]))
+            author.setDescription(wikipedia[0]);
+          if (StringUtils.isEmpty(author.getImage()) && !StringUtils.isEmpty(wikipedia[1]))
+            author.setImage(wikipedia[1]);
+          if (StringUtils.isEmpty(author.getProvider()) && !StringUtils.isEmpty(wikipedia[2]))
+            author.setProvider(wikipedia[2]);
+        }
+
+        if (!StringUtils.isEmpty(author.getImage()))
+          author.setImage(utilComponent.getBase64Url(author.getImage()));
+
+        if (override
+            || !StringUtils.isEmpty(author.getDescription())
+            || !StringUtils.isEmpty(author.getImage())) {
+          authorRepository.update(author);
+        } else {
+          log.warn("Not found data for author {}", author.getName());
+        }
+
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
     }
+    return author;
+  }
 
-    metadataSingleton.start("partial");
+  private void noFilledMetadata(String lang) {
+
     metadataSingleton.setMessage("obtaining_metadata");
 
     goodreads = configurationRepository.findByKey("goodreads.key")
@@ -433,6 +431,7 @@ public class MetadataServiceImpl implements MetadataService {
   public Map<String, Object> getStatus() {
     Map<String, Object> data = new HashMap<>();
     data.put("type", metadataSingleton.getType());
+    data.put("entity", metadataSingleton.getEntity());
     data.put("status", metadataSingleton.isRunning());
     data.put("current", metadataSingleton.getCurrent());
     data.put("total", metadataSingleton.getTotal());
@@ -441,8 +440,50 @@ public class MetadataServiceImpl implements MetadataService {
   }
 
   public void stop() {
-    log.info("Stopping async authors process");
+    log.info("Stopping async process");
     metadataSingleton.stop();
+  }
+
+  @Async
+  @Override
+  public void start(String lang, String type, String entity) {
+    log.info("Starting async process");
+
+    if (metadataSingleton.isRunning()) {
+      stop();
+    }
+    metadataSingleton.start(type, entity);
+
+    if (type.equals("full")) {
+      if (entity.equals("all")) {
+        initialLoad(lang);
+      }
+      if (entity.equals("authors")) {
+        fillMetadataAuthors(lang, true);
+      }
+    }
+
+    if (type.equals("partial")) {
+      if (entity.equals("all")) {
+        noFilledMetadata(lang);
+      }
+      if (entity.equals("authors")) {
+        fillMetadataAuthors(lang, false);
+      }
+    }
+
+    if (metadataSingleton.isRunning()) {
+      stop();
+    }
+  }
+
+  @Override
+  public Author findAuthorMetadata(String sort, String lang) {
+
+    Author author = authorRepository.findBySort(sort);
+    author = findAuthorMetadata(lang, true, author);
+
+    return author;
   }
 
 }

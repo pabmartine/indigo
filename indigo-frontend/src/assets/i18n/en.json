@@ -243,8 +243,14 @@
 					"title": "Metadata",
 					"pull": "Make a request every (seconds)",
 					"goodreadskey": "GoodReads Developer Key",
-					"partial": "Update metadata (ratings, comments, author biography, etc.) for new books",
-					"full": "Update metadata (ratings, comments, author biography, etc.) for the entire library. Overwrite existing ones.",
+					"all": {
+						"partial": "Update all metadata (ratings, comments, author biography, etc.) for new books",
+						"full": "Update all metadata (ratings, comments, author biography, etc.) for the entire library. Overwrite existing ones.",
+					},
+					"authors": {
+						"partial": "Update author metadata for new books",
+						"full": "Update author metadata for the entire library. Overwrite existing ones."
+					},
 					"indexing_books": "Indexing library (1/5) ...",
 					"filling_recommendations": "Generating recommendations (3/5) ...",
 					"obtaining_metadata_books": "Obtaining books metadata (4/5) ...",
@@ -256,6 +262,7 @@
 					"host": "Server",
 					"port": "Port",
 					"encryption": "Encryption",
+					"provider": "Provider",
 					"username": "User",
 					"password": "Password",
 					"test": "Check server configuration",
@@ -263,6 +270,11 @@
 						"unknown": "Unknown",
 						"ok": "Validated",
 						"error": "Error"
+					},
+					"providers": {
+						"gmail": "Gmail",
+						"outlook": "Outlook",
+						"other": "Other"
 					}
 				}
 			},

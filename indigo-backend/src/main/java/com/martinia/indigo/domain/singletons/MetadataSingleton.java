@@ -10,13 +10,15 @@ import lombok.Setter;
 public class MetadataSingleton {
 
 	private String type;
+	private String entity;
 	private boolean running;
 	long total = 0;
 	long current = 0;
 	private String message;
 
-	public void start(String type) {
+	public void start(String type, String entity) {
 		this.type = type;
+		this.entity = entity;
 		this.running = true;
 	}
 

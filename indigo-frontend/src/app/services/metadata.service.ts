@@ -16,12 +16,8 @@ export class MetadataService {
   }
 
 
-  startFull(lang: string): Observable<any> {
-    return this.http.get<any>(this.endpoint + "/full?lang=" + lang);
-  }
-
-  startPartial(lang: string): Observable<any> {
-    return this.http.get<any>(this.endpoint + "/partial?lang=" + lang);
+  start(lang: string, type: string, entity: string): Observable<any> {
+    return this.http.get<any>(this.endpoint + "/start?lang=" + lang + "&type=" + type + '&entity=' + entity);
   }
 
   getDataStatus(): Observable<any> {
@@ -30,9 +26,12 @@ export class MetadataService {
     });
   }
 
-  stopData(): Observable<any> {
+  stop(): Observable<any> {
     return this.http.get<any>(this.endpoint + "/stop");
   }
 
+  findAuthor(lang: string, author: string): Observable<any> {
+    return this.http.get(this.endpoint + "/author?lang=" + lang + "&author=" + author);
+  }
 
 }

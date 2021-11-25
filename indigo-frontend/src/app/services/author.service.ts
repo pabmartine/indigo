@@ -47,4 +47,6 @@ export class AuthorService {
     return this.http.delete(this.endpoint + "/favorite?user=" + user + "&author=" + author);
   }
 
+
+
 }
