@@ -289,7 +289,7 @@ public class MetadataServiceImpl implements MetadataService {
 
       Search search = new Search();
       if (title.contains("(") && title.contains(")")) {
-        String del = title.substring(title.indexOf("("), title.indexOf(")")+1);
+        String del = title.substring(title.indexOf("("), title.indexOf(")") + 1);
         title = title.replace(del, "");
       }
       search.setTitle(title);
@@ -462,8 +462,14 @@ public class MetadataServiceImpl implements MetadataService {
         if (StringUtils.isEmpty(author.getImage())) {
           Search search = new Search();
           search.setAuthor(author.getSort());
-          String path = bookRepository.findAll(search, 0, 1, "pubDate", "desc").get(0).getPath();
-          author.setImage(utilComponent.getImageFromEpub(path, "autor", "author"));
+          List<Book> books = bookRepository.findAll(search, 0, Integer.MAX_VALUE, "pubDate", "desc");
+          for (Book book : books) {
+            String image = utilComponent.getImageFromEpub(book.getPath(), "autor", "author");
+            author.setImage(image);
+            if (author.getImage() != null)
+              break;
+          }
+
         }
 
         if (override
@@ -563,7 +569,7 @@ public class MetadataServiceImpl implements MetadataService {
 
   @Override
   public Book findBookMetadata(String path) {
-    
+
     Book book = bookRepository.findByPath(path);
     book = findBookMetadata(true, book);
 
