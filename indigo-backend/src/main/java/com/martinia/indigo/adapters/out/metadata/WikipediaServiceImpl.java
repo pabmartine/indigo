@@ -39,7 +39,7 @@ public class WikipediaServiceImpl implements WikipediaService {
 
       String json = DataUtils.getData(url);
 
-      if (json != null) {
+      if (StringUtils.isNoneEmpty(json)) {
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -123,7 +123,7 @@ public class WikipediaServiceImpl implements WikipediaService {
     try {
       String json = DataUtils.getData(url);
 
-      if (json != null) {
+      if (StringUtils.isNoneEmpty(json)) {
 
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

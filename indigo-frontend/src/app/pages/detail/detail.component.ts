@@ -12,6 +12,7 @@ import { NotificationEnum } from 'src/app/enums/notification.enum.';
 import { StatusEnum } from 'src/app/enums/status.enum';
 import { BookService } from 'src/app/services/book.service';
 import { ConfigService } from 'src/app/services/config.service';
+import { MetadataService } from 'src/app/services/metadata.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { UtilService } from 'src/app/services/util.service';
 
@@ -52,6 +53,7 @@ export class DetailComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private messageService: MessageService,
+    private metadataService: MetadataService,
     public translate: TranslateService,
     public notificationService: NotificationService,
     private location: Location,
@@ -304,6 +306,32 @@ export class DetailComponent implements OnInit {
       }
     );
 
+  }
+
+  isAdmin() {
+    return JSON.parse(sessionStorage.user).role == 'ADMIN';
+  }
+
+  refreshBook() {
+    this.messageService.clear();
+    this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.refresh.process'), closable: false, life: 5000 });
+    this.metadataService.findBook(this.selected.path).subscribe(
+      data => {
+        this.showDetails(data);
+
+        if (data.image) {
+          let objectURL = 'data:image/jpeg;base64,' + data.image;
+          this.selected.image = objectURL;
+        }
+        this.messageService.clear();
+        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.refresh.result.ok'), closable: false, life: 5000 });
+      },
+      error => {
+        console.log(error);
+        this.messageService.clear();
+        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.refresh.result.error'), closable: false, life: 5000 });
+      }
+    );
   }
 
   showDialogMaximized(dialog: Dialog) {

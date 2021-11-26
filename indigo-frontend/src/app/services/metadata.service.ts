@@ -34,4 +34,8 @@ export class MetadataService {
     return this.http.get(this.endpoint + "/author?lang=" + lang + "&author=" + author);
   }
 
+  findBook(book: string): Observable<any> {
+    return this.http.get(this.endpoint + "/book?book=" + book);
+  }
+
 }

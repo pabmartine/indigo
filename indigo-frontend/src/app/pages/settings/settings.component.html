@@ -96,23 +96,47 @@
                         <div class="p-grid p-col-12 metadata">
                             <div class="p-col-12 p-md-6">
                                 <div class="metadata-box">
-                                    <span class="metadata-icon pi pi-book"></span>
+                                    <span class="metadata-icon pi pi-bookmark"></span>
                                     <div class="metadata-title">Biblioteca</div>
                                     <div class="metadata-subtitle">Actualizar toda la bilioteca</div>
                                     <div class="metadata-subinfo p-grid">
-                                        <div class="p-col-10">
+                                        <div class="p-col-8 p-md-10">
                                             <div class="progress">
                                                 <p-progressBar [value]="progressBar" *ngIf="isAllFull()"></p-progressBar>
                                             </div>
                                         </div>
-                                        <div class="p-col-1">
+                                        <div class="p-col-2 p-md-1">
                                             <span *ngIf="isAllFull()">{{progressBar}}%</span>
                                             <span *ngIf="!isAllFull()">0%</span>
                                         </div>
-                                        <div class="p-col-1">
+                                        <div class="p-col-2 p-md-1">
                                             <a href="javascript:;" (click)="doExecuteMetadata('full', 'all')">
                                                 <span class="metadata-action-icon pi"
                                                 [ngClass]="{ 'pi-pause': isAllFull(), 'pi-play': !isAllFull()  }"></span>
+                                            </a>
+                                        </div>
+                                    </div> 
+                                </div>
+                            </div>
+                            <div class="p-col-12 p-md-6">
+                                <div class="metadata-box">
+                                    <span class="metadata-icon pi pi-bookmark"></span>
+                                    <div class="metadata-title">Biblioteca</div>
+                                    <div class="metadata-subtitle">Actualizar biblioteca sin datos</div>
+                                    <div class="metadata-subinfo p-grid">
+                                        <div class="p-col-8 p-md-10">
+                                            <div class="progress">
+                                                <p-progressBar [value]="progressBar"  *ngIf="isAllPartial()"></p-progressBar>
+                                            </div>
+                                        </div>
+                                        <div class="p-col-2 p-md-1">
+                                            <span *ngIf="isAllPartial()">{{progressBar}}%</span>
+                                            <span *ngIf="!isAllPartial()">0%</span>
+                                        </div>
+                                        <div class="p-col-2 p-md-1">
+                                            <a href="javascript:;" (click)="doExecuteMetadata('partial', 'all')">
+                                                <span class="metadata-action-icon pi"
+                                                    [ngClass]="{ 'pi-pause': isAllPartial(), 'pi-play': !isAllPartial()  }"></span>
                                             </a>
                                         </div>
                                     </div>
@@ -121,22 +145,46 @@
                             <div class="p-col-12 p-md-6">
                                 <div class="metadata-box">
                                     <span class="metadata-icon pi pi-book"></span>
-                                    <div class="metadata-title">Biblioteca</div>
-                                    <div class="metadata-subtitle">Actualizar biblioteca sin datos</div>
+                                    <div class="metadata-title">Libros</div>
+                                    <div class="metadata-subtitle">Actualizar todos los libros</div>
                                     <div class="metadata-subinfo p-grid">
-                                        <div class="p-col-10">
+                                        <div class="p-col-8 p-md-10">
                                             <div class="progress">
-                                                <p-progressBar [value]="progressBar"  *ngIf="isAllPartial()"></p-progressBar>
+                                                <p-progressBar [value]="progressBar" *ngIf="isBooksFull()"></p-progressBar>
                                             </div>
                                         </div>
-                                        <div class="p-col-1">
-                                            <span *ngIf="isAllPartial()">{{progressBar}}%</span>
-                                            <span *ngIf="!isAllPartial()">0%</span>
+                                        <div class="p-col-2 p-md-1">
+                                            <span *ngIf="isBooksFull()">{{progressBar}}%</span>
+                                            <span *ngIf="!isBooksFull()">0%</span>
                                         </div>
-                                        <div class="p-col-1">
-                                            <a href="javascript:;" (click)="doExecuteMetadata('partial', 'all')">
+                                        <div class="p-col-2 p-md-1">
+                                            <a href="javascript:;" (click)="doExecuteMetadata('full', 'books')">
                                                 <span class="metadata-action-icon pi"
-                                                    [ngClass]="{ 'pi-pause': isAllPartial(), 'pi-play': !isAllPartial()  }"></span>
+                                                    [ngClass]="{ 'pi-pause': isBooksFull(), 'pi-play': !isBooksFull()  }"></span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-col-12 p-md-6">
+                                <div class="metadata-box">
+                                    <span class="metadata-icon pi pi-book"></span>
+                                    <div class="metadata-title">Libros</div>
+                                    <div class="metadata-subtitle">Actualizar libros sin datos</div>
+                                    <div class="metadata-subinfo p-grid">
+                                        <div class="p-col-8 p-md-10">
+                                            <div class="progress">
+                                                <p-progressBar [value]="progressBar" *ngIf="isBooksPartial()"></p-progressBar>
+                                            </div>
+                                        </div>
+                                        <div class="p-col-2 p-md-1">
+                                            <span *ngIf="isBooksPartial()">{{progressBar}}%</span>
+                                            <span *ngIf="!isBooksPartial()">0%</span>
+                                        </div>
+                                        <div class="p-col-2 p-md-1">
+                                            <a href="javascript:;" (click)="doExecuteMetadata('partial', 'books')">
+                                                <span class="metadata-action-icon pi"
+                                                    [ngClass]="{ 'pi-pause': isBooksPartial(), 'pi-play': !isBooksPartial()  }"></span>
                                             </a>
                                         </div>
                                     </div>
@@ -148,16 +196,16 @@
                                     <div class="metadata-title">Autores</div>
                                     <div class="metadata-subtitle">Actualizar todos los autores</div>
                                     <div class="metadata-subinfo p-grid">
-                                        <div class="p-col-10">
+                                        <div class="p-col-8 p-md-10">
                                             <div class="progress">
                                                 <p-progressBar [value]="progressBar" *ngIf="isAuthorsFull()"></p-progressBar>
                                             </div>
                                         </div>
-                                        <div class="p-col-1">
+                                        <div class="p-col-2 p-md-1">
                                             <span *ngIf="isAuthorsFull()">{{progressBar}}%</span>
                                             <span *ngIf="!isAuthorsFull()">0%</span>
                                         </div>
-                                        <div class="p-col-1">
+                                        <div class="p-col-2 p-md-1">
                                             <a href="javascript:;" (click)="doExecuteMetadata('full', 'authors')">
                                                 <span class="metadata-action-icon pi"
                                                     [ngClass]="{ 'pi-pause': isAuthorsFull(), 'pi-play': !isAuthorsFull()  }"></span>
@@ -172,16 +220,16 @@
                                     <div class="metadata-title">Autores</div>
                                     <div class="metadata-subtitle">Actualizar autores sin datos</div>
                                     <div class="metadata-subinfo p-grid">
-                                        <div class="p-col-10">
+                                        <div class="p-col-8 p-md-10">
                                             <div class="progress">
                                                 <p-progressBar [value]="progressBar" *ngIf="isAuthorsPartial()"></p-progressBar>
                                             </div>
                                         </div>
-                                        <div class="p-col-1">
+                                        <div class="p-col-2 p-md-1">
                                             <span *ngIf="isAuthorsPartial()">{{progressBar}}%</span>
                                             <span *ngIf="!isAuthorsPartial()">0%</span>
                                         </div>
-                                        <div class="p-col-1">
+                                        <div class="p-col-2 p-md-1">
                                             <a href="javascript:;" (click)="doExecuteMetadata('partial', 'authors')">
                                                 <span class="metadata-action-icon pi"
                                                     [ngClass]="{ 'pi-pause': isAuthorsPartial(), 'pi-play': !isAuthorsPartial()  }"></span>

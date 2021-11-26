@@ -1,13 +1,13 @@
 package com.martinia.indigo.adapters.out.metadata;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
 import org.springframework.stereotype.Service;
-import com.martinia.indigo.domain.model.Book;
 import com.martinia.indigo.domain.util.DataUtils;
 import com.martinia.indigo.ports.out.metadata.GoodReadsService;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ public class GoodReadsServiceImpl implements GoodReadsService {
   private String PROVIDER = "Goodreads";
 
   @Override
-  public String[] findBook(String key, List<Book> list, String title, List<String> authors, boolean withAuthor) {
+  public String[] findBook(String key, String title, List<String> authors, boolean withAuthor) {
 
     String[] ret = null;
 
@@ -43,7 +43,7 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 
       String xml = DataUtils.getData(url);
 
-      if (xml != null) {
+      if (StringUtils.isNoneEmpty(xml)) {
         Document doc = Jsoup.parse(xml, "", Parser.xmlParser());
         if (doc.select("book")
             .first() != null) {
@@ -138,47 +138,15 @@ public class GoodReadsServiceImpl implements GoodReadsService {
                       .get(j)
                       .text();
 
-                  List<Book> books = list.stream()
-                      .filter(b -> b.getTitle()
-                          .equalsIgnoreCase(similar_title))
-                      .collect(Collectors.toList());
-                  if (books != null && books.size() > 0) {
-                    for (Book book : books) {
-                      String _authors = String.join(" ", book.getAuthors());
-
-                      String filterSimilarAuthor = StringUtils.stripAccents(similar_author)
-                          .replaceAll("[^a-zA-Z0-9]", " ")
-                          .replaceAll("\\s+", " ")
-                          .toLowerCase()
-                          .trim();
-
-                      String[] similarTerms = StringUtils.stripAccents(_authors)
-                          .replaceAll("[^a-zA-Z0-9]", " ")
-                          .replaceAll("\\s+", " ")
-                          .split(" ");
-
-                      boolean similarContains = true;
-                      for (String similarTerm : similarTerms) {
-                        similarTerm = StringUtils.stripAccents(similarTerm)
-                            .toLowerCase()
-                            .trim();
-                        if (!filterSimilarAuthor.contains(similarTerm)) {
-                          similarContains = false;
-                        }
-                      }
-
-                      if (similarContains) {
-                        similar += book.getId() + ";";
-                      }
-                    }
-                  }
+                  similar += similar_title + "@;@" + similar_author + "#;#";
 
                 }
 
+                if (similar.endsWith("#;#"))
+                  similar = similar.substring(0, similar.length() - "#;#".length());
+
                 ret = new String[]{String.valueOf(rating),
-                    similar.length() == 0 ? null
-                        : similar.substring(0, similar.length() - 1)
-                            .trim(),
+                    similar,
                     PROVIDER};
                 break;
 
@@ -194,7 +162,7 @@ public class GoodReadsServiceImpl implements GoodReadsService {
     }
 
     if (ret == null && !withAuthor) {
-      ret = findBook(key, list, title, authors, true);
+      ret = findBook(key, title, authors, true);
     }
 
     return ret;
@@ -215,7 +183,7 @@ public class GoodReadsServiceImpl implements GoodReadsService {
       String url = endpoint + "search.xml?q=" + subject.replace(" ", "+") + "&key=" + key;
       String xml = DataUtils.getData(url);
 
-      if (xml != null) {
+      if (StringUtils.isNoneEmpty(xml)) {
         Document doc = Jsoup.parse(xml, "", Parser.xmlParser());
         if (doc.select("author")
             .first() != null) {

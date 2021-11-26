@@ -767,6 +767,8 @@ body a {
 .book #deleteFavoriteAuthorSmall span,
 .book #refreshAuthor span,
 .book #refreshAuthorSmall span,
+.book #refreshBook span,
+.book #refreshBookSmall span,
 .book #addFavoriteBook span,
 .book #addFavoriteBookSmall span,
 .book #deleteFavoriteBook span,
@@ -1048,6 +1050,12 @@ body a {
     float: right;
     margin-right: 20px;
     font-size: 50px;
+}
+
+@media (max-width: 640px) {
+	.settings .metadata-icon {
+		font-size: 30px;
+	}
 }
 
 .settings .metadata-action-icon {

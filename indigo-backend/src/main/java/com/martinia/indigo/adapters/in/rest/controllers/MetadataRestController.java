@@ -10,8 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.martinia.indigo.adapters.in.rest.dtos.AuthorDto;
+import com.martinia.indigo.adapters.in.rest.dtos.BookDto;
 import com.martinia.indigo.adapters.in.rest.mappers.AuthorDtoMapper;
+import com.martinia.indigo.adapters.in.rest.mappers.BookDtoMapper;
 import com.martinia.indigo.domain.model.Author;
+import com.martinia.indigo.domain.model.Book;
 import com.martinia.indigo.ports.in.rest.MetadataService;
 
 @RestController
@@ -23,6 +26,9 @@ public class MetadataRestController {
 
   @Autowired
   protected AuthorDtoMapper authorDtoMapper;
+
+  @Autowired
+  protected BookDtoMapper bookDtoMapper;
 
   @GetMapping(value = "/start")
   public ResponseEntity<Void> initialLoad(@RequestParam String lang, @RequestParam String type, @RequestParam String entity) {
@@ -48,5 +54,12 @@ public class MetadataRestController {
     Author _author = metadataService.findAuthorMetadata(author, lang);
     AuthorDto authorDto = authorDtoMapper.domain2Dto(_author);
     return new ResponseEntity<>(authorDto, HttpStatus.OK);
+  }
+
+  @GetMapping(value = "/book", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<BookDto> refreshBook(@RequestParam String book) {
+    Book _book = metadataService.findBookMetadata(book);
+    BookDto bookDto = bookDtoMapper.domain2Dto(_book);
+    return new ResponseEntity<>(bookDto, HttpStatus.OK);
   }
 }

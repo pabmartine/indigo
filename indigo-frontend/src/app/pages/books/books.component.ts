@@ -367,7 +367,7 @@ export class BooksComponent implements OnInit {
 
   refreshAuthor() {
     this.messageService.clear();
-    this.messageService.add({ severity: 'success', detail: 'Actualizando datos', closable: false, life: 5000 });
+    this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.authors.refresh.process'), closable: false, life: 5000 });
     this.metadataService.findAuthor("es", this.authorInfo.sort).subscribe(
       data => {
         this.authorInfo = data;
@@ -377,12 +377,12 @@ export class BooksComponent implements OnInit {
           this.authorInfo.image = objectURL;
         }
         this.messageService.clear();
-        this.messageService.add({ severity: 'success', detail: 'Datos actualizados correctamente', closable: false, life: 5000 });
+        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.authors.refresh.result.ok'), closable: false, life: 5000 });
       },
       error => {
         console.log(error);
         this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: 'Se ha producido un error', closable: false, life: 5000 });
+        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.refresh.result.error'), closable: false, life: 5000 });
       }
     );
   }

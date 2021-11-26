@@ -67,6 +67,13 @@
 			"favorites": {
 				"title": "Favoris"
 			},
+			"refresh": {
+				"process": "Mise à jour des données",
+				"result": {
+					"ok": "Données mises à jour correctement",
+					"error": "Impossible d'obtenir les données"
+				}
+			},
 			"order_by": {
 				"id": {
 					"asc": "Ajoutés plus anciens",
@@ -119,6 +126,13 @@
 				"delete": {
 					"ok": "Le auteur a été supprimé des favoris",
 					"error": "Le auteur n'a pas pu être supprimé des favoris"
+				}
+			},
+			"refresh": {
+				"process": "Mise à jour des données",
+				"result": {
+					"ok": "Données mises à jour correctement",
+					"error": "Impossible d'obtenir les données"
 				}
 			},
 			"total": "livres dans la bibliothèque",
@@ -367,6 +381,8 @@
 			"search": "Chercher",
 			"next": "Suivant",
 			"previous": "Précédent",
+			"view": "Voir le livre",
+            "refresh": "Actualiser les métadonnées",
 			"favorite": {
 				"add": "Ajouter aux favoris",
 				"delete": "Supprimer des favoris"

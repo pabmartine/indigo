@@ -9,6 +9,9 @@
       </div>
       <div class="p-col-5 book-title-buttons">
 
+        <button id="refreshBook" type="button" pButton (click)="refreshBook();" icon="pi pi-refresh"
+        title="{{'locale.buttons.refresh' | translate}}" class="book-title-button" *ngIf="isAdmin()"></button>
+
         <button id="viewEpub" type="button" pButton (click)="viewEpub();" icon="pi pi-eye"
           title="{{'locale.buttons.view' | translate}}" class="book-title-button"></button>
 
@@ -45,6 +48,9 @@
 
           <button id="viewEpub" type="button" pButton (click)="viewEpub();" icon="pi pi-eye"
             title="{{'locale.buttons.view' | translate}}" class="book-title-button"></button>
+
+            <button id="refreshBookSmall" type="button" pButton (click)="refreshBook();" icon="pi pi-refresh"
+            title="{{'locale.buttons.refresh' | translate}}" class="book-title-button" *ngIf="isAdmin()"></button>
 
         </div>
 

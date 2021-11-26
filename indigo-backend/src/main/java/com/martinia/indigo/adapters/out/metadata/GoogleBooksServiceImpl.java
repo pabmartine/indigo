@@ -43,7 +43,7 @@ public class GoogleBooksServiceImpl implements GoogleBooksService {
       String url = endpoint + "intitle:" + title;
       String json = DataUtils.getData(url);
 
-      if (json != null) {
+      if (StringUtils.isNoneEmpty(json)) {
         JsonParser springParser = JsonParserFactory.getJsonParser();
         Map<String, Object> map = springParser.parseMap(json);
 

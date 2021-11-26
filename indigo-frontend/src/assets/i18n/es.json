@@ -67,6 +67,13 @@
             "favorites": {
                 "title": "Favoritos"
             },
+            "refresh": {
+                "process": "Actualizando datos",
+                "result": {
+                    "ok": "Datos actualizados correctamente",
+                    "error": "No se han podido obtener los datos"
+                }
+            },
             "order_by": {
                 "id": {
                     "asc": "Añadidos más antiguos",
@@ -119,6 +126,13 @@
                 "delete": {
                     "ok": "El autor se ha quitado de favoritos",
                     "error": "El autor no se ha podido quitar de favoritos"
+                }
+            },
+            "refresh": {
+                "process": "Actualizando datos",
+                "result": {
+                    "ok": "Datos actualizados correctamente",
+                    "error": "No se han podido obtener los datos"
                 }
             },
             "total": "libros en la biblioteca",
@@ -367,6 +381,8 @@
             "search": "Buscar",
             "next": "Siguiente",
             "previous": "Anterior",
+            "view": "Ver libro",
+            "refresh": "Actualizar metadatos",
             "favorite": {
                 "add": "Añadir a favoritos",
                 "delete": "Quitar de favoritos"

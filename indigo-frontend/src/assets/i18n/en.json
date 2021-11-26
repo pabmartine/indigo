@@ -67,6 +67,13 @@
 			"favorites": {
 				"title": "Favorites"
 			},
+			"refresh": {
+				"process": "Updating data",
+				"result": {
+					"ok": "Data updated correctly",
+					"error": "Could not get data"
+				}
+			},
 			"order_by": {
 				"id": {
 					"asc": "Older added",
@@ -119,6 +126,13 @@
 				"delete": {
 					"ok": "The author has been removed from favorites",
 					"error": "The author could not be removed from favorites"
+				}
+			},
+			"refresh": {
+				"process": "Updating data",
+				"result": {
+					"ok": "Data updated correctly",
+					"error": "Could not get data"
 				}
 			},
 			"total": "books in the library",
@@ -367,6 +381,8 @@
 			"search": "Search",
 			"next": "Next",
 			"previous": "Previous",
+			"view": "See book",
+            "refresh": "Refresh metadata",
 			"favorite": {
 				"add": "Add to favorites",
 				"delete": "Remove from favorites"

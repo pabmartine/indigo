@@ -4,18 +4,20 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Base64;
-
+import java.util.Enumeration;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import javax.imageio.ImageIO;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Component;
-
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 
@@ -23,129 +25,202 @@ import net.coobird.thumbnailator.Thumbnails;
 @Component
 public class UtilComponent {
 
-	@Value("${book.library.path}")
-	private String libraryPath;
+  @Value("${book.library.path}")
+  private String libraryPath;
 
-	public String getBase64Cover(String path) {
-		String image = null;
+  public String getImageFromEpub(String path, String... types) {
 
-		if (!libraryPath.endsWith(File.separator))
-			libraryPath += File.separator;
+    String image = null;
+    try {
+      if (!libraryPath.endsWith(File.separator))
+        libraryPath += File.separator;
 
-		path = libraryPath + path;
+      String basePath = libraryPath + path;
 
-		if ((new File(path)).exists()) {
-			try {
-				String coverPath = path + "/cover.jpg";
-				String thumbPath = path + "/thumbails.jpg";
+      File file = new File(basePath);
+      if (file.exists()) {
+        File[] files = file.listFiles();
+        for (File f : files) {
+          if (f.getName()
+              .endsWith(".epub")) {
 
-				File thumbFile = new File(thumbPath);
+            ZipFile zipFile = new ZipFile(f);
+            Enumeration zipFiles = zipFile.entries();
 
-				if (thumbFile.exists()) {
-					thumbFile.delete();
-				}
+            while (zipFiles.hasMoreElements()) {
+              ZipEntry entry = (ZipEntry) zipFiles.nextElement();
+              if (!entry.isDirectory()) {
 
-				File coverFile = new File(coverPath);
-				BufferedImage originalImage = ImageIO.read(coverFile);
+                String fileName = entry.getName().toLowerCase();
+                String extension = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
 
-				int h = originalImage.getHeight();
-				int w = originalImage.getWidth();
+                for (String type : types) {
+                  if (fileName.contains(type) && Arrays.asList("jpg", "jpeg", "png").contains(extension)) {
+                    System.out.println("File " + entry.getName());
+                    InputStream is = zipFile.getInputStream(entry);
 
-				if (h > w) {
-					h = 250;
-					w = (w * 250) / h;
-				} else {
-					w = 250;
-					h = (h * 250) / w;
-				}
+                    BufferedImage originalImage = ImageIO.read(is);
 
-				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-				Thumbnails.of(originalImage)
-						.size(w, h)
-						.outputFormat("jpg")
-						.toOutputStream(outputStream);
+                    int h = originalImage.getHeight();
+                    int w = originalImage.getWidth();
 
-				image = Base64.getEncoder()
-						.encodeToString(outputStream.toByteArray());
-			} catch (Exception e) {
-				log.debug(e.getMessage());
-			}
-		}
+                    if (h > w) {
+                      h = 250;
+                      w = (w * 250) / h;
+                    } else {
+                      w = 250;
+                      h = (h * 250) / w;
+                    }
 
-		return image;
-	}
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    Thumbnails.of(originalImage)
+                        .size(w, h)
+                        .outputFormat("jpg")
+                        .toOutputStream(outputStream);
 
-	public String getBase64Url(String image) {
+                    image = Base64.getEncoder()
+                        .encodeToString(outputStream.toByteArray());
 
-		String ret = null;
-		if (StringUtils.isNoneEmpty(image)) {
-			if (!image.equals(
-					"https://s.gr-assets.com/assets/nophoto/user/u_200x266-e183445fd1a1b5cc7075bb1cf7043306.png")) {
+                  }
+                }
 
-				try {
-					HttpURLConnection connection = (HttpURLConnection) new URL(image).openConnection();
-					connection.setRequestProperty("User-Agent", "Mozilla/5.0");
+              }
 
-					BufferedImage originalImage = ImageIO.read(connection.getInputStream());
+            }
 
-					int h = originalImage.getHeight();
-					int w = originalImage.getWidth();
+          }
+        }
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return image;
+  }
 
-					if (h > w) {
-						h = 250;
-						w = (w * 250) / h;
-					} else {
-						w = 250;
-						h = (h * 250) / w;
-					}
+  public String getBase64Cover(String path) {
+    String image = null;
 
-					ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-					Thumbnails.of(originalImage)
-							.size(w, h)
-							.outputFormat("jpg")
-							.toOutputStream(outputStream);
+    if (!libraryPath.endsWith(File.separator))
+      libraryPath += File.separator;
 
-					ret = Base64.getEncoder()
-							.encodeToString(outputStream.toByteArray());
+    path = libraryPath + path;
 
-				} catch (Exception e) {
-					log.error(image + " --> " + e.getMessage());
-				}
-			}
-		}
+    if ((new File(path)).exists()) {
+      try {
+        String coverPath = path + "/cover.jpg";
+        String thumbPath = path + "/thumbnail.jpg";
 
-		return ret;
+        File thumbFile = new File(thumbPath);
 
-	}
+        if (thumbFile.exists()) {
+          thumbFile.delete();
+        }
 
-	public Resource getEpub(String path) {
+        File coverFile = new File(coverPath);
+        BufferedImage originalImage = ImageIO.read(coverFile);
 
-		Resource epub = null;
+        int h = originalImage.getHeight();
+        int w = originalImage.getWidth();
 
-		try {
-			if (!libraryPath.endsWith(File.separator))
-				libraryPath += File.separator;
+        if (h > w) {
+          h = 250;
+          w = (w * 250) / h;
+        } else {
+          w = 250;
+          h = (h * 250) / w;
+        }
 
-			String basePath = libraryPath + path;
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Thumbnails.of(originalImage)
+            .size(w, h)
+            .outputFormat("jpg")
+            .toOutputStream(outputStream);
 
-			File file = new File(basePath);
-			if (file.exists()) {
-				File[] files = file.listFiles();
-				for (File f : files) {
-					if (f.getName()
-							.endsWith(".epub")) {
-						epub = new UrlResource(f.toPath()
-								.toUri());
-						break;
-					}
+        image = Base64.getEncoder()
+            .encodeToString(outputStream.toByteArray());
+      } catch (Exception e) {
+        log.debug(e.getMessage());
+      }
+    }
 
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+    if (image == null) {
+      image = getImageFromEpub(path, "cover", "thumbnail");
+    }
 
-		return epub;
-	}
+    return image;
+  }
+
+  public String getBase64Url(String image) {
+
+    String ret = null;
+    if (StringUtils.isNoneEmpty(image)) {
+      if (!image.equals(
+          "https://s.gr-assets.com/assets/nophoto/user/u_200x266-e183445fd1a1b5cc7075bb1cf7043306.png")) {
+
+        try {
+          HttpURLConnection connection = (HttpURLConnection) new URL(image).openConnection();
+          connection.setRequestProperty("User-Agent", "Mozilla/5.0");
+
+          BufferedImage originalImage = ImageIO.read(connection.getInputStream());
+
+          int h = originalImage.getHeight();
+          int w = originalImage.getWidth();
+
+          if (h > w) {
+            h = 250;
+            w = (w * 250) / h;
+          } else {
+            w = 250;
+            h = (h * 250) / w;
+          }
+
+          ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+          Thumbnails.of(originalImage)
+              .size(w, h)
+              .outputFormat("jpg")
+              .toOutputStream(outputStream);
+
+          ret = Base64.getEncoder()
+              .encodeToString(outputStream.toByteArray());
+
+        } catch (Exception e) {
+          log.error(image + " --> " + e.getMessage());
+        }
+      }
+    }
+
+    return ret;
+
+  }
+
+  public Resource getEpub(String path) {
+
+    Resource epub = null;
+
+    try {
+      if (!libraryPath.endsWith(File.separator))
+        libraryPath += File.separator;
+
+      String basePath = libraryPath + path;
+
+      File file = new File(basePath);
+      if (file.exists()) {
+        File[] files = file.listFiles();
+        for (File f : files) {
+          if (f.getName()
+              .endsWith(".epub")) {
+            epub = new UrlResource(f.toPath()
+                .toUri());
+            break;
+          }
+
+        }
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    return epub;
+  }
 
 }
