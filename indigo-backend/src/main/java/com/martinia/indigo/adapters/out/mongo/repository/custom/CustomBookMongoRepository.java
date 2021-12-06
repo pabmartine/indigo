@@ -19,13 +19,13 @@ public interface CustomBookMongoRepository {
 
 	Long getNumSeries(List<String> languages);
 
-	List<BookMongoEntity> getSimilar(List<String> similar);
+	List<BookMongoEntity> getSimilar(List<String> similar, List<String> languages);
 
 	List<BookMongoEntity> getRecommendationsByBook(BookMongoEntity book);
 
 	List<BookMongoEntity> getRecommendationsByUser(String user, int page, int size, String sort, String order);
 
-	List<BookMongoEntity> getRecommendationsByBook(List<String> recommendations, int num);
+	List<BookMongoEntity> getRecommendationsByBook(List<String> recommendations, List<String> languages, int num);
 
 	long countRecommendationsByUser(String user);
 

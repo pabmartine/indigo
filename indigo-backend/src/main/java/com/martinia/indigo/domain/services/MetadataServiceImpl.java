@@ -66,19 +66,21 @@ public class MetadataServiceImpl implements MetadataService {
   private long pullTime;
 
   private final int BATCH_SIZE = 500;
+  
+  private long lastExecution; 
 
   @PostConstruct
   private void init() {
     goodreads = configurationRepository.findByKey("goodreads.key")
         .getValue();
+    
+    pullTime = Long.parseLong(configurationRepository.findByKey("metadata.pull")
+        .getValue());
   }
 
   private void initialLoad(String lang) {
 
     metadataSingleton.setMessage("indexing_books");
-
-    pullTime = Long.parseLong(configurationRepository.findByKey("metadata.pull")
-        .getValue());
 
     tagRepository.dropCollection();
     authorRepository.dropCollection();
@@ -278,6 +280,8 @@ public class MetadataServiceImpl implements MetadataService {
   }
 
   private List<String> findSimilarBooks(String similar) {
+    
+    log.info("%%%%%%%%%%%%%% init findSimilarBooks");
 
     List<String> ret = new ArrayList<>();
 
@@ -324,18 +328,32 @@ public class MetadataServiceImpl implements MetadataService {
           }
         }
     }
+    
+    log.info("%%%%%%%%%%%%%% end findSimilarBooks");
+    
     return ret;
   }
 
   private Book findBookMetadata(boolean override, Book book) {
+    log.info("*****init findBookMetadata");
     if (override
         || book.getRating() == 0 || book.getProvider() == null
         || CollectionUtils.isEmpty(book.getSimilar())) {
 
       try {
+        
+        long seconds = ((System.currentTimeMillis()-lastExecution) / 1000);
+        log.info("Last execution was " + seconds + " seconds ago");
+        
+        if (seconds < 1) {
+          Thread.sleep(pullTime);
+          log.info("Sleep " + pullTime + " second");
+        }
 
         String[] goodReads = goodReadsComponent.findBook(goodreads, book.getTitle(),
             book.getAuthors(), false);
+        
+        lastExecution = System.currentTimeMillis();
 
         boolean updateBook = false;
         // Ratings && similar books
@@ -349,9 +367,7 @@ public class MetadataServiceImpl implements MetadataService {
               book.setSimilar(similars);
           }
 
-          updateBook = true;
-
-          Thread.sleep(pullTime);
+          updateBook = true;          
 
         } else {
           String[] googleBooks = googleBooksComponent.findBook(book.getTitle(),
@@ -373,7 +389,7 @@ public class MetadataServiceImpl implements MetadataService {
         e.printStackTrace();
       }
     }
-
+    log.info("*****end findBookMetadata");
     return book;
   }
 
@@ -490,9 +506,6 @@ public class MetadataServiceImpl implements MetadataService {
   private void noFilledMetadata(String lang) {
 
     metadataSingleton.setMessage("obtaining_metadata");
-
-    pullTime = Long.parseLong(configurationRepository.findByKey("metadata.pull")
-        .getValue());
 
     Long numBooks = bookRepository.count(null);
     metadataSingleton.setTotal(numBooks);

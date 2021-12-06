@@ -88,17 +88,17 @@ public class BookRestController {
 		return new ResponseEntity<>(bookDto, HttpStatus.OK);
 	}
 
-	@PostMapping(value = "/similar", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<BookDto>> getSimilar(@RequestBody List<String> similar) {
-		List<Book> books = bookService.getSimilar(similar);
+	@GetMapping(value = "/similar", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<BookDto>> getSimilar(@RequestParam List<String> similar, @RequestParam List<String> languages) {
+		List<Book> books = bookService.getSimilar(similar, languages);
 		List<BookDto> booksDto = bookDtoMapper.domains2Dtos(books);
 		return new ResponseEntity<>(booksDto, HttpStatus.OK);
 
 	}
 
-	@PostMapping(value = "/recommendations/book", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<BookDto>> getBookRecommendationsByBook(@RequestBody List<String> recommendations) {
-		List<Book> books = bookService.getRecommendationsByBook(recommendations);
+	@GetMapping(value = "/recommendations/book", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<BookDto>> getBookRecommendationsByBook(@RequestParam List<String> recommendations, @RequestParam List<String> languages) {
+		List<Book> books = bookService.getRecommendationsByBook(recommendations, languages);
 		List<BookDto> booksDto = bookDtoMapper.domains2Dtos(books);
 		return new ResponseEntity<>(booksDto, HttpStatus.OK);
 

@@ -28,8 +28,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.util.CollectionUtils;
 import com.martinia.indigo.adapters.out.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.adapters.out.mongo.entities.NotificationMongoEntity;
-import com.martinia.indigo.adapters.out.mongo.repository.BookMongoRepository;
-import com.martinia.indigo.adapters.out.mongo.repository.NotificationMongoRepository;
 import com.martinia.indigo.domain.model.Search;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.AggregateIterable;
@@ -310,7 +308,7 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
   }
 
   @Override
-  public List<BookMongoEntity> getSimilar(List<String> similar) {
+  public List<BookMongoEntity> getSimilar(List<String> similar, List<String> languages) {
     List<BookMongoEntity> ret = new ArrayList<>(similar.size());
     List<ObjectId> list = new ArrayList<>(similar.size());
     for (String s : similar) {
@@ -330,12 +328,17 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 
     data.iterator()
         .forEachRemaining(ret::add);
+    
+    ret = ret.stream().filter(b -> !Collections.disjoint(b.getLanguages(), languages)).collect(Collectors.toList());
+    Collections.shuffle(ret);
+//    if (ret.size() > num)
+//      ret = ret.subList(0, num);
 
     return ret;
   }
 
   @Override
-  public List<BookMongoEntity> getRecommendationsByBook(List<String> recommendations, int num) {
+  public List<BookMongoEntity> getRecommendationsByBook(List<String> recommendations, List<String> languages, int num) {
 
     CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
         MongoClientSettings.getDefaultCodecRegistry(),
@@ -352,11 +355,15 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 
     FindIterable<BookMongoEntity> books = mongoTemplate.getCollection("books")
         .withCodecRegistry(pojoCodecRegistry)
-        .find(filter, BookMongoEntity.class)
-        .limit(num);
+        .find(filter, BookMongoEntity.class);
 
     books.iterator()
         .forEachRemaining(ret::add);
+
+    ret = ret.stream().filter(b -> !Collections.disjoint(b.getLanguages(), languages)).collect(Collectors.toList());
+    Collections.shuffle(ret);
+    if (ret.size() > num)
+      ret = ret.subList(0, num);
 
     return ret;
   }

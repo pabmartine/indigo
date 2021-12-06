@@ -6,7 +6,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.bind.annotation.RequestBody;
 import com.martinia.indigo.domain.model.Book;
 import com.martinia.indigo.domain.model.Search;
 import com.martinia.indigo.domain.util.UtilComponent;
@@ -57,10 +57,10 @@ public class BookServiceImpl implements BookService {
 	}
 
 	@Override
-	public List<Book> getRecommendationsByBook(List<String> recommendations) {
+	public List<Book> getRecommendationsByBook(List<String> recommendations, List<String> languages) {
 		int num = Integer.parseInt(configurationRepository.findByKey("books.recommendations")
 				.getValue());
-		return bookRepository.getRecommendationsByBook(recommendations, num);
+		return bookRepository.getRecommendationsByBook(recommendations, languages,  num);
 	}
 
 	@Override
@@ -89,8 +89,8 @@ public class BookServiceImpl implements BookService {
 	}
 
 	@Override
-	public List<Book> getSimilar(List<String> similar) {
-		return bookRepository.getSimilar(similar);
+	public List<Book> getSimilar(List<String> similar, List<String> languages) {
+		return bookRepository.getSimilar(similar, languages);
 	}
 
 	@Override

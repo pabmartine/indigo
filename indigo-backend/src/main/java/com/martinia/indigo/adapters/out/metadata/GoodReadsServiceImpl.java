@@ -22,6 +22,8 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 
   @Override
   public String[] findBook(String key, String title, List<String> authors, boolean withAuthor) {
+    
+    log.info("********************* init findBook");
 
     String[] ret = null;
 
@@ -165,8 +167,10 @@ public class GoodReadsServiceImpl implements GoodReadsService {
       ret = findBook(key, title, authors, true);
     }
 
+    log.info("********************* end findBook");
+    
     return ret;
-
+    
   }
 
   @Override

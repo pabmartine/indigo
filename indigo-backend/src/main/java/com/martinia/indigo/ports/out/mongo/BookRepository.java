@@ -24,13 +24,13 @@ public interface BookRepository {
 
 	Long getNumSeries(List<String> languages);
 
-	List<Book> getRecommendationsByBook(List<String> recommendations, int num);
+	List<Book> getRecommendationsByBook(List<String> recommendations, List<String> languages, int num);
 
 	List<Book> getRecommendationsByBook(Book book);
 
 	List<Book> getRecommendationsByUser(String user, int page, int size, String sort, String order);
 
-	List<Book> getSimilar(List<String> similar);
+	List<Book> getSimilar(List<String> similar, List<String> languages);
 
 	void save(Book book);
 

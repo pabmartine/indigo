@@ -43,8 +43,9 @@ export class DetailComponent implements OnInit {
   public rendition;
   public displayed;
 
-  @ViewChild('viewer') viewer: ElementRef;
+  user = JSON.parse(sessionStorage.user);
 
+  @ViewChild('viewer') viewer: ElementRef;
 
   constructor(
     private bookService: BookService,
@@ -73,7 +74,7 @@ export class DetailComponent implements OnInit {
 
   getSimilar(similar: string[]) {
     if (similar)
-      this.bookService.getSimilar(similar).subscribe(
+      this.bookService.getSimilar(similar, this.user.languageBooks).subscribe(
         data => {
           data.forEach((book) => {
             let objectURL = 'data:image/jpeg;base64,' + book.image;
@@ -90,7 +91,7 @@ export class DetailComponent implements OnInit {
 
   getRecommendations(recommendations: string[]) {
     if (recommendations)
-      this.bookService.getRecommendationsByBook(recommendations).subscribe(
+      this.bookService.getRecommendationsByBook(recommendations, this.user.languageBooks).subscribe(
         data => {
           data.forEach((book) => {
             let objectURL = 'data:image/jpeg;base64,' + book.image;
@@ -105,7 +106,7 @@ export class DetailComponent implements OnInit {
       );
   }
 
-  
+
 
   showDetails(book: Book) {
     this.selected = book;
@@ -280,7 +281,7 @@ export class DetailComponent implements OnInit {
           var file = new File([data], "name");
           this.book = new epub(file);
 
-          
+
           this.rendition = this.book.renderTo("viewer", { flow: "paginated", method: "continuous", width: "100%", height: "97%" });
           this.displayed = this.rendition.display();
 
@@ -295,7 +296,7 @@ export class DetailComponent implements OnInit {
                 this.chapterList.push(ch);
               })
             })
-      
+
             this.book.locations.generate(64);
           })
 

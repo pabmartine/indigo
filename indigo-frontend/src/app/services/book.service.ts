@@ -41,12 +41,12 @@ export class BookService {
     });
   }
 
-  getSimilar(similar: string[]): Observable<any> {
-    return this.http.post(this.endpoint + "/similar", similar);
+  getSimilar(similar: string[], languages: string[]): Observable<any> {
+    return this.http.get(this.endpoint + "/similar?similar=" + similar + "&languages=" + languages);
   }
 
-  getRecommendationsByBook(recommendations: string[]): Observable<any> {
-    return this.http.post(this.endpoint + "/recommendations/book", recommendations);
+  getRecommendationsByBook(recommendations: string[], languages: string[]): Observable<any> {
+    return this.http.get(this.endpoint + "/recommendations/book?recommendations=" + recommendations + "&languages=" + languages);
   }
 
   countRecommendationsByUser(user: string): Observable<any> {
