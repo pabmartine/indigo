@@ -74,6 +74,9 @@ public class BookSqliteMapper {
 			String[] authors = entity.getAuthorSort()
 					.split("&");
 			for (String author : authors) {
+			  if (author.trim().equals("VV., AA.")) {
+                author = "AA. VV.";
+              }
 				domain.getAuthors()
 						.add(author.trim());
 			}

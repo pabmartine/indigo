@@ -66,14 +66,14 @@ public class MetadataServiceImpl implements MetadataService {
   private long pullTime;
 
   private final int BATCH_SIZE = 500;
-  
-  private long lastExecution; 
+
+  private long lastExecution;
 
   @PostConstruct
   private void init() {
     goodreads = configurationRepository.findByKey("goodreads.key")
         .getValue();
-    
+
     pullTime = Long.parseLong(configurationRepository.findByKey("metadata.pull")
         .getValue());
   }
@@ -101,20 +101,21 @@ public class MetadataServiceImpl implements MetadataService {
       List<Book> books = calibreRepository.findAll(null, page, size, "id", "asc");
 
       for (Book book : books) {
-
-        book.setId(null);
-
         if (!metadataSingleton.isRunning())
           break;
 
         metadataSingleton.setCurrent(cont++);
 
         try {
+          String id = book.getId();
           String image = utilComponent.getBase64Cover(book.getPath());
           book.setImage(image);
-
+          book.setId(null);
           tagRepository.save(book.getTags(), book.getLanguages());
           bookRepository.save(book);
+
+          fillAuthors(id, book);
+
         } catch (Exception e) {
           e.printStackTrace();
         }
@@ -129,71 +130,79 @@ public class MetadataServiceImpl implements MetadataService {
 
     }
 
-    fillAuthors();
     fillRecommendations();
     fillMetadataBooks(true);
     fillMetadataAuthors(lang, true);
     stop();
   }
 
-  private void fillAuthors() {
+  private void fillAuthors(String id, Book book) {
 
-    metadataSingleton.setMessage("filling_authors");
+    boolean updateBook = false;
 
-    Long numBooks = bookRepository.count(null);
+    // Authors
+    if (!CollectionUtils.isEmpty(book.getAuthors())) {
 
-    metadataSingleton.setTotal(numBooks);
+      List<Author> authors = calibreRepository.findAuthorsByBook(id);
 
-    int cont = 0;
-    int page = 0;
-    int size = BATCH_SIZE;
-    while (page * size < numBooks) {
+      if (!CollectionUtils.isEmpty(authors)) {
 
-      if (!metadataSingleton.isRunning())
-        break;
+        for (Author author : authors) {
 
-      List<Book> books = calibreRepository.findAll(null, page, size, "id", "asc");
+          if (author.getName().equals("VV., AA.") || author.getSort().equals("VV., AA.")) {
+            author.setName("AA. VV.");
+            author.setSort("AA. VV.");
+          }
 
-      for (Book book : books) {
+          if (!book.getAuthors().contains(author.getSort())) {
 
-        if (!metadataSingleton.isRunning())
-          break;
-
-        metadataSingleton.setCurrent(cont++);
-
-        // Authors
-        if (!CollectionUtils.isEmpty(book.getAuthors())) {
-
-          List<Author> authors = calibreRepository.findAuthorsByBook(book.getId());
-
-          if (!CollectionUtils.isEmpty(authors)) {
-
-            for (Author author : authors) {
-
-              com.martinia.indigo.domain.model.Author domainAuthor = new com.martinia.indigo.domain.model.Author();
-              domainAuthor.setName(author.getName());
-              domainAuthor.setSort(author.getSort());
-              domainAuthor.setNumBooks(new NumBooks());
-              for (String lang : book.getLanguages()) {
-                domainAuthor.getNumBooks()
-                    .getLanguages()
-                    .put(lang, 1);
+            String[] tokens = author.getSort().replace(",", "").split(" ");
+            boolean _contains = false;
+            for (String a : book.getAuthors()) {
+              boolean contains = true;
+              for (String t : tokens) {
+                if (!a.contains(t)) {
+                  contains = false;
+                  break;
+                }
               }
+              if (contains) {
+                _contains = true;
 
-              authorRepository.save(domainAuthor);
+                if (!a.equals(author.getSort())) {
+                  author.setSort(a);;
+                  updateBook = true;
+                }
+              }
+            }
 
+            if (!_contains) {
+              book.getAuthors().add(author.getSort());
+              updateBook = true;
             }
 
           }
 
+          com.martinia.indigo.domain.model.Author domainAuthor = new com.martinia.indigo.domain.model.Author();
+          domainAuthor.setName(author.getName());
+          domainAuthor.setSort(author.getSort());
+          domainAuthor.setNumBooks(new NumBooks());
+          for (String lang : book.getLanguages()) {
+            domainAuthor.getNumBooks()
+                .getLanguages()
+                .put(lang, 1);
+          }
+
+          authorRepository.save(domainAuthor);
         }
 
-        log.debug("Filling {}/{} authors", cont, numBooks);
-
+        if (updateBook == true) {
+          String _id = bookRepository.findByPath(book.getPath()).getId();
+          book.setId(_id);
+          bookRepository.save(book);
+        }
       }
 
-      log.info("Filled {}/{} authors", cont, numBooks);
-      page++;
     }
 
   }
@@ -280,7 +289,7 @@ public class MetadataServiceImpl implements MetadataService {
   }
 
   private List<String> findSimilarBooks(String similar) {
-    
+
     log.info("%%%%%%%%%%%%%% init findSimilarBooks");
 
     List<String> ret = new ArrayList<>();
@@ -328,9 +337,9 @@ public class MetadataServiceImpl implements MetadataService {
           }
         }
     }
-    
+
     log.info("%%%%%%%%%%%%%% end findSimilarBooks");
-    
+
     return ret;
   }
 
@@ -341,10 +350,10 @@ public class MetadataServiceImpl implements MetadataService {
         || CollectionUtils.isEmpty(book.getSimilar())) {
 
       try {
-        
-        long seconds = ((System.currentTimeMillis()-lastExecution) / 1000);
+
+        long seconds = ((System.currentTimeMillis() - lastExecution) / 1000);
         log.info("Last execution was " + seconds + " seconds ago");
-        
+
         if (seconds < 1) {
           Thread.sleep(pullTime);
           log.info("Sleep " + pullTime + " second");
@@ -352,7 +361,7 @@ public class MetadataServiceImpl implements MetadataService {
 
         String[] goodReads = goodReadsComponent.findBook(goodreads, book.getTitle(),
             book.getAuthors(), false);
-        
+
         lastExecution = System.currentTimeMillis();
 
         boolean updateBook = false;
@@ -367,7 +376,7 @@ public class MetadataServiceImpl implements MetadataService {
               book.setSimilar(similars);
           }
 
-          updateBook = true;          
+          updateBook = true;
 
         } else {
           String[] googleBooks = googleBooksComponent.findBook(book.getTitle(),
