@@ -15,13 +15,6 @@ public class WikipediaServiceImpl implements WikipediaService {
 
   private String PROVIDER = "Wikipedia";
 
-  public static void main(String[] args) {
-
-    // TODO probar con José Luis de Vilallonga
-    WikipediaServiceImpl imp = new WikipediaServiceImpl();
-    imp.findAuthor("José Luis de Vilallonga", "es", 0);
-  }
-
   @Override
   public String[] findAuthor(String subject, String lang, int cont) {
 
@@ -158,12 +151,6 @@ public class WikipediaServiceImpl implements WikipediaService {
             if (filterTitle.contains(term)) {
               hasTerms++;
             }
-          }
-
-          if (extract.asText()
-              .toLowerCase()
-              .startsWith("for the")) {
-            log.info(title + " --> " + extract.asText());
           }
 
           if (terms.length == 1 && hasTerms > 0 || terms.length > 1 && hasTerms > 1) {

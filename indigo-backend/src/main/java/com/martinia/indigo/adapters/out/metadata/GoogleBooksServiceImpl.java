@@ -25,8 +25,6 @@ public class GoogleBooksServiceImpl implements GoogleBooksService {
 
   @Override
   public String[] findBook(String title, List<String> authors) {
-    
-    log.info("####################### init findBook");
 
     String[] ret = null;
 
@@ -143,7 +141,6 @@ public class GoogleBooksServiceImpl implements GoogleBooksService {
       e.printStackTrace();
     }
 
-    log.info("####################### end findBook");
     return ret;
   }
 }

@@ -1,8 +1,6 @@
 package com.martinia.indigo.adapters.out.metadata;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -22,8 +20,6 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 
   @Override
   public String[] findBook(String key, String title, List<String> authors, boolean withAuthor) {
-    
-    log.info("********************* init findBook");
 
     String[] ret = null;
 
@@ -167,10 +163,8 @@ public class GoodReadsServiceImpl implements GoodReadsService {
       ret = findBook(key, title, authors, true);
     }
 
-    log.info("********************* end findBook");
-    
     return ret;
-    
+
   }
 
   @Override

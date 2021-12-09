@@ -69,6 +69,372 @@ public class MetadataServiceImpl implements MetadataService {
 
   private long lastExecution;
 
+  private void fillAuthors(String id, Book book) {
+
+    boolean updateBook = false;
+
+    // Authors
+    if (!CollectionUtils.isEmpty(book.getAuthors())) {
+
+      List<Author> authors = calibreRepository.findAuthorsByBook(id);
+
+      if (!CollectionUtils.isEmpty(authors)) {
+
+        for (Author author : authors) {
+
+          if (author.getName().equals("VV., AA.") || author.getSort().equals("VV., AA.")) {
+            author.setName("AA. VV.");
+            author.setSort("AA. VV.");
+          }
+
+          if (!book.getAuthors().contains(author.getSort())) {
+
+            String[] tokens = author.getSort().replace(",", "").split(" ");
+            boolean _contains = false;
+            for (String a : book.getAuthors()) {
+              boolean contains = true;
+              for (String t : tokens) {
+                if (!a.contains(t)) {
+                  contains = false;
+                  break;
+                }
+              }
+              if (contains) {
+                _contains = true;
+
+                if (!a.equals(author.getSort())) {
+                  author.setSort(a);
+                  updateBook = true;
+                }
+              }
+            }
+
+            if (!_contains) {
+              book.getAuthors().add(author.getSort());
+              updateBook = true;
+            }
+
+          }
+
+          com.martinia.indigo.domain.model.Author domainAuthor = new com.martinia.indigo.domain.model.Author();
+          domainAuthor.setName(author.getName());
+          domainAuthor.setSort(author.getSort());
+          domainAuthor.setNumBooks(new NumBooks());
+          for (String lang : book.getLanguages()) {
+            domainAuthor.getNumBooks()
+                .getLanguages()
+                .put(lang, 1);
+          }
+
+          authorRepository.save(domainAuthor);
+        }
+
+        if (updateBook == true) {
+          String bookId = bookRepository.findByPath(book.getPath()).getId();
+          book.setId(bookId);
+          bookRepository.save(book);
+        }
+      }
+
+    }
+
+  }
+
+  private void fillMetadataAuthors(String lang, boolean override) {
+
+    metadataSingleton.setMessage("obtaining_metadata_authors");
+
+    List<String> languages = bookRepository.getBookLanguages();
+    Long numAuthors = authorRepository.count(languages);
+
+    metadataSingleton.setTotal(numAuthors);
+
+    int cont = 0;
+    int page = 0;
+    int size = BATCH_SIZE;
+    while (page * size < numAuthors) {
+
+      if (!metadataSingleton.isRunning())
+        break;
+
+      List<Author> authors = authorRepository.findAll(languages, page, size, "id", "asc");
+
+      if (!CollectionUtils.isEmpty(authors)) {
+        for (Author author : authors) {
+
+          if (!metadataSingleton.isRunning())
+            break;
+
+          metadataSingleton.setCurrent(cont++);
+
+          author = findAuthorMetadata(lang, override, author);
+
+          authorRepository.update(author);
+
+          log.debug("Obtained {}/{} authors metadata", cont, numAuthors);
+
+        }
+      }
+
+      page++;
+
+    }
+
+    log.info("Obtained {}/{} authors metadata", cont, numAuthors);
+
+  }
+
+  private void fillMetadataBooks(boolean override) {
+
+    metadataSingleton.setMessage("obtaining_metadata_books");
+
+    Long numBooks = bookRepository.count(null);
+
+    metadataSingleton.setTotal(numBooks);
+
+    int cont = 0;
+    int page = 0;
+    int size = BATCH_SIZE;
+    while (page * size < numBooks) {
+
+      if (!metadataSingleton.isRunning())
+        break;
+
+      List<Book> books = bookRepository.findAll(null, page, size, "id", "asc");
+
+      if (!CollectionUtils.isEmpty(books)) {
+        for (Book book : books) {
+
+          if (!metadataSingleton.isRunning())
+            break;
+
+          metadataSingleton.setCurrent(cont++);
+
+          book = findBookRecommendations(book);
+          book = findBookMetadata(override, book);
+
+          bookRepository.save(book);
+
+          log.debug("Obtained {}/{} books metadata", cont, numBooks);
+        }
+      }
+      page++;
+
+    }
+
+    log.info("Obtained {}/{} books metadata", cont, numBooks);
+
+  }
+
+  private Author findAuthorMetadata(String lang, boolean override, Author author) {
+    if (override
+        || author == null || StringUtils.isEmpty(author.getDescription())
+        || StringUtils.isEmpty(author.getImage()) || StringUtils.isEmpty(author.getProvider())) {
+
+      try {
+
+        author.setDescription(null);
+        author.setImage(null);
+        author.setProvider(null);
+
+        String[] wikipedia = wikipediaComponent.findAuthor(author.getName(), lang, 0);
+
+        if (wikipedia == null && !lang.equals("en")) {
+          wikipedia = wikipediaComponent.findAuthor(author.getName(), "en", 0);
+        }
+
+        if (wikipedia == null || wikipedia[1] == null) {
+          String[] goodReads = goodReadsComponent.findAuthor(goodreads, author.getName());
+          if (goodReads != null) {
+            author.setDescription(goodReads[0]);
+            author.setImage(goodReads[1]);
+            author.setProvider(goodReads[2]);
+
+            Thread.sleep(pullTime);
+          }
+
+        }
+
+        if (wikipedia != null) {
+          if (StringUtils.isEmpty(author.getDescription()) && !StringUtils.isEmpty(wikipedia[0]))
+            author.setDescription(wikipedia[0]);
+          if (StringUtils.isEmpty(author.getImage()) && !StringUtils.isEmpty(wikipedia[1]))
+            author.setImage(wikipedia[1]);
+          if (StringUtils.isEmpty(author.getProvider()) && !StringUtils.isEmpty(wikipedia[2]))
+            author.setProvider(wikipedia[2]);
+        }
+
+        if (!StringUtils.isEmpty(author.getImage()))
+          author.setImage(utilComponent.getBase64Url(author.getImage()));
+
+        if (StringUtils.isEmpty(author.getImage())) {
+          Search search = new Search();
+          search.setAuthor(author.getSort());
+          List<Book> books = bookRepository.findAll(search, 0, Integer.MAX_VALUE, "pubDate", "desc");
+          for (Book book : books) {
+            String image = utilComponent.getImageFromEpub(book.getPath(), "autor", "author");
+            author.setImage(image);
+            if (author.getImage() != null)
+              break;
+          }
+
+        }
+
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+    return author;
+  }
+
+  @Override
+  public Author findAuthorMetadata(String sort, String lang) {
+
+    Author author = authorRepository.findBySort(sort);
+    author = findAuthorMetadata(lang, true, author);
+
+    authorRepository.update(author);
+
+    return author;
+  }
+
+  private Book findBookMetadata(boolean override, Book book) {
+    if (override
+        || book.getRating() == 0 || book.getProvider() == null
+        || CollectionUtils.isEmpty(book.getSimilar())) {
+
+      try {
+
+        long seconds = ((System.currentTimeMillis() - lastExecution) / 1000);
+
+        if (seconds < 1) {
+          Thread.sleep(pullTime);
+        }
+
+        String[] goodReads = goodReadsComponent.findBook(goodreads, book.getTitle(),
+            book.getAuthors(), false);
+
+        lastExecution = System.currentTimeMillis();
+
+        // Ratings && similar books
+        if (goodReads != null) {
+          book.setRating(Float.valueOf(goodReads[0]));
+          book.setProvider(goodReads[2]);
+
+          if (StringUtils.isNotEmpty(goodReads[1])) {
+            List<String> similars = findSimilarBooks(goodReads[1]);
+            if (!CollectionUtils.isEmpty(similars))
+              book.setSimilar(similars);
+          }
+
+        } else {
+          String[] googleBooks = googleBooksComponent.findBook(book.getTitle(),
+              book.getAuthors());
+
+          if (googleBooks != null) {
+            book.setRating(Float.valueOf(googleBooks[0]));
+            book.setProvider(googleBooks[1]);
+          }
+        }
+
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+    return book;
+  }
+
+  @Override
+  public Book findBookMetadata(String path) {
+
+    Book book = bookRepository.findByPath(path);
+    book = findBookMetadata(true, book);
+
+    bookRepository.save(book);
+
+    return book;
+  }
+
+  private Book findBookRecommendations(Book book) {
+
+    List<Book> recommendations = bookRepository.getRecommendationsByBook(book);
+    if (!CollectionUtils.isEmpty(recommendations)) {
+      book.setRecommendations(new ArrayList<>());
+      recommendations.forEach(b -> book.getRecommendations()
+          .add(b.getId()));
+    }
+
+    return book;
+  }
+
+  private List<String> findSimilarBooks(String similar) {
+
+    List<String> ret = new ArrayList<>();
+
+    String[] similars = similar.split("#;#");
+    for (String s : similars) {
+      String[] data = s.split("@;@");
+      String title = data[0];
+      String author = data[1];
+
+      Search search = new Search();
+      while (title.contains("(") && title.contains(")")) {
+        String del = title.substring(title.indexOf("("), title.indexOf(")") + 1);
+        title = title.replace(del, "");
+      }
+      while (title.contains("[") && title.contains("]")) {
+        String del = title.substring(title.indexOf("["), title.indexOf("]") + 1);
+        title = title.replace(del, "");
+      }
+
+      search.setTitle(title.replace("+", "").replace("¿", "").replace("?", ""));
+
+      List<Book> books = bookRepository.findAll(search, 0, Integer.MAX_VALUE, "_id", "asc");
+      if (!CollectionUtils.isEmpty(books))
+        for (Book book : books) {
+          String _authors = String.join(" ", book.getAuthors());
+
+          String filterSimilarAuthor = StringUtils.stripAccents(author)
+              .replaceAll("[^a-zA-Z0-9]", " ")
+              .replaceAll("\\s+", " ")
+              .toLowerCase()
+              .trim();
+
+          String[] similarTerms = StringUtils.stripAccents(_authors)
+              .replaceAll("[^a-zA-Z0-9]", " ")
+              .replaceAll("\\s+", " ")
+              .split(" ");
+
+          boolean similarContains = true;
+          for (String similarTerm : similarTerms) {
+            similarTerm = StringUtils.stripAccents(similarTerm)
+                .toLowerCase()
+                .trim();
+            if (!filterSimilarAuthor.contains(similarTerm)) {
+              similarContains = false;
+            }
+          }
+
+          if (similarContains) {
+            ret.add(book.getId());
+          }
+        }
+    }
+
+    return ret;
+  }
+
+  public Map<String, Object> getStatus() {
+    Map<String, Object> data = new HashMap<>();
+    data.put("type", metadataSingleton.getType());
+    data.put("entity", metadataSingleton.getEntity());
+    data.put("status", metadataSingleton.isRunning());
+    data.put("current", metadataSingleton.getCurrent());
+    data.put("total", metadataSingleton.getTotal());
+    data.put("message", metadataSingleton.getMessage());
+    return data;
+  }
+
   @PostConstruct
   private void init() {
     goodreads = configurationRepository.findByKey("goodreads.key")
@@ -130,386 +496,10 @@ public class MetadataServiceImpl implements MetadataService {
 
     }
 
-    fillRecommendations();
     fillMetadataBooks(true);
     fillMetadataAuthors(lang, true);
+
     stop();
-  }
-
-  private void fillAuthors(String id, Book book) {
-
-    boolean updateBook = false;
-
-    // Authors
-    if (!CollectionUtils.isEmpty(book.getAuthors())) {
-
-      List<Author> authors = calibreRepository.findAuthorsByBook(id);
-
-      if (!CollectionUtils.isEmpty(authors)) {
-
-        for (Author author : authors) {
-
-          if (author.getName().equals("VV., AA.") || author.getSort().equals("VV., AA.")) {
-            author.setName("AA. VV.");
-            author.setSort("AA. VV.");
-          }
-
-          if (!book.getAuthors().contains(author.getSort())) {
-
-            String[] tokens = author.getSort().replace(",", "").split(" ");
-            boolean _contains = false;
-            for (String a : book.getAuthors()) {
-              boolean contains = true;
-              for (String t : tokens) {
-                if (!a.contains(t)) {
-                  contains = false;
-                  break;
-                }
-              }
-              if (contains) {
-                _contains = true;
-
-                if (!a.equals(author.getSort())) {
-                  author.setSort(a);;
-                  updateBook = true;
-                }
-              }
-            }
-
-            if (!_contains) {
-              book.getAuthors().add(author.getSort());
-              updateBook = true;
-            }
-
-          }
-
-          com.martinia.indigo.domain.model.Author domainAuthor = new com.martinia.indigo.domain.model.Author();
-          domainAuthor.setName(author.getName());
-          domainAuthor.setSort(author.getSort());
-          domainAuthor.setNumBooks(new NumBooks());
-          for (String lang : book.getLanguages()) {
-            domainAuthor.getNumBooks()
-                .getLanguages()
-                .put(lang, 1);
-          }
-
-          authorRepository.save(domainAuthor);
-        }
-
-        if (updateBook == true) {
-          String _id = bookRepository.findByPath(book.getPath()).getId();
-          book.setId(_id);
-          bookRepository.save(book);
-        }
-      }
-
-    }
-
-  }
-
-  private void fillRecommendations() {
-
-    metadataSingleton.setMessage("filling_recommendations");
-
-    Long numBooks = bookRepository.count(null);
-
-    metadataSingleton.setTotal(numBooks);
-
-    int cont = 0;
-    int page = 0;
-    int size = BATCH_SIZE;
-    while (page * size < numBooks) {
-
-      if (!metadataSingleton.isRunning())
-        break;
-
-      List<Book> books = bookRepository.findAll(null, page, size, "id", "asc");
-
-      for (Book book : books) {
-
-        if (!metadataSingleton.isRunning())
-          break;
-
-        metadataSingleton.setCurrent(cont++);
-
-        List<Book> recommendations = bookRepository.getRecommendationsByBook(book);
-        if (!CollectionUtils.isEmpty(recommendations)) {
-          book.setRecommendations(new ArrayList<>());
-          recommendations.forEach(b -> book.getRecommendations()
-              .add(b.getId()));
-          bookRepository.save(book);
-        }
-
-        log.debug("Generated {}/{} recommendations", cont, numBooks);
-
-      }
-
-      log.info("Generated {}/{} recommendations", cont, numBooks);
-      page++;
-    }
-
-  }
-
-  private void fillMetadataBooks(boolean override) {
-
-    metadataSingleton.setMessage("obtaining_metadata_books");
-
-    Long numBooks = bookRepository.count(null);
-
-    metadataSingleton.setTotal(numBooks);
-
-    int cont = 0;
-    int page = 0;
-    int size = BATCH_SIZE;
-    while (page * size < numBooks) {
-
-      if (!metadataSingleton.isRunning())
-        break;
-
-      List<Book> books = bookRepository.findAll(null, page, size, "id", "asc");
-
-      if (!CollectionUtils.isEmpty(books)) {
-        for (Book book : books) {
-
-          if (!metadataSingleton.isRunning())
-            break;
-
-          metadataSingleton.setCurrent(cont++);
-
-          findBookMetadata(override, book);
-          log.debug("Obtained {}/{} books metadata", cont, numBooks);
-        }
-      }
-      page++;
-
-    }
-
-    log.info("Obtained {}/{} books metadata", cont, numBooks);
-
-  }
-
-  private List<String> findSimilarBooks(String similar) {
-
-    log.info("%%%%%%%%%%%%%% init findSimilarBooks");
-
-    List<String> ret = new ArrayList<>();
-
-    String[] similars = similar.split("#;#");
-    for (String s : similars) {
-      String[] data = s.split("@;@");
-      String title = data[0];
-      String author = data[1];
-
-      Search search = new Search();
-      if (title.contains("(") && title.contains(")")) {
-        String del = title.substring(title.indexOf("("), title.indexOf(")") + 1);
-        title = title.replace(del, "");
-      }
-      search.setTitle(title);
-      List<Book> books = bookRepository.findAll(search, 0, Integer.MAX_VALUE, "_id", "asc");
-      if (!CollectionUtils.isEmpty(books))
-        for (Book book : books) {
-          String _authors = String.join(" ", book.getAuthors());
-
-          String filterSimilarAuthor = StringUtils.stripAccents(author)
-              .replaceAll("[^a-zA-Z0-9]", " ")
-              .replaceAll("\\s+", " ")
-              .toLowerCase()
-              .trim();
-
-          String[] similarTerms = StringUtils.stripAccents(_authors)
-              .replaceAll("[^a-zA-Z0-9]", " ")
-              .replaceAll("\\s+", " ")
-              .split(" ");
-
-          boolean similarContains = true;
-          for (String similarTerm : similarTerms) {
-            similarTerm = StringUtils.stripAccents(similarTerm)
-                .toLowerCase()
-                .trim();
-            if (!filterSimilarAuthor.contains(similarTerm)) {
-              similarContains = false;
-            }
-          }
-
-          if (similarContains) {
-            ret.add(book.getId());
-          }
-        }
-    }
-
-    log.info("%%%%%%%%%%%%%% end findSimilarBooks");
-
-    return ret;
-  }
-
-  private Book findBookMetadata(boolean override, Book book) {
-    log.info("*****init findBookMetadata");
-    if (override
-        || book.getRating() == 0 || book.getProvider() == null
-        || CollectionUtils.isEmpty(book.getSimilar())) {
-
-      try {
-
-        long seconds = ((System.currentTimeMillis() - lastExecution) / 1000);
-        log.info("Last execution was " + seconds + " seconds ago");
-
-        if (seconds < 1) {
-          Thread.sleep(pullTime);
-          log.info("Sleep " + pullTime + " second");
-        }
-
-        String[] goodReads = goodReadsComponent.findBook(goodreads, book.getTitle(),
-            book.getAuthors(), false);
-
-        lastExecution = System.currentTimeMillis();
-
-        boolean updateBook = false;
-        // Ratings && similar books
-        if (goodReads != null) {
-          book.setRating(Float.valueOf(goodReads[0]));
-          book.setProvider(goodReads[2]);
-
-          if (StringUtils.isNotEmpty(goodReads[1])) {
-            List<String> similars = findSimilarBooks(goodReads[1]);
-            if (!CollectionUtils.isEmpty(similars))
-              book.setSimilar(similars);
-          }
-
-          updateBook = true;
-
-        } else {
-          String[] googleBooks = googleBooksComponent.findBook(book.getTitle(),
-              book.getAuthors());
-
-          if (googleBooks != null) {
-            book.setRating(Float.valueOf(googleBooks[0]));
-            book.setProvider(googleBooks[1]);
-
-            updateBook = true;
-          }
-        }
-
-        if (updateBook) {
-          bookRepository.save(book);
-        }
-
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-    }
-    log.info("*****end findBookMetadata");
-    return book;
-  }
-
-  private void fillMetadataAuthors(String lang, boolean override) {
-
-    metadataSingleton.setMessage("obtaining_metadata_authors");
-
-    List<String> languages = bookRepository.getBookLanguages();
-    Long numAuthors = authorRepository.count(languages);
-
-    metadataSingleton.setTotal(numAuthors);
-
-    int cont = 0;
-    int page = 0;
-    int size = BATCH_SIZE;
-    while (page * size < numAuthors) {
-
-      if (!metadataSingleton.isRunning())
-        break;
-
-      List<Author> authors = authorRepository.findAll(languages, page, size, "id", "asc");
-
-      if (!CollectionUtils.isEmpty(authors)) {
-        for (Author author : authors) {
-
-          if (!metadataSingleton.isRunning())
-            break;
-
-          metadataSingleton.setCurrent(cont++);
-
-          findAuthorMetadata(lang, override, author);
-          log.debug("Obtained {}/{} authors metadata", cont, numAuthors);
-
-        }
-      }
-
-      page++;
-
-    }
-
-    log.info("Obtained {}/{} authors metadata", cont, numAuthors);
-
-  }
-
-  private Author findAuthorMetadata(String lang, boolean override, Author author) {
-    if (override
-        || author == null || StringUtils.isEmpty(author.getDescription())
-        || StringUtils.isEmpty(author.getImage()) || StringUtils.isEmpty(author.getProvider())) {
-
-      try {
-
-        author.setDescription(null);
-        author.setImage(null);
-        author.setProvider(null);
-
-        String[] wikipedia = wikipediaComponent.findAuthor(author.getName(), lang, 0);
-
-        if (wikipedia == null && !lang.equals("en")) {
-          wikipedia = wikipediaComponent.findAuthor(author.getName(), "en", 0);
-        }
-
-        if (wikipedia == null || wikipedia[1] == null) {
-          String[] _goodReads = goodReadsComponent.findAuthor(goodreads, author.getName());
-          if (_goodReads != null) {
-            author.setDescription(_goodReads[0]);
-            author.setImage(_goodReads[1]);
-            author.setProvider(_goodReads[2]);
-
-            Thread.sleep(pullTime);
-          }
-
-        }
-
-        if (wikipedia != null) {
-          if (StringUtils.isEmpty(author.getDescription()) && !StringUtils.isEmpty(wikipedia[0]))
-            author.setDescription(wikipedia[0]);
-          if (StringUtils.isEmpty(author.getImage()) && !StringUtils.isEmpty(wikipedia[1]))
-            author.setImage(wikipedia[1]);
-          if (StringUtils.isEmpty(author.getProvider()) && !StringUtils.isEmpty(wikipedia[2]))
-            author.setProvider(wikipedia[2]);
-        }
-
-        if (!StringUtils.isEmpty(author.getImage()))
-          author.setImage(utilComponent.getBase64Url(author.getImage()));
-
-        if (StringUtils.isEmpty(author.getImage())) {
-          Search search = new Search();
-          search.setAuthor(author.getSort());
-          List<Book> books = bookRepository.findAll(search, 0, Integer.MAX_VALUE, "pubDate", "desc");
-          for (Book book : books) {
-            String image = utilComponent.getImageFromEpub(book.getPath(), "autor", "author");
-            author.setImage(image);
-            if (author.getImage() != null)
-              break;
-          }
-
-        }
-
-        if (override
-            || !StringUtils.isEmpty(author.getDescription())
-            || !StringUtils.isEmpty(author.getImage())) {
-          authorRepository.update(author);
-        } else {
-          log.warn("Not found data for author {}", author.getName());
-        }
-
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-    }
-    return author;
   }
 
   private void noFilledMetadata(String lang) {
@@ -523,22 +513,6 @@ public class MetadataServiceImpl implements MetadataService {
     fillMetadataAuthors(lang, false);
 
     stop();
-  }
-
-  public Map<String, Object> getStatus() {
-    Map<String, Object> data = new HashMap<>();
-    data.put("type", metadataSingleton.getType());
-    data.put("entity", metadataSingleton.getEntity());
-    data.put("status", metadataSingleton.isRunning());
-    data.put("current", metadataSingleton.getCurrent());
-    data.put("total", metadataSingleton.getTotal());
-    data.put("message", metadataSingleton.getMessage());
-    return data;
-  }
-
-  public void stop() {
-    log.info("Stopping async process");
-    metadataSingleton.stop();
   }
 
   @Async
@@ -580,22 +554,9 @@ public class MetadataServiceImpl implements MetadataService {
     }
   }
 
-  @Override
-  public Author findAuthorMetadata(String sort, String lang) {
-
-    Author author = authorRepository.findBySort(sort);
-    author = findAuthorMetadata(lang, true, author);
-
-    return author;
-  }
-
-  @Override
-  public Book findBookMetadata(String path) {
-
-    Book book = bookRepository.findByPath(path);
-    book = findBookMetadata(true, book);
-
-    return book;
+  public void stop() {
+    log.info("Stopping async process");
+    metadataSingleton.stop();
   }
 
 }
