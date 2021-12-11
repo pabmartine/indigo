@@ -28,14 +28,13 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.util.CollectionUtils;
 import com.martinia.indigo.adapters.out.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.adapters.out.mongo.entities.NotificationMongoEntity;
+import com.martinia.indigo.adapters.out.mongo.entities.UserMongoEntity;
 import com.martinia.indigo.domain.model.Search;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository {
 
   @Autowired
@@ -328,11 +327,11 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 
     data.iterator()
         .forEachRemaining(ret::add);
-    
+
     ret = ret.stream().filter(b -> !Collections.disjoint(b.getLanguages(), languages)).collect(Collectors.toList());
     Collections.shuffle(ret);
-//    if (ret.size() > num)
-//      ret = ret.subList(0, num);
+    // if (ret.size() > num)
+    // ret = ret.subList(0, num);
 
     return ret;
   }
@@ -371,10 +370,9 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
   @Override
   public long countRecommendationsByUser(String user) {
 
-    // long init = System.currentTimeMillis();
-
     long ret = 0;
 
+//    long init = System.currentTimeMillis();
     Query query = new Query();
     List<Criteria> criterias = new ArrayList<>();
     criterias.add(Criteria.where("user").is(user));
@@ -382,6 +380,14 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
     List<NotificationMongoEntity> notifs = mongoTemplate.find(query, NotificationMongoEntity.class);
 
     if (!CollectionUtils.isEmpty(notifs)) {
+
+      query = new Query();
+      criterias.clear();
+      criterias.add(Criteria.where("username").is(user));
+      query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
+      UserMongoEntity userMongoEntity = mongoTemplate.findOne(query, UserMongoEntity.class);
+
+      List<String> languages = userMongoEntity.getLanguageBooks();
 
       List<String> recommendations = new ArrayList<>();
 
@@ -391,9 +397,10 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
         criterias.clear();
         criterias.add(Criteria.where("path").is(notif.getBook()));
         query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
-        BookMongoEntity book = mongoTemplate.find(query, BookMongoEntity.class).get(0);
+        BookMongoEntity book = mongoTemplate.findOne(query, BookMongoEntity.class);
 
-        recommendations.addAll(book.getRecommendations());
+        if (book != null && !CollectionUtils.isEmpty(book.getRecommendations()))
+          recommendations.addAll(book.getRecommendations());
 
       }
 
@@ -402,65 +409,63 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
             .distinct()
             .collect(Collectors.toList());
 
-        ret = recommendations.size();
+        ret = getRecommendationsByBook(recommendations, languages, recommendations.size()).size();
 
       }
 
     }
-
-    // System.out.println(ret + " (c1) --> " + (System.currentTimeMillis()-init) + " ms");
-    //
-    //// return ret;
-    //
-    // // Long ret = null;
-    //
-    // long init2 = System.currentTimeMillis();
-    //
-    // CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
-    // MongoClientSettings.getDefaultCodecRegistry(),
-    // org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder()
-    // .automatic(true)
-    // .build()));
-    //
-    // MongoCollection<Document> collection = mongoTemplate.getCollection("notifications")
-    // .withCodecRegistry(pojoCodecRegistry);
-    //
-    // AggregateIterable<Document> data = collection.aggregate(Arrays.asList(
-    // // new Document("$unionWith",
-    // // new Document("coll", "views").append("pipeline",
-    // // Arrays.asList(new Document("$set", new Document("_id", "$_id"))))),
-    // new Document("$match", new Document("user", user)),
-    // new Document("$project", new Document("_id", 0L).append("book", 1L)),
-    // new Document("$lookup", new Document("from", "books").append("localField", "book")
-    // .append("foreignField", "path")
-    // .append("as", "typeCategory")),
-    // new Document("$match",
-    // new Document("typeCategory.recommendations", new Document("$ne", new BsonNull()))),
-    // new Document("$unwind", new Document("path", "$typeCategory")),
-    // new Document("$unwind", new Document("path", "$typeCategory.recommendations")),
-    // new Document("$project",
-    // new Document("_id", new Document("$toObjectId", "$typeCategory.recommendations"))),
-    // new Document("$group", new Document("_id", "$_id").append("count", new Document("$sum", 1L))),
-    // new Document("$sort", new Document("count", -1L)),
-    // new Document("$lookup", new Document("from", "books").append("localField", "_id")
-    // .append("foreignField", "_id")
-    // .append("as", "book")),
-    // new Document("$replaceRoot", new Document("newRoot",
-    // new Document("$mergeObjects",
-    // Arrays.asList(new Document("$arrayElemAt", Arrays.asList("$book", 0L)), "$$ROOT")))),
-    // new Document("$count", "total")));
-    //
-    // if (data.iterator()
-    // .hasNext()) {
-    // ret = Long.parseLong(data.iterator()
-    // .next()
-    // .get("total")
-    // .toString());
-    // }
-    //
-    //
-    // System.out.println(ret + " (c2) --> " + (System.currentTimeMillis()-init2) + " ms");
-
+//    System.out.println(System.currentTimeMillis() - init);
+//    init = System.currentTimeMillis();
+//    Query query = new Query();
+//    List<Criteria> criterias = new ArrayList<>();
+//    criterias.add(Criteria.where("username").is(user));
+//    query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
+//    UserMongoEntity userMongoEntity = mongoTemplate.findOne(query, UserMongoEntity.class);
+//    List<String> languages = userMongoEntity.getLanguageBooks();
+//
+//    CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
+//        MongoClientSettings.getDefaultCodecRegistry(),
+//        org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder()
+//            .automatic(true)
+//            .build()));
+//
+//    MongoCollection<Document> collection = mongoTemplate.getCollection("notifications")
+//        .withCodecRegistry(pojoCodecRegistry);
+//
+//    AggregateIterable<Document> data = collection.aggregate(Arrays.asList(
+//
+//        new Document("$match", new Document("user", user)),
+//        new Document("$project", new Document("_id", 0L).append("book", 1L)),
+//        new Document("$lookup", new Document("from", "books").append("localField", "book")
+//            .append("foreignField", "path")
+//            .append("as", "typeCategory")),
+//        new Document("$match",
+//            new Document("typeCategory.recommendations", new Document("$ne", new BsonNull()))),
+//        new Document("$unwind", new Document("path", "$typeCategory")),
+//        new Document("$unwind", new Document("path", "$typeCategory.recommendations")),
+//        new Document("$project",
+//            new Document("_id", new Document("$toObjectId", "$typeCategory.recommendations"))),
+//        new Document("$group", new Document("_id", "$_id").append("count", new Document("$sum", 1L))),
+//        new Document("$sort", new Document("count", -1L)),
+//        new Document("$lookup", new Document("from", "books").append("localField", "_id")
+//            .append("foreignField", "_id")
+//            .append("as", "book")),
+//        new Document("$replaceRoot", new Document("newRoot",
+//            new Document("$mergeObjects",
+//                Arrays.asList(new Document("$arrayElemAt", Arrays.asList("$book", 0L)), "$$ROOT")))),
+//        new Document("$match",
+//            new Document("languages",
+//                new Document("$in", languages))),
+//        new Document("$count", "total")));
+//
+//    if (data.iterator()
+//        .hasNext()) {
+//      ret = Long.parseLong(data.iterator()
+//          .next()
+//          .get("total")
+//          .toString());
+//    }
+//    System.out.println(System.currentTimeMillis() - init);
     return ret;
   }
 
@@ -469,63 +474,12 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 
     List<BookMongoEntity> ret = new ArrayList<>();
 
-    // long init = System.currentTimeMillis();
-
-    // Query query = new Query();
-    // List<Criteria> criterias = new ArrayList<>();
-    // criterias.add(Criteria.where("user").is(user));
-    // query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
-    // List<NotificationMongoEntity> notifs = mongoTemplate.find(query, NotificationMongoEntity.class);
-    //
-    // if (!CollectionUtils.isEmpty(notifs)) {
-    //
-    // List<String> recommendations = new ArrayList<>();
-    //
-    // for (NotificationMongoEntity notif : notifs) {
-    //
-    // query = new Query();
-    // criterias.clear();
-    // criterias.add(Criteria.where("path").is(notif.getBook()));
-    // query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
-    // BookMongoEntity book = mongoTemplate.find(query, BookMongoEntity.class).get(0);
-    //
-    // recommendations.addAll(book.getRecommendations());
-    //
-    // }
-    //
-    // if (!CollectionUtils.isEmpty(recommendations)) {
-    // // Collections.shuffle(recommendations);
-    // recommendations = recommendations.stream()
-    // .distinct()
-    // .collect(Collectors.toList());
-    //
-    // int max = page * size + size;
-    // int min = page * size;
-    // if (page * size + size >= recommendations.size())
-    // max = recommendations.size();
-    //
-    // recommendations = recommendations.subList(min, max);
-    //
-    // List<ObjectId> recommendationsId = new ArrayList<>();
-    // for (String recommendation : recommendations) {
-    // recommendationsId.add(new ObjectId(recommendation));
-    // }
-    //
-    // query = new Query().with(Sort.by(Direction.fromString(order), sort));
-    // criterias.clear();
-    // criterias.add(Criteria.where("_id").in(recommendationsId));
-    // query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
-    // ret = mongoTemplate.find(query, BookMongoEntity.class);
-    //
-    // }
-    //
-    // }
-
-    // System.out.println(ret.size() + " (a1) --> " + (System.currentTimeMillis()-init) + " ms");
-
-    // long init2 = System.currentTimeMillis();
-    //
-    ret = new ArrayList<>();
+    Query query = new Query();
+    List<Criteria> criterias = new ArrayList<>();
+    criterias.add(Criteria.where("username").is(user));
+    query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
+    UserMongoEntity userMongoEntity = mongoTemplate.findOne(query, UserMongoEntity.class);
+    List<String> languages = userMongoEntity.getLanguageBooks();
 
     CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
         MongoClientSettings.getDefaultCodecRegistry(),
@@ -537,9 +491,6 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
         .withCodecRegistry(pojoCodecRegistry);
 
     AggregateIterable<BookMongoEntity> data = collection.aggregate(Arrays.asList(
-        // new Document("$unionWith",
-        // new Document("coll", "views").append("pipeline",
-        // Arrays.asList(new Document("$set", new Document("_id", "$_id"))))),
         new Document("$match", new Document("user", user)),
         new Document("$project", new Document("_id", 0L).append("book", 1L)),
         new Document("$lookup", new Document("from", "books").append("localField", "book")
@@ -559,14 +510,15 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
         new Document("$replaceRoot", new Document("newRoot",
             new Document("$mergeObjects",
                 Arrays.asList(new Document("$arrayElemAt", Arrays.asList("$book", 0L)), "$$ROOT")))),
+        new Document("$match",
+            new Document("languages",
+                new Document("$in", languages))),
         new Document("$sort", new Document(sort, (order.equals("asc") ? 1 : -1)).append("_id", -1L)),
         new Document("$skip", page * size), new Document("$limit", size - 1),
         new Document("$unset", Arrays.asList("book", "count"))), BookMongoEntity.class);
 
     data.iterator()
         .forEachRemaining(ret::add);
-
-    // System.out.println(ret.size() + " (a2) --> " + (System.currentTimeMillis()-init2) + " ms");
 
     return ret;
   }

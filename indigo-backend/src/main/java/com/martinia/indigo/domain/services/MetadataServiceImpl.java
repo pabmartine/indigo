@@ -387,7 +387,7 @@ public class MetadataServiceImpl implements MetadataService {
         title = title.replace(del, "");
       }
 
-      search.setTitle(title.replace("+", "").replace("¿", "").replace("?", ""));
+      search.setTitle(title.replace("+", "").replace("¿", "").replace("?", "").replace("*", "").replace("(", "").replace(")", "").replace("[", "").replace("]", ""));
 
       List<Book> books = bookRepository.findAll(search, 0, Integer.MAX_VALUE, "_id", "asc");
       if (!CollectionUtils.isEmpty(books))
