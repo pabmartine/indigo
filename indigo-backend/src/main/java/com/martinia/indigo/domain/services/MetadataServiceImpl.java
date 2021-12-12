@@ -508,9 +508,6 @@ public class MetadataServiceImpl implements MetadataService {
 
     metadataSingleton.setMessage("obtaining_metadata");
 
-    Long numBooks = bookRepository.count(null);
-    metadataSingleton.setTotal(metadataSingleton.getTotal() + numBooks);
-
     fillMetadataBooks(false);
     fillMetadataAuthors(lang, false);
 
