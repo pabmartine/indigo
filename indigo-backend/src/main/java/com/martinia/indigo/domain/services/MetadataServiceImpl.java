@@ -147,9 +147,9 @@ public class MetadataServiceImpl implements MetadataService {
     List<String> languages = bookRepository.getBookLanguages();
     Long numAuthors = authorRepository.count(languages);
 
-    metadataSingleton.setTotal(numAuthors);
+    metadataSingleton.setTotal(metadataSingleton.getTotal() + numAuthors);
+    
 
-    int cont = 0;
     int page = 0;
     int size = BATCH_SIZE;
     while (page * size < numAuthors) {
@@ -165,22 +165,23 @@ public class MetadataServiceImpl implements MetadataService {
           if (!metadataSingleton.isRunning())
             break;
 
-          metadataSingleton.setCurrent(cont++);
+          metadataSingleton.setCurrent(metadataSingleton.getCurrent() + 1);
 
           author = findAuthorMetadata(lang, override, author);
 
           authorRepository.update(author);
 
-          log.debug("Obtained {}/{} authors metadata", cont, numAuthors);
+          log.debug("Obtained {}/{} authors metadata", metadataSingleton.getCurrent(), numAuthors);
 
         }
       }
 
+      log.info("Obtained {}/{} authors metadata", metadataSingleton.getCurrent(), numAuthors);
       page++;
 
     }
 
-    log.info("Obtained {}/{} authors metadata", cont, numAuthors);
+    log.info("Obtained {}/{} authors metadata", metadataSingleton.getCurrent(), numAuthors);
 
   }
 
@@ -190,9 +191,8 @@ public class MetadataServiceImpl implements MetadataService {
 
     Long numBooks = bookRepository.count(null);
 
-    metadataSingleton.setTotal(numBooks);
+    metadataSingleton.setTotal(metadataSingleton.getTotal() + numBooks);
 
-    int cont = 0;
     int page = 0;
     int size = BATCH_SIZE;
     while (page * size < numBooks) {
@@ -208,21 +208,23 @@ public class MetadataServiceImpl implements MetadataService {
           if (!metadataSingleton.isRunning())
             break;
 
-          metadataSingleton.setCurrent(cont++);
+          metadataSingleton.setCurrent(metadataSingleton.getCurrent() + 1);
 
           book = findBookRecommendations(book);
           book = findBookMetadata(override, book);
 
           bookRepository.save(book);
 
-          log.debug("Obtained {}/{} books metadata", cont, numBooks);
+          log.debug("Obtained {}/{} books metadata", metadataSingleton.getCurrent(), numBooks);
         }
       }
+      
+      log.info("Obtained {}/{} books metadata", metadataSingleton.getCurrent(), numBooks);
       page++;
 
     }
 
-    log.info("Obtained {}/{} books metadata", cont, numBooks);
+    log.info("Obtained {}/{} books metadata", metadataSingleton.getCurrent(), numBooks);
 
   }
 
@@ -387,7 +389,8 @@ public class MetadataServiceImpl implements MetadataService {
         title = title.replace(del, "");
       }
 
-      search.setTitle(title.replace("+", "").replace("¿", "").replace("?", "").replace("*", "").replace("(", "").replace(")", "").replace("[", "").replace("]", ""));
+      search.setTitle(title.replace("+", "").replace("¿", "").replace("?", "").replace("*", "").replace("(", "").replace(")", "")
+          .replace("[", "").replace("]", ""));
 
       List<Book> books = bookRepository.findAll(search, 0, Integer.MAX_VALUE, "_id", "asc");
       if (!CollectionUtils.isEmpty(books))
@@ -453,9 +456,8 @@ public class MetadataServiceImpl implements MetadataService {
     bookRepository.dropCollection();
 
     Long numBooks = calibreRepository.count(null);
-    metadataSingleton.setTotal(numBooks);
+    metadataSingleton.setTotal(metadataSingleton.getTotal() + numBooks);
 
-    int cont = 0;
     int page = 0;
     int size = BATCH_SIZE;
 
@@ -470,7 +472,7 @@ public class MetadataServiceImpl implements MetadataService {
         if (!metadataSingleton.isRunning())
           break;
 
-        metadataSingleton.setCurrent(cont++);
+        metadataSingleton.setCurrent(metadataSingleton.getCurrent() + 1);
 
         try {
           String id = book.getId();
@@ -486,11 +488,11 @@ public class MetadataServiceImpl implements MetadataService {
           e.printStackTrace();
         }
 
-        log.debug("Indexed {}/{} books", cont, numBooks);
+        log.debug("Indexed {}/{} books", metadataSingleton.getCurrent(), numBooks);
 
       }
 
-      log.info("Indexed {}/{} books", cont, numBooks);
+      log.info("Indexed {}/{} books", metadataSingleton.getCurrent(), numBooks);
 
       page++;
 
@@ -507,7 +509,7 @@ public class MetadataServiceImpl implements MetadataService {
     metadataSingleton.setMessage("obtaining_metadata");
 
     Long numBooks = bookRepository.count(null);
-    metadataSingleton.setTotal(numBooks);
+    metadataSingleton.setTotal(metadataSingleton.getTotal() + numBooks);
 
     fillMetadataBooks(false);
     fillMetadataAuthors(lang, false);

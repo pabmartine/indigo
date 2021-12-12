@@ -104,7 +104,7 @@ export class HeaderComponent implements OnInit {
             message.message = this.translate.instant('locale.messages.kindle.ok', { book: book.title, user: username });
           console.log(message.message);
         } else {
-          this.userService.getById(message.user).subscribe(
+          this.userService.get(message.user).subscribe(
             data => {
               const user: User = data;
               if (message.error)
