@@ -1,1 +1,12 @@
+- Arreglar la asignación de libros enviados en la tabla usuarios y vistos
+- Revisar el algoritmo de recomendados para ver como optimizarlo o si es conveniente llevarlo a una tabla a parte o realizar un preprocesado
+- Favoritos a una sección nueva del menú
+- Actualizar librerías de angular
+- Revisar el conteo de libros por autor
+- Buscar otra fuente de datos para la bio y foto de autores
+- Arreglar el problema de docker con el frontal
+- Nueva entrada de menú para buscar por idioma
+- Poder eliminar libros por idioma
+- Poder mergear autores
+- Poder modificar el nombre de un autor --> Corregir en books y authors --> Lanzar búsqueda de metadata tras la corrección
 - ... 
