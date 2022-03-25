@@ -26,11 +26,12 @@ public class User implements Serializable {
 	private List<String> favoriteBooks;
 	private List<String> favoriteAuthors;
 
-	public User(String username, String password, String role, String language) {
+	public User(String username, String password, String role, String language, List<String> languageBooks) {
 		this.username = username;
 		this.password = password;
 		this.role = role;
 		this.language = language;
+		this.languageBooks = languageBooks;
 	}
 
 }

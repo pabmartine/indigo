@@ -30,8 +30,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 				configurationRepository.save(configuration);
 			}
 
-			if (_configuration == null || _configuration.getValue() == null || !_configuration.getValue()
-					.equals(configuration.getValue())) {
+			if (_configuration != null && (_configuration.getValue() == null || !_configuration.getValue()
+					.equals(configuration.getValue()))) {
 				_configuration.setValue(configuration.getValue());
 				configurationRepository.save(_configuration);
 			}

@@ -6,9 +6,9 @@ services:
   mongo:
     image: mongo
     environment:
-      - MONGO_INITDB_DATABASE=MongoDB
-    #  - MONGO_INITDB_ROOT_USERNAME=admin
-    #  - MONGO_INITDB_ROOT_PASSWORD=padmin
+      - MONGO_INITDB_DATABASE=indigo
+      - MONGO_INITDB_ROOT_USERNAME=indigo
+      - MONGO_INITDB_ROOT_PASSWORD=5N27A-Bjac{=wt_3
     #volumes:
     #  - ./mongo-volume:/data/db
     ports:
@@ -25,8 +25,8 @@ services:
     ports:
       - "8081:8080" # Forward the exposed port 8080 on the container to port 8080 on the host machine
     volumes:
-      - C:/Users/pmarti14/Documents/Personal/EPL:/EPL
-      - C:/Users/pmarti14/Documents/Personal/kindlegen_win32_v2_9:/kindlegen
+      - C:/Calibre/EPL:/EPL
+      - D:/Documentos/Programas/kindlegen_win32_v2_9:/kindlegen
     restart: always
     depends_on:
       - mongo
