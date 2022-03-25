@@ -55,6 +55,9 @@
 						"ok": "The book has been removed from favorites",
 						"error": "The book could not be removed from favorites"
 					}
+				},
+				"download":{
+					"error": "The book could not be downloaded"
 				}
 			},
 			"similar": {
@@ -382,6 +385,7 @@
 			"next": "Next",
 			"previous": "Previous",
 			"view": "See book",
+			"download": "Download book",
             "refresh": "Refresh metadata",
 			"favorite": {
 				"add": "Add to favorites",
