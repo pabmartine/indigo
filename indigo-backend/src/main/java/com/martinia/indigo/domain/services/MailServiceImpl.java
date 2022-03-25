@@ -20,18 +20,12 @@ public class MailServiceImpl implements MailService {
 
 	private EmailConfiguration getEmailConfig() {
 		EmailConfiguration config = new EmailConfiguration();
-		config.setHost(configurationRepository.findByKey("smtp.host")
-				.getValue());
-		config.setPort(Integer.parseInt(configurationRepository.findByKey("smtp.port")
-				.getValue()));
-		config.setUsername(configurationRepository.findByKey("smtp.username")
-				.getValue());
-		config.setPasswor(configurationRepository.findByKey("smtp.password")
-				.getValue());
-		config.setEncryption(configurationRepository.findByKey("smtp.encryption")
-				.getValue());
-		config.setKindlegen(configurationRepository.findByKey("kindlegen.path")
-				.getValue());
+		config.setHost(configurationRepository.findByKey("smtp.host").getValue());
+		config.setPort(Integer.parseInt(configurationRepository.findByKey("smtp.port").getValue()));
+		config.setUsername(configurationRepository.findByKey("smtp.username").getValue());
+		config.setPasswor(configurationRepository.findByKey("smtp.password").getValue());
+		config.setEncryption(configurationRepository.findByKey("smtp.encryption").getValue());
+		config.setKindlegen(configurationRepository.findByKey("kindlegen.path").getValue());
 		return config;
 	}
 
@@ -39,7 +33,12 @@ public class MailServiceImpl implements MailService {
 	public void testEmail(String address) {
 		boolean ret = mailSender.testEmail(address, getEmailConfig());
 		Configuration configuration = configurationRepository.findByKey("smtp.status");
-		configuration.setValue(ret ? "ok" : "error");
+		
+		if (configuration == null) {
+			configuration = new Configuration("smtp.status", ret ? "ok" : "error");
+		} else
+			configuration.setValue(ret ? "ok" : "error");
+		
 		configurationRepository.save(configuration);
 	}
 

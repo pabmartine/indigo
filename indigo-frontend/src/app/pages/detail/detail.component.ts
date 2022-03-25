@@ -15,6 +15,7 @@ import { ConfigService } from 'src/app/services/config.service';
 import { MetadataService } from 'src/app/services/metadata.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { UtilService } from 'src/app/services/util.service';
+import { saveAs } from 'file-saver';
 
 @Component({
   selector: 'app-detail',
@@ -307,6 +308,19 @@ export class DetailComponent implements OnInit {
       }
     );
 
+  }
+
+  downloadEpub() {
+    this.bookService.getEpub(this.selected.path).subscribe(
+      data => { 
+        saveAs(data, this.selected.title);
+      },
+      error => {
+        console.log(error);
+        this.messageService.clear();
+        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.download.error'), closable: false, life: 5000 });
+      }
+    );
   }
 
   isAdmin() {

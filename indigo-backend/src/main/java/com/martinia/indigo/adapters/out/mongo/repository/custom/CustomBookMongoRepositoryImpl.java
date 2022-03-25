@@ -46,7 +46,7 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 
     Query query = new Query();
 
-    if (search != null) {
+    if (search != null && !search.isEmpty()) {
 
       List<Criteria> criterias = new ArrayList<>();
 
@@ -118,6 +118,7 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
             .in(search.getLanguages()));
       }
 
+      
       query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
 
     }
@@ -130,7 +131,7 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 
     Query query = new Query().with(PageRequest.of(page, size, Sort.by(Direction.fromString(order), sort)));
 
-    if (search != null) {
+    if (search != null && !search.isEmpty()) {
 
       List<Criteria> criterias = new ArrayList<>();
 

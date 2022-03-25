@@ -775,7 +775,8 @@ body a {
 .book #deleteFavoriteBookSmall span,
 .book #send2Kindle span,
 .book #send2KindleSmall span,
-.book #viewEpub span {
+.book #viewEpub span,
+.book #downloadEpub span {
 	font-size: 24px;
 }
 

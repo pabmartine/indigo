@@ -1,6 +1,7 @@
 package com.martinia.indigo.domain.config;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Locale;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ class DataInitializerConfig {
     log.info("Initializating users...");
     if (userRepository.findByUsername(username) == null) {
       User user = new User(username, password,
-          RolesEnum.ADMIN.name(), Locale.ENGLISH.getLanguage());
+          RolesEnum.ADMIN.name(), Locale.ENGLISH.getLanguage(), Arrays.asList("spa", "eng"));
       userRepository.save(user);
     }
 

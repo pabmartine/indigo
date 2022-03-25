@@ -55,7 +55,10 @@
                         "ok": "El libro se ha quitado de favoritos",
                         "error": "El libro no se ha podido quitar de favoritos"
                     }
-                }
+                },
+				"download":{
+					"error": "No se ha podido descargar el libro"
+				}
             },
             "similar": {
                 "title": "Otros libros similares"
@@ -382,6 +385,7 @@
             "next": "Siguiente",
             "previous": "Anterior",
             "view": "Ver libro",
+            "download": "Descargar libro",
             "refresh": "Actualizar metadatos",
             "favorite": {
                 "add": "Añadir a favoritos",

@@ -55,6 +55,9 @@
 						"ok": "Le livre a été supprimé des favoris",
 						"error": "Le livre n'a pas pu être supprimé des favoris"
 					}
+				},
+				"download":{
+					"error": "Le livre n'a pas pu être téléchargé"
 				}
 			},
 			"similar": {
@@ -382,6 +385,7 @@
 			"next": "Suivant",
 			"previous": "Précédent",
 			"view": "Voir le livre",
+			"download": "Télécharger le livre",
             "refresh": "Actualiser les métadonnées",
 			"favorite": {
 				"add": "Ajouter aux favoris",

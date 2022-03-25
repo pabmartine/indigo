@@ -10,7 +10,10 @@
       <div class="p-col-5 book-title-buttons">
 
         <button id="refreshBook" type="button" pButton (click)="refreshBook();" icon="pi pi-refresh"
-        title="{{'locale.buttons.refresh' | translate}}" class="book-title-button" *ngIf="isAdmin()"></button>
+          title="{{'locale.buttons.refresh' | translate}}" class="book-title-button" *ngIf="isAdmin()"></button>
+
+        <button id="downloadEpub" type="button" pButton (click)="downloadEpub();" icon="pi pi-download"
+          title="{{'locale.buttons.download' | translate}}" class="book-title-button"></button>
 
         <button id="viewEpub" type="button" pButton (click)="viewEpub();" icon="pi pi-eye"
           title="{{'locale.buttons.view' | translate}}" class="book-title-button"></button>
@@ -49,7 +52,10 @@
           <button id="viewEpub" type="button" pButton (click)="viewEpub();" icon="pi pi-eye"
             title="{{'locale.buttons.view' | translate}}" class="book-title-button"></button>
 
-            <button id="refreshBookSmall" type="button" pButton (click)="refreshBook();" icon="pi pi-refresh"
+          <button id="downloadEpub" type="button" pButton (click)="downloadEpub();" icon="pi pi-download"
+            title="{{'locale.buttons.download' | translate}}" class="book-title-button"></button>
+
+          <button id="refreshBookSmall" type="button" pButton (click)="refreshBook();" icon="pi pi-refresh"
             title="{{'locale.buttons.refresh' | translate}}" class="book-title-button" *ngIf="isAdmin()"></button>
 
         </div>
@@ -111,7 +117,7 @@
       <div class="p-col-12 p-md-9">
         <p-card>
           <div class="content">
-            <div id="viewer" class="spreads" #viewer></div>           
+            <div id="viewer" class="spreads" #viewer></div>
           </div>
           <div class="overlay-left">
             <button type="button" pButton (click)="prev()" label="{{'locale.buttons.previous' | translate}}"></button>
@@ -122,9 +128,9 @@
         </p-card>
       </div>
     </div>
-   
 
-    
+
+
 
   </p-dialog>
 </div>

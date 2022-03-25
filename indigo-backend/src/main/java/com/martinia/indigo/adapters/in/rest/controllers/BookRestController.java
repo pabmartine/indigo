@@ -1,12 +1,14 @@
 package com.martinia.indigo.adapters.in.rest.controllers;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -68,8 +70,11 @@ public class BookRestController {
 				.replace("@¡@", "]")
 				.replace("@!@", "`"));
 
-		return new ResponseEntity<>(epub, HttpStatus.OK);
-
+		 return ResponseEntity.ok()
+                 .header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(epub.getFile()
+                         .toPath()))
+                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + epub.getFilename() + "\"")
+                 .body(epub);
 	}
 
 	@GetMapping(value = "/id", produces = MediaType.APPLICATION_JSON_VALUE)
