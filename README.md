@@ -5,7 +5,7 @@ Free web interface for the Calibre e-book library
 Indigo is a web application for the management of the Calibre book library focused on usability and speed.
 
 # Why
-[Calibre](https://calibre-ebook.com) is a great tool, but it lacks a web interface that allows you to consult your library from anywhere. Looking for software that would allow me to do this, I came across [Calibre-Web](https://github.com/janeczku/calibre-web/) from [janeczku](https://github.com/janeczku/), a magnificent tool that I recommend everyone to try it. Calibre-Web, was at first, more than enough for the aim of being able to consult my library from anywhere, but, li``ttle by little I realized that it did not fit my personal needs 100%, so using it as an example, I decided to build my own version from scratch.
+[Calibre](https://calibre-ebook.com) is a great tool, but it lacks a web interface that allows you to consult your library from anywhere. Looking for software that would allow me to do this, I came across [Calibre-Web](https://github.com/janeczku/calibre-web/) from [janeczku](https://github.com/janeczku/), a magnificent tool that I recommend everyone to try it. Calibre-Web, was at first, more than enough for the aim of being able to consult my library from anywhere, but, little by little I realized that it did not fit my personal needs 100%, so using it as an example, I decided to build my own version from scratch.
 
 # Technologies
 Indigo is made up of two independent modules, the front module coded in Angular 10 using PrimeNG and the back module in Java 8 with Spring Boot.
