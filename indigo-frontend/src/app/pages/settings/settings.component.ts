@@ -30,7 +30,6 @@ export class SettingsComponent implements OnInit {
   userList: User[];
   goodReadsKey: string;
   metadataPull: number;
-  kindlegenPath: string;
   booksRecommendations: number;
 
   smtpHost: string;
@@ -125,16 +124,6 @@ export class SettingsComponent implements OnInit {
   }
 
   getGlobal() {
-    this.configService.get("kindlegen.path").subscribe(
-      data => {
-        if (data)
-          this.kindlegenPath = data.value;
-      },
-      error => {
-        console.log(error);
-      }
-    );
-
     this.configService.get("books.recommendations").subscribe(
       data => {
         if (data)
@@ -262,7 +251,6 @@ export class SettingsComponent implements OnInit {
     configs.push(new Config("smtp.encryption", this.smtpEncryption));
     configs.push(new Config("smtp.username", this.smtpUsername));
     configs.push(new Config("smtp.password", this.smtpPassword));
-    configs.push(new Config("kindlegen.path", this.kindlegenPath));
     configs.push(new Config("books.recommendations", String(this.booksRecommendations)));
 
 

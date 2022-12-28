@@ -34,7 +34,7 @@ public class MailSenderImpl implements MailSender {
         ms.setHost(emailConfig.getHost());
         ms.setPort(emailConfig.getPort());
         ms.setUsername(emailConfig.getUsername());
-        ms.setPassword(emailConfig.getPasswor());
+        ms.setPassword(emailConfig.getPassword());
 
         Properties props = ms.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
