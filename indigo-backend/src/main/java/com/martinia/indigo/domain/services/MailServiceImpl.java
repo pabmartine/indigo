@@ -23,9 +23,8 @@ public class MailServiceImpl implements MailService {
 		config.setHost(configurationRepository.findByKey("smtp.host").getValue());
 		config.setPort(Integer.parseInt(configurationRepository.findByKey("smtp.port").getValue()));
 		config.setUsername(configurationRepository.findByKey("smtp.username").getValue());
-		config.setPasswor(configurationRepository.findByKey("smtp.password").getValue());
+		config.setPassword(configurationRepository.findByKey("smtp.password").getValue());
 		config.setEncryption(configurationRepository.findByKey("smtp.encryption").getValue());
-		config.setKindlegen(configurationRepository.findByKey("kindlegen.path").getValue());
 		return config;
 	}
 

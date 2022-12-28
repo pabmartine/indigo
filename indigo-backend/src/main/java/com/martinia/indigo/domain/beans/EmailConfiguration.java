@@ -7,10 +7,9 @@ import lombok.Setter;
 @Setter
 public class EmailConfiguration {
 
-	private String host;
-	private int port;
-	private String username;
-	private String passwor;
-	private String encryption;
-	private String kindlegen;
+    private String host;
+    private int port;
+    private String username;
+    private String password;
+    private String encryption;
 }
