@@ -69,7 +69,7 @@ public class BookSqliteMapper {
 			domain.setLastModified(parseDate(entity.getLastModified()));
 			domain.setPath(entity.getPath());
 			domain.setSerie(new Serie(entity.getSeriesIndex()
-					.intValue(), serieSqliteRepository.getSerieByBook(entity.getId()).get()));
+					.intValue(), serieSqliteRepository.getSerieByBook(entity.getId()).orElse(null)));
 			domain.setAuthors(new ArrayList<>());
 			String[] authors = entity.getAuthorSort()
 					.split("&");
@@ -84,7 +84,7 @@ public class BookSqliteMapper {
 			domain.setPages(pageSqliteRepository.findPagesByBookId(entity.getId()).orElse(0));
 
 			domain.setTags(tagSqliteRepository.getTagsByBookId(entity.getId()));
-			domain.setComment(commentSqliteRepository.findTextByBookId(entity.getId()).get());
+			domain.setComment(commentSqliteRepository.findTextByBookId(entity.getId()).orElse(null));
 			domain.setLanguages(languageSqliteRepository.getLanguageByBookId(entity.getId()));
 			domains.add(domain);
 		});
