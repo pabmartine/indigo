@@ -45,8 +45,8 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
 			Authentication autentication) throws IOException, ServletException {
 
 		// Add header
-		String nombreUsuario = autentication.getName();
-		jwtParserComponent.createToken(response, nombreUsuario);
+		String userName = autentication.getName();
+		jwtParserComponent.createToken(response, userName);
 
 	}
 

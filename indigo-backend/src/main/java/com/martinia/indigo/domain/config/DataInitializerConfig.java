@@ -42,18 +42,18 @@ class DataInitializerConfig {
 
     // Insert admin user
     log.info("Initializating users...");
-    if (userRepository.findByUsername(username) == null) {
+    if (userRepository.findByUsername(username).isEmpty()) {
       User user = new User(username, password,
           RolesEnum.ADMIN.name(), Locale.ENGLISH.getLanguage(), Arrays.asList("spa", "eng"));
       userRepository.save(user);
     }
 
     log.info("Initializating config...");
-    if (configurationRepository.findByKey("metadata.pull") == null) {
+    if (configurationRepository.findByKey("metadata.pull").isEmpty()) {
       configurationRepository.save(new Configuration("metadata.pull", pull));
     }
 
-    if (configurationRepository.findByKey("books.recommendations") == null) {
+    if (configurationRepository.findByKey("books.recommendations").isEmpty()) {
       configurationRepository.save(new Configuration("books.recommendations", recommendations));
     }
 

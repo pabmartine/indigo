@@ -128,7 +128,7 @@ public class MetadataServiceImpl implements MetadataService {
 				}
 
 				if (updateBook == true) {
-					String bookId = bookRepository.findByPath(book.getPath()).getId();
+					String bookId = bookRepository.findByPath(book.getPath()).get().getId();
 					book.setId(bookId);
 					bookRepository.save(book);
 				}
@@ -288,7 +288,7 @@ public class MetadataServiceImpl implements MetadataService {
 	@Override
 	public Author findAuthorMetadata(String sort, String lang) {
 
-		Author author = authorRepository.findBySort(sort);
+		Author author = authorRepository.findBySort(sort).get();
 		author = findAuthorMetadata(lang, true, author);
 
 		authorRepository.update(author);
@@ -342,7 +342,11 @@ public class MetadataServiceImpl implements MetadataService {
 	@Override
 	public Book findBookMetadata(String path) {
 
-		Book book = bookRepository.findByPath(path);
+		if (goodreads==null){
+			goodreads = configurationRepository.findByKey("goodreads.key").get().getValue();
+		}
+
+		Book book = bookRepository.findByPath(path).get();
 		book = findBookMetadata(true, book);
 
 		bookRepository.save(book);
@@ -495,9 +499,9 @@ public class MetadataServiceImpl implements MetadataService {
 	public void start(String lang, String type, String entity) {
 		log.info("Starting async process");
 
-		goodreads = configurationRepository.findByKey("goodreads.key").getValue();
+		goodreads = configurationRepository.findByKey("goodreads.key").get().getValue();
 
-		pullTime = Long.parseLong(configurationRepository.findByKey("metadata.pull").getValue());
+		pullTime = Long.parseLong(configurationRepository.findByKey("metadata.pull").get().getValue());
 
 		if (metadataSingleton.isRunning()) {
 			stop();

@@ -2,6 +2,7 @@ package com.martinia.indigo.ports.out.mongo;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.martinia.indigo.domain.model.Book;
 import com.martinia.indigo.domain.model.Search;
@@ -16,9 +17,9 @@ public interface BookRepository {
 
 	List<Book> findBooksBySerie(String serie);
 
-	Book findById(String id);
+	Optional<Book> findById(String id);
 
-	Book findByPath(String path);
+	Optional<Book> findByPath(String path);
 
 	Map<String, Long> getNumBooksBySerie(List<String> languages, int page, int size, String sort, String order);
 

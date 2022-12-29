@@ -44,9 +44,9 @@ public class JWTParserComponent {
 			String tokenReal = token.substring(token.indexOf(" ") + 1);
 
 			try {
-				String usuario = new TokenUtils().readToken(tokenReal, criptKey);
-				if (usuario != null) {
-					return new UserAuthDto(usuario);
+				String user = new TokenUtils().readToken(tokenReal, criptKey);
+				if (user != null) {
+					return new UserAuthDto(user);
 				}
 			} catch (Exception ex) {
 				request.setAttribute("payload", ex.getMessage());

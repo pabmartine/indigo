@@ -1,6 +1,7 @@
 package com.martinia.indigo.ports.out.mongo;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.martinia.indigo.domain.model.Author;
 import com.martinia.indigo.domain.model.Book;
@@ -20,9 +21,9 @@ public interface UserRepository {
 
 	public List<User> findAll();
 
-	public User findById(String id);
+	public Optional<User> findById(String id);
 
-	public User findByUsername(String string);
+	public Optional<User> findByUsername(String string);
 
 	public List<Book> getFavoriteBooks(String user);
 	

@@ -7,13 +7,15 @@ import com.martinia.indigo.adapters.out.mongo.entities.AuthorMongoEntity;
 import com.martinia.indigo.adapters.out.mongo.repository.custom.CustomAuthorMongoRepository;
 import com.martinia.indigo.adapters.out.mongo.repository.custom.CustomGlobalMongoRepository;
 
+import java.util.Optional;
+
 public interface AuthorMongoRepository
 		extends MongoRepository<AuthorMongoEntity, String>, CustomAuthorMongoRepository, CustomGlobalMongoRepository {
 
 	@Query("{ 'name' : ?0 }")
-	AuthorMongoEntity findByName(String name);
+	Optional<AuthorMongoEntity> findByName(String name);
 
 	@Query("{ 'sort' : ?0 }")
-	AuthorMongoEntity findBySort(String sort);
+	Optional<AuthorMongoEntity> findBySort(String sort);
 
 }

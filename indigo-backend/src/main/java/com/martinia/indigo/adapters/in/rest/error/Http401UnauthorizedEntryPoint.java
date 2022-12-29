@@ -25,10 +25,10 @@ public class Http401UnauthorizedEntryPoint implements AuthenticationEntryPoint {
 	 * Always returns a 401 error code to the client.
 	 */
 	@Override
-	public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException arg2)
-			throws IOException, ServletException {
+	public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)
+			throws IOException {
 
-		log.error(arg2.getMessage());
+		log.error(exception.getMessage());
 
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

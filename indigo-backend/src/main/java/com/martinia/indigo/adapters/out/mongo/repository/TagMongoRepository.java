@@ -7,8 +7,10 @@ import com.martinia.indigo.adapters.out.mongo.entities.TagMongoEntity;
 import com.martinia.indigo.adapters.out.mongo.repository.custom.CustomGlobalMongoRepository;
 import com.martinia.indigo.adapters.out.mongo.repository.custom.CustomTagMongoRepository;
 
+import java.util.Optional;
+
 public interface TagMongoRepository extends MongoRepository<TagMongoEntity, String>, CustomTagMongoRepository, CustomGlobalMongoRepository {
 
 	@Query("{ 'name' : ?0 }")
-	TagMongoEntity findByName(String tag);
+	Optional<TagMongoEntity> findByName(String tag);
 }

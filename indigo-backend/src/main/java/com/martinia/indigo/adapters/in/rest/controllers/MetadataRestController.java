@@ -44,9 +44,7 @@ public class MetadataRestController {
 
   @GetMapping(value = "/status", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<Map<String, Object>> getStatus() {
-    Map<String, Object> ret = null;
-    ret = metadataService.getStatus();
-    return new ResponseEntity<>(ret, HttpStatus.OK);
+    return new ResponseEntity<>(metadataService.getStatus(), HttpStatus.OK);
   }
 
   @GetMapping(value = "/author", produces = MediaType.APPLICATION_JSON_VALUE)

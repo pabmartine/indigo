@@ -6,12 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
 import java.util.Arrays;
@@ -65,19 +67,9 @@ public class MailSenderImpl implements MailSender {
         File file = new File(basePath);
         if (file.exists()) {
             File[] files = file.listFiles();
-            Optional<File> epub = Arrays.stream(files).filter(f -> f.getName().endsWith(".epub")).findFirst();
+            Optional<File> epubFile = Arrays.stream(files).filter(f -> f.getName().endsWith(".epub")).findFirst();
 
-
-            if (epub.isPresent()) {
-                try {
-                    this.sendEmail(epub.get().getName(), epub.get(), address, emailConfig);
-                } catch (Exception e) {
-                    error = e.getMessage();
-                    log.error(error);
-                }
-            } else {
-                error = "file.not.exist"; //TODO: corregir
-            }
+            error = epubFile.map(epub -> this.sendEmail(epub.getName(), epub, address, emailConfig)).orElse("file.not.exist");  //TODO: corregir
 
         } else {
             error = "file.not.exist"; //TODO: corregir
@@ -86,26 +78,29 @@ public class MailSenderImpl implements MailSender {
         return error;
     }
 
-    private void sendEmail(String filename, File f, String address, EmailConfiguration emailConfig) throws Exception {
+    private String sendEmail(String filename, File f, String address, EmailConfiguration emailConfig) {
+        String error = null;
+        try {
+            init(emailConfig);
 
+            MimeMessage message = javaMailSender.createMimeMessage();
 
-        init(emailConfig);
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-        MimeMessage message = javaMailSender.createMimeMessage();
+            helper.setFrom("no-reply@indigo.com");
+            helper.setTo(address);
+            helper.setSubject("INDIGO");
+            helper.setText(filename + "sent to Kindle");
 
-        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            FileSystemResource file = new FileSystemResource(f);
+            helper.addAttachment(filename, file);
 
-        helper.setFrom("no-reply@indigo.com");
-        helper.setTo(address);
-        helper.setSubject("INDIGO");
-        helper.setText(filename + "sent to Kindle");
-
-        FileSystemResource file = new FileSystemResource(f);
-        helper.addAttachment(filename, file);
-
-        javaMailSender.send(message);
-
-
+            javaMailSender.send(message);
+        } catch (MailException | MessagingException e) {
+            error = e.getMessage();
+            log.error(error);
+        }
+        return error;
     }
 
     @Override
@@ -124,7 +119,7 @@ public class MailSenderImpl implements MailSender {
             javaMailSender.send(message);
 
             ret = true;
-        } catch (Exception e) {
+        } catch (MailException e) {
             log.error(e.getMessage());
         }
         return ret;

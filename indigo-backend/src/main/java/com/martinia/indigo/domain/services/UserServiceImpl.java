@@ -1,6 +1,7 @@
 package com.martinia.indigo.domain.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,12 +24,12 @@ public class UserServiceImpl implements UserService {
 	PasswordEncoder passwordEncoder;
 
 	@Override
-	public User findByUsername(String username) {
+	public Optional<User> findByUsername(String username) {
 		return userRepository.findByUsername(username);
 	}
 
 	@Override
-	public User findById(String id) {
+	public Optional<User> findById(String id) {
 		return userRepository.findById(id);
 	}
 
@@ -53,7 +54,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public void update(User user) {
-		User _user = this.findById(user.getId());
+		User _user = this.findById(user.getId()).get();
 
 		if (!_user.getPassword()
 				.equals(user.getPassword()))

@@ -7,10 +7,12 @@ import org.springframework.stereotype.Repository;
 
 import com.martinia.indigo.adapters.out.sqlite.entities.AuthorSqliteEntity;
 
+import java.util.Optional;
+
 @Repository
 public interface SerieSqliteRepository extends CrudRepository<AuthorSqliteEntity, Integer> {
 
 	@Query("select s.name from SerieSqliteEntity s, BooksSeriesLinkSqliteEntity l where l.series = s.id and l.book = :id")
-	String getSerieByBook(@Param("id") int id);
+	Optional<String> getSerieByBook(@Param("id") int id);
 
 }

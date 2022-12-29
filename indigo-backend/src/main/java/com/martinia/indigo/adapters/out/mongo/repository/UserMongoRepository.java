@@ -4,7 +4,9 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import com.martinia.indigo.adapters.out.mongo.entities.UserMongoEntity;
 
+import java.util.Optional;
+
 public interface UserMongoRepository extends MongoRepository<UserMongoEntity, String> {
 
-	UserMongoEntity findByUsername(String username);
+	Optional<UserMongoEntity> findByUsername(String username);
 }

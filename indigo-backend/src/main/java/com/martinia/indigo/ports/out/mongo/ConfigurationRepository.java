@@ -2,10 +2,12 @@ package com.martinia.indigo.ports.out.mongo;
 
 import com.martinia.indigo.domain.model.Configuration;
 
+import java.util.Optional;
+
 public interface ConfigurationRepository {
 
-	public void save(Configuration configuration);
+	void save(Configuration configuration);
 
-	public Configuration findByKey(String key);
+	Optional<Configuration> findByKey(String key);
 
 }

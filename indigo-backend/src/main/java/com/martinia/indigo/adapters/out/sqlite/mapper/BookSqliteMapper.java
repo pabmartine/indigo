@@ -61,7 +61,7 @@ public class BookSqliteMapper {
 
 	public List<Book> entities2Domains(List<BookSqliteEntity> entities) {
 		List<Book> domains = new ArrayList<>(entities.size());
-		for (BookSqliteEntity entity : entities) {
+		entities.forEach(entity -> {
 			Book domain = new Book();
 			domain.setId(String.valueOf(entity.getId()));
 			domain.setTitle(entity.getTitle());
@@ -69,14 +69,14 @@ public class BookSqliteMapper {
 			domain.setLastModified(parseDate(entity.getLastModified()));
 			domain.setPath(entity.getPath());
 			domain.setSerie(new Serie(entity.getSeriesIndex()
-					.intValue(), serieSqliteRepository.getSerieByBook(entity.getId())));
+					.intValue(), serieSqliteRepository.getSerieByBook(entity.getId()).get()));
 			domain.setAuthors(new ArrayList<>());
 			String[] authors = entity.getAuthorSort()
 					.split("&");
 			for (String author : authors) {
-			  if (author.trim().equals("VV., AA.")) {
-                author = "AA. VV.";
-              }
+				if (author.trim().equals("VV., AA.")) {
+					author = "AA. VV.";
+				}
 				domain.getAuthors()
 						.add(author.trim());
 			}
@@ -84,10 +84,10 @@ public class BookSqliteMapper {
 			domain.setPages(pageSqliteRepository.findPagesByBookId(entity.getId()).orElse(0));
 
 			domain.setTags(tagSqliteRepository.getTagsByBookId(entity.getId()));
-			domain.setComment(commentSqliteRepository.findTextByBookId(entity.getId()));
+			domain.setComment(commentSqliteRepository.findTextByBookId(entity.getId()).get());
 			domain.setLanguages(languageSqliteRepository.getLanguageByBookId(entity.getId()));
 			domains.add(domain);
-		}
+		});
 		return domains;
 
 	}

@@ -35,9 +35,7 @@ public class TagMongoEntity implements Serializable {
 		this.name = tag;
 		this.numBooks = new NumBooksMongoBean();
 		this.numBooks.setTotal(1);
-		for (String lang : languages) {
-			this.numBooks.getLanguages().put(lang, 1);
-		}
+		languages.forEach(lang -> this.numBooks.getLanguages().put(lang, 1));
 	}
 	
 }

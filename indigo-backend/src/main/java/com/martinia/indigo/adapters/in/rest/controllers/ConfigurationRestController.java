@@ -30,8 +30,7 @@ public class ConfigurationRestController {
 
 	@GetMapping(value = "/get", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<ConfigurationDto> get(@RequestParam String key) {
-		Configuration configuration = configurationService.findByKey(key);
-		ConfigurationDto configurationDto = configurationDtoMapper.domain2Dto(configuration);
+		ConfigurationDto configurationDto = configurationService.findByKey(key).map(conf -> configurationDtoMapper.domain2Dto(conf)).orElse(null);
 		return new ResponseEntity<>(configurationDto, HttpStatus.OK);
 
 	}

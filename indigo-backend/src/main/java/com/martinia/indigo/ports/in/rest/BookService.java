@@ -2,6 +2,8 @@ package com.martinia.indigo.ports.in.rest;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
 import org.springframework.core.io.Resource;
 import com.martinia.indigo.domain.model.Book;
 import com.martinia.indigo.domain.model.Search;
@@ -12,7 +14,7 @@ public interface BookService {
 
 	List<Book> findAll(Search search, int page, int size, String sort, String order);
 
-	Book findById(String id);
+	Optional<Book> findById(String id);
 
 	List<Book> getSimilar(List<String> similar, List<String> languages);
 
@@ -26,7 +28,7 @@ public interface BookService {
 
 	List<Book> findBooksBySerie(String serie);
 
-	Book findByPath(String path);
+	Optional<Book> findByPath(String path);
 
 	Long countRecommendationsByUser(String user);
 
