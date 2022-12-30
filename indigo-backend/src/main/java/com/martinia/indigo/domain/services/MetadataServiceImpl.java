@@ -28,6 +28,7 @@ import java.util.*;
 @Service
 public class MetadataServiceImpl implements MetadataService {
 
+
     @Autowired
     private BookRepository bookRepository;
 
@@ -133,7 +134,9 @@ public class MetadataServiceImpl implements MetadataService {
 
         }
 
-    }
+
+		}
+
 
     private void fillMetadataAuthors(String lang, boolean override) {
 
@@ -177,7 +180,9 @@ public class MetadataServiceImpl implements MetadataService {
 
         log.info("Obtained {}/{} authors metadata", metadataSingleton.getCurrent(), numAuthors);
 
-    }
+
+		}
+
 
     private void fillMetadataBooks(boolean override) {
 
@@ -220,7 +225,10 @@ public class MetadataServiceImpl implements MetadataService {
 
         log.info("Obtained {}/{} books metadata", metadataSingleton.getCurrent(), numBooks);
 
-    }
+
+			log.info("Obtained {}/{} books metadata", metadataSingleton.getCurrent(), numBooks);
+			page++;
+
 
     private Author findAuthorMetadata(String lang, boolean override, Author author) {
         if (override || author == null || StringUtils.isEmpty(author.getDescription())
@@ -538,5 +546,6 @@ public class MetadataServiceImpl implements MetadataService {
         log.info("Stopping async process");
         metadataSingleton.stop();
     }
+
 
 }
