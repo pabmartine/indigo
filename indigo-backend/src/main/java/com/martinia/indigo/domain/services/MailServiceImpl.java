@@ -13,6 +13,7 @@ import java.util.Optional;
 @Service
 public class MailServiceImpl implements MailService {
 
+
     @Autowired
     MailSender mailSender;
 
@@ -44,5 +45,6 @@ public class MailServiceImpl implements MailService {
     public String mail(String path, String address) {
         return mailSender.mail(path.replace("@_@", "&").replace("@-@", "[").replace("@¡@", "]").replace("@!@", "`"), address, getEmailConfig());
     }
+
 
 }

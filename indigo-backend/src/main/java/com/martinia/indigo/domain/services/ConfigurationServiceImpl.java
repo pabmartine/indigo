@@ -27,6 +27,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
             Optional<Configuration> _configuration = this.findByKey(configuration.getKey());
 
+
             _configuration.ifPresentOrElse(conf -> {
                 if (conf.getValue() == null || !conf.getValue()
                         .equals(configuration.getValue())) {

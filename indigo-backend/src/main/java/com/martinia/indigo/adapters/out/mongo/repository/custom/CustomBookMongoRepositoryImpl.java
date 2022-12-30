@@ -39,6 +39,7 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
 
         Query query = new Query();
 
+
         List<Criteria> criterias = new ArrayList<>();
 
         if (search != null && !search.isEmpty()) {
@@ -97,6 +98,7 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
                 criterias.add(Criteria.where("serie.name").is(search.getSerie()));
             }
 
+
         }
 
         if (search != null) {//TODO: mejorar esto
@@ -120,6 +122,7 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
         List<Criteria> criterias = new ArrayList<>();
 
         if (search != null && !search.isEmpty()) {
+
 
             if (StringUtils.isNoneEmpty(search.getPath())) {
 

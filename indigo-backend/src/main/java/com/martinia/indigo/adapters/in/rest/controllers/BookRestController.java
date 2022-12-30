@@ -65,6 +65,7 @@ public class BookRestController {
 	@GetMapping(value = "/epub")
 	public ResponseEntity<Resource> getEpub(@RequestParam String path) throws IOException {
 
+
 		Resource epub = bookService.getEpub(path);
 
 		 return ResponseEntity.ok()
