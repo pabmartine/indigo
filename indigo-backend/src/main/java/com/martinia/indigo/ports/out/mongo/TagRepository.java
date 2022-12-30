@@ -8,17 +8,17 @@ import com.martinia.indigo.domain.model.Tag;
 public interface TagRepository {
 
 
-	public List<Tag> findAll(List<String> languages, String sort, String order);
+	List<Tag> findAll(List<String> languages, String sort, String order);
 
-	public Optional<Tag> findByName(String name);
+	Optional<Tag> findByName(String name);
 
-	public void image(String source, String image);
+	void image(String source, String image);
 
-	public void merge(String source, String target);
+	void merge(String source, String target);
 
-	public void rename(String source, String target);
+	void rename(String source, String target);
 
-	public void save(List<String> tags, List<String> languages);
+	void save(List<String> tags, List<String> languages);
 
 	void dropCollection();
 

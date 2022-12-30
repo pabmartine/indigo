@@ -1,6 +1,8 @@
 package com.martinia.indigo.ports.in.rest;
 
 import java.util.Map;
+import java.util.Optional;
+
 import com.martinia.indigo.domain.model.Author;
 import com.martinia.indigo.domain.model.Book;
 
@@ -12,8 +14,8 @@ public interface MetadataService {
 
   void start(String lang, String type, String entity);
 
-  Author findAuthorMetadata(String sort, String lang);
+  Optional<Author> findAuthorMetadata(String sort, String lang);
 
-  Book findBookMetadata(String book);
+  Optional<Book> findBookMetadata(String book);
 
 }
