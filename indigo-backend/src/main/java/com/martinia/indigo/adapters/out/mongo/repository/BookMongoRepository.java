@@ -1,6 +1,7 @@
 package com.martinia.indigo.adapters.out.mongo.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -19,10 +20,10 @@ public interface BookMongoRepository
 	List<BookMongoEntity> findByTag(String name);
 
 	@Query("{ 'title' : ?0 }")
-	BookMongoEntity findByTitle(String title);
+	Optional<BookMongoEntity> findByTitle(String title);
 
 	@Query("{ 'path' : ?0 }")
-	BookMongoEntity findByPath(String path);
+	Optional<BookMongoEntity> findByPath(String path);
 	
 	
 

@@ -1,6 +1,7 @@
 package com.martinia.indigo.ports.out.mongo;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.martinia.indigo.domain.model.Author;
 
@@ -10,9 +11,9 @@ public interface AuthorRepository {
 
 	List<Author> findAll(List<String> languages, int page, int size, String sort, String order);
 
-	Author findById(String id);
+	Optional<Author> findById(String id);
 
-	Author findBySort(String sort);
+	Optional<Author> findBySort(String sort);
 
 	void save(Author author);
 

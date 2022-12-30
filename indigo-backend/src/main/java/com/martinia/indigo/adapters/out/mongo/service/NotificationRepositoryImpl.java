@@ -1,9 +1,6 @@
 package com.martinia.indigo.adapters.out.mongo.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -83,9 +80,8 @@ public class NotificationRepositoryImpl implements NotificationRepository {
 	}
 
 	@Override
-	public Notification findById(String id) {
-		return notificationMongoMapper.entity2Domain(notificationMongoRepository.findById(id)
-				.get());
+	public Optional<Notification> findById(String id) {
+		return notificationMongoRepository.findById(id).map(notification -> Optional.of( notificationMongoMapper.entity2Domain(notification))).orElse(Optional.empty());
 	}
 
 	@Override
@@ -113,14 +109,13 @@ public class NotificationRepositoryImpl implements NotificationRepository {
 	public List<Book> getSentBooks(String user) {
 		Map<String, Book> map = new HashMap<>();
 		List<NotificationMongoEntity> notifs = notificationMongoRepository.findByUser(user);
-
-		for (NotificationMongoEntity notif : notifs) {
+		notifs.forEach(notif -> {
 			if (!map.containsKey(notif.getBook())) {
-				BookMongoEntity book = bookMongoRepository.findByPath(notif.getBook());
-				if (book != null)
-					map.put(notif.getBook(), bookMongoMapper.entity2Domain(book));
+				Optional<BookMongoEntity> book = bookMongoRepository.findByPath(notif.getBook());
+				if (book.isPresent())
+					map.put(notif.getBook(), bookMongoMapper.entity2Domain(book.get()));
 			}
-		}
+		});
 
 		return new ArrayList<>(map.values());
 	}

@@ -1,6 +1,7 @@
 package com.martinia.indigo.ports.in.rest;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.martinia.indigo.domain.model.Author;
 import com.martinia.indigo.domain.model.Book;
@@ -20,9 +21,9 @@ public interface UserService {
 
 	List<User> findAll();
 
-	User findById(String id);
+	Optional<User> findById(String id);
 
-	User findByUsername(String username);
+	Optional<User> findByUsername(String username);
 
 	List<Author> getFavoriteAuthors(String user);
 	

@@ -250,9 +250,6 @@
                 },
                 "global": {
                     "title": "General",
-                    "path": {
-                        "kindlegen": "Ruta a la instalación de kindlegen"
-                    },
                     "recommendations": "Número máximo de lecturas recomendadas por libro",
                     "recommendations2": "Número máximo de lecturas recomendadas por usuario"
                 },

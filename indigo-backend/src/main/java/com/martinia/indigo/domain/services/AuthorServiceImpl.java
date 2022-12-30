@@ -1,6 +1,7 @@
 package com.martinia.indigo.domain.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,9 +27,8 @@ public class AuthorServiceImpl implements AuthorService {
 	}
 
 	@Override
-	public Author findBySort(String name) {
+	public Optional<Author> findBySort(String name) {
 		return authorRepository.findBySort(name);
-
 	}
 
 }

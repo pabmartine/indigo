@@ -2,6 +2,8 @@ package com.martinia.indigo.adapters.in.rest.controllers;
 
 import java.util.List;
 import javax.transaction.Transactional;
+
+import com.martinia.indigo.adapters.in.rest.dtos.TagDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -46,8 +48,8 @@ public class AuthorRestController {
 
   @GetMapping(value = "/sort", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<AuthorDto> findBySortName(@RequestParam String sort) {
-    Author author = authorService.findBySort(sort);
-    AuthorDto authorDto = authorDtoMapper.domain2Dto(author);
+
+    AuthorDto authorDto = authorService.findBySort(sort).map(author -> authorDtoMapper.domain2Dto(author)).orElse(null);
     return new ResponseEntity<>(authorDto, HttpStatus.OK);
   }
 

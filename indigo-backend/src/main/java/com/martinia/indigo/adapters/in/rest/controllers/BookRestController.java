@@ -65,10 +65,8 @@ public class BookRestController {
 	@GetMapping(value = "/epub")
 	public ResponseEntity<Resource> getEpub(@RequestParam String path) throws IOException {
 
-		Resource epub = bookService.getEpub(path.replace("@_@", "&")
-				.replace("@-@", "[")
-				.replace("@¡@", "]")
-				.replace("@!@", "`"));
+
+		Resource epub = bookService.getEpub(path);
 
 		 return ResponseEntity.ok()
                  .header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(epub.getFile()
@@ -79,17 +77,13 @@ public class BookRestController {
 
 	@GetMapping(value = "/id", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<BookDto> getBookById(@RequestParam String id) {
-
-		Book book = bookService.findById(id);
-		BookDto bookDto = bookDtoMapper.domain2Dto(book);
+		BookDto bookDto = bookService.findById(id).map(book -> bookDtoMapper.domain2Dto(book)).orElse(null);
 		return new ResponseEntity<>(bookDto, HttpStatus.OK);
 	}
 
 	@GetMapping(value = "/path", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<BookDto> getBookByPath(@RequestParam String path) {
-
-		Book book = bookService.findByPath(path);
-		BookDto bookDto = bookDtoMapper.domain2Dto(book);
+		BookDto bookDto = bookService.findByPath(path).map(book -> bookDtoMapper.domain2Dto(book)).orElse(null);
 		return new ResponseEntity<>(bookDto, HttpStatus.OK);
 	}
 

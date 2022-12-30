@@ -38,8 +38,7 @@ public class TagRestController {
 
 	@GetMapping(value = "/tag", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<TagDto> getTagByName(@RequestParam String name) {
-		Tag tag = tagService.findByName(name);
-		TagDto tagDto = tagDtoMapper.domain2Dto(tag);
+		TagDto tagDto = tagService.findByName(name).map(tag -> tagDtoMapper.domain2Dto(tag)).orElse(null);
 		return new ResponseEntity<>(tagDto, HttpStatus.OK);
 	}
 

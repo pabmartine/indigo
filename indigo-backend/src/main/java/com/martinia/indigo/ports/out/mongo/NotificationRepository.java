@@ -1,6 +1,7 @@
 package com.martinia.indigo.ports.out.mongo;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.martinia.indigo.domain.enums.NotificationEnum;
 import com.martinia.indigo.domain.enums.StatusEnum;
@@ -23,7 +24,7 @@ public interface NotificationRepository {
 
 	void save(Notification notification);
 
-	Notification findById(String id);
+	Optional<Notification> findById(String id);
 
 	void delete(String id);
 

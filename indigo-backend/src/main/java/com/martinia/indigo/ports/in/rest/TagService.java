@@ -1,13 +1,14 @@
 package com.martinia.indigo.ports.in.rest;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.martinia.indigo.domain.model.Tag;
 
 
 public interface TagService {
 
-	Tag findByName(String name);
+	Optional<Tag> findByName(String name);
 
 	void rename(String source, String target);
 

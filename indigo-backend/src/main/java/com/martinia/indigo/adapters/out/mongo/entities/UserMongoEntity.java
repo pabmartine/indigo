@@ -1,6 +1,7 @@
 package com.martinia.indigo.adapters.out.mongo.entities;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Id;
@@ -28,8 +29,8 @@ public class UserMongoEntity implements Serializable {
 	private String kindle;
 	private String role;
 	private String language;
-	private List<String> languageBooks;
-	private List<String> favoriteBooks;
-	private List<String> favoriteAuthors;
+	private List<String> languageBooks = new ArrayList<>();
+	private List<String> favoriteBooks = new ArrayList<>();
+	private List<String> favoriteAuthors = new ArrayList<>();
 
 }

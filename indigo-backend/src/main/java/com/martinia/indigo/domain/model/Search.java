@@ -30,9 +30,16 @@ public class Search implements Serializable {
 
 	public boolean isEmpty() {
 		boolean ret = false;
-		if (StringUtils.isEmpty(this.path) && StringUtils.isEmpty(this.title) && StringUtils.isEmpty(this.author)
-				&& ini == null && end == null && min == null && max == null && serie == null
-				&& CollectionUtils.isEmpty(selectedTags)) {
+		if (StringUtils.isEmpty(this.path)
+				&& StringUtils.isEmpty(this.title)
+				&& StringUtils.isEmpty(this.author)
+				&& ini == null
+				&& end == null
+				&& min == null
+				&& max == null
+				&& serie == null
+				&& CollectionUtils.isEmpty(selectedTags)
+		) {
 			ret = true;
 		}
 		return ret;

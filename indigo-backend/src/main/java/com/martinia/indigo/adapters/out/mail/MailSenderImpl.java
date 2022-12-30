@@ -1,189 +1,128 @@
 package com.martinia.indigo.adapters.out.mail;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.util.Base64;
-import java.util.Properties;
-
-import javax.mail.internet.MimeMessage;
-
+import com.martinia.indigo.domain.beans.EmailConfiguration;
+import com.martinia.indigo.ports.out.mail.MailSender;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
-import com.martinia.indigo.domain.beans.EmailConfiguration;
-import com.martinia.indigo.ports.out.mail.MailSender;
-
-import lombok.extern.slf4j.Slf4j;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.io.File;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.Properties;
 
 @Slf4j
 @Service
 public class MailSenderImpl implements MailSender {
 
-	@Autowired
-	private JavaMailSender javaMailSender;
+    @Autowired
+    private JavaMailSender javaMailSender;
 
-	@Value("${book.library.path}")
-	private String libraryPath;
+    @Value("${book.library.path}")
+    private String libraryPath;
 
-	private void init(EmailConfiguration emailConfig) {
+    private void init(EmailConfiguration emailConfig) {
 
-		JavaMailSenderImpl ms = (JavaMailSenderImpl) javaMailSender;
-		ms.setHost(emailConfig.getHost());
-		ms.setPort(emailConfig.getPort());
-		ms.setUsername(emailConfig.getUsername());
-		ms.setPassword(emailConfig.getPasswor());
+        JavaMailSenderImpl ms = (JavaMailSenderImpl) javaMailSender;
+        ms.setHost(emailConfig.getHost());
+        ms.setPort(emailConfig.getPort());
+        ms.setUsername(emailConfig.getUsername());
+        ms.setPassword(emailConfig.getPassword());
 
-		Properties props = ms.getJavaMailProperties();
-		props.put("mail.transport.protocol", "smtp");
+        Properties props = ms.getJavaMailProperties();
+        props.put("mail.transport.protocol", "smtp");
 
-		String encryption = emailConfig.getEncryption();
+        String encryption = emailConfig.getEncryption();
 
-		if (encryption.equals("starttls")) {
-			props.put("mail.smtp.auth", "true");
-			props.put("mail.smtp.starttls.enable", "true");
-		} else if (encryption.equals("ssl/tls")) {
-			props.put("mail.smtp.auth", "true");
-			props.put("mail.smtp.socketFactory.port", "465");
-			props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-		}
+        if (encryption.equals("starttls")) {
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.starttls.enable", "true");
+        } else if (encryption.equals("ssl/tls")) {
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.socketFactory.port", "465");
+            props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+        }
 
-	}
+    }
 
-	@Override
-	public String mail(String path, String address, EmailConfiguration emailConfig) {
+    @Override
+    public String mail(String path, String address, EmailConfiguration emailConfig) {
 
-		String error = null;
+        String error = null;
 
-		if (!libraryPath.endsWith(File.separator))
-			libraryPath += File.separator;
+        if (!libraryPath.endsWith(File.separator))
+            libraryPath += File.separator;
 
-		String basePath = libraryPath + path;
+        String basePath = libraryPath + path;
 
-		File file = new File(basePath);
-		if (file.exists()) {
-			File[] files = file.listFiles();
-			File epub = null;
-			File mobi = null;
-			for (File f : files) {
-				if (f.getName()
-						.endsWith(".epub"))
-					epub = f;
-				else if (f.getName()
-						.endsWith(".mobi"))
-					mobi = f;
-			}
+        File file = new File(basePath);
+        if (file.exists()) {
+            File[] files = file.listFiles();
+            Optional<File> epubFile = Arrays.stream(files).filter(f -> f.getName().endsWith(".epub")).findFirst();
 
-			if (mobi == null) {
-				try {
+            error = epubFile.map(epub -> this.sendEmail(epub.getName(), epub, address, emailConfig)).orElse("file.not.exist");  //TODO: corregir
 
-					String name = epub.getName()
-							.substring(0, epub.getName()
-									.indexOf("."));
-					String newName = Base64.getEncoder()
-							.encodeToString(name.getBytes()) + ".epub";
+        } else {
+            error = "file.not.exist"; //TODO: corregir
+        }
 
-					File destination = new File(libraryPath + newName);
+        return error;
+    }
 
-					Files.copy(epub.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    private String sendEmail(String filename, File f, String address, EmailConfiguration emailConfig) {
+        String error = null;
+        try {
+            init(emailConfig);
 
-					String cmd = emailConfig.getKindlegen() + " " + destination.getPath();
-					log.info(cmd);
-					Process process = Runtime.getRuntime()
-							.exec(cmd);
-					InputStream is = null;
-					BufferedReader br = null;
-					InputStreamReader isr = null;
-					String textLine = "";
-					is = process.getInputStream();
-					isr = new InputStreamReader(is);
-					br = new BufferedReader(isr);
-					while ((textLine = br.readLine()) != null) {
-						if (0 != textLine.length()) {
-							log.info(textLine);
-						}
-					}
+            MimeMessage message = javaMailSender.createMimeMessage();
 
-					mobi = new File(destination.getPath()
-							.replace(".epub", ".mobi"));
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-					destination.delete();
+            helper.setFrom("no-reply@indigo.com");
+            helper.setTo(address);
+            helper.setSubject("INDIGO");
+            helper.setText(filename + "sent to Kindle");
 
-				} catch (IOException e) {
-					error = e.getMessage();
-					log.error(error);
-				}
-			}
+            FileSystemResource file = new FileSystemResource(f);
+            helper.addAttachment(filename, file);
 
-			if (mobi != null) {
-				try {
-					this.sendEmail(mobi.getName(), mobi, address, emailConfig);
-				} catch (Exception e) {
-					error = e.getMessage();
-					log.error(error);
-				}
-			}
+            javaMailSender.send(message);
+        } catch (MailException | MessagingException e) {
+            error = e.getMessage();
+            log.error(error);
+        }
+        return error;
+    }
 
-		}
-		return error;
-	}
+    @Override
+    public boolean testEmail(String address, EmailConfiguration emailConfig) {
+        boolean ret = false;
+        try {
 
-	private void sendEmail(String filename, File f, String address, EmailConfiguration emailConfig) throws Exception {
+            init(emailConfig);
 
-		try {
-			init(emailConfig);
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(address);
+            message.setFrom("no-Reply@indigo.com");
+            message.setSubject("Test mail");
+            message.setText("This is a test mail");
 
-			MimeMessage message = javaMailSender.createMimeMessage();
+            javaMailSender.send(message);
 
-			MimeMessageHelper helper = new MimeMessageHelper(message, true);
-
-			helper.setFrom("no-reply@indigo.com");
-			helper.setTo(address);
-			helper.setSubject("INDIGO");
-			helper.setText(filename + "sent to Kindle");
-
-			FileSystemResource file = new FileSystemResource(f);
-			helper.addAttachment(filename, file);
-
-			javaMailSender.send(message);
-
-		} finally {
-			// delete .mobi after send
-			f.delete();
-		}
-
-	}
-
-	@Override
-	public boolean testEmail(String address, EmailConfiguration emailConfig) {
-		boolean ret = false;
-		try {
-
-			init(emailConfig);
-
-			SimpleMailMessage message = new SimpleMailMessage();
-			message.setTo(address);
-			message.setFrom("no-Reply@indigo.com");
-			message.setSubject("Test mail");
-			message.setText("This is a test mail");
-
-			javaMailSender.send(message);
-
-			ret = true;
-		} catch (Exception e) {
-			log.error(e.getMessage());
-		}
-		return ret;
-	}
+            ret = true;
+        } catch (MailException e) {
+            log.error(e.getMessage());
+        }
+        return ret;
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.martinia.indigo.ports.in.rest;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.martinia.indigo.domain.enums.StatusEnum;
 import com.martinia.indigo.domain.model.Book;
@@ -20,7 +21,7 @@ public interface NotificationService {
 
 	List<Notification> findNotReadAdmin();
 
-	Notification findById(String id);
+	Optional<Notification> findById(String id);
 
 	void delete(String id);
 
