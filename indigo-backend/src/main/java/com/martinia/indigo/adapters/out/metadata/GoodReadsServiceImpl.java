@@ -127,7 +127,7 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 
                         }
                         return null;
-                    }).filter(Objects::nonNull).findFirst().orElse(new String[0]);
+                    }).filter(Objects::nonNull).findFirst().orElse(null);
 
                 }
             }
@@ -135,7 +135,7 @@ public class GoodReadsServiceImpl implements GoodReadsService {
             log.error(endpoint + "book/title.xml?title=" + title.replace(" ", "-") + "&key=" + key);
         }
 
-        if (ret.length == 0 && !withAuthor) {
+        if (ret == null && !withAuthor) {
             ret = findBook(key, title, authors, true);
         }
 

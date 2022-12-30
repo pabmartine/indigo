@@ -93,12 +93,12 @@ public class GoogleBooksServiceImpl implements GoogleBooksService {
                                         }
                                     }
                                     return null;
-                                }).filter(Objects::nonNull).findFirst().orElse(new String[0]);
+                                }).filter(Objects::nonNull).findFirst().orElse(null);
 
                         }
                         return null;
 
-                    }).filter(Objects::nonNull).findFirst().orElse(new String[0]);
+                    }).filter(Objects::nonNull).findFirst().orElse(null);
                 }
 
             }

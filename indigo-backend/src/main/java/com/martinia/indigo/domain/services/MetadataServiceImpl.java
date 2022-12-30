@@ -305,27 +305,27 @@ public class MetadataServiceImpl implements MetadataService {
                     Thread.sleep(pullTime);
                 }
 
-                String[] goodReads = goodReadsComponent.findBook(goodreads, book.getTitle(), book.getAuthors(), false);
+                String[] bookData = goodReadsComponent.findBook(goodreads, book.getTitle(), book.getAuthors(), false);
 
                 lastExecution = System.currentTimeMillis();
 
                 // Ratings && similar books
-                if (goodReads != null) {
-                    book.setRating(Float.valueOf(goodReads[0]));
-                    book.setProvider(goodReads[2]);
+                if (bookData != null) {
+                    book.setRating(Float.valueOf(bookData[0]));
+                    book.setProvider(bookData[2]);
 
-                    if (StringUtils.isNotEmpty(goodReads[1])) {
-                        List<String> similars = findSimilarBooks(goodReads[1]);
+                    if (StringUtils.isNotEmpty(bookData[1])) {
+                        List<String> similars = findSimilarBooks(bookData[1]);
                         if (!CollectionUtils.isEmpty(similars))
                             book.setSimilar(similars);
                     }
 
                 } else {
-                    String[] googleBooks = googleBooksComponent.findBook(book.getTitle(), book.getAuthors());
+                    bookData = googleBooksComponent.findBook(book.getTitle(), book.getAuthors());
 
-                    if (googleBooks != null) {
-                        book.setRating(Float.valueOf(googleBooks[0]));
-                        book.setProvider(googleBooks[1]);
+                    if (bookData != null) {
+                        book.setRating(Float.valueOf(bookData[0]));
+                        book.setProvider(bookData[1]);
                     }
                 }
 
