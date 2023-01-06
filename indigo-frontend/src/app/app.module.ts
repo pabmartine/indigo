@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, Injector, NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { RouterModule, RouteReuseStrategy } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
@@ -35,13 +35,35 @@ import {CardModule} from 'primeng/card';
 import { JwtModule } from "@auth0/angular-jwt";
 
 //translate
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateModule, TranslateLoader, MissingTranslationHandler, MissingTranslationHandlerParams, TranslateService } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { HttpClient } from '@angular/common/http';
 
+import { take } from 'rxjs';
+
+
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(httpClient: HttpClient) {
-  return new TranslateHttpLoader(httpClient);
+  return new TranslateHttpLoader(httpClient, 'assets/i18n/', '.json');
+}
+
+export class MyMissingTranslationHandler implements MissingTranslationHandler {
+  handle(params: MissingTranslationHandlerParams) {
+      return '';
+  }
+}
+
+export function appInitializerFactory(translateService: TranslateService, injector: Injector): () => Promise<any> {
+  // tslint:disable-next-line:no-any
+  return () => new Promise<any>((resolve: any) => {
+    const locationInitialized = injector.get(LOCATION_INITIALIZED, Promise.resolve(null));
+    locationInitialized.then(() => {
+      translateService.use(localStorage.getItem("language") || window.navigator.language) // here u can change language loaded before reander enything
+        .pipe(take(1))
+        .subscribe(() => {},
+        err => console.error(err), () => resolve(null));
+    });
+  });
 }
 
 //Loaginbar
@@ -52,6 +74,7 @@ import { LoadingBarModule } from '@ngx-loading-bar/core';
 //Cache
 import { CustomReuseStrategy } from './utils/cache.routes';
 import { environment } from 'src/environments/environment';
+import { LOCATION_INITIALIZED } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -91,7 +114,9 @@ import { environment } from 'src/environments/environment';
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,
         deps: [HttpClient]
-      }
+      },
+      missingTranslationHandler: {provide: MissingTranslationHandler, useClass: MyMissingTranslationHandler},
+      useDefaultLang: false
     }),
     JwtModule.forRoot({
       config: {
@@ -108,7 +133,15 @@ import { environment } from 'src/environments/environment';
       },
     }),
   ],
-  providers: [{ provide: RouteReuseStrategy, useClass: CustomReuseStrategy }],
+  providers: [
+    { provide: RouteReuseStrategy, useClass: CustomReuseStrategy },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: appInitializerFactory,
+      deps: [TranslateService, Injector],
+      multi: true
+  }
+  ],
   exports: [],
   bootstrap: [AppComponent]
 })

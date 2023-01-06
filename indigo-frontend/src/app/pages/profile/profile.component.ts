@@ -88,9 +88,9 @@ export class ProfileComponent implements OnInit {
 
   setLanguages(){
     this.languages = [
-      { label: this.translate.instant('locale.languages.es'), value: 'es' },
-      { label: this.translate.instant('locale.languages.en'), value: 'en' },
-      { label: this.translate.instant('locale.languages.fr'), value: 'fr' }
+      { label: this.translate.instant('locale.languages.es'), value: 'es-ES' },
+      { label: this.translate.instant('locale.languages.en'), value: 'en-GB' },
+      { label: this.translate.instant('locale.languages.fr'), value: 'fr-FR' }
     ];
   }
 
