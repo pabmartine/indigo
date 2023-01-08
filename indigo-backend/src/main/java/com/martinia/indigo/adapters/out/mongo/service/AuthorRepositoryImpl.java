@@ -34,7 +34,7 @@ public class AuthorRepositoryImpl implements AuthorRepository {
         List<AuthorMongoEntity> authors = authorMongoRepository.findAll(languages,
                 PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(order), sort)));
 
-        List<AuthorMongoEntity> authors2 = authors.stream().map(author -> {
+        authors = authors.stream().map(author -> {
             author.getNumBooks().setTotal(author.getNumBooks().getLanguages().keySet().stream().filter(lang -> languages.contains(lang)).mapToInt(lang -> author.getNumBooks().getLanguages().get(lang)).sum());
             if (author.getImage() != null && author.getImage().equals("https://s.gr-assets.com/assets/nophoto/user/u_200x266-e183445fd1a1b5cc7075bb1cf7043306.png")) {
                 author.setImage(null);
