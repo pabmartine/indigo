@@ -22,6 +22,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.time.ZoneId;
 import java.util.*;
 
 @Slf4j
@@ -227,10 +228,19 @@ public class MetadataServiceImpl implements MetadataService {
 
     }
 
-    private Author findAuthorMetadata(String lang, boolean override, Author author) {
-        if (override || author == null || StringUtils.isEmpty(author.getDescription())
-                || StringUtils.isEmpty(author.getImage()) || StringUtils.isEmpty(author.getProvider())) {
+    private boolean refreshAuthorMetadata(final Author author) {
+        return (author == null
+                || StringUtils.isEmpty(author.getDescription())
+                || StringUtils.isEmpty(author.getImage())
+                || StringUtils.isEmpty(author.getProvider())
+        ) &&
+                (author.getLastMetadataSync() == null
+                        ||
+                        author.getLastMetadataSync().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().plusDays(7).isBefore(Calendar.getInstance().getTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()));
+    }
 
+    private Author findAuthorMetadata(String lang, boolean override, Author author) {
+        if (override || refreshAuthorMetadata(author)) {
             try {
 
                 author.setDescription(null);
@@ -282,6 +292,8 @@ public class MetadataServiceImpl implements MetadataService {
 
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                author.setLastMetadataSync(Calendar.getInstance().getTime());
             }
         }
         return author;
@@ -298,9 +310,17 @@ public class MetadataServiceImpl implements MetadataService {
 
     }
 
+    private boolean refreshBookMetadata(final Book book) {
+        return (book.getRating() == 0 || book.getProvider() == null
+                || CollectionUtils.isEmpty(book.getSimilar())
+        ) &&
+                (book.getLastMetadataSync() == null
+                        ||
+                        book.getLastMetadataSync().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().plusDays(7).isBefore(Calendar.getInstance().getTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()));
+    }
+
     private Book findBookMetadata(boolean override, Book book) {
-        if (override || book.getRating() == 0 || book.getProvider() == null
-                || CollectionUtils.isEmpty(book.getSimilar())) {
+        if (override || refreshBookMetadata(book)) {
 
             try {
 
@@ -336,6 +356,8 @@ public class MetadataServiceImpl implements MetadataService {
 
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                book.setLastMetadataSync(Calendar.getInstance().getTime());
             }
         }
         return book;

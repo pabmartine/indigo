@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class AuthorRepositoryImpl implements AuthorRepository {
@@ -33,20 +34,14 @@ public class AuthorRepositoryImpl implements AuthorRepository {
         List<AuthorMongoEntity> authors = authorMongoRepository.findAll(languages,
                 PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(order), sort)));
 
-        for (AuthorMongoEntity author : authors) {
-            int total = 0;
-            for (String key : author.getNumBooks()
-                    .getLanguages()
-                    .keySet()) {
-                if (languages.contains(key)) {
-                    total += author.getNumBooks()
-                            .getLanguages()
-                            .get(key);
-                }
+        List<AuthorMongoEntity> authors2 = authors.stream().map(author -> {
+            author.getNumBooks().setTotal(author.getNumBooks().getLanguages().keySet().stream().filter(lang -> languages.contains(lang)).mapToInt(lang -> author.getNumBooks().getLanguages().get(lang)).sum());
+            if (author.getImage() != null && author.getImage().equals("https://s.gr-assets.com/assets/nophoto/user/u_200x266-e183445fd1a1b5cc7075bb1cf7043306.png")) {
+                author.setImage(null);
             }
-            author.getNumBooks()
-                    .setTotal(total);
-        }
+            return author;
+        }).collect(Collectors.toList());
+
 
         return authorMongoMapper.entities2Domains(authors);
     }

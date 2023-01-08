@@ -1,6 +1,7 @@
 package com.martinia.indigo.domain.model;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import com.martinia.indigo.domain.model.inner.NumBooks;
 
@@ -24,5 +25,6 @@ public class Author implements Serializable {
 	private String provider;
 	private String image;
 	private NumBooks numBooks;
+	private Date lastMetadataSync;
 
 }

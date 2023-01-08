@@ -45,4 +45,6 @@ public class BookMongoEntity implements Serializable {
 	private List<String> recommendations;
 	private List<String> languages;
 
+	private Date lastMetadataSync;
+
 }
