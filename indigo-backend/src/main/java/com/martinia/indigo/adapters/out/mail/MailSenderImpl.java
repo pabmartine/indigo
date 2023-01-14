@@ -68,11 +68,13 @@ public class MailSenderImpl implements MailSender {
         if (file.exists()) {
             File[] files = file.listFiles();
             Optional<File> epubFile = Arrays.stream(files).filter(f -> f.getName().endsWith(".epub")).findFirst();
-
-            error = epubFile.map(epub -> this.sendEmail(epub.getName(), epub, address, emailConfig)).orElse("file.not.exist");  //TODO: corregir
+            if (epubFile.isPresent())
+                error = this.sendEmail(epubFile.get().getName(), epubFile.get(), address, emailConfig);
+            else
+                error = String.format("Epub file not found in path %s", basePath);
 
         } else {
-            error = "file.not.exist"; //TODO: corregir
+            error = String.format("Path to %s not exist", basePath);
         }
 
         return error;
