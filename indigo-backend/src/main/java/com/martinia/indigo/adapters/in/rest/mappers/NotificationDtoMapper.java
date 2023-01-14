@@ -6,10 +6,12 @@ import org.mapstruct.Mapper;
 
 import com.martinia.indigo.adapters.in.rest.dtos.NotificationDto;
 import com.martinia.indigo.domain.model.Notification;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface NotificationDtoMapper {
 
+	@Mapping(target = "sendDate", dateFormat = "dd/MM/yyyy HH:mm:ss")
 	NotificationDto domain2Dto(Notification domain);
 	
 	Notification dto2Domain(NotificationDto dto);
