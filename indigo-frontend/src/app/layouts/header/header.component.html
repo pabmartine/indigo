@@ -9,7 +9,7 @@
     <div id="header-icons">
         <span class="header-search">
             <input type="text" placeholder="{{'locale.header.search' | translate}}" [(ngModel)]="search" (keyup.enter)="doSearch()"/>
-            <span class="header-search-icon pi pi-search"></span>
+            <span class="header-search-icon pi pi-search" (click)="doSearch()" onmouseover="this.style.cursor='pointer'"></span>
         </span>     
         <a href="javascript:;" (click)="msg.toggle($event)" *ngIf="messages.length > 0">
             <span class="header-icon pi pi-envelope" [ngClass]="{ 'active': messages.length > 0 }"></span>
