@@ -13,8 +13,10 @@ public interface NotificationDtoMapper {
 
 	@Mapping(target = "sendDate", dateFormat = "dd/MM/yyyy HH:mm:ss")
 	NotificationDto domain2Dto(Notification domain);
-	
+
+	@Mapping(target = "sendDate", dateFormat = "dd/MM/yyyy HH:mm:ss")
 	Notification dto2Domain(NotificationDto dto);
 
+	@Mapping(target = "sendDate", dateFormat = "dd/MM/yyyy HH:mm:ss")
 	List<NotificationDto> domains2Dtos(List<Notification> domains);
 }
