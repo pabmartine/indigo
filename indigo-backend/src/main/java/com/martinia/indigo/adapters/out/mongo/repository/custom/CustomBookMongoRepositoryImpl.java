@@ -62,9 +62,11 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
             }
 
             if (StringUtils.isNoneEmpty(search.getAuthor())) {
-
-                criterias.add(Criteria.where("authors").is(search.getAuthor()));
-
+                String author = (search.getAuthor());
+                String[] terms = author.split(" ");
+                for (String term : terms) {
+                    criterias.add(Criteria.where("authors").regex(term, "i"));
+                }
             }
 
             if (null != (search.getIni())) {
@@ -142,8 +144,11 @@ public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository 
             }
 
             if (StringUtils.isNoneEmpty(search.getAuthor())) {
-
-                criterias.add(Criteria.where("authors").is(search.getAuthor()));
+                String author = (search.getAuthor());
+                String[] terms = author.split(" ");
+                for (String term : terms) {
+                    criterias.add(Criteria.where("authors").regex(term, "i"));
+                }
             }
 
             if (null != (search.getIni())) {
