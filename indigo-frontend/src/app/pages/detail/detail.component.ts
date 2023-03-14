@@ -1,5 +1,5 @@
 import { DatePipe, Location } from '@angular/common';
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as epub from 'node_modules/epubjs/dist/epub.js';
@@ -369,8 +369,11 @@ export class DetailComponent implements OnInit {
   }
 
 
+  @Output() eventClose: EventEmitter<void> = new EventEmitter<void>();
+
   close() {
-    this.router.navigate(["books"]);
+    this.eventClose.emit();
+    //this.router.navigate(["books"]);
   }
 
 }

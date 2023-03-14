@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Component, HostListener, OnInit, } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild, } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
@@ -10,6 +10,7 @@ import { Search } from 'src/app/domain/search';
 import { AuthorService } from 'src/app/services/author.service';
 import { BookService } from 'src/app/services/book.service';
 import { MetadataService } from 'src/app/services/metadata.service';
+import {DetailComponent} from 'src/app/pages/detail/detail.component';
 
 
 
@@ -242,12 +243,21 @@ export class BooksComponent implements OnInit {
 
 
 
+  @ViewChild(DetailComponent) detailComponent: DetailComponent;
 
+  showDetail: boolean;
 
   showDetails(book: Book) {
     //save current data in session
-    sessionStorage.setItem("position", document.documentElement.scrollTop.toString());
-    this.router.navigate(["detail"], { queryParams: { book: JSON.stringify(book) }, skipLocationChange: true });
+    //sessionStorage.setItem("position", document.documentElement.scrollTop.toString());
+    //this.router.navigate(["detail"], { queryParams: { book: JSON.stringify(book) }, skipLocationChange: true });
+    this.showDetail = true;
+    this.detailComponent.showDetails(book);
+    document.querySelector(".p-dialog-content").scrollTo({top:0,behavior:'smooth'});
+  }
+
+  closeDetails(){
+    this.showDetail = false;
   }
 
 

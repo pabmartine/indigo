@@ -892,6 +892,11 @@ body a {
 }
 
 @media (max-width: 640px) {
+	.book .p-dialog {
+		width: 100vw !important;
+		max-height: 100% !important;
+	}
+
 	.book .book-detail-image {
 		max-width: 180px;
 	}
@@ -909,22 +914,17 @@ body a {
 	}
 }
 
+.book .p-dialog {
+	width: 50vw;
+}
+
 .book .p-dialog .p-dialog-content {
     background: #eceff4 !important;
-	padding-top: 15px;
+	padding-top: 30px;
 }
 
 .book .p-dialog .p-dialog-header {
-    border-bottom: 0 none;
-    background: #fff;
-    color: #495057;
-    padding: 0.5rem;
-    z-index: 999;
-    box-shadow: 0 3px 5px 0 rgb(0 0 0 / 10%);
-    border-bottom: 0 none;
-    height: 50px;
-	border-top-right-radius: 0px;
-	border-top-left-radius: 0px;
+	display: none;
 }
 
 .book .p-dialog .p-dialog-header .p-dialog-title {
