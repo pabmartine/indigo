@@ -251,13 +251,16 @@ export class BooksComponent implements OnInit {
     //save current data in session
     //sessionStorage.setItem("position", document.documentElement.scrollTop.toString());
     //this.router.navigate(["detail"], { queryParams: { book: JSON.stringify(book) }, skipLocationChange: true });
-    this.showDetail = true;
+    
     this.detailComponent.showDetails(book);
-    document.querySelector(".p-dialog-content").scrollTo({top:0,behavior:'smooth'});
+    this.showDetail = true;
   }
 
   closeDetails(){
     this.showDetail = false;
+  }
+  openDetails(){
+    this.showDetail = true;
   }
 
 

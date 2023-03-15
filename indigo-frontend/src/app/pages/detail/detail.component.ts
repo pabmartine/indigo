@@ -110,6 +110,8 @@ export class DetailComponent implements OnInit {
 
 
   showDetails(book: Book) {
+    this.close();
+    
     this.selected = book;
     this.kindle = false;
     this.favoriteBook = false;
@@ -120,6 +122,11 @@ export class DetailComponent implements OnInit {
     this.getKindle();
     this.getFavoriteBook(book.path);
     this.view(book.path);
+
+    setTimeout( ()=>{
+      this.open();
+      }, 0)
+    
   }
 
   getBooksByAuthor(author: string) {
@@ -374,6 +381,12 @@ export class DetailComponent implements OnInit {
   close() {
     this.eventClose.emit();
     //this.router.navigate(["books"]);
+  }
+
+  @Output() eventOpen: EventEmitter<void> = new EventEmitter<void>();
+
+  open() {
+    this.eventOpen.emit();
   }
 
 }

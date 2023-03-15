@@ -128,7 +128,7 @@
 </div>
 
 <div class="book">
-  <p-dialog header="Header" [(visible)]="showDetail" [modal]="true" [draggable]="false" [resizable]="false">
-    <app-detail (eventClose)="closeDetails()"></app-detail>
+  <p-dialog header="Header" [(visible)]="showDetail" [modal]="true" [draggable]="false" [resizable]="false" [transitionOptions]="'0ms'">
+    <app-detail (eventClose)="closeDetails()" (eventOpen)="openDetails()"></app-detail>
   </p-dialog>
 </div>
