@@ -93,9 +93,12 @@ body a {
 .title {
 	color: #495057;
 	font-weight: 700;
-	margin-bottom: .5em;
+	margin-bottom: .1em;
 	display: inline-block;
 	width: 100%;
+	text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .subtitle {
@@ -103,8 +106,12 @@ body a {
 	font-size: 14px;
 	color: #6c757d;
 	opacity: .7;
-	margin-top: -.25em;
-	margin-bottom: .5em;
+	margin-bottom: .1em;
+	display: inline-block;
+	width: 100%;
+	text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .p-menu {
