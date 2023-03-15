@@ -142,7 +142,7 @@ body a {
 }
 
 .sortBy .p-dropdown {
-	width: 300px;
+	width: auto;
 	text-align: left;
 }
 
