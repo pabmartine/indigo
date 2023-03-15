@@ -218,7 +218,7 @@ body a {
 	padding: 0.7em 1.5em 0em 1.5em;
 	box-sizing: border-box;
 	color: #495057;
-	z-index: 1010;
+	z-index: 1006;
 	-moz-transition: width 0.15s;
 	-o-transition: width 0.15s;
 	-webkit-transition: width 0.15s;
@@ -931,6 +931,10 @@ body a {
     font-weight: 600;
     font-size: 1.25rem;
     padding-left: 34px;
+}
+
+.p-dialog, .p-dialog-mask.p-component-overlay {
+    z-index: 1010 !important;
 }
 
 
