@@ -170,6 +170,11 @@ export class AuthorsComponent implements OnInit {
     this.authorService.getFavorites(user.username).subscribe(
       data => {
 
+        data.forEach((author) => {
+          let objectURL = 'data:image/jpeg;base64,' + author.image;
+          author.image = objectURL;
+        });
+
         Array.prototype.push.apply(this.favorites, data);
         this.page++;
       },
