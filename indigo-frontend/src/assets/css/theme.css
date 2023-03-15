@@ -2406,10 +2406,13 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-datatable .p-datatable-tbody>tr>td {
-	text-align: left;
+	text-align: center;
 	border: 1px solid #e9ecef;
 	border-width: 0 0 1px 0;
-	padding: 1rem 1rem
+	padding: 1rem 1rem;
+	text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .p-datatable .p-datatable-tbody>tr>td .p-row-toggler,
