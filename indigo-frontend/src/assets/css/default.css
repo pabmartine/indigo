@@ -50,6 +50,19 @@ body a {
 	padding-bottom: 1.0rem;
 }
 
+.content-header-subtitle {
+	text-align: right;
+	padding-top: 1rem; 
+}
+
+@media (max-width: 640px) {
+	.content-header-subtitle {
+		text-align: left;
+		padding-left: 0.5rem; 
+		padding-top: 0rem; 
+	}
+}
+
 .content-body {
 	padding-left: 1.0rem;
 	padding-right: 1.0rem;
@@ -58,6 +71,11 @@ body a {
 .page-title {
 	font-size: 1.5rem;
 	font-weight: 600 !important;
+}
+
+.page-subtitle {
+	font-size: 1.0rem;
+	font-weight: 500 !important;
 }
 
 .page-buttons {
@@ -1150,7 +1168,7 @@ body a {
 }
 
 .notification .column-overflow {
-	white-space: nowrap;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis
 }

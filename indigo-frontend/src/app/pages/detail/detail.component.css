@@ -97,3 +97,13 @@
     max-width: 100%;
     height: 200px;
 }
+
+.inline{
+    display: flex;
+    flex-wrap: nowrap !important;
+    margin-right: -0.5rem;
+    margin-left: -0.5rem;
+    margin-top: -0.5rem;
+    overflow: auto;
+}
+

@@ -1,5 +1,5 @@
 import { DatePipe, Location } from '@angular/common';
-import { Component, ElementRef, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as epub from 'node_modules/epubjs/dist/epub.js';
@@ -33,6 +33,8 @@ export class DetailComponent implements OnInit {
   kindle: boolean;
   favoriteBook: boolean;
   showEpub: boolean;
+  expandRecommendations: boolean;
+  showExpandRecommendations: boolean;
 
   private adv_search: Search;
 
@@ -111,7 +113,7 @@ export class DetailComponent implements OnInit {
 
   showDetails(book: Book) {
     this.close();
-    
+
     this.selected = book;
     this.kindle = false;
     this.favoriteBook = false;
@@ -125,8 +127,9 @@ export class DetailComponent implements OnInit {
 
     setTimeout( ()=>{
       this.open();
+      this.checkOverflow ();
       }, 200)
-    
+
   }
 
   getBooksByAuthor(author: string) {
@@ -319,7 +322,7 @@ export class DetailComponent implements OnInit {
 
   downloadEpub() {
     this.bookService.getEpub(this.selected.path).subscribe(
-      data => { 
+      data => {
         saveAs(data, this.selected.title);
       },
       error => {
@@ -387,6 +390,20 @@ export class DetailComponent implements OnInit {
 
   open() {
     this.eventOpen.emit();
+  }
+
+  checkOverflow () {
+    let row = document.getElementById('inline');
+    this.showExpandRecommendations = this.isOverFlowed(row);
+  }
+
+  isOverFlowed(element){
+    return element.scrollHeight > element.clientHeight ||element.scrollWidth > element.clientWidth;
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event) {
+    this.checkOverflow ();
   }
 
 }
