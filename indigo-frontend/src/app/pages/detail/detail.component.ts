@@ -125,7 +125,7 @@ export class DetailComponent implements OnInit {
 
     setTimeout( ()=>{
       this.open();
-      }, 0)
+      }, 200)
     
   }
 
