@@ -39,7 +39,7 @@ import { TranslateModule, TranslateLoader, MissingTranslationHandler, MissingTra
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { HttpClient } from '@angular/common/http';
 
-//import { take } from 'rxjs';
+import { take } from 'rxjs';
 
 
 // AoT requires an exported function for factories
@@ -59,7 +59,7 @@ export function appInitializerFactory(translateService: TranslateService, inject
     const locationInitialized = injector.get(LOCATION_INITIALIZED, Promise.resolve(null));
     locationInitialized.then(() => {
       translateService.use(localStorage.getItem("language") || window.navigator.language) // here u can change language loaded before reander enything
-        //.pipe(take(1))
+        .pipe(take(1))
         .subscribe(() => {},
         err => console.error(err), () => resolve(null));
     });
