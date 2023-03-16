@@ -162,6 +162,7 @@ export class DetailComponent implements OnInit {
   }
 
   private doSearch() {
+    this.close(); 
     this.router.navigate(["books"], { queryParams: { adv_search: JSON.stringify(this.adv_search) } });
   }
 
