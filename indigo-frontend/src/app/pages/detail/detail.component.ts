@@ -33,8 +33,12 @@ export class DetailComponent implements OnInit {
   kindle: boolean;
   favoriteBook: boolean;
   showEpub: boolean;
+
   expandRecommendations: boolean;
   showExpandRecommendations: boolean;
+
+  expandSimilar: boolean;
+  showExpandSimilar: boolean;
 
   private adv_search: Search;
 
@@ -127,7 +131,8 @@ export class DetailComponent implements OnInit {
 
     setTimeout( ()=>{
       this.open();
-      this.checkOverflow ();
+      this.checkOverflowRecommendations ();
+      this.checkOverflowSimilar ();
       }, 200)
 
   }
@@ -392,9 +397,14 @@ export class DetailComponent implements OnInit {
     this.eventOpen.emit();
   }
 
-  checkOverflow () {
-    let row = document.getElementById('inline');
+  checkOverflowRecommendations () {
+    let row = document.getElementById('inlineRecommendations');
     this.showExpandRecommendations = this.isOverFlowed(row);
+  }
+
+  checkOverflowSimilar () {
+    let row = document.getElementById('inlineSimilar');
+    this.showExpandSimilar = this.isOverFlowed(row);
   }
 
   isOverFlowed(element){
@@ -403,7 +413,8 @@ export class DetailComponent implements OnInit {
 
   @HostListener('window:resize', ['$event'])
   onResize(event) {
-    this.checkOverflow ();
+    this.checkOverflowRecommendations ();
+    this.checkOverflowSimilar ();
   }
 
 }
