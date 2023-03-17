@@ -1,5 +1,6 @@
 <p-toast position="top-center" [showTransformOptions]="'translateY(-100%)'"></p-toast>
 <div class="book" *ngIf="selected">
+  <div class="pc" >
   <p-card>
     <div class="content-header p-grid">
       <div class="p-col-12 p-md-7">
@@ -34,32 +35,7 @@
       <div class="p-col-12 p-md-4 p-lg-2 p-xl-1">
         <div class="book-title-image">
           <img [src]="selected.image" class="book-detail-image" />
-        </div>
-        <div class="book-title-buttons-side">
-
-
-          <button id="addFavoriteBookSmall" type="button" pButton (click)="addFavoriteBook();" icon="pi pi-heart"
-            title="{{'locale.buttons.favorite.add' | translate}}" class="book-title-button"
-            *ngIf="!favoriteBook"></button>
-
-          <button id="deleteFavoriteBookSmall" type="button" pButton (click)="deleteFavoriteBook();" icon="pi pi-heart"
-            title="{{'locale.buttons.favorite.delete' | translate}}" class="book-title-button-favorite"
-            *ngIf="favoriteBook"></button>
-
-          <button id="send2KindleSmall" type="button" pButton (click)="sendToKindle();" icon="pi pi-share-alt"
-            title="{{'locale.buttons.send' | translate}}" class="book-title-button" *ngIf="kindle"></button>
-
-          <button id="viewEpub" type="button" pButton (click)="viewEpub();" icon="pi pi-eye"
-            title="{{'locale.buttons.view' | translate}}" class="book-title-button"></button>
-
-          <button id="downloadEpub" type="button" pButton (click)="downloadEpub();" icon="pi pi-download"
-            title="{{'locale.buttons.download' | translate}}" class="book-title-button"></button>
-
-          <button id="refreshBookSmall" type="button" pButton (click)="refreshBook();" icon="pi pi-refresh"
-            title="{{'locale.buttons.refresh' | translate}}" class="book-title-button" *ngIf="isAdmin()"></button>
-
-        </div>
-
+        </div>        
       </div>
       <div class="p-col-12 p-md-8 p-lg-10 p-xl-11">
         <div class="book-detail-subtitle">
@@ -96,7 +72,79 @@
       </div>
     </div>
   </p-card>
+</div>
+<div class="mobile" >
+  <p-card>
+    <div class="content-body p-grid">
+      <div class="p-col-12 p-md-4 p-lg-2 p-xl-1">
+        <div class="book-title-image">
+          <img [src]="selected.image" class="book-detail-image" />
+        </div>
+        <div class="book-title-buttons-side">
 
+
+          <button id="addFavoriteBookSmall" type="button" pButton (click)="addFavoriteBook();" icon="pi pi-heart"
+            title="{{'locale.buttons.favorite.add' | translate}}" class="book-title-button"
+            *ngIf="!favoriteBook"></button>
+
+          <button id="deleteFavoriteBookSmall" type="button" pButton (click)="deleteFavoriteBook();" icon="pi pi-heart"
+            title="{{'locale.buttons.favorite.delete' | translate}}" class="book-title-button-favorite"
+            *ngIf="favoriteBook"></button>
+
+          <button id="send2KindleSmall" type="button" pButton (click)="sendToKindle();" icon="pi pi-share-alt"
+            title="{{'locale.buttons.send' | translate}}" class="book-title-button" *ngIf="kindle"></button>
+
+          <button id="viewEpub" type="button" pButton (click)="viewEpub();" icon="pi pi-eye"
+            title="{{'locale.buttons.view' | translate}}" class="book-title-button"></button>
+
+          <button id="downloadEpub" type="button" pButton (click)="downloadEpub();" icon="pi pi-download"
+            title="{{'locale.buttons.download' | translate}}" class="book-title-button"></button>
+
+          <button id="refreshBookSmall" type="button" pButton (click)="refreshBook();" icon="pi pi-refresh"
+            title="{{'locale.buttons.refresh' | translate}}" class="book-title-button" *ngIf="isAdmin()"></button>
+
+        </div>
+
+      </div>
+      <div class="p-col-12 p-md-8 p-lg-10 p-xl-11">
+        <div class="book-detail-title">
+            {{selected.title}}
+        </div>   
+        <div class="book-detail-subtitle">
+          <span *ngFor="let author of selected.authors">
+            <a href="javascript:;" (click)="getBooksByAuthor(author);">{{author}}</a><span
+              *ngIf="author != selected.authors[selected.authors.length-1]"> & </span>
+          </span>
+        </div>
+        <div *ngIf="selected.rating">
+          <p-rating [ngModel]="selected.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+        </div>
+        <div>{{'locale.books.detail.pubdate' | translate}} {{selected.pubDate}}</div>
+        <div>{{selected.pages}} {{'locale.books.detail.pages' | translate}}</div>
+        <div class="book-detail-series" *ngIf="selected.serie && selected.serie.name">
+          <button type="button" pButton (click)="getBooksBySerie(selected.serie.name);" [label]="selected.serie.name"
+            class="book-detail-serie p-button-info"></button>
+          <span class="book-detail-serie-num">{{selected.serie.index}}</span>
+        </div>
+        <div class="book-detail-tags" *ngIf="selected.tags">
+          <button type="button" pButton (click)="getBooksByTag(tag);" [label]="tag"
+            class="book-detail-tag p-button-success" *ngFor="let tag of selected.tags"></button>
+        </div>
+
+
+        <div class="book-detail-comment" [innerHTML]="selected.comment"></div>
+
+        <div class="book-detail-buttons">
+
+          <button type="button" pButton label="{{'locale.buttons.close' | translate}}" (click)="close()"
+            class="book-detail-button"></button>
+
+        </div>
+
+      </div>
+    </div>
+  </p-card>
+</div>
   <p-dialog (onShow)="showDialogMaximized(dialDetail)" #dialDetail [style]="{width: '500px'}" [(visible)]="showEpub"
     [modal]="true" [baseZIndex]="10000" [draggable]="false" [closable]="true" [resizable]="false" [focusOnShow]="false">
 

@@ -39,6 +39,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { CalendarModule } from 'primeng/calendar';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
+import {SpeedDialModule} from 'primeng/speeddial';
 
 
 //translate
@@ -94,6 +95,7 @@ import { DatePipe } from '@angular/common';
     CalendarModule,
     AutoCompleteModule,
     OverlayPanelModule,
+    SpeedDialModule
     // AngularEpubViewerModule
   ],
   exports: [
