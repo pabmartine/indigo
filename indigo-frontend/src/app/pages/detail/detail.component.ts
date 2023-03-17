@@ -259,7 +259,7 @@ export class DetailComponent implements OnInit {
       data => {
         this.favoriteBook = true;
         this.messageService.clear();
-        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.favorite.add.ok'), closable: false, life: 35000 });
+        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.favorite.add.ok'), closable: false, life: 5000 });
       },
       error => {
         console.log(error);
