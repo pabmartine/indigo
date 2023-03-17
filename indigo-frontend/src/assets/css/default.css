@@ -809,7 +809,9 @@ body a {
 .book #send2Kindle span,
 .book #send2KindleSmall span,
 .book #viewEpub span,
-.book #downloadEpub span {
+.book #downloadEpub span,
+.book #closeView span,
+.book #closeBook span {
 	font-size: 24px;
 }
 
@@ -949,7 +951,7 @@ body a {
 	.book .book-title-buttons-side {
 		display: block;
 		width: 10%;
-		float: left;
+		float: right;
 	}
 	.pc {
 		display: none !important;
