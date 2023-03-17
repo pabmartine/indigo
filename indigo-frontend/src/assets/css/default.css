@@ -846,13 +846,14 @@ body a {
 }
 
 .book .book-detail-image {
-	max-height: 260px;
+	/*max-height: 260px;*/
 	object-fit: cover;
 	-webkit-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12);
 	-moz-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12);
 	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 2px 1px -1px rgba(0, 0, 0, 0.12);
-	max-width: 100%;
-	height: auto;
+	/*max-width: 100%;*/
+	/*height: auto;*/
+	width: 95%;
 }
 
 .book .book-title-buttons-side {
@@ -938,9 +939,6 @@ body a {
 		max-height: 100% !important;
 	}
 
-	.book .book-detail-image {
-		max-width: 180px;
-	}
 	.book .book-title-image {
 		width: 200px;
 		float: left
