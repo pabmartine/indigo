@@ -6,15 +6,38 @@
     justify-content: center;
 }
 
+.viewer-vertical-divider{
+    display: inherit;
+}
+
+.viewer-horizontal-divider{
+    display: none;
+}
+
+.viewer-content{
+    position: relative;
+}
+
+.view-title-buttons {
+	text-align: right;
+}
 
 .overlay-left {
     float: left;
-    padding-left: 10px;
+    left: 10px;
+    bottom: 50%;
+    position: absolute;
+    overflow: hidden;
+    opacity: 0.7;
 }
 
 .overlay-right {
     text-align: right;
-    padding-right: 10px;
+    right: 10px;
+    bottom: 50%;
+    position: absolute;
+    overflow: hidden;
+    opacity: 0.7;
 }
 
 @media (max-width: 640px) {
@@ -28,7 +51,15 @@
         text-align: right;
         padding-right: 10px;
     }
-
+    
+    .viewer-vertical-divider{
+        display: none;
+    }
+    
+    .viewer-horizontal-divider{
+        display: inherit;
+        width: 100%;
+    }
 }
 
 .chapters{

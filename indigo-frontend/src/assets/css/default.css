@@ -858,7 +858,9 @@ body a {
 }
 
 .book .book-detail-title {
-	color: #698ebf;
+	color: #495057;
+	font-size: 1.2rem;
+    font-weight: 600!important;
 }
 
 .book .book-detail-subtitle {
