@@ -75,9 +75,7 @@
 
       <div class="content-body p-grid">
         <div class="p-col-12 p-md-4 p-lg-2 p-xl-1">
-          <div class="book-title-image">
-            <img [src]="selected.image" class="book-detail-image" />
-          </div>
+          
           <div class="book-title-buttons-side">
 
             <button id="closeBook" type="button" pButton (click)="close()" icon="pi pi-times"
@@ -104,7 +102,9 @@
               *ngIf="!favoriteBook"></button>
 
           </div>
-
+          <div class="book-title-image">
+            <img [src]="selected.image" class="book-detail-image" />
+          </div>
         </div>
         <div class="p-col-12 p-md-8 p-lg-10 p-xl-11">
           <div class="book-detail-title">

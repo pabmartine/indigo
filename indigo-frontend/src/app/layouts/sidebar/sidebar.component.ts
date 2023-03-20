@@ -37,7 +37,7 @@ export class SidebarComponent implements OnInit {
       
       {
         label: this.translate.instant('locale.sidebar.menu.recommendations'),
-        icon: 'menu-item-icon pi pi-star-o',
+        icon: 'menu-item-icon pi pi-star',
         routerLink: ['/recommendations'],
         routerLinkActiveOptions: { exact: true },
         command: () => this.show = false

@@ -65,7 +65,6 @@ export class BooksComponent implements OnInit {
     public translate: TranslateService,
     private location: Location) {
 
-    console.log("init -->" + this.searched);
 
     //defines the number of elements to retrieve according to the width of the screen
     if (window.screen.width < 640) {
@@ -130,7 +129,6 @@ export class BooksComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log("init -->" + this.searched);
   }
 
   ngAfterViewChecked() {

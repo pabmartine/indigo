@@ -829,7 +829,7 @@ body a {
 	color: #698ebf !important;
 	transition: color 0.3s !important;
 	box-shadow: none !important;
-	width: 1.843em !important;
+	width: 1.8em !important;
 }
 
 .book .book-title-button-favorite {
@@ -940,16 +940,14 @@ body a {
 	}
 
 	.book .book-title-image {
-		width: 200px;
-		float: left
+		width: 100%;
+		text-align: center;
 	}
 	.book .book-title-buttons {
 		display: none;
 	}
 	.book .book-title-buttons-side {
 		display: block;
-		width: 10%;
-		float: right;
 	}
 	.pc {
 		display: none !important;
@@ -1394,4 +1392,13 @@ body a {
 
 .tag .resume {
 	padding: 20px 10px 10px 10px;
+}
+
+
+.notification .p-datatable-wrapper {
+    overflow: auto;
+}
+
+.notification .p-datatable table {
+    width: 100% !important;
 }
