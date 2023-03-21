@@ -29,9 +29,10 @@ body {
 	background-color: #eceff4;
 }
 
-body a {
-	color: #6c757d;
+body a {	
 	text-decoration: none;
+    color: #698ebf;
+    letter-spacing: inherit;
 }
 
 /*GLOBAL*/
@@ -817,6 +818,7 @@ body a {
 
 .book .book-title-buttons {
 	text-align: right;
+	width: 100%;
 }
 
 .book .book-title-button {
@@ -862,8 +864,10 @@ body a {
 
 .book .book-detail-title {
 	color: #495057;
-	font-size: 1.2rem;
-    font-weight: 600!important;
+	font-size: 24px;
+    line-height: 1.25;
+    font-weight: 700;
+    letter-spacing: 0;
 }
 
 .book .book-detail-subtitle {

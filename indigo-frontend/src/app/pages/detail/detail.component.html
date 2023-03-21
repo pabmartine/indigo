@@ -4,12 +4,7 @@
     <div class="pc">
 
       <div class="content-header p-grid">
-        <div class="p-col-12 p-md-7">
-          <span class="page-title">
-            {{selected.title}}
-          </span>
-        </div>
-        <div class="p-col-5 book-title-buttons">
+        <div class="book-title-buttons">
 
           <button id="closeBook" type="button" pButton (click)="close()" icon="pi pi-times"
             title="{{'locale.buttons.close' | translate}}" class="book-title-button"></button>
@@ -42,30 +37,53 @@
           </div>
         </div>
         <div class="p-col-12 p-md-8">
+          <div class="book-detail-title">
+            {{selected.title}}
+          </div>
           <div class="book-detail-subtitle">
             <span *ngFor="let author of selected.authors">
               <a href="javascript:;" (click)="getBooksByAuthor(author);">{{author}}</a><span
                 *ngIf="author != selected.authors[selected.authors.length-1]"> & </span>
             </span>
           </div>
-          <div *ngIf="selected.rating">
-            <p-rating [ngModel]="selected.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
-          </div>
-          <div>{{'locale.books.detail.pubdate' | translate}} {{selected.pubDate}}</div>
-          <div>{{selected.pages}} {{'locale.books.detail.pages' | translate}}</div>
           <div class="book-detail-series" *ngIf="selected.serie && selected.serie.name">
             <button type="button" pButton (click)="getBooksBySerie(selected.serie.name);" [label]="selected.serie.name"
               class="book-detail-serie p-button-info"></button>
             <span class="book-detail-serie-num">{{selected.serie.index}}</span>
           </div>
-          <div class="book-detail-tags" *ngIf="selected.tags">
-            <button type="button" pButton (click)="getBooksByTag(tag);" [label]="tag"
-              class="book-detail-tag p-button-success" *ngFor="let tag of selected.tags"></button>
-          </div>
-
-
           <div class="book-detail-comment" [innerHTML]="selected.comment"></div>
+        </div>
+      </div>
 
+      <div class="metadata-container">
+        <div class="metadata-item" *ngIf="selected.rating">
+          <span class="metadata-title">{{'locale.books.detail.metadata.rating' | translate}}</span>
+          <p-rating  class="metadata-value" [ngModel]="selected.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+        </div>
+        <p-divider layout="vertical" *ngIf="selected.rating"></p-divider>
+        <div class="metadata-item">
+          <span class="metadata-title">{{'locale.books.detail.metadata.genre' | translate}}</span>
+          <span class="metadata-value" (click)="getBooksByTag(selected.tags[0]);"  *ngIf="selected.tags.length==1" onmouseover="this.style.cursor='pointer'">{{selected.tags}}</span>
+          <span class="metadata-subvalue" (click)="getBooksByTag(tag);" *ngFor="let tag of selected.tags"
+            onmouseover="this.style.cursor='pointer'"><span *ngIf="selected.tags.length>1">{{tag}}</span></span>
+        </div>
+        <p-divider layout="vertical"></p-divider>
+        <div class="metadata-item">
+          <span class="metadata-title">{{'locale.books.detail.metadata.published' | translate}}</span>
+          <span class="metadata-value">{{toDate(selected.pubDate) | date:'yyyy'}}</span>
+          <span class="metadata-subvalue">{{toDate(selected.pubDate) | date:'dd MMMM'}}</span>
+        </div>
+        <p-divider layout="vertical"></p-divider>
+        <div class="metadata-item">
+          <span class="metadata-title">{{'locale.books.detail.metadata.language' | translate}}</span>
+          <span class="metadata-value" *ngIf="selected.languages.length==1">{{selected.languages}}</span>
+          <span class="metadata-subvalue" *ngFor="let lang of selected.languages">{{'locale.languages.' + lang | translate}}</span>
+        </div>
+        <p-divider layout="vertical"></p-divider>
+        <div class="metadata-item">
+          <span class="metadata-title">{{'locale.books.detail.metadata.pages' | translate}}</span>
+          <span class="metadata-value">{{selected.pages}}</span>
+          <span class="metadata-subvalue">{{'locale.books.detail.pages' | translate}}</span>
         </div>
       </div>
     </div>
@@ -75,7 +93,7 @@
 
       <div class="content-body p-grid">
         <div class="p-col-12 p-md-4 p-lg-2 p-xl-1">
-          
+
           <div class="book-title-buttons-side">
 
             <button id="closeBook" type="button" pButton (click)="close()" icon="pi pi-times"
@@ -92,8 +110,8 @@
 
             <button id="send2KindleSmall" type="button" pButton (click)="sendToKindle();" icon="pi pi-share-alt"
               title="{{'locale.buttons.send' | translate}}" class="book-title-button" *ngIf="kindle"></button>
-         
-              <button id="deleteFavoriteBookSmall" type="button" pButton (click)="deleteFavoriteBook();"
+
+            <button id="deleteFavoriteBookSmall" type="button" pButton (click)="deleteFavoriteBook();"
               icon="pi pi-heart" title="{{'locale.buttons.favorite.delete' | translate}}"
               class="book-title-button-favorite" *ngIf="favoriteBook"></button>
 
@@ -116,25 +134,46 @@
                 *ngIf="author != selected.authors[selected.authors.length-1]"> & </span>
             </span>
           </div>
-          <div *ngIf="selected.rating">
-            <p-rating [ngModel]="selected.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
-          </div>
-          <div>{{'locale.books.detail.pubdate' | translate}} {{selected.pubDate}}</div>
-          <div>{{selected.pages}} {{'locale.books.detail.pages' | translate}}</div>
           <div class="book-detail-series" *ngIf="selected.serie && selected.serie.name">
             <button type="button" pButton (click)="getBooksBySerie(selected.serie.name);" [label]="selected.serie.name"
               class="book-detail-serie p-button-info"></button>
             <span class="book-detail-serie-num">{{selected.serie.index}}</span>
           </div>
-          <div class="book-detail-tags" *ngIf="selected.tags">
-            <button type="button" pButton (click)="getBooksByTag(tag);" [label]="tag"
-              class="book-detail-tag p-button-success" *ngFor="let tag of selected.tags"></button>
-          </div>
-
-
           <div class="book-detail-comment" [innerHTML]="selected.comment"></div>
 
 
+        </div>
+      </div>
+
+      <div class="metadata-container">
+        <div class="metadata-item" *ngIf="selected.rating">
+          <span class="metadata-title">{{'locale.books.detail.metadata.rating' | translate}}</span>
+          <p-rating  class="metadata-value" [ngModel]="selected.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+        </div>
+        <p-divider layout="vertical" *ngIf="selected.rating"></p-divider>
+        <div class="metadata-item">
+          <span class="metadata-title">{{'locale.books.detail.metadata.genre' | translate}}</span>
+          <span class="metadata-value" (click)="getBooksByTag(selected.tags[0]);"  *ngIf="selected.tags.length==1" onmouseover="this.style.cursor='pointer'">{{selected.tags}}</span>
+          <span class="metadata-subvalue" (click)="getBooksByTag(tag);" *ngFor="let tag of selected.tags"
+            onmouseover="this.style.cursor='pointer'"><span *ngIf="selected.tags.length>1">{{tag}}</span></span>
+        </div>
+        <p-divider layout="vertical"></p-divider>
+        <div class="metadata-item">
+          <span class="metadata-title">{{'locale.books.detail.metadata.published' | translate}}</span>
+          <span class="metadata-value">{{toDate(selected.pubDate) | date:'yyyy'}}</span>
+          <span class="metadata-subvalue">{{toDate(selected.pubDate) | date:'dd MMMM'}}</span>
+        </div>
+        <p-divider layout="vertical"></p-divider>
+        <div class="metadata-item">
+          <span class="metadata-title">{{'locale.books.detail.metadata.language' | translate}}</span>
+          <span class="metadata-value" *ngIf="selected.languages.length==1">{{selected.languages}}</span>
+          <span class="metadata-subvalue" *ngFor="let lang of selected.languages">{{'locale.languages.' + lang | translate}}</span>
+        </div>
+        <p-divider layout="vertical"></p-divider>
+        <div class="metadata-item">
+          <span class="metadata-title">{{'locale.books.detail.metadata.pages' | translate}}</span>
+          <span class="metadata-value">{{selected.pages}}</span>
+          <span class="metadata-subvalue">{{'locale.books.detail.pages' | translate}}</span>
         </div>
       </div>
 
@@ -151,10 +190,10 @@
         </div>
         <div class="p-col-12 p-md-4 content-header-subtitle" *ngIf="showExpandSimilar">
           <span class="page-subtitle" *ngIf="!expandSimilar" onmouseover="this.style.cursor='pointer'">
-            <span (click)="expandSimilar = true" style="white-space: nowrap;">Ver más</span>
+            <span (click)="expandSimilar = true" style="white-space: nowrap;">{{'locale.books.detail.expand.more' | translate}}</span>
           </span>
           <span class="page-subtitle" *ngIf="expandSimilar" onmouseover="this.style.cursor='pointer'">
-            <span (click)="expandSimilar = false; checkOverflowSimilar()" style="white-space: nowrap;">Ver menos</span>
+            <span (click)="expandSimilar = false; checkOverflowSimilar()" style="white-space: nowrap;">{{'locale.books.detail.expand.less' | translate}}</span>
           </span>
         </div>
       </div>
@@ -204,12 +243,11 @@
         </div>
         <div class="p-col-12 p-md-4 content-header-subtitle" *ngIf="showExpandRecommendations">
           <span class="page-subtitle" *ngIf="!expandRecommendations" onmouseover="this.style.cursor='pointer'">
-            <span (click)="expandRecommendations = true" style="white-space: nowrap;">Ver más</span>
+            <span (click)="expandRecommendations = true" style="white-space: nowrap;">{{'locale.books.detail.expand.more' | translate}}</span>
           </span>
           <span class="page-subtitle" *ngIf="expandRecommendations" onmouseover="this.style.cursor='pointer'">
             <span (click)="expandRecommendations = false; checkOverflowRecommendations()"
-              style="white-space: nowrap;">Ver
-              menos</span>
+              style="white-space: nowrap;">{{'locale.books.detail.expand.less' | translate}}</span>
           </span>
         </div>
       </div>

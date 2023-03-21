@@ -58,7 +58,18 @@
 				},
 				"download":{
 					"error": "Le livre n'a pas pu être téléchargé"
-				}
+				},
+                "metadata": {
+                    "rating": "RATING",
+                    "genre": "GENRE",
+                    "published": "PUBLIÉ",
+                    "language": "LANGUE",
+                    "pages": "EXTENSION"
+                },
+				"expand":{
+                    "more" : "Afficher plus",
+                    "less" : "Voir moins"
+                }
 			},
 			"similar": {
 				"title": "Autres livres similaires"

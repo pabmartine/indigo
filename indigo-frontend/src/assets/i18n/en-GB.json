@@ -58,7 +58,18 @@
 				},
 				"download":{
 					"error": "The book could not be downloaded"
-				}
+				},
+                "metadata": {
+                    "rating": "RATING",
+                    "genre": "GENRE",
+                    "published": "PUBLISHED",
+                    "language": "LANGUAGE",
+                    "pages": "EXTENSION"
+                },
+                "expand":{
+                    "more": "View more",
+                    "less": "View less"
+                }
 			},
 			"similar": {
 				"title": "Other similar books"

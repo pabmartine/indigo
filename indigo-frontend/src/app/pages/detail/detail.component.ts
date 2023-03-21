@@ -21,7 +21,7 @@ import { saveAs } from 'file-saver';
   selector: 'app-detail',
   templateUrl: './detail.component.html',
   styleUrls: ['./detail.component.css'],
-  providers: [MessageService]
+  providers: [MessageService, DatePipe]
 
 })
 export class DetailComponent implements OnInit {
@@ -414,6 +414,12 @@ export class DetailComponent implements OnInit {
   onResize(event) {
     this.checkOverflowRecommendations ();
     this.checkOverflowSimilar ();
+  }
+
+  toDate(date: string): Date{
+    let d = date.split("/");
+    let dat = new Date(d[2] + '/' + d[1] + '/' + d[0]);
+    return dat;    
   }
 
 }

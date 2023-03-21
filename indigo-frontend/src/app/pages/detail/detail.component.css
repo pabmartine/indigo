@@ -138,3 +138,44 @@
     overflow: auto;
 }
 
+.metadata-item {
+    width: 33%;
+}
+
+.metadata-container {
+    display: flex;
+    text-align: center;
+    overflow: auto;
+    width: 100%;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.metadata-title {
+    display: block;
+    font-size: 13px;
+    line-height: 1.38462;
+    font-weight: 600;
+    letter-spacing: -.005em;
+    margin-bottom: 5px;
+}
+
+.metadata-value {
+    display: block;
+    margin-bottom: 0;
+    font-size: 24px;
+    line-height: 1.25;
+    font-weight: 700;
+    letter-spacing: .023em;
+}
+
+.metadata-subvalue {
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: normal;
+    font-size: 12px;
+    line-height: 1.33337;
+    font-weight: 400;
+    letter-spacing: 0;
+}

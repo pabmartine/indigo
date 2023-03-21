@@ -58,7 +58,18 @@
                 },
 				"download":{
 					"error": "No se ha podido descargar el libro"
-				}
+				},
+                "metadata": {
+                    "rating": "VALORACIÓN",
+                    "genre": "GENERO",
+                    "published": "PUBLICADO",
+                    "language": "IDIOMA",
+                    "pages": "EXTENSIÓN"
+                },
+                "expand":{
+                    "more": "Ver más",
+                    "less": "Ver menos"
+                }
             },
             "similar": {
                 "title": "Otros libros similares"
