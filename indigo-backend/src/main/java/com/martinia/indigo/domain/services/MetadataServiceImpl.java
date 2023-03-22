@@ -480,7 +480,7 @@ public class MetadataServiceImpl implements MetadataService {
 
                 try {
                     String id = book.getId();
-                    String image = utilComponent.getBase64Cover(book.getPath());
+                    String image = utilComponent.getBase64Cover(book.getPath(), true);
                     book.setImage(image);
                     book.setId(null);
                     tagRepository.save(book.getTags(), book.getLanguages());

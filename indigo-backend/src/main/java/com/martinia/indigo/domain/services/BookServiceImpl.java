@@ -100,4 +100,8 @@ public class BookServiceImpl implements BookService {
         return bookRepository.getBookLanguages();
     }
 
+    @Override
+    public String getImage(String path) {
+        return utilComponent.getBase64Cover(path, false);
+    }
 }

@@ -95,4 +95,8 @@ export class BookService {
   getLanguages(): Observable<any> {
     return this.http.get(this.endpoint + "/languages");
   }
+
+  getImage(path: string): Observable<any> {
+    return this.http.get(this.endpoint + "/image?path=" + path);
+  }
 }

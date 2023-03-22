@@ -1,11 +1,14 @@
 package com.martinia.indigo.adapters.in.rest.controllers;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.List;
-
-import javax.transaction.Transactional;
-
+import com.martinia.indigo.adapters.in.rest.dtos.BookDto;
+import com.martinia.indigo.adapters.in.rest.mappers.BookDtoMapper;
+import com.martinia.indigo.domain.model.Book;
+import com.martinia.indigo.domain.model.Search;
+import com.martinia.indigo.domain.model.View;
+import com.martinia.indigo.ports.in.rest.BookService;
+import com.martinia.indigo.ports.in.rest.NotificationService;
+import com.martinia.indigo.ports.in.rest.UserService;
+import com.martinia.indigo.ports.in.rest.ViewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -20,15 +23,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.martinia.indigo.adapters.in.rest.dtos.BookDto;
-import com.martinia.indigo.adapters.in.rest.mappers.BookDtoMapper;
-import com.martinia.indigo.domain.model.Book;
-import com.martinia.indigo.domain.model.Search;
-import com.martinia.indigo.domain.model.View;
-import com.martinia.indigo.ports.in.rest.BookService;
-import com.martinia.indigo.ports.in.rest.NotificationService;
-import com.martinia.indigo.ports.in.rest.UserService;
-import com.martinia.indigo.ports.in.rest.ViewService;
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
 
 @RestController
 @RequestMapping("/rest/book")
@@ -65,14 +63,10 @@ public class BookRestController {
 	@GetMapping(value = "/epub")
 	public ResponseEntity<Resource> getEpub(@RequestParam String path) throws IOException {
 
-
 		Resource epub = bookService.getEpub(path);
 
-		 return ResponseEntity.ok()
-                 .header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(epub.getFile()
-                         .toPath()))
-                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + epub.getFilename() + "\"")
-                 .body(epub);
+		return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(epub.getFile().toPath()))
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + epub.getFilename() + "\"").body(epub);
 	}
 
 	@GetMapping(value = "/id", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -96,7 +90,8 @@ public class BookRestController {
 	}
 
 	@GetMapping(value = "/recommendations/book", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<BookDto>> getBookRecommendationsByBook(@RequestParam List<String> recommendations, @RequestParam List<String> languages) {
+	public ResponseEntity<List<BookDto>> getBookRecommendationsByBook(@RequestParam List<String> recommendations,
+			@RequestParam List<String> languages) {
 		List<Book> books = bookService.getRecommendationsByBook(recommendations, languages);
 		List<BookDto> booksDto = bookDtoMapper.domains2Dtos(books);
 		return new ResponseEntity<>(booksDto, HttpStatus.OK);
@@ -169,4 +164,11 @@ public class BookRestController {
 
 	}
 
+	@GetMapping(value = "/image", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<String> getImage(@RequestParam String path) {
+
+		String image = bookService.getImage(path);
+		return new ResponseEntity<>(image, HttpStatus.OK);
+
+	}
 }

@@ -29,6 +29,7 @@ export class DetailComponent implements OnInit {
   similar: Book[] = [];
   recommendations: Book[] = [];
   selected: Book;
+  selectedImage: string;
   title: string;
   kindle: boolean;
   favoriteBook: boolean;
@@ -77,6 +78,21 @@ export class DetailComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  getImage(path: string) {
+    if (path)
+      this.bookService.getImage(path).subscribe(
+        data => {
+          if (data)
+            this.selectedImage = data;
+          else 
+            this.selectedImage = this.selected.image;
+        },
+        error => {
+          console.log(error);
+        }
+      );
+  }
+
   getSimilar(similar: string[]) {
     if (similar)
       this.bookService.getSimilar(similar, this.user.languageBooks).subscribe(
@@ -121,6 +137,7 @@ export class DetailComponent implements OnInit {
     this.favoriteBook = false;
     this.similar.length = 0;
     this.recommendations.length = 0;
+    this.getImage(book.path);
     this.getSimilar(book.similar);
     this.getRecommendations(book.recommendations);
     this.getKindle();

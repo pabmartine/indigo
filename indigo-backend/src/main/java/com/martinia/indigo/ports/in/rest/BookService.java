@@ -36,4 +36,6 @@ public interface BookService {
 
 	List<String> getBookLanguages();
 
+	String getImage(String path);
+
 }
