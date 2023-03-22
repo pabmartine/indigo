@@ -167,13 +167,8 @@ public class UtilComponent {
 	}
 
 	private static String getOriginalImage(BufferedImage originalImage) throws IOException {
-
-		int h = originalImage.getHeight();
-		int w = originalImage.getWidth();
-
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		Thumbnails.of(originalImage).size(w, h).outputFormat("jpg").toOutputStream(outputStream);
-
+		ImageIO.write(originalImage, "jpg", outputStream);
 		return Base64.getEncoder().encodeToString(outputStream.toByteArray());
 	}
 

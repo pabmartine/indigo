@@ -101,7 +101,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public String getImage(String path) {
-        return utilComponent.getBase64Cover(path, false);
+    public Optional<String> getImage(String path) {
+        return Optional.ofNullable(utilComponent.getBase64Cover(path, false));
     }
 }

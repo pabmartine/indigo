@@ -15,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,7 +27,10 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/rest/book")
@@ -165,10 +169,16 @@ public class BookRestController {
 	}
 
 	@GetMapping(value = "/image", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<String> getImage(@RequestParam String path) {
+	public ResponseEntity<Map<String, String>> getImage(@RequestParam String path) {
+		Map<String, String> map = null;
 
-		String image = bookService.getImage(path);
-		return new ResponseEntity<>(image, HttpStatus.OK);
+		Optional<String> image = bookService.getImage(path);
+
+		if (image.isPresent()) {
+			map = new HashMap<String, String>();
+			map.put("image", image.get());
+		}
+		return new ResponseEntity<>(map, HttpStatus.OK);
 
 	}
 }

@@ -82,10 +82,13 @@ export class DetailComponent implements OnInit {
     if (path)
       this.bookService.getImage(path).subscribe(
         data => {
-          if (data)
-            this.selectedImage = data;
-          else 
+          if (data){
+            let objectURL = 'data:image/jpeg;base64,' + data.image;
+            this.selectedImage = objectURL;
+          }
+          else {
             this.selectedImage = this.selected.image;
+          }
         },
         error => {
           console.log(error);
