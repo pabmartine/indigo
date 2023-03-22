@@ -864,7 +864,7 @@ body a {
 
 .book .book-detail-title {
 	color: #495057;
-	font-size: 24px;
+	font-size: 1.2rem;
     line-height: 1.25;
     font-weight: 700;
     letter-spacing: 0;
@@ -874,12 +874,36 @@ body a {
 	color: #698ebf;
 }
 
+@media (max-width: 640px) {
+	.book .book-detail-title {
+		text-align: center;
+	}
+
+	.book .book-detail-subtitle {
+		text-align: center;
+	}
+
+	.book .book-detail-series {
+		padding-top: 0px !important;
+		text-align: center;
+		margin-bottom: 10px;
+	}
+
+	.book .book-detail-serie {
+		margin-right: 0px !important;
+		text-transform: uppercase;
+		font-size: 0.7rem;
+	}
+}
+
+
 .book .book-detail-series {
-	padding-top: 15px;
+	
 }
 
 .book .book-detail-serie {
-	margin-right: 10px !important;
+	cursor: pointer;
+	text-decoration: underline;
 }
 
 .book .book-detail-serie-num {

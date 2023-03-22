@@ -37,20 +37,18 @@
           </div>
         </div>
         <div class="p-col-12 p-md-8">
-          <div class="book-detail-title">
+          <div class="book-detail-title" *ngIf="!(selected.serie && selected.serie.name)">
             {{selected.title}}
+          </div>
+          <div class="book-detail-title" *ngIf="selected.serie && selected.serie.name">
+            {{selected.title}} (<span class="book-detail-serie" (click)="getBooksBySerie(selected.serie.name);">{{selected.serie.name}} {{selected.serie.index}}</span>)
           </div>
           <div class="book-detail-subtitle">
             <span *ngFor="let author of selected.authors">
               <a href="javascript:;" (click)="getBooksByAuthor(author);">{{author}}</a><span
                 *ngIf="author != selected.authors[selected.authors.length-1]"> & </span>
             </span>
-          </div>
-          <div class="book-detail-series" *ngIf="selected.serie && selected.serie.name">
-            <button type="button" pButton (click)="getBooksBySerie(selected.serie.name);" [label]="selected.serie.name"
-              class="book-detail-serie p-button-info"></button>
-            <span class="book-detail-serie-num">{{selected.serie.index}}</span>
-          </div>
+          </div>        
           <div class="book-detail-comment" [innerHTML]="selected.comment"></div>
         </div>
       </div>
@@ -125,6 +123,9 @@
           </div>
         </div>
         <div class="p-col-12 p-md-8 p-lg-10 p-xl-11">
+          <div  class="book-detail-series" *ngIf="selected.serie && selected.serie.name">
+            <span class="book-detail-serie" (click)="getBooksBySerie(selected.serie.name);">{{selected.serie.name}} {{selected.serie.index}}</span>
+          </div>
           <div class="book-detail-title">
             {{selected.title}}
           </div>
@@ -134,13 +135,7 @@
                 *ngIf="author != selected.authors[selected.authors.length-1]"> & </span>
             </span>
           </div>
-          <div class="book-detail-series" *ngIf="selected.serie && selected.serie.name">
-            <button type="button" pButton (click)="getBooksBySerie(selected.serie.name);" [label]="selected.serie.name"
-              class="book-detail-serie p-button-info"></button>
-            <span class="book-detail-serie-num">{{selected.serie.index}}</span>
-          </div>
           <div class="book-detail-comment" [innerHTML]="selected.comment"></div>
-
 
         </div>
       </div>
