@@ -172,7 +172,7 @@ export class AuthorComponent implements OnInit {
       data => {
         this.total = data;
         let author = this.adv_search.author;
-        this.title = this.translate.instant('locale.books.title_of') + author + "  (" + this.total + ")";
+        this.title = this.translate.instant('locale.books.title_published') + "  (" + this.total + ")";
 
         this.getAll();
         

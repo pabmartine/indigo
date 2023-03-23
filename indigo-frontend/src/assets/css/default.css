@@ -70,7 +70,7 @@ body a {
 }
 
 .page-title {
-	font-size: 1.5rem;
+	font-size: 1.4rem;
 	font-weight: 600 !important;
 }
 
@@ -858,10 +858,6 @@ body a {
 	width: 95%;
 }
 
-.book .book-title-buttons-side {
-	display: none;
-}
-
 .book .book-detail-title {
 	color: #495057;
 	font-size: 1.2rem;
@@ -972,9 +968,6 @@ body a {
 		text-align: center;
 	}
 	.book .book-title-buttons {
-		display: none;
-	}
-	.book .book-title-buttons-side {
 		display: block;
 	}
 	.pc {
@@ -1438,4 +1431,13 @@ body a {
     margin-left: -0.5rem;
     margin-top: -0.5rem;
     overflow: auto;
+}
+
+.loading-container {
+	width: 100%;
+	text-align: center;
+}
+.loading {
+	padding: 1rem;
+	color: #6c757d;
 }

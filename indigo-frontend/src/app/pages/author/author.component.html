@@ -1,93 +1,96 @@
 <p-toast position="top-center" [showTransformOptions]="'translateY(-100%)'"></p-toast>
 
 <div class="book" *ngIf="selected">
-    <p-card class="pc">
+  <p-card>
+      <div class="content-header p-grid">
+        <div class="book-title-buttons">
 
-        <div class="content-header p-grid">
-            <div class="book-title-buttons">
+          <button id="closeBook" type="button" pButton (click)="close()" icon="pi pi-times"
+            title="{{'locale.buttons.close' | translate}}" class="book-title-button"></button>
 
-                <button id="closeBook" type="button" pButton (click)="close()" icon="pi pi-times"
-                    title="{{'locale.buttons.close' | translate}}" class="book-title-button"></button>
+          <button id="refreshAuthor" type="button" pButton (click)="refreshAuthor();" icon="pi pi-refresh"
+            title="{{'locale.buttons.refresh' | translate}}" class="book-title-button" *ngIf="isAdmin()"></button>
 
-                <button id="refreshAuthor" type="button" pButton (click)="refreshAuthor();" icon="pi pi-refresh"
-                    title="{{'locale.buttons.refresh' | translate}}" class="book-title-button" *ngIf="isAdmin()"></button>
-          
-                <button id="addFavoriteAuthor" type="button" pButton (click)="addFavoriteAuthor();" icon="pi pi-heart"
-                    title="{{'locale.buttons.favorite.add' | translate}}" class="book-title-button"
-                    *ngIf="!favoriteAuthor"></button>
-          
-                <button id="deleteFavoriteAuthor" type="button" pButton (click)="deleteFavoriteAuthor();" icon="pi pi-heart"
-                    title="{{'locale.buttons.favorite.delete' | translate}}" class="book-title-button-favorite"
-                    *ngIf="favoriteAuthor"></button>
+          <button id="addFavoriteAuthor" type="button" pButton (click)="addFavoriteAuthor();" icon="pi pi-heart"
+            title="{{'locale.buttons.favorite.add' | translate}}" class="book-title-button"
+            *ngIf="!favoriteAuthor"></button>
 
-            </div>
+          <button id="deleteFavoriteAuthor" type="button" pButton (click)="deleteFavoriteAuthor();" icon="pi pi-heart"
+            title="{{'locale.buttons.favorite.delete' | translate}}" class="book-title-button-favorite"
+            *ngIf="favoriteAuthor"></button>
+
         </div>
-        <div class="content-body p-grid" *ngIf="selected.description">
-            <div class="p-col-12 p-md-4">
-                <div class="book-title-image">
-                    <img [src]="selected.image" class="book-detail-image" *ngIf="selected.image"/>
-                    <img src="./assets/images/avatar3.jpg" class="book-detail-image"  *ngIf="!selected.image"/>
-                </div>
-            </div>
-            <div class="p-col-12 p-md-8">
-                <div class="book-detail-title">
-                    {{selected.name}}
-                </div>
-                <div class="book-detail-comment" [innerHTML]="selected.description"></div>
-            </div>
-        </div>
-
-        <div *ngIf="books?.length > 0">
-            <p-divider *ngIf="selected.description"></p-divider>
-            <div class="content-header p-grid">
-              <div class="p-col-12 p-md-10">
-                <span class="page-title">
-                  {{title}}
-                </span>
-              </div>
-              <div class="p-col-12 p-md-2 content-header-subtitle" *ngIf="showExpandBooks">
-                <span class="page-subtitle" *ngIf="!expandBooks" onmouseover="this.style.cursor='pointer'">
-                  <span (click)="expandBooks = true" style="white-space: nowrap;">{{'locale.books.detail.expand.more' | translate}}</span>
-                </span>
-                <span class="page-subtitle" *ngIf="expandBooks" onmouseover="this.style.cursor='pointer'">
-                  <span (click)="expandBooks = false; checkOverflowBooks()" style="white-space: nowrap;">{{'locale.books.detail.expand.less' | translate}}</span>
-                </span>
-              </div>
-            </div>
-            <div id="inlineBooks" class="content-body p-grid inline" *ngIf="!expandBooks">
-              <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of books">
-                <img [src]="book.image" height="225" class="list-image" (click)="openBook(book)" style="cursor: pointer" />
-                <div>
-                  <span class="title">{{book.title}}</span>
-                </div>
-                <div>
-                  <span class="subtitle">
-                    {{book.authors[0]}}</span>
-                </div>
-                <div *ngIf="book.rating">
-                  <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
-                </div>
-              </div>
-            </div>
-            <div class="content-body p-grid" *ngIf="expandBooks">
-              <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of books">
-                <img [src]="book.image" height="225" class="list-image" (click)="openBook(book)"
-                  style="cursor: pointer;" />
-                <div>
-                  <span class="title">{{book.title}}</span>
-                </div>
-                <div>
-                  <span class="subtitle">
-                    {{book.authors[0]}}
-                </span>
-                </div>
-                <div *ngIf="book.rating">
-                  <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
-                </div>
-              </div>
-            </div>
-      
+      </div>
+      <div class="content-body p-grid" *ngIf="selected.description">
+        <div class="p-col-12 p-md-4">
+          <div class="book-title-image">
+            <img [src]="selected.image" class="book-detail-image" *ngIf="selected.image" />
+            <img src="./assets/images/avatar3.jpg" class="book-detail-image" *ngIf="!selected.image" />
           </div>
+        </div>
+        <div class="p-col-12 p-md-8">
+          <div class="book-detail-title">
+            {{selected.name}}
+          </div>
+          <div class="book-detail-comment" [innerHTML]="selected.description"></div>
+        </div>
+      </div>
 
-    </p-card>
+      <div *ngIf="books?.length == 0" class="loading-container">
+          <p-divider *ngIf="selected.description"></p-divider>
+          <span class="loading">{{'locale.search.searching' | translate}}</span>
+      </div>
+      <div *ngIf="books?.length > 0">
+        <p-divider *ngIf="selected.description"></p-divider>
+        <div class="content-header p-grid">
+          <div class="p-col-12 p-md-10">
+            <span class="page-title">
+              {{title}}
+            </span>
+          </div>
+          <div class="p-col-12 p-md-2 content-header-subtitle" *ngIf="showExpandBooks">
+            <span class="page-subtitle" *ngIf="!expandBooks" onmouseover="this.style.cursor='pointer'">
+              <span (click)="expandBooks = true" style="white-space: nowrap;">{{'locale.books.detail.expand.more' |
+                translate}}</span>
+            </span>
+            <span class="page-subtitle" *ngIf="expandBooks" onmouseover="this.style.cursor='pointer'">
+              <span (click)="expandBooks = false; checkOverflowBooks()"
+                style="white-space: nowrap;">{{'locale.books.detail.expand.less' | translate}}</span>
+            </span>
+          </div>
+        </div>
+        <div id="inlineBooks" class="content-body p-grid inline" *ngIf="!expandBooks">
+          <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of books">
+            <img [src]="book.image" height="225" class="list-image" (click)="openBook(book)" style="cursor: pointer" />
+            <div>
+              <span class="title">{{book.title}}</span>
+            </div>
+            <div>
+              <span class="subtitle">
+                {{book.authors[0]}}</span>
+            </div>
+            <div *ngIf="book.rating">
+              <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+            </div>
+          </div>
+        </div>
+        <div class="content-body p-grid" *ngIf="expandBooks">
+          <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of books">
+            <img [src]="book.image" height="225" class="list-image" (click)="openBook(book)" style="cursor: pointer;" />
+            <div>
+              <span class="title">{{book.title}}</span>
+            </div>
+            <div>
+              <span class="subtitle">
+                {{book.authors[0]}}
+              </span>
+            </div>
+            <div *ngIf="book.rating">
+              <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+            </div>
+          </div>
+        </div>
+
+      </div>
+  </p-card>
 </div>

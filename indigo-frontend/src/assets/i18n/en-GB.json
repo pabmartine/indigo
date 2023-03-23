@@ -36,6 +36,7 @@
 		"books": {
 			"title": "Books",
 			"title_of": "Books of ",
+			"title_published": "Books published",
 			"search_results": "Search results: ",
 			"detail": {
 				"title": "Book details",
@@ -344,7 +345,8 @@
 					"max": "Number of pages less than"
 				},
 				"tags": "Categories"
-			}
+			},
+			"searching": "Searching..."
 		},
 		"notifications": {
 			"title": "Notifications",

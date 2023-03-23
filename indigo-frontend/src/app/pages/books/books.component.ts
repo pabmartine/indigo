@@ -368,12 +368,13 @@ export class BooksComponent implements OnInit {
   }
 
   
-
+/*
   getBooksByAuthor(author: string) {
     this.adv_search = new Search();
     this.adv_search.author = author;
     this.doSearch();
   }
+*/
 
   isAdmin() {
     return JSON.parse(sessionStorage.user).role == 'ADMIN';

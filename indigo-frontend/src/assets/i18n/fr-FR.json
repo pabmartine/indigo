@@ -36,6 +36,7 @@
 		"books": {
 			"title": "Livres",
 			"title_of": "Livres de ",
+			"title_published" : "Livres publiés",
 			"search_results": "Résultats de la recherche: ",
 			"detail": {
 				"title": "Détails du livre",
