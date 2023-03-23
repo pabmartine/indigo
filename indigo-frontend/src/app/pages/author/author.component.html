@@ -60,7 +60,7 @@
           </div>
         </div>
         <div id="inlineBooks" class="content-body p-grid inline" *ngIf="!expandBooks">
-          <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of books">
+          <div class="p-sm-6 p-md-4 p-lg-2" *ngFor="let book of books">
             <img [src]="book.image" height="225" class="list-image" (click)="openBook(book)" style="cursor: pointer" />
             <div>
               <span class="title">{{book.title}}</span>
@@ -75,7 +75,7 @@
           </div>
         </div>
         <div class="content-body p-grid" *ngIf="expandBooks">
-          <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of books">
+          <div class="p-sm-6 p-md-4 p-lg-2" *ngFor="let book of books">
             <img [src]="book.image" height="225" class="list-image" (click)="openBook(book)" style="cursor: pointer;" />
             <div>
               <span class="title">{{book.title}}</span>

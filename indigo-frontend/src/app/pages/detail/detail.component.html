@@ -90,7 +90,7 @@
     <div class="mobile">
 
       <div class="content-body p-grid">
-        <div class="p-col-12 p-md-4 p-lg-2 p-xl-1">
+        <div class="p-col-12 p-md-4 p-lg-2">
 
           <div class="book-title-buttons">
 
@@ -122,7 +122,7 @@
             <img [src]="selectedImage" class="book-detail-image" />
           </div>
         </div>
-        <div class="p-col-12 p-md-8 p-lg-10 p-xl-11">
+        <div class="p-col-12">
           <div  class="book-detail-series" *ngIf="selected.serie && selected.serie.name">
             <span class="book-detail-serie" (click)="getBooksBySerie(selected.serie.name);">{{selected.serie.name}} {{selected.serie.index}}</span>
           </div>
@@ -193,7 +193,7 @@
         </div>
       </div>
       <div id="inlineSimilar" class="content-body p-grid inline" *ngIf="!expandSimilar">
-        <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of similar">
+        <div class="p-sm-6 p-md-4 p-lg-2" *ngFor="let book of similar">
           <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)" style="cursor: pointer" />
           <div>
             <span class="title">{{book.title}}</span>
@@ -207,7 +207,7 @@
         </div>
       </div>
       <div class="content-body p-grid" *ngIf="expandSimilar">
-        <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of similar">
+        <div class="p-sm-6 p-md-4 p-lg-2" *ngFor="let book of similar">
           <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)"
             style="cursor: pointer;" />
           <div>
@@ -243,7 +243,7 @@
         </div>
       </div>
       <div id="inlineRecommendations" class="content-body p-grid inline" *ngIf="!expandRecommendations">
-        <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of recommendations" #theElementYouWantToCheck>
+        <div class="p-sm-6 p-md-4 p-lg-2" *ngFor="let book of recommendations" #theElementYouWantToCheck>
           <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)" style="cursor: pointer" />
           <div>
             <span class="title">{{book.title}}</span>
@@ -257,7 +257,7 @@
         </div>
       </div>
       <div class="content-body p-grid" *ngIf="expandRecommendations">
-        <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of recommendations">
+        <div class="p-sm-6 p-md-4 p-lg-2" *ngFor="let book of recommendations">
           <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)"
             style="cursor: pointer;" />
           <div>

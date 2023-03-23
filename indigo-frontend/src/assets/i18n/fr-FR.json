@@ -345,7 +345,8 @@
 					"max": "Nombre de pages inférieur à"
 				},
 				"tags": "Catégories"
-			}
+			},
+			"searching": "Cherche..."
 		},
 		"notifications": {
 			"title": "Notifications",
