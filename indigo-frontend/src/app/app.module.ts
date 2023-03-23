@@ -28,7 +28,7 @@ import { MenuModule } from 'primeng/menu';
 import { DialogModule } from 'primeng/dialog';
 import { CheckboxModule } from 'primeng/checkbox';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
-import {CardModule} from 'primeng/card';
+import { CardModule } from 'primeng/card';
 
 
 //auth
@@ -49,7 +49,7 @@ export function HttpLoaderFactory(httpClient: HttpClient) {
 
 export class MyMissingTranslationHandler implements MissingTranslationHandler {
   handle(params: MissingTranslationHandlerParams) {
-      return '';
+    return '';
   }
 }
 
@@ -60,8 +60,8 @@ export function appInitializerFactory(translateService: TranslateService, inject
     locationInitialized.then(() => {
       translateService.use(localStorage.getItem("language") || window.navigator.language) // here u can change language loaded before reander enything
         .pipe(take(1))
-        .subscribe(() => {},
-        err => console.error(err), () => resolve(null));
+        .subscribe(() => { },
+          err => console.error(err), () => resolve(null));
     });
   });
 }
@@ -75,6 +75,7 @@ import { LoadingBarModule } from '@ngx-loading-bar/core';
 import { CustomReuseStrategy } from './utils/cache.routes';
 import { environment } from 'src/environments/environment';
 import { LOCATION_INITIALIZED } from '@angular/common';
+import { AuthorComponent } from './pages/author/author.component';
 
 @NgModule({
   declarations: [
@@ -115,7 +116,7 @@ import { LOCATION_INITIALIZED } from '@angular/common';
         useFactory: HttpLoaderFactory,
         deps: [HttpClient]
       },
-      missingTranslationHandler: {provide: MissingTranslationHandler, useClass: MyMissingTranslationHandler},
+      missingTranslationHandler: { provide: MissingTranslationHandler, useClass: MyMissingTranslationHandler },
       useDefaultLang: false
     }),
     JwtModule.forRoot({
@@ -140,7 +141,7 @@ import { LOCATION_INITIALIZED } from '@angular/common';
       useFactory: appInitializerFactory,
       deps: [TranslateService, Injector],
       multi: true
-  }
+    }
   ],
   exports: [],
   bootstrap: [AppComponent]

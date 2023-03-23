@@ -51,6 +51,7 @@ import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 
 //cache
 import { DatePipe } from '@angular/common';
+import { AuthorComponent } from 'src/app/pages/author/author.component';
 
 //epub
 // import { AngularEpubViewerModule } from 'angular-epub-viewer';
@@ -66,7 +67,8 @@ import { DatePipe } from '@angular/common';
     SettingsComponent,
     SearchComponent,
     NotificationsComponent,
-    DetailComponent
+    DetailComponent,
+    AuthorComponent
   ],
   imports: [
     CommonModule,

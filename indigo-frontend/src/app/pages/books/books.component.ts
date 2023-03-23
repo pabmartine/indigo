@@ -7,10 +7,10 @@ import { SelectItem } from 'primeng/api/selectitem';
 import { Author } from 'src/app/domain/author';
 import { Book } from 'src/app/domain/book';
 import { Search } from 'src/app/domain/search';
-import { AuthorService } from 'src/app/services/author.service';
 import { BookService } from 'src/app/services/book.service';
-import { MetadataService } from 'src/app/services/metadata.service';
 import {DetailComponent} from 'src/app/pages/detail/detail.component';
+import { AuthorComponent } from '../author/author.component';
+import { AuthorService } from 'src/app/services/author.service';
 
 
 
@@ -22,12 +22,15 @@ import {DetailComponent} from 'src/app/pages/detail/detail.component';
 })
 export class BooksComponent implements OnInit {
 
+  @ViewChild(DetailComponent) detailComponent: DetailComponent;
+  @ViewChild(AuthorComponent) authorComponent: AuthorComponent;
+
   books: Book[] = [];
   favorites: Book[] = [];
   authorInfo: Author;
   title: string;
   private adv_search: Search;
-  favoriteAuthor: boolean;
+  
   total: number;
 
   private page: number;
@@ -57,11 +60,10 @@ export class BooksComponent implements OnInit {
 
   constructor(
     private bookService: BookService,
+    private authorService: AuthorService,
     private router: Router,
     private route: ActivatedRoute,
-    private authorService: AuthorService,
     private messageService: MessageService,
-    private metadataService: MetadataService,
     public translate: TranslateService,
     private location: Location) {
 
@@ -227,7 +229,7 @@ export class BooksComponent implements OnInit {
           let objectURL = 'data:image/jpeg;base64,' + book.image;
           book.image = objectURL;
         });
-
+        console.log(data);
         Array.prototype.push.apply(this.books, data);
         this.page++;
       },
@@ -241,8 +243,7 @@ export class BooksComponent implements OnInit {
 
 
 
-  @ViewChild(DetailComponent) detailComponent: DetailComponent;
-
+ 
   showDetail: boolean;
 
   showDetails(book: Book) {
@@ -261,11 +262,52 @@ export class BooksComponent implements OnInit {
     this.showDetail = true;
   }
 
+  
+
+  showAuthorDetail: boolean;
+
+  showAuthorDetails(author: Author) {
+    this.authorComponent.showDetails(author);
+  }
+
+  closeAuthorDetails() {
+    this.showAuthorDetail = false;
+  }
+  openAuthorDetails() {
+    this.showAuthorDetail = true;
+  }
+
+
+  openBook(book: Book) {
+    this.showAuthorDetail = false;
+    this.detailComponent.showDetails(book);
+  }
+
+  openAuthor(sort: string) {
+    this.showDetail = false;
+    console.log("openAuthor" + sort)
+    this.authorService.getByName(sort).subscribe(
+      data => {
+        console.log(data);
+        if (data)
+          if (data.image) {
+            let objectURL = 'data:image/jpeg;base64,' + data.image;
+            data.image = objectURL;
+          }
+        this.authorComponent.showDetails(data);
+      },
+      error => {
+        console.log(error);
+      }
+    );
+
+
+  }
 
 
   private doSearch() {
     this.reset();
-    this.searchAuthorInfo();
+    //this.searchAuthorInfo();
 
     if (!this.adv_search) {
       this.adv_search = new Search();
@@ -282,7 +324,7 @@ export class BooksComponent implements OnInit {
     this.searched = true;
 
   }
-
+/*
   private searchAuthorInfo() {
     if (this.isAuthorSearch(this.adv_search)) {
       this.authorService.getByName(this.adv_search.author).subscribe(
@@ -304,19 +346,9 @@ export class BooksComponent implements OnInit {
 
     }
   }
+*/
 
-  getFavoriteAuthor() {
-    this.authorService.getFavorite(this.authorInfo.sort, this.user.username).subscribe(
-      data => {
-        if (data) {
-          this.favoriteAuthor = true;
-        }
-      },
-      error => {
-        console.log(error);
-      }
-    );
-  }
+
 
   getFavoritesBooks() {
     this.bookService.getFavorites(this.user.username).subscribe(
@@ -335,36 +367,7 @@ export class BooksComponent implements OnInit {
     );
   }
 
-  addFavoriteAuthor() {
-    this.authorService.addFavorite(this.authorInfo.sort, this.user.username).subscribe(
-      data => {
-        this.favoriteAuthor = true;
-        this.messageService.clear();
-        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.authors.favorites.add.ok'), closable: false, life: 5000 });
-      },
-      error => {
-        console.log(error);
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.favorites.add.error'), closable: false, life: 5000 });
-      }
-    );
-  }
-
-
-  deleteFavoriteAuthor() {
-    this.authorService.deleteFavorite(this.authorInfo.sort, this.user.username).subscribe(
-      data => {
-        this.favoriteAuthor = false;
-        this.messageService.clear();
-        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.authors.favorites.delete.ok'), closable: false, life: 5000 });
-      },
-      error => {
-        console.log(error);
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.favorites.delete.error'), closable: false, life: 5000 });
-      }
-    );
-  }
+  
 
   getBooksByAuthor(author: string) {
     this.adv_search = new Search();
@@ -376,27 +379,7 @@ export class BooksComponent implements OnInit {
     return JSON.parse(sessionStorage.user).role == 'ADMIN';
   }
 
-  refreshAuthor() {
-    this.messageService.clear();
-    this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.authors.refresh.process'), closable: false, life: 5000 });
-    this.metadataService.findAuthor("es", this.authorInfo.sort).subscribe(
-      data => {
-        this.authorInfo = data;
-
-        if (data.image) {
-          let objectURL = 'data:image/jpeg;base64,' + data.image;
-          this.authorInfo.image = objectURL;
-        }
-        this.messageService.clear();
-        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.authors.refresh.result.ok'), closable: false, life: 5000 });
-      },
-      error => {
-        console.log(error);
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.refresh.result.error'), closable: false, life: 5000 });
-      }
-    );
-  }
+  
 
   private reset() {
     this.total = 0;

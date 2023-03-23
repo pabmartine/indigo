@@ -1430,3 +1430,12 @@ body a {
 .notification .p-datatable table {
     width: 100% !important;
 }
+
+.inline{
+    display: flex;
+    flex-wrap: nowrap !important;
+    margin-right: -0.5rem;
+    margin-left: -0.5rem;
+    margin-top: -0.5rem;
+    overflow: auto;
+}

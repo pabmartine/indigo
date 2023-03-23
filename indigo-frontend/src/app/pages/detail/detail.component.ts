@@ -2,7 +2,6 @@ import { DatePipe, Location } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import * as epub from 'node_modules/epubjs/dist/epub.js';
 import { MessageService } from 'primeng/api';
 import { Dialog } from 'primeng/dialog';
 import { Book } from 'src/app/domain/book';
@@ -16,6 +15,7 @@ import { MetadataService } from 'src/app/services/metadata.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { UtilService } from 'src/app/services/util.service';
 import { saveAs } from 'file-saver';
+import { Author } from 'src/app/domain/author';
 
 @Component({
   selector: 'app-detail',
@@ -25,6 +25,9 @@ import { saveAs } from 'file-saver';
 
 })
 export class DetailComponent implements OnInit {
+
+  @Output() eventAuthor: EventEmitter<String> = new EventEmitter<String>();
+
 
   similar: Book[] = [];
   recommendations: Book[] = [];
@@ -131,6 +134,7 @@ export class DetailComponent implements OnInit {
 
 
   showDetails(book: Book) {
+    console.log("estoy aqui");
     this.close();
 
     this.selected = book;
@@ -153,11 +157,9 @@ export class DetailComponent implements OnInit {
 
   }
 
-  getBooksByAuthor(author: string) {
-    this.selected = null;
-    this.adv_search = new Search();
-    this.adv_search.author = author;
-    this.doSearch();
+  openAuthor(author: string) {
+    console.log("emit " + author);
+    this.eventAuthor.emit(author);
   }
 
   getBooksByTag(tag: string) {
@@ -305,14 +307,16 @@ export class DetailComponent implements OnInit {
     );
   }
 
-  viewEpub() {
+viewEpub() {
+    
+    /*
     this.showEpub = true;
 
     this.bookService.getEpub(this.selected.path).subscribe(
       data => {
         if (data) {
           var file = new File([data], "name");
-          this.book = new epub(file);
+          this.book = new ePub(file);
 
 
           this.rendition = this.book.renderTo("viewer", { flow: "paginated", method: "continuous", width: "100%", height: "97%" });
@@ -339,7 +343,7 @@ export class DetailComponent implements OnInit {
         console.log(error);
       }
     );
-
+*/
   }
 
   downloadEpub() {
