@@ -67,6 +67,10 @@ export class ProfileComponent implements OnInit {
     return JSON.parse(sessionStorage.user).role == 'USER' || (JSON.parse(sessionStorage.user).role == 'ADMIN' && JSON.parse(sessionStorage.user).username == this.user.username);
   }
 
+  isUser(){
+    return JSON.parse(sessionStorage.user).role == 'USER';
+  }
+
   isValid(){
     let valid = this.user.username && this.user.password && this.user.language;
     return valid;
