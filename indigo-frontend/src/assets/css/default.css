@@ -1,6 +1,7 @@
 @media (max-width: 640px) {
 	.p-sm-6 {
 		width: 50%;
+		min-width: 50%;
 	}
 }
 
