@@ -33,6 +33,8 @@ public interface BookRepository {
 
 	List<Book> getSimilar(List<String> similar, List<String> languages);
 
+	List<Book> getSerie(String serie, List<String> languages);
+
 	void save(Book book);
 
 	Long countRecommendationsByUser(String user);

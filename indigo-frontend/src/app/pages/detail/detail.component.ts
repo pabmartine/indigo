@@ -16,6 +16,7 @@ import { NotificationService } from 'src/app/services/notification.service';
 import { UtilService } from 'src/app/services/util.service';
 import { saveAs } from 'file-saver';
 import { Author } from 'src/app/domain/author';
+import { Serie } from 'src/app/domain/serie';
 
 @Component({
   selector: 'app-detail',
@@ -28,7 +29,7 @@ export class DetailComponent implements OnInit {
 
   @Output() eventAuthor: EventEmitter<String> = new EventEmitter<String>();
 
-
+  serie: Book[] = [];
   similar: Book[] = [];
   recommendations: Book[] = [];
   selected: Book;
@@ -40,6 +41,9 @@ export class DetailComponent implements OnInit {
 
   expandRecommendations: boolean;
   showExpandRecommendations: boolean;
+
+  expandSerie: boolean;
+  showExpandSerie: boolean;
 
   expandSimilar: boolean;
   showExpandSimilar: boolean;
@@ -97,6 +101,24 @@ export class DetailComponent implements OnInit {
       );
   }
 
+  getSerie(serie: Serie) {
+    if (serie) 
+    
+      this.bookService.getSerie(serie.name, this.user.languageBooks).subscribe(
+        data => {
+          data.forEach((book) => {
+            let objectURL = 'data:image/jpeg;base64,' + book.image;
+            book.image = objectURL;
+          });
+          Array.prototype.push.apply(this.serie, data);
+
+        },
+        error => {
+          console.log(error);
+        }
+      );
+  }
+
   getSimilar(similar: string[]) {
     if (similar)
       this.bookService.getSimilar(similar, this.user.languageBooks).subscribe(
@@ -140,9 +162,11 @@ export class DetailComponent implements OnInit {
     this.selected = book;
     this.kindle = false;
     this.favoriteBook = false;
+    this.serie.length = 0;
     this.similar.length = 0;
     this.recommendations.length = 0;
     this.getImage(book.path);
+    this.getSerie(book.serie);
     this.getSimilar(book.similar);
     this.getRecommendations(book.recommendations);
     this.getKindle();
@@ -151,8 +175,9 @@ export class DetailComponent implements OnInit {
 
     setTimeout( ()=>{
       this.open();
-      this.checkOverflowRecommendations ();
+      this.checkOverflowSerie ();
       this.checkOverflowSimilar ();
+      this.checkOverflowRecommendations ();      
       }, 200)
 
   }
@@ -428,6 +453,11 @@ viewEpub() {
     this.showExpandSimilar = this.isOverFlowed(row);
   }
 
+  checkOverflowSerie () {
+    let row = document.getElementById('inlineSerie');
+    this.showExpandSerie = this.isOverFlowed(row);
+  }
+
   isOverFlowed(element){
     return element.scrollHeight > element.clientHeight ||element.scrollWidth > element.clientWidth;
   }
@@ -436,6 +466,7 @@ viewEpub() {
   onResize(event) {
     this.checkOverflowRecommendations ();
     this.checkOverflowSimilar ();
+    this.checkOverflowSerie ();
   }
 
   toDate(date: string): Date{

@@ -93,6 +93,14 @@ public class BookRestController {
 
 	}
 
+	@GetMapping(value = "/serie", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<BookDto>> getSerie(@RequestParam String serie, @RequestParam List<String> languages) {
+		List<Book> books = bookService.getSerie(serie, languages);
+		List<BookDto> booksDto = bookDtoMapper.domains2Dtos(books);
+		return new ResponseEntity<>(booksDto, HttpStatus.OK);
+
+	}
+
 	@GetMapping(value = "/recommendations/book", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<BookDto>> getBookRecommendationsByBook(@RequestParam List<String> recommendations,
 			@RequestParam List<String> languages) {

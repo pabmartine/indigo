@@ -41,6 +41,10 @@ export class BookService {
     });
   }
 
+  getSerie(serie: string, languages: string[]): Observable<any> {
+    return this.http.get(this.endpoint + "/serie?serie=" + serie + "&languages=" + languages);
+  }
+
   getSimilar(similar: string[], languages: string[]): Observable<any> {
     return this.http.get(this.endpoint + "/similar?similar=" + similar + "&languages=" + languages);
   }

@@ -21,6 +21,8 @@ public interface CustomBookMongoRepository {
 
 	List<BookMongoEntity> getSimilar(List<String> similar, List<String> languages);
 
+	List<BookMongoEntity> getSerie(String serie, List<String> languages);
+
 	List<BookMongoEntity> getRecommendationsByBook(BookMongoEntity book);
 
 	List<BookMongoEntity> getRecommendationsByUser(String user, int page, int size, String sort, String order);

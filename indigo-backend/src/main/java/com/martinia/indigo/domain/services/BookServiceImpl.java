@@ -96,6 +96,11 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    public List<Book> getSerie(String serie, List<String> languages) {
+        return bookRepository.getSerie(serie, languages);
+    }
+
+    @Override
     public List<String> getBookLanguages() {
         return bookRepository.getBookLanguages();
     }

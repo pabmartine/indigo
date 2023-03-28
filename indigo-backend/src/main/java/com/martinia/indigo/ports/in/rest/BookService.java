@@ -18,6 +18,8 @@ public interface BookService {
 
 	List<Book> getSimilar(List<String> similar, List<String> languages);
 
+	List<Book> getSerie(String serie, List<String> languages);
+
 	List<Book> getRecommendationsByBook(List<String> recommendations, List<String> languages);
 
 	List<Book> getRecommendationsByUser(String user, int page, int size, String sort, String order);

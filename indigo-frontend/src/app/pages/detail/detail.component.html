@@ -174,6 +174,54 @@
 
     </div>
 
+    <div *ngIf="serie?.length > 0">
+      <p-divider></p-divider>
+      <div class="content-header p-grid">
+        <div class="p-col-12 p-md-10">
+          <span class="page-title">
+            {{'locale.books.serie.title' | translate}}
+          </span>
+        </div>
+        <div class="p-col-12 p-md-2 content-header-subtitle" *ngIf="showExpandSerie">
+          <span class="page-subtitle" *ngIf="!expandSerie" onmouseover="this.style.cursor='pointer'">
+            <span (click)="expandSerie = true" style="white-space: nowrap;">{{'locale.books.detail.expand.more' | translate}}</span>
+          </span>
+          <span class="page-subtitle" *ngIf="expandSerie" onmouseover="this.style.cursor='pointer'">
+            <span (click)="expandSerie = false; checkOverflowSerie()" style="white-space: nowrap;">{{'locale.books.detail.expand.less' | translate}}</span>
+          </span>
+        </div>
+      </div>
+      <div id="inlineSerie" class="content-body p-grid inline" *ngIf="!expandSerie">
+        <div class="p-sm-6 p-md-4 p-lg-2" *ngFor="let book of serie">
+          <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)" style="cursor: pointer" />
+          <div>
+            <span class="title">{{book.title}}</span>
+          </div>
+          <div>
+            <a href="javascript:;" (click)="openAuthor(book.authors[0]);">{{book.authors[0]}}</a>
+          </div>
+          <div *ngIf="book.rating">
+            <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+          </div>
+        </div>
+      </div>
+      <div class="content-body p-grid" *ngIf="expandSerie">
+        <div class="p-sm-6 p-md-4 p-lg-2" *ngFor="let book of serie">
+          <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)"
+            style="cursor: pointer;" />
+          <div>
+            <span class="title">{{book.title}}</span>
+          </div>
+          <div>
+            <a href="javascript:;" (click)="openAuthor(book.authors[0]);">{{book.authors[0]}}</a>
+          </div>
+          <div *ngIf="book.rating">
+            <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+          </div>
+        </div>
+      </div>
+
+    </div>
 
     <div *ngIf="similar?.length > 0">
       <p-divider></p-divider>

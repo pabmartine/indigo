@@ -103,6 +103,11 @@ public class BookRepositoryImpl implements BookRepository {
     }
 
     @Override
+    public List<Book> getSerie(String serie, List<String> languages) {
+        return bookMongoMapper.entities2Domains(bookMongoRepository.getSerie(serie, languages));
+    }
+
+    @Override
     public void save(Book book) {
         bookMongoRepository.save(bookMongoMapper.domain2Entity(book));
     }

@@ -24,434 +24,497 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Filters.in;
 
 public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository {
 
-    @Autowired
-    MongoTemplate mongoTemplate;
+	@Autowired
+	MongoTemplate mongoTemplate;
 
+	public long count(Search search) {
 
-    public long count(Search search) {
+		Query query = new Query();
 
-        Query query = new Query();
+		List<Criteria> criterias = new ArrayList<>();
 
+		if (search != null && !search.isEmpty()) {
 
-        List<Criteria> criterias = new ArrayList<>();
+			if (StringUtils.isNoneEmpty(search.getPath())) {
 
-        if (search != null && !search.isEmpty()) {
+				String path = StringUtils.stripAccents(search.getPath());
+				String[] terms = path.split(" ");
+				for (String term : terms) {
+					criterias.add(Criteria.where("path").regex(term, "i"));
+				}
+			}
 
-            if (StringUtils.isNoneEmpty(search.getPath())) {
+			if (StringUtils.isNoneEmpty(search.getTitle())) {
+				String title = (search.getTitle());
+				String[] terms = title.split(" ");
+				for (String term : terms) {
+					criterias.add(Criteria.where("title").regex(term, "i"));
+				}
+			}
 
-                String path = StringUtils.stripAccents(search.getPath());
-                String[] terms = path.split(" ");
-                for (String term : terms) {
-                    criterias.add(Criteria.where("path").regex(term, "i"));
-                }
-            }
+			if (StringUtils.isNoneEmpty(search.getAuthor())) {
+				String author = (search.getAuthor());
+				String[] terms = author.split(" ");
+				for (String term : terms) {
+					criterias.add(Criteria.where("authors").regex(term, "i"));
+				}
+			}
 
-            if (StringUtils.isNoneEmpty(search.getTitle())) {
-                String title = (search.getTitle());
-                String[] terms = title.split(" ");
-                for (String term : terms) {
-                    criterias.add(Criteria.where("title").regex(term, "i"));
-                }
-            }
+			if (null != (search.getIni())) {
+				criterias.add(Criteria.where("pubDate").gte(search.getIni()));
+			}
 
-            if (StringUtils.isNoneEmpty(search.getAuthor())) {
-                String author = (search.getAuthor());
-                String[] terms = author.split(" ");
-                for (String term : terms) {
-                    criterias.add(Criteria.where("authors").regex(term, "i"));
-                }
-            }
+			if (null != (search.getEnd())) {
 
-            if (null != (search.getIni())) {
-                criterias.add(Criteria.where("pubDate").gte(search.getIni()));
-            }
+				Calendar c = Calendar.getInstance();
+				c.setTime(search.getEnd());
+				c.set(Calendar.HOUR_OF_DAY, 23);
+				c.set(Calendar.MINUTE, 59);
 
-            if (null != (search.getEnd())) {
+				criterias.add(Criteria.where("pubDate").lte(c.getTime()));
 
-                Calendar c = Calendar.getInstance();
-                c.setTime(search.getEnd());
-                c.set(Calendar.HOUR_OF_DAY, 23);
-                c.set(Calendar.MINUTE, 59);
+			}
 
-                criterias.add(Criteria.where("pubDate").lte(c.getTime()));
+			if (null != (search.getMin())) {
+				criterias.add(Criteria.where("pages").gte(search.getMin()));
+			}
 
-            }
+			if (null != (search.getMax())) {
+				criterias.add(Criteria.where("pages").lte(search.getMax()));
+			}
 
-            if (null != (search.getMin())) {
-                criterias.add(Criteria.where("pages").gte(search.getMin()));
-            }
+			if (!CollectionUtils.isEmpty(search.getSelectedTags())) {
+				criterias.add(Criteria.where("tags").in(search.getSelectedTags()));
+			}
 
-            if (null != (search.getMax())) {
-                criterias.add(Criteria.where("pages").lte(search.getMax()));
-            }
+			if (StringUtils.isNoneEmpty(search.getSerie())) {
+				criterias.add(Criteria.where("serie.name").is(search.getSerie()));
+			}
 
-            if (!CollectionUtils.isEmpty(search.getSelectedTags())) {
-                criterias.add(Criteria.where("tags").in(search.getSelectedTags()));
-            }
+		}
 
-            if (StringUtils.isNoneEmpty(search.getSerie())) {
-                criterias.add(Criteria.where("serie.name").is(search.getSerie()));
-            }
+		if (search != null) {//TODO: mejorar esto
+			if (!CollectionUtils.isEmpty(search.getLanguages())) {
+				criterias.add(Criteria.where("languages").in(search.getLanguages()));
+			}
+			else {
+				criterias.add(Criteria.where("languages").in(Arrays.asList("none")));
+			}
+			query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
+		}
 
+		return mongoTemplate.count(query, BookMongoEntity.class);
 
-        }
+	}
 
-        if (search != null) {//TODO: mejorar esto
-            if (!CollectionUtils.isEmpty(search.getLanguages())) {
-                criterias.add(Criteria.where("languages").in(search.getLanguages()));
-            } else {
-                criterias.add(Criteria.where("languages").in(Arrays.asList("none")));
-            }
-            query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
-        }
+	public List<BookMongoEntity> findAll(Search search, int page, int size, String sort, String order) {
 
+		Query query = new Query().with(PageRequest.of(page, size, Sort.by(Direction.fromString(order), sort)));
 
-        return mongoTemplate.count(query, BookMongoEntity.class);
+		List<Criteria> criterias = new ArrayList<>();
 
-    }
+		if (search != null && !search.isEmpty()) {
 
-    public List<BookMongoEntity> findAll(Search search, int page, int size, String sort, String order) {
+			if (StringUtils.isNoneEmpty(search.getPath())) {
 
-        Query query = new Query().with(PageRequest.of(page, size, Sort.by(Direction.fromString(order), sort)));
+				String path = StringUtils.stripAccents(search.getPath());
+				String[] terms = path.split(" ");
+				for (String term : terms) {
+					criterias.add(Criteria.where("path").regex(term, "i"));
+				}
+			}
 
-        List<Criteria> criterias = new ArrayList<>();
+			if (StringUtils.isNoneEmpty(search.getTitle())) {
+				String title = (search.getTitle());
+				String[] terms = title.split(" ");
+				for (String term : terms) {
+					criterias.add(Criteria.where("title").regex(term, "i"));
+				}
+			}
 
-        if (search != null && !search.isEmpty()) {
+			if (StringUtils.isNoneEmpty(search.getAuthor())) {
+				String author = (search.getAuthor());
+				String[] terms = author.split(" ");
+				for (String term : terms) {
+					criterias.add(Criteria.where("authors").regex(term, "i"));
+				}
+			}
 
+			if (null != (search.getIni())) {
+				criterias.add(Criteria.where("pubDate").gte(search.getIni()));
+			}
 
-            if (StringUtils.isNoneEmpty(search.getPath())) {
+			if (null != (search.getEnd())) {
 
-                String path = StringUtils.stripAccents(search.getPath());
-                String[] terms = path.split(" ");
-                for (String term : terms) {
-                    criterias.add(Criteria.where("path").regex(term, "i"));
-                }
-            }
+				Calendar c = Calendar.getInstance();
+				c.setTime(search.getEnd());
+				c.set(Calendar.HOUR_OF_DAY, 23);
+				c.set(Calendar.MINUTE, 59);
 
-            if (StringUtils.isNoneEmpty(search.getTitle())) {
-                String title = (search.getTitle());
-                String[] terms = title.split(" ");
-                for (String term : terms) {
-                    criterias.add(Criteria.where("title").regex(term, "i"));
-                }
-            }
+				criterias.add(Criteria.where("pubDate").lte(c.getTime()));
 
-            if (StringUtils.isNoneEmpty(search.getAuthor())) {
-                String author = (search.getAuthor());
-                String[] terms = author.split(" ");
-                for (String term : terms) {
-                    criterias.add(Criteria.where("authors").regex(term, "i"));
-                }
-            }
+			}
 
-            if (null != (search.getIni())) {
-                criterias.add(Criteria.where("pubDate").gte(search.getIni()));
-            }
+			if (null != (search.getMin())) {
+				criterias.add(Criteria.where("pages").gte(search.getMin()));
+			}
 
-            if (null != (search.getEnd())) {
+			if (null != (search.getMax())) {
+				criterias.add(Criteria.where("pages").lte(search.getMax()));
+			}
 
-                Calendar c = Calendar.getInstance();
-                c.setTime(search.getEnd());
-                c.set(Calendar.HOUR_OF_DAY, 23);
-                c.set(Calendar.MINUTE, 59);
+			if (!CollectionUtils.isEmpty(search.getSelectedTags())) {
+				criterias.add(Criteria.where("tags").in(search.getSelectedTags()));
+			}
 
-                criterias.add(Criteria.where("pubDate").lte(c.getTime()));
+			if (StringUtils.isNoneEmpty(search.getSerie())) {
+				criterias.add(Criteria.where("serie.name").is(search.getSerie()));
+			}
 
-            }
+		}
 
-            if (null != (search.getMin())) {
-                criterias.add(Criteria.where("pages").gte(search.getMin()));
-            }
+		if (search != null) {//TODO: mejorar esto
+			if (!CollectionUtils.isEmpty(search.getLanguages())) {
+				criterias.add(Criteria.where("languages").in(search.getLanguages()));
+			}
+			else {
+				criterias.add(Criteria.where("languages").in(Arrays.asList("none")));
+			}
+			query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
+		}
 
-            if (null != (search.getMax())) {
-                criterias.add(Criteria.where("pages").lte(search.getMax()));
-            }
+		return mongoTemplate.find(query, BookMongoEntity.class);
 
-            if (!CollectionUtils.isEmpty(search.getSelectedTags())) {
-                criterias.add(Criteria.where("tags").in(search.getSelectedTags()));
-            }
+	}
 
-            if (StringUtils.isNoneEmpty(search.getSerie())) {
-                criterias.add(Criteria.where("serie.name").is(search.getSerie()));
-            }
+	@Override
+	public List<BookMongoEntity> getRecommendationsByBook(BookMongoEntity book) {
 
-        }
+		Query query = new Query();
 
-        if (search != null) {//TODO: mejorar esto
-            if (!CollectionUtils.isEmpty(search.getLanguages())) {
-                criterias.add(Criteria.where("languages").in(search.getLanguages()));
-            } else {
-                criterias.add(Criteria.where("languages").in(Arrays.asList("none")));
-            }
-            query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
-        }
+		List<Criteria> criterias = new ArrayList<>();
 
+		criterias.add(Criteria.where("id").ne(book.getId()));
 
-        return mongoTemplate.find(query, BookMongoEntity.class);
+		criterias.add(Criteria.where("tags").all(book.getTags()));
 
-    }
+		Calendar cIni = Calendar.getInstance();
+		cIni.setTime(book.getPubDate());
+		cIni.add(Calendar.YEAR, -5);
 
-    @Override
-    public List<BookMongoEntity> getRecommendationsByBook(BookMongoEntity book) {
+		criterias.add(Criteria.where("pubDate").gte(cIni.getTime()));
 
-        Query query = new Query();
+		Calendar cEnd = Calendar.getInstance();
+		cEnd.setTime(book.getPubDate());
+		cEnd.set(Calendar.HOUR_OF_DAY, 23);
+		cEnd.set(Calendar.MINUTE, 59);
+		cEnd.add(Calendar.YEAR, 5);
 
-        List<Criteria> criterias = new ArrayList<>();
+		criterias.add(Criteria.where("pubDate").lte(cEnd.getTime()));
 
-        criterias.add(Criteria.where("id").ne(book.getId()));
+		criterias.add(Criteria.where("pages").gte(book.getPages() - ((book.getPages() * 25) / 100)));
 
-        criterias.add(Criteria.where("tags").all(book.getTags()));
+		criterias.add(Criteria.where("pages").lte(book.getPages() + ((book.getPages() * 25) / 100)));
 
-        Calendar cIni = Calendar.getInstance();
-        cIni.setTime(book.getPubDate());
-        cIni.add(Calendar.YEAR, -5);
+		query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
 
-        criterias.add(Criteria.where("pubDate").gte(cIni.getTime()));
+		return mongoTemplate.find(query, BookMongoEntity.class);
+	}
 
-        Calendar cEnd = Calendar.getInstance();
-        cEnd.setTime(book.getPubDate());
-        cEnd.set(Calendar.HOUR_OF_DAY, 23);
-        cEnd.set(Calendar.MINUTE, 59);
-        cEnd.add(Calendar.YEAR, 5);
+	@Override
+	public Map<String, Long> getNumBooksBySerie(List<String> languages, int page, int size, String sort, String order) {
 
-        criterias.add(Criteria.where("pubDate").lte(cEnd.getTime()));
+		Map<String, Long> map = new LinkedHashMap<>();
 
-        criterias.add(Criteria.where("pages").gte(book.getPages() - ((book.getPages() * 25) / 100)));
+		List<Document> list = Arrays.asList(new Document("$match",
+						new Document("serie.name", new Document("$ne", new BsonNull())).append("languages", new Document("$in", languages))),
+				new Document("$project", new Document("serie.name", 1L)),
+				new Document("$group", new Document("_id", "$serie.name").append("count", new Document("$sum", 1L))),
+				new Document("$sort", new Document(sort.equals("numBooks") ? "count" : "_id", order.equalsIgnoreCase("asc") ? 1 : -1)),
+				new Document("$skip", page * size), new Document("$limit", size));
 
-        criterias.add(Criteria.where("pages").lte(book.getPages() + ((book.getPages() * 25) / 100)));
+		AggregateIterable<Document> data = mongoTemplate.getCollection("books").aggregate(list);
 
-        query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
+		Iterator<Document> it = data.iterator();
+		while (it.hasNext()) {
+			Document document = it.next();
+			String serie = document.get("_id").toString();
+			Long numBooks = Long.parseLong(document.get("count").toString());
+			map.put(serie, numBooks);
+		}
 
-        return mongoTemplate.find(query, BookMongoEntity.class);
-    }
+		return map;
 
-    @Override
-    public Map<String, Long> getNumBooksBySerie(List<String> languages, int page, int size, String sort, String order) {
+	}
 
-        Map<String, Long> map = new LinkedHashMap<>();
+	@Override
+	public Long getNumSeries(List<String> languages) {
+		Long ret = null;
+		List<Document> list = Arrays.asList(new Document("$match",
+						new Document("serie.name", new Document("$ne", new BsonNull())).append("languages", new Document("$in", languages))),
+				new Document("$project", new Document("serie.name", 1L)),
+				new Document("$group", new Document("_id", "$serie.name").append("count", new Document("$sum", 1L))),
+				new Document("$group", new Document("_id", "$serie.name").append("count", new Document("$sum", 1L))));
 
-        List<Document> list = Arrays.asList(new Document("$match", new Document("serie.name", new Document("$ne", new BsonNull())).append("languages", new Document("$in", languages))), new Document("$project", new Document("serie.name", 1L)), new Document("$group", new Document("_id", "$serie.name").append("count", new Document("$sum", 1L))), new Document("$sort", new Document(sort.equals("numBooks") ? "count" : "_id", order.equalsIgnoreCase("asc") ? 1 : -1)), new Document("$skip", page * size), new Document("$limit", size));
+		AggregateIterable<Document> data = mongoTemplate.getCollection("books").aggregate(list);
+		if (data.iterator().hasNext()) {
+			ret = Long.parseLong(data.iterator().next().get("count").toString());
+		}
 
-        AggregateIterable<Document> data = mongoTemplate.getCollection("books").aggregate(list);
+		return ret;
+	}
 
-        Iterator<Document> it = data.iterator();
-        while (it.hasNext()) {
-            Document document = it.next();
-            String serie = document.get("_id").toString();
-            Long numBooks = Long.parseLong(document.get("count").toString());
-            map.put(serie, numBooks);
-        }
+	@Override
+	public List<BookMongoEntity> getSerie(String serie, List<String> languages) {
+		Query query = new Query();
 
-        return map;
+		List<Criteria> criterias = new ArrayList<>();
 
-    }
+		criterias.add(Criteria.where("serie.name").is(serie));
 
-    @Override
-    public Long getNumSeries(List<String> languages) {
-        Long ret = null;
-        List<Document> list = Arrays.asList(new Document("$match", new Document("serie.name", new Document("$ne", new BsonNull())).append("languages", new Document("$in", languages))), new Document("$project", new Document("serie.name", 1L)), new Document("$group", new Document("_id", "$serie.name").append("count", new Document("$sum", 1L))), new Document("$group", new Document("_id", "$serie.name").append("count", new Document("$sum", 1L))));
+		if (!CollectionUtils.isEmpty(languages)) {
+			criterias.add(Criteria.where("languages").in(languages));
+		}
+		else {
+			criterias.add(Criteria.where("languages").in(Arrays.asList("none")));
+		}
+		query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
 
-        AggregateIterable<Document> data = mongoTemplate.getCollection("books").aggregate(list);
-        if (data.iterator().hasNext()) {
-            ret = Long.parseLong(data.iterator().next().get("count").toString());
-        }
+		return mongoTemplate.find(query, BookMongoEntity.class);
+	}
 
-        return ret;
-    }
+	@Override
+	public List<BookMongoEntity> getSimilar(List<String> similar, List<String> languages) {
+		List<BookMongoEntity> ret = new ArrayList<>(similar.size());
+		List<ObjectId> list = new ArrayList<>(similar.size());
+		for (String s : similar) {
+			list.add(new ObjectId(s));
+		}
+		Bson filter = in("_id", list);
 
-    @Override
-    public List<BookMongoEntity> getSimilar(List<String> similar, List<String> languages) {
-        List<BookMongoEntity> ret = new ArrayList<>(similar.size());
-        List<ObjectId> list = new ArrayList<>(similar.size());
-        for (String s : similar) {
-            list.add(new ObjectId(s));
-        }
-        Bson filter = in("_id", list);
+		CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
+				MongoClientSettings.getDefaultCodecRegistry(),
+				org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build()));
 
-        CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build()));
+		FindIterable<BookMongoEntity> data = mongoTemplate.getCollection("books").withCodecRegistry(pojoCodecRegistry)
+				.find(filter, BookMongoEntity.class);
 
-        FindIterable<BookMongoEntity> data = mongoTemplate.getCollection("books").withCodecRegistry(pojoCodecRegistry).find(filter, BookMongoEntity.class);
+		data.iterator().forEachRemaining(ret::add);
 
-        data.iterator().forEachRemaining(ret::add);
-
-        ret = ret.stream().filter(b -> !Collections.disjoint(b.getLanguages(), languages)).collect(Collectors.toList());
-        Collections.shuffle(ret);
-        // if (ret.size() > num)
-        // ret = ret.subList(0, num);
-
-        return ret;
-    }
-
-    @Override
-    public List<BookMongoEntity> getRecommendationsByBook(List<String> recommendations, List<String> languages, int num) {
-
-        CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build()));
-
-        List<BookMongoEntity> ret = new ArrayList<>(recommendations.size());
-        List<ObjectId> list = new ArrayList<>(recommendations.size());
-        for (String s : recommendations) {
-            list.add(new ObjectId(s));
-        }
-        Bson filter = in("_id", list);
-
-        FindIterable<BookMongoEntity> books = mongoTemplate.getCollection("books").withCodecRegistry(pojoCodecRegistry).find(filter, BookMongoEntity.class);
-
-        books.iterator().forEachRemaining(ret::add);
-
-        ret = ret.stream().filter(b -> !Collections.disjoint(b.getLanguages(), languages)).collect(Collectors.toList());
-        Collections.shuffle(ret);
-        if (ret.size() > num) ret = ret.subList(0, num);
-
-        return ret;
-    }
-
-    @Override
-    public long countRecommendationsByUser(String user) {
-
-        long ret = 0;
-
-//    long init = System.currentTimeMillis();
-        Query query = new Query();
-        List<Criteria> criterias = new ArrayList<>();
-        criterias.add(Criteria.where("user").is(user));
-        query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
-        List<NotificationMongoEntity> notifs = mongoTemplate.find(query, NotificationMongoEntity.class);
-
-        if (!CollectionUtils.isEmpty(notifs)) {
-
-            query = new Query();
-            criterias.clear();
-            criterias.add(Criteria.where("username").is(user));
-            query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
-            UserMongoEntity userMongoEntity = mongoTemplate.findOne(query, UserMongoEntity.class);
-
-            List<String> languages = userMongoEntity.getLanguageBooks();
-
-            List<String> recommendations = new ArrayList<>();
-
-            for (NotificationMongoEntity notif : notifs) {
-
-                query = new Query();
-                criterias.clear();
-                criterias.add(Criteria.where("path").is(notif.getBook()));
-                query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
-                BookMongoEntity book = mongoTemplate.findOne(query, BookMongoEntity.class);
-
-                if (book != null && !CollectionUtils.isEmpty(book.getRecommendations()))
-                    recommendations.addAll(book.getRecommendations());
-
-            }
-
-            if (!CollectionUtils.isEmpty(recommendations)) {
-                recommendations = recommendations.stream().distinct().collect(Collectors.toList());
-
-                ret = getRecommendationsByBook(recommendations, languages, recommendations.size()).size();
-
-            }
-
-        }
-//    System.out.println(System.currentTimeMillis() - init);
-//    init = System.currentTimeMillis();
-//    Query query = new Query();
-//    List<Criteria> criterias = new ArrayList<>();
-//    criterias.add(Criteria.where("username").is(user));
-//    query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
-//    UserMongoEntity userMongoEntity = mongoTemplate.findOne(query, UserMongoEntity.class);
-//    List<String> languages = userMongoEntity.getLanguageBooks();
-//
-//    CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
-//        MongoClientSettings.getDefaultCodecRegistry(),
-//        org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder()
-//            .automatic(true)
-//            .build()));
-//
-//    MongoCollection<Document> collection = mongoTemplate.getCollection("notifications")
-//        .withCodecRegistry(pojoCodecRegistry);
-//
-//    AggregateIterable<Document> data = collection.aggregate(Arrays.asList(
-//
-//        new Document("$match", new Document("user", user)),
-//        new Document("$project", new Document("_id", 0L).append("book", 1L)),
-//        new Document("$lookup", new Document("from", "books").append("localField", "book")
-//            .append("foreignField", "path")
-//            .append("as", "typeCategory")),
-//        new Document("$match",
-//            new Document("typeCategory.recommendations", new Document("$ne", new BsonNull()))),
-//        new Document("$unwind", new Document("path", "$typeCategory")),
-//        new Document("$unwind", new Document("path", "$typeCategory.recommendations")),
-//        new Document("$project",
-//            new Document("_id", new Document("$toObjectId", "$typeCategory.recommendations"))),
-//        new Document("$group", new Document("_id", "$_id").append("count", new Document("$sum", 1L))),
-//        new Document("$sort", new Document("count", -1L)),
-//        new Document("$lookup", new Document("from", "books").append("localField", "_id")
-//            .append("foreignField", "_id")
-//            .append("as", "book")),
-//        new Document("$replaceRoot", new Document("newRoot",
-//            new Document("$mergeObjects",
-//                Arrays.asList(new Document("$arrayElemAt", Arrays.asList("$book", 0L)), "$$ROOT")))),
-//        new Document("$match",
-//            new Document("languages",
-//                new Document("$in", languages))),
-//        new Document("$count", "total")));
-//
-//    if (data.iterator()
-//        .hasNext()) {
-//      ret = Long.parseLong(data.iterator()
-//          .next()
-//          .get("total")
-//          .toString());
-//    }
-//    System.out.println(System.currentTimeMillis() - init);
-        return ret;
-    }
-
-    @Override
-    public List<BookMongoEntity> getRecommendationsByUser(String user, int page, int size, String sort, String order) {
-
-        List<BookMongoEntity> ret = new ArrayList<>();
-
-        Query query = new Query();
-        List<Criteria> criterias = new ArrayList<>();
-        criterias.add(Criteria.where("username").is(user));
-        query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
-        UserMongoEntity userMongoEntity = mongoTemplate.findOne(query, UserMongoEntity.class);
-        List<String> languages = userMongoEntity.getLanguageBooks();
-
-        CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build()));
-
-        MongoCollection<Document> collection = mongoTemplate.getCollection("notifications").withCodecRegistry(pojoCodecRegistry);
-
-        AggregateIterable<BookMongoEntity> data = collection.aggregate(Arrays.asList(new Document("$match", new Document("user", user)), new Document("$project", new Document("_id", 0L).append("book", 1L)), new Document("$lookup", new Document("from", "books").append("localField", "book").append("foreignField", "path").append("as", "typeCategory")), new Document("$match", new Document("typeCategory.recommendations", new Document("$ne", new BsonNull()))), new Document("$unwind", new Document("path", "$typeCategory")), new Document("$unwind", new Document("path", "$typeCategory.recommendations")), new Document("$project", new Document("_id", new Document("$toObjectId", "$typeCategory.recommendations"))), new Document("$group", new Document("_id", "$_id").append("count", new Document("$sum", 1L))), new Document("$sort", new Document("count", -1L)), new Document("$lookup", new Document("from", "books").append("localField", "_id").append("foreignField", "_id").append("as", "book")), new Document("$replaceRoot", new Document("newRoot", new Document("$mergeObjects", Arrays.asList(new Document("$arrayElemAt", Arrays.asList("$book", 0L)), "$$ROOT")))), new Document("$match", new Document("languages", new Document("$in", languages))), new Document("$sort", new Document(sort, (order.equals("asc") ? 1 : -1)).append("_id", -1L)), new Document("$skip", page * size), new Document("$limit", size - 1), new Document("$unset", Arrays.asList("book", "count"))), BookMongoEntity.class);
-
-        data.iterator().forEachRemaining(ret::add);
-
-        return ret;
-    }
-
-    @Override
-    public List<String> getBookLanguages() {
-        List<String> ret = new ArrayList<>();
-
-        CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build()));
-
-        MongoCollection<Document> collection = mongoTemplate.getCollection("books").withCodecRegistry(pojoCodecRegistry);
-
-        AggregateIterable<Document> data = collection.aggregate(Arrays.asList(new Document("$project", new Document("languages", 1L)), new Document("$unwind", new Document("path", "$languages")), new Document("$group", new Document("_id", "null").append("languages", new Document("$addToSet", "$languages"))), new Document("$unwind", new Document("path", "$languages")), new Document("$project", new Document("_id", 0L))));
-
-        Iterator<Document> it = data.iterator();
-        while (it.hasNext()) {
-            Document document = it.next();
-            ret.add(document.get("languages").toString());
-        }
-
-        return ret;
-    }
+		ret = ret.stream().filter(b -> !Collections.disjoint(b.getLanguages(), languages)).collect(Collectors.toList());
+		Collections.shuffle(ret);
+		// if (ret.size() > num)
+		// ret = ret.subList(0, num);
+
+		return ret;
+	}
+
+	@Override
+	public List<BookMongoEntity> getRecommendationsByBook(List<String> recommendations, List<String> languages, int num) {
+
+		CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
+				MongoClientSettings.getDefaultCodecRegistry(),
+				org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build()));
+
+		List<BookMongoEntity> ret = new ArrayList<>(recommendations.size());
+		List<ObjectId> list = new ArrayList<>(recommendations.size());
+		for (String s : recommendations) {
+			list.add(new ObjectId(s));
+		}
+		Bson filter = in("_id", list);
+
+		FindIterable<BookMongoEntity> books = mongoTemplate.getCollection("books").withCodecRegistry(pojoCodecRegistry)
+				.find(filter, BookMongoEntity.class);
+
+		books.iterator().forEachRemaining(ret::add);
+
+		ret = ret.stream().filter(b -> !Collections.disjoint(b.getLanguages(), languages)).collect(Collectors.toList());
+		Collections.shuffle(ret);
+		if (ret.size() > num) {
+			ret = ret.subList(0, num);
+		}
+
+		return ret;
+	}
+
+	@Override
+	public long countRecommendationsByUser(String user) {
+
+		long ret = 0;
+
+		//    long init = System.currentTimeMillis();
+		Query query = new Query();
+		List<Criteria> criterias = new ArrayList<>();
+		criterias.add(Criteria.where("user").is(user));
+		query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
+		List<NotificationMongoEntity> notifs = mongoTemplate.find(query, NotificationMongoEntity.class);
+
+		if (!CollectionUtils.isEmpty(notifs)) {
+
+			query = new Query();
+			criterias.clear();
+			criterias.add(Criteria.where("username").is(user));
+			query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
+			UserMongoEntity userMongoEntity = mongoTemplate.findOne(query, UserMongoEntity.class);
+
+			List<String> languages = userMongoEntity.getLanguageBooks();
+
+			List<String> recommendations = new ArrayList<>();
+
+			for (NotificationMongoEntity notif : notifs) {
+
+				query = new Query();
+				criterias.clear();
+				criterias.add(Criteria.where("path").is(notif.getBook()));
+				query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
+				BookMongoEntity book = mongoTemplate.findOne(query, BookMongoEntity.class);
+
+				if (book != null && !CollectionUtils.isEmpty(book.getRecommendations())) {
+					recommendations.addAll(book.getRecommendations());
+				}
+
+			}
+
+			if (!CollectionUtils.isEmpty(recommendations)) {
+				recommendations = recommendations.stream().distinct().collect(Collectors.toList());
+
+				ret = getRecommendationsByBook(recommendations, languages, recommendations.size()).size();
+
+			}
+
+		}
+		//    System.out.println(System.currentTimeMillis() - init);
+		//    init = System.currentTimeMillis();
+		//    Query query = new Query();
+		//    List<Criteria> criterias = new ArrayList<>();
+		//    criterias.add(Criteria.where("username").is(user));
+		//    query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
+		//    UserMongoEntity userMongoEntity = mongoTemplate.findOne(query, UserMongoEntity.class);
+		//    List<String> languages = userMongoEntity.getLanguageBooks();
+		//
+		//    CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
+		//        MongoClientSettings.getDefaultCodecRegistry(),
+		//        org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder()
+		//            .automatic(true)
+		//            .build()));
+		//
+		//    MongoCollection<Document> collection = mongoTemplate.getCollection("notifications")
+		//        .withCodecRegistry(pojoCodecRegistry);
+		//
+		//    AggregateIterable<Document> data = collection.aggregate(Arrays.asList(
+		//
+		//        new Document("$match", new Document("user", user)),
+		//        new Document("$project", new Document("_id", 0L).append("book", 1L)),
+		//        new Document("$lookup", new Document("from", "books").append("localField", "book")
+		//            .append("foreignField", "path")
+		//            .append("as", "typeCategory")),
+		//        new Document("$match",
+		//            new Document("typeCategory.recommendations", new Document("$ne", new BsonNull()))),
+		//        new Document("$unwind", new Document("path", "$typeCategory")),
+		//        new Document("$unwind", new Document("path", "$typeCategory.recommendations")),
+		//        new Document("$project",
+		//            new Document("_id", new Document("$toObjectId", "$typeCategory.recommendations"))),
+		//        new Document("$group", new Document("_id", "$_id").append("count", new Document("$sum", 1L))),
+		//        new Document("$sort", new Document("count", -1L)),
+		//        new Document("$lookup", new Document("from", "books").append("localField", "_id")
+		//            .append("foreignField", "_id")
+		//            .append("as", "book")),
+		//        new Document("$replaceRoot", new Document("newRoot",
+		//            new Document("$mergeObjects",
+		//                Arrays.asList(new Document("$arrayElemAt", Arrays.asList("$book", 0L)), "$$ROOT")))),
+		//        new Document("$match",
+		//            new Document("languages",
+		//                new Document("$in", languages))),
+		//        new Document("$count", "total")));
+		//
+		//    if (data.iterator()
+		//        .hasNext()) {
+		//      ret = Long.parseLong(data.iterator()
+		//          .next()
+		//          .get("total")
+		//          .toString());
+		//    }
+		//    System.out.println(System.currentTimeMillis() - init);
+		return ret;
+	}
+
+	@Override
+	public List<BookMongoEntity> getRecommendationsByUser(String user, int page, int size, String sort, String order) {
+
+		List<BookMongoEntity> ret = new ArrayList<>();
+
+		Query query = new Query();
+		List<Criteria> criterias = new ArrayList<>();
+		criterias.add(Criteria.where("username").is(user));
+		query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
+		UserMongoEntity userMongoEntity = mongoTemplate.findOne(query, UserMongoEntity.class);
+		List<String> languages = userMongoEntity.getLanguageBooks();
+
+		CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
+				MongoClientSettings.getDefaultCodecRegistry(),
+				org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build()));
+
+		MongoCollection<Document> collection = mongoTemplate.getCollection("notifications").withCodecRegistry(pojoCodecRegistry);
+
+		AggregateIterable<BookMongoEntity> data = collection.aggregate(Arrays.asList(new Document("$match", new Document("user", user)),
+				new Document("$project", new Document("_id", 0L).append("book", 1L)), new Document("$lookup",
+						new Document("from", "books").append("localField", "book").append("foreignField", "path")
+								.append("as", "typeCategory")),
+				new Document("$match", new Document("typeCategory.recommendations", new Document("$ne", new BsonNull()))),
+				new Document("$unwind", new Document("path", "$typeCategory")),
+				new Document("$unwind", new Document("path", "$typeCategory.recommendations")),
+				new Document("$project", new Document("_id", new Document("$toObjectId", "$typeCategory.recommendations"))),
+				new Document("$group", new Document("_id", "$_id").append("count", new Document("$sum", 1L))),
+				new Document("$sort", new Document("count", -1L)), new Document("$lookup",
+						new Document("from", "books").append("localField", "_id").append("foreignField", "_id").append("as", "book")),
+				new Document("$replaceRoot", new Document("newRoot",
+						new Document("$mergeObjects", Arrays.asList(new Document("$arrayElemAt", Arrays.asList("$book", 0L)), "$$ROOT")))),
+				new Document("$match", new Document("languages", new Document("$in", languages))),
+				new Document("$sort", new Document(sort, (order.equals("asc") ? 1 : -1)).append("_id", -1L)),
+				new Document("$skip", page * size), new Document("$limit", size - 1),
+				new Document("$unset", Arrays.asList("book", "count"))), BookMongoEntity.class);
+
+		data.iterator().forEachRemaining(ret::add);
+
+		return ret;
+	}
+
+	@Override
+	public List<String> getBookLanguages() {
+		List<String> ret = new ArrayList<>();
+
+		CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
+				MongoClientSettings.getDefaultCodecRegistry(),
+				org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build()));
+
+		MongoCollection<Document> collection = mongoTemplate.getCollection("books").withCodecRegistry(pojoCodecRegistry);
+
+		AggregateIterable<Document> data = collection.aggregate(Arrays.asList(new Document("$project", new Document("languages", 1L)),
+				new Document("$unwind", new Document("path", "$languages")),
+				new Document("$group", new Document("_id", "null").append("languages", new Document("$addToSet", "$languages"))),
+				new Document("$unwind", new Document("path", "$languages")), new Document("$project", new Document("_id", 0L))));
+
+		Iterator<Document> it = data.iterator();
+		while (it.hasNext()) {
+			Document document = it.next();
+			ret.add(document.get("languages").toString());
+		}
+
+		return ret;
+	}
 
 }

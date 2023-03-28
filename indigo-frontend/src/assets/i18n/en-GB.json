@@ -72,6 +72,9 @@
                     "less": "View less"
                 }
 			},
+			"serie": {
+                "title": "From the same series"
+            },
 			"similar": {
 				"title": "Other similar books"
 			},
