@@ -6,20 +6,20 @@
     justify-content: center;
 }
 
-.viewer-vertical-divider{
+.viewer-vertical-divider {
     display: inherit;
 }
 
-.viewer-horizontal-divider{
+.viewer-horizontal-divider {
     display: none;
 }
 
-.viewer-content{
+.viewer-content {
     position: relative;
 }
 
 .view-title-buttons {
-	text-align: right;
+    text-align: right;
 }
 
 .overlay-left {
@@ -46,23 +46,23 @@
         float: left;
         padding-left: 10px;
     }
-    
+
     .overlay-right {
         text-align: right;
         padding-right: 10px;
     }
-    
-    .viewer-vertical-divider{
+
+    .viewer-vertical-divider {
         display: none;
     }
-    
-    .viewer-horizontal-divider{
+
+    .viewer-horizontal-divider {
         display: inherit;
         width: 100%;
     }
 }
 
-.chapters{
+.chapters {
     height: 750px;
     overflow-y: auto;
 }
@@ -74,19 +74,19 @@
 }
 
 @media (max-width: 640px) {
-    .chapters{
+    .chapters {
         height: 300px;
         overflow-y: auto;
     }
 }
 
-.content{
+.content {
     height: 712px;
 }
 
 @media (max-width: 640px) {
-    .content{
-    height: 735px;
+    .content {
+        height: 735px;
     }
 }
 
@@ -100,28 +100,28 @@
 
 @media (min-width: 1140px) {
     #viewer.spreads:after {
-      position: absolute;
-      z-index: 1;
-      width: 1px;
-      border-right: 1px #000 solid;
-      height: 90%;
-      left: 50%;
-      margin-left: -1px;
-      top: 5%;
-      opacity: .15;
-      box-shadow: -2px 0 15px rgba(0, 0, 0, 1);
-      content:  "";
+        position: absolute;
+        z-index: 1;
+        width: 1px;
+        border-right: 1px #000 solid;
+        height: 90%;
+        left: 50%;
+        margin-left: -1px;
+        top: 5%;
+        opacity: .15;
+        box-shadow: -2px 0 15px rgba(0, 0, 0, 1);
+        content: "";
     }
-  
+
     #viewer.spreads.single:after {
-      display: none;
+        display: none;
     }
-  }
+}
 
 
 
 
-  .chapter-image {
+.chapter-image {
     box-shadow: 0 1px 3px 0 rgb(0 0 0 / 20%), 0 1px 1px 0 rgb(0 0 0 / 14%), 0 2px 1px -1px rgb(0 0 0 / 12%);
     cursor: pointer;
     margin-bottom: 0.5em;
@@ -188,7 +188,7 @@
     padding-top: 5px;
 }
 
-.review-title{
+.review-title {
     font-size: 13px;
     line-height: 1.38462;
     font-weight: 600;
@@ -196,7 +196,7 @@
     display: block;
 }
 
-.review-date{
+.review-date {
     color: #636366;
     font-size: 12px;
     line-height: 1.33337;
@@ -206,7 +206,7 @@
     padding-bottom: 5px;
 }
 
-.review-comment{
+.review-comment {
     font-size: 13px;
     line-height: 1.38462;
     font-weight: 400;
@@ -215,4 +215,9 @@
     -webkit-line-clamp: 5;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+.review-comment-expand {
+    display: block !important;
+    overflow: auto !important;
 }

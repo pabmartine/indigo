@@ -213,7 +213,7 @@
             <span class="review-name">{{review.name}}</span>
             <span class="review-date">{{review.date}}</span>
             <span class="review-title">{{review.title}}</span>
-            <span class="review-comment">{{review.comment}}</span>
+            <span class="review-comment" [ngClass]="{ 'review-comment-expand': expandReview }">{{review.comment}}</span>
           </div>
         </div>
       </div>
@@ -227,7 +227,7 @@
             <span class="review-name">{{review.name}}</span>
             <span class="review-date">{{review.date}}</span>
             <span class="review-title">{{review.title}}</span>
-            <span class="review-comment">{{review.comment}}</span>
+            <span class="review-comment" [ngClass]="{ 'review-comment-expand': expandReview }">{{review.comment}}</span>
 
           </div>
         </div>

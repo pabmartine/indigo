@@ -93,7 +93,7 @@ export class DetailComponent implements OnInit {
     if (path)
       this.bookService.getImage(path).subscribe(
         data => {
-          if (data){
+          if (data) {
             let objectURL = 'data:image/jpeg;base64,' + data.image;
             this.selectedImage = objectURL;
           }
@@ -105,8 +105,8 @@ export class DetailComponent implements OnInit {
   }
 
   getSerie(serie: Serie) {
-    if (serie) 
-    
+    if (serie)
+
       this.bookService.getSerie(serie.name, this.user.languageBooks).subscribe(
         data => {
           data.forEach((book) => {
@@ -140,18 +140,15 @@ export class DetailComponent implements OnInit {
   }
 
   getReviews(path: string) {
-    console.log("obtaining reviews for " + path)
     if (path)
       this.metadataService.getReviews(path).subscribe(
         data => {
-          console.log("tengo datos " + data)
-          if (data!=null && data.length>0){
+          if (data != null && data.length > 0) {
             if (this.selected.reviews)
-              this.selected.reviews.length=0;
+              this.selected.reviews.length = 0;
             else this.selected.reviews = [];
             Array.prototype.push.apply(this.selected.reviews, data);
-            console.log("los añado " + this.selected.reviews)
-        }
+          }
         },
         error => {
           console.log(error);
@@ -179,7 +176,6 @@ export class DetailComponent implements OnInit {
 
 
   showDetails(book: Book) {
-    console.log(book);
     this.close();
 
     this.selected = book;
@@ -197,18 +193,17 @@ export class DetailComponent implements OnInit {
     this.getFavoriteBook(book.path);
     this.view(book.path);
 
-    setTimeout( ()=>{
+    setTimeout(() => {
       this.open();
-      this.checkOverflowSerie ();
-      this.checkOverflowReview ();
-      this.checkOverflowSimilar ();
-      this.checkOverflowRecommendations ();      
-      }, 200)
+      this.checkOverflowSerie();
+      this.checkOverflowReview();
+      this.checkOverflowSimilar();
+      this.checkOverflowRecommendations();
+    }, 200)
 
   }
 
   openAuthor(author: string) {
-    console.log("emit " + author);
     this.eventAuthor.emit(author);
   }
 
@@ -230,7 +225,7 @@ export class DetailComponent implements OnInit {
   }
 
   private doSearch() {
-    this.close(); 
+    this.close();
     this.router.navigate(["books"], { queryParams: { adv_search: JSON.stringify(this.adv_search) } });
   }
 
@@ -357,8 +352,8 @@ export class DetailComponent implements OnInit {
     );
   }
 
-viewEpub() {
-    
+  viewEpub() {
+
     /*
     this.showEpub = true;
 
@@ -468,42 +463,46 @@ viewEpub() {
     this.eventOpen.emit();
   }
 
-  checkOverflowRecommendations () {
+  checkOverflowRecommendations() {
     let row = document.getElementById('inlineRecommendations');
-    this.showExpandRecommendations = this.isOverFlowed(row);
+    if (row)
+      this.showExpandRecommendations = this.isOverFlowed(row);
   }
 
-  checkOverflowSimilar () {
+  checkOverflowSimilar() {
     let row = document.getElementById('inlineSimilar');
-    this.showExpandSimilar = this.isOverFlowed(row);
+    if (row)
+      this.showExpandSimilar = this.isOverFlowed(row);
   }
 
-  checkOverflowSerie () {
+  checkOverflowSerie() {
     let row = document.getElementById('inlineSerie');
-    this.showExpandSerie = this.isOverFlowed(row);
+    if (row)
+      this.showExpandSerie = this.isOverFlowed(row);
   }
 
-  checkOverflowReview () {
+  checkOverflowReview() {
     let row = document.getElementById('inlineReview');
-    this.showExpandReview = this.isOverFlowed(row);
+    if (row)
+      this.showExpandReview = this.isOverFlowed(row);
   }
 
-  isOverFlowed(element){
-    return element.scrollHeight > element.clientHeight ||element.scrollWidth > element.clientWidth;
+  isOverFlowed(element) {
+    return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
   }
 
   @HostListener('window:resize', ['$event'])
   onResize(event) {
-    this.checkOverflowRecommendations ();
-    this.checkOverflowSimilar ();
-    this.checkOverflowSerie ();
-    this.checkOverflowReview ();
+    this.checkOverflowRecommendations();
+    this.checkOverflowSimilar();
+    this.checkOverflowSerie();
+    this.checkOverflowReview();
   }
 
-  toDate(date: string): Date{
+  toDate(date: string): Date {
     let d = date.split("/");
     let dat = new Date(d[2] + '/' + d[1] + '/' + d[0]);
-    return dat;    
+    return dat;
   }
 
 }
