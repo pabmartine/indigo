@@ -44,6 +44,8 @@ public class AmazonServiceImpl implements AmazonService {
 		webClient.getOptions().setCssEnabled(false);
 		webClient.getOptions().setJavaScriptEnabled(false);
 
+		log.info(webClient.getBrowserVersion().getUserAgent());
+
 		String tokenized_title = normalize(title);
 		String tokenized_author = normalize(author);
 
