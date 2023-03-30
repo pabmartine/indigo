@@ -367,8 +367,8 @@ public class MetadataServiceImpl implements MetadataService {
 				}
 
 				//Find reviews
-				List<Review> reviews = amazonService.getReviews(book.getTitle(), book.getAuthors());
-				book.setReviews(reviews);
+				//				List<Review> reviews = amazonService.getReviews(book.getTitle(), book.getAuthors());
+				//				book.setReviews(reviews);
 			}
 			catch (Exception e) {
 				e.printStackTrace();
@@ -398,11 +398,15 @@ public class MetadataServiceImpl implements MetadataService {
 	@Override
 	public List<Review> getReviews(String path) {
 		return bookRepository.findByPath(path).map(book -> {
-			List<Review> reviews = amazonService.getReviews(book.getTitle(), book.getAuthors());
-			book.setReviews(reviews);
-			if (!CollectionUtils.isEmpty(reviews))
-				bookRepository.save(book);
-			return reviews;
+			if (CollectionUtils.isEmpty(book.getReviews())) {
+				List<Review> reviews = amazonService.getReviews(book.getTitle(), book.getAuthors());
+				book.setReviews(reviews);
+				if (!CollectionUtils.isEmpty(reviews)) {
+					bookRepository.save(book);
+				}
+				return reviews;
+			}
+			return book.getReviews();
 		}).orElse(null);
 	}
 

@@ -205,7 +205,7 @@
       </div>
 
       <div id="inlineReview" class="content-body p-grid inline" *ngIf="!expandReview">
-        <div class="p-col-12 p-sm-6 p-md-4" *ngFor="let review of selected.reviews">
+        <div class="p-col-12 p-md-4" *ngFor="let review of selected.reviews">
           <div class="review">
             <div *ngIf="review.rating">
               <p-rating [ngModel]="review.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
@@ -218,7 +218,7 @@
         </div>
       </div>
       <div class="content-body p-grid" *ngIf="expandReview">
-        <div class="p-col-12 p-sm-6 p-md-4" *ngFor="let review of selected.reviews">
+        <div class="p-col-12 p-md-4" *ngFor="let review of selected.reviews">
           <div class="review">
             <div *ngIf="review.rating">
               <p-rating [ngModel]="review.rating" readonly="true" stars="5" [cancel]="false"></p-rating>

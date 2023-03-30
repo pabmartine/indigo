@@ -10,6 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.URL;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,6 +28,15 @@ import java.util.stream.Collectors;
 public class AmazonServiceImpl implements AmazonService {
 	@Override
 	public List<Review> getReviews(String title, List<String> authors) {
+
+		try {
+			InetAddress localhost = InetAddress.getLocalHost();
+			if (!localhost.getHostAddress().equals("127.0.1.1"))
+				return null;
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+
 		List<Review> listReviews = null;
 		try {
 			String asin = getAsin(title, authors.stream().collect(Collectors.joining(" ")));
