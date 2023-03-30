@@ -3,6 +3,9 @@ package com.martinia.indigo.adapters.in.rest.dtos;
 import java.io.Serializable;
 import java.util.List;
 
+import com.martinia.indigo.adapters.in.rest.dtos.inner.ReviewDto;
+import com.martinia.indigo.adapters.in.rest.dtos.inner.SerieDto;
+import com.martinia.indigo.domain.model.inner.Review;
 import com.martinia.indigo.domain.model.inner.Serie;
 
 import lombok.AllArgsConstructor;
@@ -23,7 +26,7 @@ public class BookDto implements Serializable {
 	private String path;
 	private String comment;
 	private String provider;
-	private Serie serie;
+	private SerieDto serie;
 	private String pubDate;
 	private String lastModified;
 	private int pages;
@@ -34,5 +37,6 @@ public class BookDto implements Serializable {
 	private List<String> similar;
 	private List<String> recommendations;
 	private List<String> languages;
+	private List<ReviewDto> reviews;
 
 }

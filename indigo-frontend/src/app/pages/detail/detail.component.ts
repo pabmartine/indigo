@@ -45,6 +45,9 @@ export class DetailComponent implements OnInit {
   expandSerie: boolean;
   showExpandSerie: boolean;
 
+  expandReview: boolean;
+  showExpandReview: boolean;
+
   expandSimilar: boolean;
   showExpandSimilar: boolean;
 
@@ -136,6 +139,26 @@ export class DetailComponent implements OnInit {
       );
   }
 
+  getReviews(path: string) {
+    console.log("obtaining reviews for " + path)
+    if (path)
+      this.metadataService.getReviews(path).subscribe(
+        data => {
+          console.log("tengo datos " + data)
+          if (data!=null && data.length>0){
+            if (this.selected.reviews)
+              this.selected.reviews.length=0;
+            else this.selected.reviews = [];
+            Array.prototype.push.apply(this.selected.reviews, data);
+            console.log("los añado " + this.selected.reviews)
+        }
+        },
+        error => {
+          console.log(error);
+        }
+      );
+  }
+
   getRecommendations(recommendations: string[]) {
     if (recommendations)
       this.bookService.getRecommendationsByBook(recommendations, this.user.languageBooks).subscribe(
@@ -156,7 +179,7 @@ export class DetailComponent implements OnInit {
 
 
   showDetails(book: Book) {
-    console.log("estoy aqui");
+    console.log(book);
     this.close();
 
     this.selected = book;
@@ -165,6 +188,7 @@ export class DetailComponent implements OnInit {
     this.serie.length = 0;
     this.similar.length = 0;
     this.recommendations.length = 0;
+    this.getReviews(book.path);
     this.getImage(book.path);
     this.getSerie(book.serie);
     this.getSimilar(book.similar);
@@ -393,7 +417,7 @@ viewEpub() {
     this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.refresh.process'), closable: false, life: 5000 });
     this.metadataService.findBook(this.selected.path).subscribe(
       data => {
-        this.showDetails(data);
+        console.log("refreshed data: " + data)
 
         if (data.image) {
           let objectURL = 'data:image/jpeg;base64,' + data.image;
@@ -456,6 +480,11 @@ viewEpub() {
   checkOverflowSerie () {
     let row = document.getElementById('inlineSerie');
     this.showExpandSerie = this.isOverFlowed(row);
+  }
+
+  checkOverflowReview () {
+    let row = document.getElementById('inlineReview');
+    this.showExpandReview = this.isOverFlowed(row);
   }
 
   isOverFlowed(element){

@@ -174,6 +174,63 @@
 
     </div>
 
+    <div *ngIf="selected.reviews?.length > 0">
+      <p-divider></p-divider>
+      <div class="content-header p-grid">
+        <div class="p-col-12 p-md-10">
+          <span class="page-title">
+            Comentarios
+          </span>
+        </div>
+        
+        <div class="p-col-12 p-md-2 content-header-subtitle" *ngIf="showExpandReview">
+          <span class="page-subtitle" *ngIf="!expandReview" onmouseover="this.style.cursor='pointer'">
+            <span (click)="expandReview = true" style="white-space: nowrap;">{{'locale.books.detail.expand.more' | translate}}</span>
+          </span>
+          <span class="page-subtitle" *ngIf="expandReview" onmouseover="this.style.cursor='pointer'">
+            <span (click)="expandReview = false; checkOverflowReview()" style="white-space: nowrap;">{{'locale.books.detail.expand.less' | translate}}</span>
+          </span>
+        </div>
+        
+      </div>
+
+      <div id="inlineReview" class="content-body p-grid inline" *ngIf="!expandReview">
+        <div class="p-col-12 p-sm-6 p-md-4" *ngFor="let review of selected.reviews">
+          <div *ngIf="review.rating">
+            <p-rating [ngModel]="review.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+          </div>
+          <div>
+            <span class="review-name">{{review.name}}</span>
+            <span class="review-date">{{review.date}}</span>
+          </div>
+          <div>
+            <span class="review-title">{{review.title}}</span>
+          </div>
+          <div>
+            <span class="review-comment">{{review.comment}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="content-body p-grid" *ngIf="expandReview">
+        <div class="p-col-12 p-sm-6 p-md-4" *ngFor="let review of selected.reviews">
+          <div *ngIf="review.rating">
+            <p-rating [ngModel]="review.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+          </div>
+          <div>
+            <span class="review-name">{{review.name}}</span>
+            <span class="review-date">{{review.date}}</span>
+          </div>
+          <div>
+            <span class="review-title">{{review.title}}</span>
+          </div>
+          <div>
+            <span class="review-comment">{{review.comment}}</span>
+          </div>
+        </div>
+      </div>
+  
+    </div>
+
     <div *ngIf="serie?.length > 0">
       <p-divider></p-divider>
       <div class="content-header p-grid">

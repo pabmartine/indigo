@@ -1,21 +1,19 @@
 package com.martinia.indigo.adapters.out.mongo.entities;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-
-import javax.persistence.Id;
-
-import org.bson.BsonType;
-import org.bson.codecs.pojo.annotations.BsonRepresentation;
-import org.springframework.data.mongodb.core.mapping.Document;
-
+import com.martinia.indigo.adapters.out.mongo.beans.ReviewMongoBean;
 import com.martinia.indigo.adapters.out.mongo.beans.SerieMongoBean;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.bson.BsonType;
+import org.bson.codecs.pojo.annotations.BsonRepresentation;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import javax.persistence.Id;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -44,6 +42,7 @@ public class BookMongoEntity implements Serializable {
 	private List<String> similar;
 	private List<String> recommendations;
 	private List<String> languages;
+	private List<ReviewMongoBean> reviews;
 
 	private Date lastMetadataSync;
 

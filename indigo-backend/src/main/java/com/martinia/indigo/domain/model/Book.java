@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import com.martinia.indigo.domain.model.inner.Review;
 import com.martinia.indigo.domain.model.inner.Serie;
 
 import lombok.AllArgsConstructor;
@@ -35,6 +36,7 @@ public class Book implements Serializable {
 	private List<String> similar;
 	private List<String> recommendations;
 	private List<String> languages;
+	private List<Review> reviews;
 
 	private Date lastMetadataSync;
 }

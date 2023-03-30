@@ -1,4 +1,5 @@
 import { SerieBook } from './serieBook';
+import { ReviewBook } from './reviewBook';
 
 export class Book {
 
@@ -19,6 +20,7 @@ export class Book {
         public recommendations?:string[],
         public languages?:string[],
         public image?: string,
+        public reviews?: ReviewBook[],
         ) {
     }
 }
