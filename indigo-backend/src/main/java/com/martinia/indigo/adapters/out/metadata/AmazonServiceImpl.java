@@ -1,5 +1,6 @@
 package com.martinia.indigo.adapters.out.metadata;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlDivision;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -40,11 +41,10 @@ public class AmazonServiceImpl implements AmazonService {
 
 		AtomicReference<String> asin = new AtomicReference<>();
 
-		WebClient webClient = new WebClient();
+		WebClient webClient = new WebClient(BrowserVersion.CHROME);
 		webClient.getOptions().setCssEnabled(false);
 		webClient.getOptions().setJavaScriptEnabled(false);
 
-		log.info(webClient.getBrowserVersion().getUserAgent());
 
 		String tokenized_title = normalize(title);
 		String tokenized_author = normalize(author);
