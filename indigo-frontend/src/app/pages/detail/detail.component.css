@@ -171,13 +171,20 @@
     letter-spacing: 0;
 }
 
+.review {
+    height: 100%;
+    padding: 13px 16px 16px;
+    background-color: #eceff4;
+    border-radius: 6px;
+}
+
 .review-name {
     color: #636366;
     font-size: 12px;
     line-height: 1.33337;
     font-weight: 600;
     letter-spacing: 0;
-    display: inline-block;
+    display: block;
     padding-top: 5px;
 }
 
@@ -186,6 +193,7 @@
     line-height: 1.38462;
     font-weight: 600;
     letter-spacing: -.005em;
+    display: block;
 }
 
 .review-date{
@@ -194,7 +202,7 @@
     line-height: 1.33337;
     font-weight: 500;
     letter-spacing: 0;
-    display: inline-block;
+    display: block;
     padding-bottom: 5px;
 }
 
@@ -203,4 +211,8 @@
     line-height: 1.38462;
     font-weight: 400;
     letter-spacing: -.005em;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }

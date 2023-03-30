@@ -41,14 +41,15 @@
             {{selected.title}}
           </div>
           <div class="book-detail-title" *ngIf="selected.serie && selected.serie.name">
-            {{selected.title}} (<span class="book-detail-serie" (click)="getBooksBySerie(selected.serie.name);">{{selected.serie.name}} {{selected.serie.index}}</span>)
+            {{selected.title}} (<span class="book-detail-serie"
+              (click)="getBooksBySerie(selected.serie.name);">{{selected.serie.name}} {{selected.serie.index}}</span>)
           </div>
           <div class="book-detail-subtitle">
             <span *ngFor="let author of selected.authors">
               <a href="javascript:;" (click)="openAuthor(author);">{{author}}</a><span
                 *ngIf="author != selected.authors[selected.authors.length-1]"> & </span>
             </span>
-          </div>        
+          </div>
           <div class="book-detail-comment" [innerHTML]="selected.comment"></div>
         </div>
       </div>
@@ -56,12 +57,14 @@
       <div class="metadata-container">
         <div class="metadata-item" *ngIf="selected.rating">
           <span class="metadata-title">{{'locale.books.detail.metadata.rating' | translate}}</span>
-          <p-rating  class="metadata-value" [ngModel]="selected.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+          <p-rating class="metadata-value" [ngModel]="selected.rating" readonly="true" stars="5"
+            [cancel]="false"></p-rating>
         </div>
         <p-divider layout="vertical" *ngIf="selected.rating"></p-divider>
         <div class="metadata-item">
           <span class="metadata-title">{{'locale.books.detail.metadata.genre' | translate}}</span>
-          <span class="metadata-value" (click)="getBooksByTag(selected.tags[0]);"  *ngIf="selected.tags.length==1" onmouseover="this.style.cursor='pointer'">{{selected.tags}}</span>
+          <span class="metadata-value" (click)="getBooksByTag(selected.tags[0]);" *ngIf="selected.tags.length==1"
+            onmouseover="this.style.cursor='pointer'">{{selected.tags}}</span>
           <span class="metadata-subvalue" (click)="getBooksByTag(tag);" *ngFor="let tag of selected.tags"
             onmouseover="this.style.cursor='pointer'"><span *ngIf="selected.tags.length>1">{{tag}}</span></span>
         </div>
@@ -75,7 +78,8 @@
         <div class="metadata-item">
           <span class="metadata-title">{{'locale.books.detail.metadata.language' | translate}}</span>
           <span class="metadata-value" *ngIf="selected.languages.length==1">{{selected.languages}}</span>
-          <span class="metadata-subvalue" *ngFor="let lang of selected.languages">{{'locale.languages.' + lang | translate}}</span>
+          <span class="metadata-subvalue" *ngFor="let lang of selected.languages">{{'locale.languages.' + lang |
+            translate}}</span>
         </div>
         <p-divider layout="vertical"></p-divider>
         <div class="metadata-item">
@@ -123,8 +127,9 @@
           </div>
         </div>
         <div class="p-col-12">
-          <div  class="book-detail-series" *ngIf="selected.serie && selected.serie.name">
-            <span class="book-detail-serie" (click)="getBooksBySerie(selected.serie.name);">{{selected.serie.name}} {{selected.serie.index}}</span>
+          <div class="book-detail-series" *ngIf="selected.serie && selected.serie.name">
+            <span class="book-detail-serie" (click)="getBooksBySerie(selected.serie.name);">{{selected.serie.name}}
+              {{selected.serie.index}}</span>
           </div>
           <div class="book-detail-title">
             {{selected.title}}
@@ -143,12 +148,14 @@
       <div class="metadata-container">
         <div class="metadata-item" *ngIf="selected.rating">
           <span class="metadata-title">{{'locale.books.detail.metadata.rating' | translate}}</span>
-          <p-rating  class="metadata-value" [ngModel]="selected.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+          <p-rating class="metadata-value" [ngModel]="selected.rating" readonly="true" stars="5"
+            [cancel]="false"></p-rating>
         </div>
         <p-divider layout="vertical" *ngIf="selected.rating"></p-divider>
         <div class="metadata-item">
           <span class="metadata-title">{{'locale.books.detail.metadata.genre' | translate}}</span>
-          <span class="metadata-value" (click)="getBooksByTag(selected.tags[0]);"  *ngIf="selected.tags.length==1" onmouseover="this.style.cursor='pointer'">{{selected.tags}}</span>
+          <span class="metadata-value" (click)="getBooksByTag(selected.tags[0]);" *ngIf="selected.tags.length==1"
+            onmouseover="this.style.cursor='pointer'">{{selected.tags}}</span>
           <span class="metadata-subvalue" (click)="getBooksByTag(tag);" *ngFor="let tag of selected.tags"
             onmouseover="this.style.cursor='pointer'"><span *ngIf="selected.tags.length>1">{{tag}}</span></span>
         </div>
@@ -162,7 +169,8 @@
         <div class="metadata-item">
           <span class="metadata-title">{{'locale.books.detail.metadata.language' | translate}}</span>
           <span class="metadata-value" *ngIf="selected.languages.length==1">{{selected.languages}}</span>
-          <span class="metadata-subvalue" *ngFor="let lang of selected.languages">{{'locale.languages.' + lang | translate}}</span>
+          <span class="metadata-subvalue" *ngFor="let lang of selected.languages">{{'locale.languages.' + lang |
+            translate}}</span>
         </div>
         <p-divider layout="vertical"></p-divider>
         <div class="metadata-item">
@@ -182,53 +190,49 @@
             Comentarios
           </span>
         </div>
-        
+
         <div class="p-col-12 p-md-2 content-header-subtitle" *ngIf="showExpandReview">
           <span class="page-subtitle" *ngIf="!expandReview" onmouseover="this.style.cursor='pointer'">
-            <span (click)="expandReview = true" style="white-space: nowrap;">{{'locale.books.detail.expand.more' | translate}}</span>
+            <span (click)="expandReview = true" style="white-space: nowrap;">{{'locale.books.detail.expand.more' |
+              translate}}</span>
           </span>
           <span class="page-subtitle" *ngIf="expandReview" onmouseover="this.style.cursor='pointer'">
-            <span (click)="expandReview = false; checkOverflowReview()" style="white-space: nowrap;">{{'locale.books.detail.expand.less' | translate}}</span>
+            <span (click)="expandReview = false; checkOverflowReview()"
+              style="white-space: nowrap;">{{'locale.books.detail.expand.less' | translate}}</span>
           </span>
         </div>
-        
+
       </div>
 
       <div id="inlineReview" class="content-body p-grid inline" *ngIf="!expandReview">
         <div class="p-col-12 p-sm-6 p-md-4" *ngFor="let review of selected.reviews">
-          <div *ngIf="review.rating">
-            <p-rating [ngModel]="review.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
-          </div>
-          <div>
+          <div class="review">
+            <div *ngIf="review.rating">
+              <p-rating [ngModel]="review.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+            </div>
             <span class="review-name">{{review.name}}</span>
             <span class="review-date">{{review.date}}</span>
-          </div>
-          <div>
             <span class="review-title">{{review.title}}</span>
-          </div>
-          <div>
             <span class="review-comment">{{review.comment}}</span>
           </div>
         </div>
       </div>
       <div class="content-body p-grid" *ngIf="expandReview">
         <div class="p-col-12 p-sm-6 p-md-4" *ngFor="let review of selected.reviews">
-          <div *ngIf="review.rating">
-            <p-rating [ngModel]="review.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
-          </div>
-          <div>
+          <div class="review">
+            <div *ngIf="review.rating">
+              <p-rating [ngModel]="review.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+            </div>
+
             <span class="review-name">{{review.name}}</span>
             <span class="review-date">{{review.date}}</span>
-          </div>
-          <div>
             <span class="review-title">{{review.title}}</span>
-          </div>
-          <div>
             <span class="review-comment">{{review.comment}}</span>
+
           </div>
         </div>
       </div>
-  
+
     </div>
 
     <div *ngIf="serie?.length > 0">
@@ -241,10 +245,12 @@
         </div>
         <div class="p-col-12 p-md-2 content-header-subtitle" *ngIf="showExpandSerie">
           <span class="page-subtitle" *ngIf="!expandSerie" onmouseover="this.style.cursor='pointer'">
-            <span (click)="expandSerie = true" style="white-space: nowrap;">{{'locale.books.detail.expand.more' | translate}}</span>
+            <span (click)="expandSerie = true" style="white-space: nowrap;">{{'locale.books.detail.expand.more' |
+              translate}}</span>
           </span>
           <span class="page-subtitle" *ngIf="expandSerie" onmouseover="this.style.cursor='pointer'">
-            <span (click)="expandSerie = false; checkOverflowSerie()" style="white-space: nowrap;">{{'locale.books.detail.expand.less' | translate}}</span>
+            <span (click)="expandSerie = false; checkOverflowSerie()"
+              style="white-space: nowrap;">{{'locale.books.detail.expand.less' | translate}}</span>
           </span>
         </div>
       </div>
@@ -290,10 +296,12 @@
         </div>
         <div class="p-col-12 p-md-2 content-header-subtitle" *ngIf="showExpandSimilar">
           <span class="page-subtitle" *ngIf="!expandSimilar" onmouseover="this.style.cursor='pointer'">
-            <span (click)="expandSimilar = true" style="white-space: nowrap;">{{'locale.books.detail.expand.more' | translate}}</span>
+            <span (click)="expandSimilar = true" style="white-space: nowrap;">{{'locale.books.detail.expand.more' |
+              translate}}</span>
           </span>
           <span class="page-subtitle" *ngIf="expandSimilar" onmouseover="this.style.cursor='pointer'">
-            <span (click)="expandSimilar = false; checkOverflowSimilar()" style="white-space: nowrap;">{{'locale.books.detail.expand.less' | translate}}</span>
+            <span (click)="expandSimilar = false; checkOverflowSimilar()"
+              style="white-space: nowrap;">{{'locale.books.detail.expand.less' | translate}}</span>
           </span>
         </div>
       </div>
@@ -339,7 +347,8 @@
         </div>
         <div class="p-col-12 p-md-2 content-header-subtitle" *ngIf="showExpandRecommendations">
           <span class="page-subtitle" *ngIf="!expandRecommendations" onmouseover="this.style.cursor='pointer'">
-            <span (click)="expandRecommendations = true" style="white-space: nowrap;">{{'locale.books.detail.expand.more' | translate}}</span>
+            <span (click)="expandRecommendations = true"
+              style="white-space: nowrap;">{{'locale.books.detail.expand.more' | translate}}</span>
           </span>
           <span class="page-subtitle" *ngIf="expandRecommendations" onmouseover="this.style.cursor='pointer'">
             <span (click)="expandRecommendations = false; checkOverflowRecommendations()"

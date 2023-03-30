@@ -200,6 +200,7 @@ export class DetailComponent implements OnInit {
     setTimeout( ()=>{
       this.open();
       this.checkOverflowSerie ();
+      this.checkOverflowReview ();
       this.checkOverflowSimilar ();
       this.checkOverflowRecommendations ();      
       }, 200)
@@ -496,6 +497,7 @@ viewEpub() {
     this.checkOverflowRecommendations ();
     this.checkOverflowSimilar ();
     this.checkOverflowSerie ();
+    this.checkOverflowReview ();
   }
 
   toDate(date: string): Date{
