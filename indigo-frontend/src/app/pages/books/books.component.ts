@@ -229,7 +229,6 @@ export class BooksComponent implements OnInit {
           let objectURL = 'data:image/jpeg;base64,' + book.image;
           book.image = objectURL;
         });
-        console.log(data);
         Array.prototype.push.apply(this.books, data);
         this.page++;
       },
@@ -285,10 +284,8 @@ export class BooksComponent implements OnInit {
 
   openAuthor(sort: string) {
     this.showDetail = false;
-    console.log("openAuthor" + sort)
     this.authorService.getByName(sort).subscribe(
       data => {
-        console.log(data);
         if (data)
           if (data.image) {
             let objectURL = 'data:image/jpeg;base64,' + data.image;

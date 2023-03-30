@@ -147,7 +147,14 @@ export class DetailComponent implements OnInit {
             if (this.selected.reviews)
               this.selected.reviews.length = 0;
             else this.selected.reviews = [];
+
+            data.forEach((review) => {
+              let rtn:string = review.rating;              
+              review.rating = rtn.substring(0,1);
+            });
+    
             Array.prototype.push.apply(this.selected.reviews, data);
+            console.log(this.selected.reviews);
           }
         },
         error => {

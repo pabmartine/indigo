@@ -111,6 +111,7 @@ public class AmazonServiceImpl implements AmazonService {
 		return Normalizer.normalize(title, Normalizer.Form.NFD).toLowerCase().replaceAll("[^\\p{ASCII}]", "")
 				.replaceAll(" ", "+")
 				.replaceAll(",", "")
+				.replaceAll("-", " ")
 				.replaceAll("\\.", "+").replaceAll(":", "+").replaceAll("\\+\\+", "+");
 	}
 
