@@ -7,6 +7,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.martinia.indigo.domain.model.inner.Review;
 import com.martinia.indigo.domain.util.DataUtils;
 import com.martinia.indigo.ports.out.metadata.GoodReadsService;
+import com.martinia.indigo.ports.out.metadata.LibreTranslateService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -14,6 +15,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.text.Normalizer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -36,6 +38,9 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 	private String endpoint = "https://www.goodreads.com/";
 
 	private String PROVIDER = "Goodreads";
+
+	@Resource
+	private LibreTranslateService libreTranslateService;
 
 	@Override
 	public List<Review> getReviews(String title, List<String> authors) {
@@ -136,6 +141,11 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 				Date date = SDF.parse(strDate);
 				String comment = htmlArticle.getFirstChild().getNextSibling().getFirstChild().getNextSibling().getFirstChild()
 						.getFirstChild().getFirstChild().getFirstChild().asText();
+
+				String language = libreTranslateService.detect(comment);
+				if (language != null && !language.equals("es")) {
+					comment = libreTranslateService.translate(comment, "es");
+				}
 
 				reviews.add(Review.builder().comment(comment).name(name).date(date).rating(rating).title(title).lastMetadataSync(new Date())
 						.provider(PROVIDER).build());
