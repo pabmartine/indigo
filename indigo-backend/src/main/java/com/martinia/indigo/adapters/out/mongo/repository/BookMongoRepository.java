@@ -24,7 +24,8 @@ public interface BookMongoRepository
 
 	@Query("{ 'path' : ?0 }")
 	Optional<BookMongoEntity> findByPath(String path);
-	
+
+//	BookMongoEntity findFirstByReviewsLastMetadataSyncExistsTrue();
 	
 
 }

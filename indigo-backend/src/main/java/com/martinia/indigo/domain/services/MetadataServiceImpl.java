@@ -399,12 +399,14 @@ public class MetadataServiceImpl implements MetadataService {
 	public List<Review> getReviews(String path) {
 		return bookRepository.findByPath(path).map(book -> {
 			if (CollectionUtils.isEmpty(book.getReviews())) {
-				List<Review> reviews = amazonService.getReviews(book.getTitle(), book.getAuthors());
-				book.setReviews(reviews);
+				List<Review> reviews = goodReadsComponent.getReviews(book.getTitle(), book.getAuthors());
+				if (CollectionUtils.isEmpty(reviews)) {
+					reviews = amazonService.getReviews(book.getTitle(), book.getAuthors());
+				}
 				if (!CollectionUtils.isEmpty(reviews)) {
+					book.setReviews(reviews);
 					bookRepository.save(book);
 				}
-				return reviews;
 			}
 			return book.getReviews();
 		}).orElse(null);

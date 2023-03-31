@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -16,7 +17,10 @@ public class ReviewMongoBean implements Serializable {
 	private String name;
 	private String title;
 	private String comment;
-	private String rating;
-	private String date;
+	private int rating;
+	private Date date;
+	private Date lastMetadataSync;
+
+	private String provider;
 
 }

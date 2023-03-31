@@ -10,13 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
-import java.net.URL;
 import java.text.Normalizer;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
@@ -26,14 +25,21 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class AmazonServiceImpl implements AmazonService {
+
+	private static SimpleDateFormat SDF = new SimpleDateFormat("d MMMM yyyy");
+
+	private String PROVIDER = "Amazon";
+
 	@Override
 	public List<Review> getReviews(String title, List<String> authors) {
 
 		try {
 			InetAddress localhost = InetAddress.getLocalHost();
-			if (!localhost.getHostAddress().equals("127.0.1.1"))
+			if (!localhost.getHostAddress().equals("127.0.1.1")) {
 				return null;
-		} catch(Exception e){
+			}
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 
@@ -57,7 +63,6 @@ public class AmazonServiceImpl implements AmazonService {
 		WebClient webClient = new WebClient(BrowserVersion.CHROME);
 		webClient.getOptions().setCssEnabled(false);
 		webClient.getOptions().setJavaScriptEnabled(false);
-
 
 		String tokenized_title = normalize(title);
 		String tokenized_author = normalize(author);
@@ -108,11 +113,8 @@ public class AmazonServiceImpl implements AmazonService {
 		if (title.contains("(")) {
 			title = title.substring(0, title.indexOf("(")) + title.substring(title.indexOf(")") + 1, title.length());
 		}
-		return Normalizer.normalize(title, Normalizer.Form.NFD).toLowerCase().replaceAll("[^\\p{ASCII}]", "")
-				.replaceAll(" ", "+")
-				.replaceAll(",", "")
-				.replaceAll("-", " ")
-				.replaceAll("\\.", "+").replaceAll(":", "+").replaceAll("\\+\\+", "+");
+		return Normalizer.normalize(title, Normalizer.Form.NFD).toLowerCase().replaceAll("[^\\p{ASCII}]", "").replaceAll(" ", "+")
+				.replaceAll(",", "").replaceAll("-", " ").replaceAll("\\.", "+").replaceAll(":", "+").replaceAll("\\+\\+", "+");
 	}
 
 	private List<Review> getReviews(String asin, int numPage) throws Exception {
@@ -131,20 +133,23 @@ public class AmazonServiceImpl implements AmazonService {
 			try {
 				String name = htmlDivision.getFirstChild().getFirstChild().getFirstChild().getFirstChild().getFirstChild().getNextSibling()
 						.getFirstChild().asText();
-				String rating = htmlDivision.getFirstChild().getFirstChild().getFirstChild().getNextSibling().getFirstChild()
-						.getFirstChild().asText().substring(0, 3);
+				int rating = Integer.valueOf(
+						htmlDivision.getFirstChild().getFirstChild().getFirstChild().getNextSibling().getFirstChild().getFirstChild()
+								.asText().substring(0, 1));
 				String title = htmlDivision.getFirstChild().getFirstChild().getFirstChild().getNextSibling().getFirstChild()
 						.getNextSibling().getNextSibling().getFirstChild().getNextSibling().getFirstChild().asText();
-				String date = htmlDivision.getFirstChild().getFirstChild().getFirstChild().getNextSibling().getNextSibling().getFirstChild()
-						.asText();
-				Matcher matcher = Pattern.compile("\\d+").matcher(date);
+				String strDate = htmlDivision.getFirstChild().getFirstChild().getFirstChild().getNextSibling().getNextSibling()
+						.getFirstChild().asText();
+				Matcher matcher = Pattern.compile("\\d+").matcher(strDate);
 				matcher.find();
 				int value = Integer.valueOf(matcher.group());
-				date = date.substring(date.indexOf(String.valueOf(value)), date.length());
+				strDate = strDate.substring(strDate.indexOf(String.valueOf(value)), strDate.length()).replaceAll("de ", "");
+				Date date = SDF.parse(strDate);
 				String comment = htmlDivision.getFirstChild().getFirstChild().getFirstChild().getNextSibling().getNextSibling()
 						.getNextSibling().getNextSibling().getFirstChild().getFirstChild().getNextSibling().getFirstChild().asText();
 
-				reviews.add(Review.builder().comment(comment).name(name).date(date).rating(rating).title(title).build());
+				reviews.add(Review.builder().comment(comment).name(name).date(date).rating(rating).title(title).lastMetadataSync(new Date())
+						.provider(PROVIDER).build());
 			}
 			catch (Exception e) {
 				log.error(e.getMessage());
@@ -156,9 +161,9 @@ public class AmazonServiceImpl implements AmazonService {
 
 		webClient.close();
 
-//		if (next > 0 && end == 0) {
-//			reviews.addAll(getReviews(asin, ++numPage));
-//		}
+		//		if (next > 0 && end == 0) {
+		//			reviews.addAll(getReviews(asin, ++numPage));
+		//		}
 
 		return reviews;
 	}
