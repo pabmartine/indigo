@@ -180,7 +180,7 @@
 
 .review-name {
     color: #636366;
-    font-size: 12px;
+    font-size: 0.9rem;
     line-height: 1.33337;
     font-weight: 600;
     letter-spacing: 0;
@@ -189,16 +189,17 @@
 }
 
 .review-title {
-    font-size: 13px;
+    font-size: 0.9rem;
     line-height: 1.38462;
     font-weight: 600;
     letter-spacing: -.005em;
     display: block;
+    padding-top: 5px;
 }
 
 .review-date {
     color: #636366;
-    font-size: 12px;
+    font-size: 0.9re,;
     line-height: 1.33337;
     font-weight: 500;
     letter-spacing: 0;
@@ -207,7 +208,7 @@
 }
 
 .review-comment {
-    font-size: 13px;
+    font-size: 0.9rem;
     line-height: 1.38462;
     font-weight: 400;
     letter-spacing: -.005em;

@@ -210,8 +210,6 @@
             <div *ngIf="review.rating">
               <p-rating [ngModel]="review.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
             </div>
-            <span class="review-name">{{review.name}}</span>
-            <span class="review-date">{{review.date}}</span>
             <span class="review-title">{{review.title}}</span>
             <span class="review-comment" [ngClass]="{ 'review-comment-expand': expandReview }">{{review.comment}}</span>
           </div>
@@ -223,9 +221,6 @@
             <div *ngIf="review.rating">
               <p-rating [ngModel]="review.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
             </div>
-
-            <span class="review-name">{{review.name}}</span>
-            <span class="review-date">{{review.date}}</span>
             <span class="review-title">{{review.title}}</span>
             <span class="review-comment" [ngClass]="{ 'review-comment-expand': expandReview }">{{review.comment}}</span>
 

@@ -20,7 +20,7 @@
 
 body {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-	font-size: 13px;
+	font-size: 14px;
 	color: #495057;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
@@ -30,7 +30,7 @@ body {
 	background-color: #eceff4;
 }
 
-body a {	
+body a {
 	text-decoration: none;
     color: #698ebf;
     letter-spacing: inherit;
@@ -54,14 +54,14 @@ body a {
 
 .content-header-subtitle {
 	text-align: right;
-	padding-top: 1rem; 
+	padding-top: 0.9rem;
 }
 
 @media (max-width: 640px) {
 	.content-header-subtitle {
 		text-align: left;
-		padding-left: 0.5rem; 
-		padding-top: 0rem; 
+		padding-left: 0.5rem;
+		padding-top: 0rem;
 	}
 }
 
@@ -71,12 +71,12 @@ body a {
 }
 
 .page-title {
-	font-size: 20px;
+	font-size: 1.3rem;
 	font-weight: 600 !important;
 }
 
 .page-subtitle {
-	font-size: 13px;
+	font-size: 1.0rem;
 	font-weight: 500 !important;
 }
 
@@ -123,7 +123,7 @@ body a {
 
 .subtitle {
 	font-weight: inherit;
-	font-size: 13px;
+	font-size: 14px;
 	color: #6c757d;
 	opacity: .7;
 	margin-bottom: .1em;
@@ -176,7 +176,7 @@ body a {
   width: 102% !important;;
 }
 
-.p-toast .p-toast-message-icon, 
+.p-toast .p-toast-message-icon,
 .p-toast .p-toast-icon-close{
 	display:none;
 }
@@ -317,7 +317,7 @@ body a {
 .header #header-icons .header-search input {
 	display: inline-block;
 	border: 0 none;
-	font-size: 13px;
+	font-size: 14px;
 	background: transparent;
 	border-bottom: 2px solid #495057;
 	outline: 0 none;
@@ -491,7 +491,7 @@ body a {
 .topbar #topbar-icons .topbar-search input {
 	display: inline-block;
 	border: 0 none;
-	font-size: 13px;
+	font-size: 14px;
 	background: transparent;
 	border-bottom: 2px solid #495057;
 	outline: 0 none;
@@ -667,7 +667,7 @@ body a {
 
 .footer .text span {
 	color: #9199a9;
-	font-size: 13px;
+	font-size: 14px;
 }
 
 .footer .icons {
@@ -772,7 +772,7 @@ body a {
 /*BOOK*/
 
 .book .p-card .p-card-content {
-	padding: 1rem 0 0.5rem 0;
+	padding: 0.9rem 0 0.5rem 0;
 }
 
 .book .p-card-title {
@@ -781,7 +781,7 @@ body a {
 }
 
 .book .p-card .p-card-body {
-	padding: 1rem;
+	padding: 0.9rem;
 	margin-bottom: 20px;
 }
 
@@ -861,7 +861,7 @@ body a {
 
 .book .book-detail-title {
 	color: #495057;
-	font-size: 15px;
+	font-size: 1.1rem;
     line-height: 1.25;
     font-weight: 700;
     letter-spacing: 0;
@@ -895,7 +895,7 @@ body a {
 
 
 .book .book-detail-series {
-	
+
 }
 
 .book .book-detail-serie {
@@ -974,7 +974,7 @@ body a {
 	.pc {
 		display: none !important;
 	}
-	
+
 	.mobile {
 		display: inherit !important;
 	}
@@ -1088,7 +1088,7 @@ body a {
 .settings .metadata-box {
     padding-top: 18px;
     color: #ffffff;
-    background-color: #698ebf;    
+    background-color: #698ebf;
 }
 
 .settings .metadata-title {
@@ -1339,7 +1339,7 @@ body a {
 }
 
 .profile .page-subtitle {
-	font-size: 1.3rem;
+	font-size: 1.2rem;
 	font-weight: 500 !important;
 	padding-bottom: 20px;
 }
@@ -1370,14 +1370,14 @@ body a {
 	display: inline-block;
 	padding: 5px;
 	color: #fff;
-	font-size: 13px;
+	font-size: 14px;
 	font-weight: 500;
 	width: 75%;
 }
 
 .tag .tag-subtitle {
 	font-weight: inherit;
-	font-size: 13px;
+	font-size: 14px;
 	color: #fff;
 	padding: 5px;
 }
@@ -1439,6 +1439,6 @@ body a {
 	text-align: center;
 }
 .loading {
-	padding: 1rem;
+	padding: 0.9rem;
 	color: #6c757d;
 }
