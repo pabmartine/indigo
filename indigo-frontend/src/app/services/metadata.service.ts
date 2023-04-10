@@ -38,8 +38,4 @@ export class MetadataService {
     return this.http.get(this.endpoint + "/book?book=" + book);
   }
 
-  getReviews(book: string): Observable<any> {
-    return this.http.get(this.endpoint + "/reviews?book=" + book);
-  }
-
 }

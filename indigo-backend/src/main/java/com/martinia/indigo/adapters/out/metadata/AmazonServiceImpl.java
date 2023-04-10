@@ -36,6 +36,7 @@ public class AmazonServiceImpl implements AmazonService {
 		try {
 			InetAddress localhost = InetAddress.getLocalHost();
 			if (!localhost.getHostAddress().equals("127.0.1.1")) {
+				log.error("Tryed to obtain reviews from Amazon from a docker container.");
 				return null;
 			}
 		}

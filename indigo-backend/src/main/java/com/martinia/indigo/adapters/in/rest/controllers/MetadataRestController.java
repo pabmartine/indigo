@@ -2,7 +2,6 @@ package com.martinia.indigo.adapters.in.rest.controllers;
 
 import com.martinia.indigo.adapters.in.rest.dtos.AuthorDto;
 import com.martinia.indigo.adapters.in.rest.dtos.BookDto;
-import com.martinia.indigo.adapters.in.rest.dtos.inner.ReviewDto;
 import com.martinia.indigo.adapters.in.rest.mappers.AuthorDtoMapper;
 import com.martinia.indigo.adapters.in.rest.mappers.BookDtoMapper;
 import com.martinia.indigo.adapters.in.rest.mappers.ReviewDtoMapper;
@@ -16,9 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/rest/metadata")
@@ -66,10 +63,4 @@ public class MetadataRestController {
 		return new ResponseEntity<>(bookDto, HttpStatus.OK);
 	}
 
-	@GetMapping(value = "/reviews", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<ReviewDto>> getReviews(@RequestParam String book) {
-		List<ReviewDto> reviews = metadataService.getReviews(book).stream().map(review -> reviewDtoMapper.domain2Dto(review))
-				.collect(Collectors.toList());
-		return new ResponseEntity<>(reviews, HttpStatus.OK);
-	}
 }

@@ -2,11 +2,13 @@ import { DatePipe, Location } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { saveAs } from 'file-saver';
 import { MessageService } from 'primeng/api';
 import { Dialog } from 'primeng/dialog';
 import { Book } from 'src/app/domain/book';
 import { Notif } from 'src/app/domain/notif';
 import { Search } from 'src/app/domain/search';
+import { Serie } from 'src/app/domain/serie';
 import { NotificationEnum } from 'src/app/enums/notification.enum.';
 import { StatusEnum } from 'src/app/enums/status.enum';
 import { BookService } from 'src/app/services/book.service';
@@ -14,9 +16,6 @@ import { ConfigService } from 'src/app/services/config.service';
 import { MetadataService } from 'src/app/services/metadata.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { UtilService } from 'src/app/services/util.service';
-import { saveAs } from 'file-saver';
-import { Author } from 'src/app/domain/author';
-import { Serie } from 'src/app/domain/serie';
 
 @Component({
   selector: 'app-detail',
@@ -139,24 +138,6 @@ export class DetailComponent implements OnInit {
       );
   }
 
-  getReviews(path: string) {
-    if (path)
-      this.metadataService.getReviews(path).subscribe(
-        data => {
-          if (data != null && data.length > 0) {
-            if (this.selected.reviews)
-              this.selected.reviews.length = 0;
-            else this.selected.reviews = [];
-  
-            Array.prototype.push.apply(this.selected.reviews, data);
-            console.log(this.selected.reviews);
-          }
-        },
-        error => {
-          console.log(error);
-        }
-      );
-  }
 
   getRecommendations(recommendations: string[]) {
     if (recommendations)
@@ -186,7 +167,7 @@ export class DetailComponent implements OnInit {
     this.serie.length = 0;
     this.similar.length = 0;
     this.recommendations.length = 0;
-    this.getReviews(book.path);
+    //this.getReviews(book.path);
     this.getImage(book.path);
     this.getSerie(book.serie);
     this.getSimilar(book.similar);
