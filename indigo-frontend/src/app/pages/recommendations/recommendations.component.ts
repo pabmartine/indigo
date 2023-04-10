@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageService, SelectItem } from 'primeng/api';
@@ -6,6 +6,9 @@ import { Book } from 'src/app/domain/book';
 import { Search } from 'src/app/domain/search';
 import { AuthorService } from 'src/app/services/author.service';
 import { BookService } from 'src/app/services/book.service';
+import { DetailComponent } from '../detail/detail.component';
+import { AuthorComponent } from '../author/author.component';
+import { Author } from 'src/app/domain/author';
 
 
 
@@ -16,6 +19,9 @@ import { BookService } from 'src/app/services/book.service';
   providers: [MessageService]
 })
 export class RecommendationsComponent implements OnInit {
+
+  @ViewChild(DetailComponent) detailComponent: DetailComponent;
+  @ViewChild(AuthorComponent) authorComponent: AuthorComponent;
 
   books: Book[] = [];
 
@@ -185,12 +191,60 @@ export class RecommendationsComponent implements OnInit {
   }
 
 
+  showDetail: boolean;
+
   showDetails(book: Book) {
     //save current data in session
-    sessionStorage.setItem("position", document.documentElement.scrollTop.toString());
-    this.router.navigate(["detail"], { queryParams: { book: JSON.stringify(book) } });
+    //sessionStorage.setItem("position", document.documentElement.scrollTop.toString());
+    //this.router.navigate(["detail"], { queryParams: { book: JSON.stringify(book) } });
+
+    this.detailComponent.showDetails(book);
+    this.showDetail = true;
   }
 
+  closeDetails(){
+    this.showDetail = false;
+  }
+  openDetails(){
+    this.showDetail = true;
+  }
+
+  showAuthorDetail: boolean;
+
+  showAuthorDetails(author: Author) {
+    this.authorComponent.showDetails(author);
+  }
+
+  closeAuthorDetails() {
+    this.showAuthorDetail = false;
+  }
+  openAuthorDetails() {
+    this.showAuthorDetail = true;
+  }
+
+  openBook(book: Book) {
+    this.showAuthorDetail = false;
+    this.detailComponent.showDetails(book);
+  }
+
+  openAuthor(sort: string) {
+    this.showDetail = false;
+    this.authorService.getByName(sort).subscribe(
+      data => {
+        if (data)
+          if (data.image) {
+            let objectURL = 'data:image/jpeg;base64,' + data.image;
+            data.image = objectURL;
+          }
+        this.authorComponent.showDetails(data);
+      },
+      error => {
+        console.log(error);
+      }
+    );
+
+
+  }
 
 
   private doSearch() {
