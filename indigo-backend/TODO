@@ -1,1 +1,4 @@
-- ... 
+- Delete unnecessary code, such as comments, etc.
+- Unify view of recommendations and books?
+- Improve performance of the recommendation algorithm
+- Add process to obtain book comments in metadata
