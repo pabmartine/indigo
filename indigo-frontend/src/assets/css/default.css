@@ -1020,6 +1020,7 @@ body a {
 
 .book .p-dialog {
 	width: 50vw;
+	height: 100%;
 }
 
 .book .p-dialog .p-dialog-content {
