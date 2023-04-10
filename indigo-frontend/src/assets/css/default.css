@@ -168,6 +168,18 @@ body a {
  color:#fff !important;
 }
 
+.sidebar .p-menu .p-menuitem-link .p-menuitem-text,
+.sidebar .p-menu .p-menuitem-link .p-menuitem-icon {
+    font-size: 1.1rem;
+}
+.sidebar .p-menu .p-menuitem-link .p-menuitem-text {
+	padding-top: 2px
+}
+
+.sidebar .p-menu {
+    width: 15rem;
+}
+
 .sortBy .p-dropdown {
 	width: auto;
 	text-align: left;
