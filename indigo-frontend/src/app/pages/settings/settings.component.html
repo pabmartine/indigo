@@ -230,6 +230,54 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="p-col-12 p-md-6">
+                                <div class="metadata-box">
+                                    <span class="metadata-icon pi pi-comments"></span>
+                                    <div class="metadata-title">Opiniones</div>
+                                    <div class="metadata-subtitle">Actualizar todas las opiniones</div>
+                                    <div class="metadata-subinfo p-grid">
+                                        <div class="p-col-8 p-md-10">
+                                            <div class="progress">
+                                                <p-progressBar [value]="progressBar" *ngIf="isReviewsFull()"></p-progressBar>
+                                            </div>
+                                        </div>
+                                        <div class="p-col-2 p-md-1">
+                                            <span *ngIf="isReviewsFull()">{{progressBar}}%</span>
+                                            <span *ngIf="!isReviewsFull()">0%</span>
+                                        </div>
+                                        <div class="p-col-2 p-md-1">
+                                            <a href="javascript:;" (click)="doExecuteMetadata('full', 'reviews')">
+                                                <span class="metadata-action-icon pi"
+                                                    [ngClass]="{ 'pi-pause': isReviewsFull(), 'pi-play': !isReviewsFull()  }"></span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-col-12 p-md-6">
+                                <div class="metadata-box">
+                                    <span class="metadata-icon pi pi-comments"></span>
+                                    <div class="metadata-title">Opiniones</div>
+                                    <div class="metadata-subtitle">Actualizar opiniones sin datos</div>
+                                    <div class="metadata-subinfo p-grid">
+                                        <div class="p-col-8 p-md-10">
+                                            <div class="progress">
+                                                <p-progressBar [value]="progressBar" *ngIf="isReviewsPartial()"></p-progressBar>
+                                            </div>
+                                        </div>
+                                        <div class="p-col-2 p-md-1">
+                                            <span *ngIf="isReviewsPartial()">{{progressBar}}%</span>
+                                            <span *ngIf="!isReviewsPartial()">0%</span>
+                                        </div>
+                                        <div class="p-col-2 p-md-1">
+                                            <a href="javascript:;" (click)="doExecuteMetadata('partial', 'reviews')">
+                                                <span class="metadata-action-icon pi"
+                                                    [ngClass]="{ 'pi-pause': isReviewsPartial(), 'pi-play': !isReviewsPartial()  }"></span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                        

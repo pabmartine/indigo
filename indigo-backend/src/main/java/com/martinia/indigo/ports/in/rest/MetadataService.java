@@ -20,6 +20,6 @@ public interface MetadataService {
 
   Optional<Book> findBookMetadata(String book);
 
-  List<Review> getReviews(String book);
+//  List<Review> getReviews(String book);
 
 }

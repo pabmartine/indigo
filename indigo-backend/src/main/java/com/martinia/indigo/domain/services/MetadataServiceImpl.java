@@ -24,6 +24,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -237,6 +238,50 @@ public class MetadataServiceImpl implements MetadataService {
 
 	}
 
+	private void fillMetadataReviews(String lang, boolean override) {
+
+		metadataSingleton.setMessage("obtaining_metadata_reviews");
+
+		Long numBooks = bookRepository.count(null);
+
+		metadataSingleton.setTotal(metadataSingleton.getTotal() + numBooks);
+
+		int page = 0;
+		int size = BATCH_SIZE;
+		while (page * size < numBooks) {
+
+			if (!metadataSingleton.isRunning()) {
+				break;
+			}
+
+			List<Book> books = bookRepository.findAll(null, page, size, "id", "asc");
+
+			if (!CollectionUtils.isEmpty(books)) {
+				for (Book book : books) {
+
+					if (!metadataSingleton.isRunning()) {
+						break;
+					}
+
+					metadataSingleton.setCurrent(metadataSingleton.getCurrent() + 1);
+
+					book.setReviews(findReviewMetadata(override, lang, book));
+
+					bookRepository.save(book);
+
+					log.debug("Obtained {}/{} books reviews", metadataSingleton.getCurrent(), numBooks);
+				}
+			}
+
+			log.info("Obtained {}/{} books reviews", metadataSingleton.getCurrent(), numBooks);
+			page++;
+
+		}
+
+		log.info("Obtained {}/{} books reviews", metadataSingleton.getCurrent(), numBooks);
+
+	}
+
 	private boolean refreshAuthorMetadata(final Author author) {
 		return (author == null || StringUtils.isEmpty(author.getDescription()) || StringUtils.isEmpty(author.getImage())
 				|| StringUtils.isEmpty(author.getProvider())) && (author.getLastMetadataSync() == null || author.getLastMetadataSync()
@@ -367,10 +412,7 @@ public class MetadataServiceImpl implements MetadataService {
 				}
 
 				//Find reviews
-				List<Review> reviews = goodReadsComponent.getReviews(book.getTitle(), book.getAuthors());
-				if (CollectionUtils.isEmpty(reviews)) {
-					reviews = amazonService.getReviews(book.getTitle(), book.getAuthors());
-				}
+				List<Review> reviews = findReviewMetadata(override, "es", book);
 				if (!CollectionUtils.isEmpty(reviews)) {
 					book.setReviews(reviews);
 				}
@@ -383,6 +425,26 @@ public class MetadataServiceImpl implements MetadataService {
 			}
 		}
 		return book;
+	}
+
+	private boolean refreshReviewMetadata(final List<Review> reviews) {
+		return CollectionUtils.isEmpty(reviews) || reviews.stream().anyMatch(review -> {
+			LocalDateTime lastMetadataSync = review.getLastMetadataSync().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+			LocalDateTime currentDate = LocalDateTime.now();
+			LocalDateTime expirationDate = lastMetadataSync.plusDays(7);
+			return expirationDate.isBefore(currentDate);
+		});
+	}
+
+	private List<Review> findReviewMetadata(boolean override, String lang, Book book) {
+		if (override || refreshReviewMetadata(book.getReviews())) {
+			List<Review> reviews = goodReadsComponent.getReviews(lang, book.getTitle(), book.getAuthors());
+			if (CollectionUtils.isEmpty(reviews)) {
+				reviews = amazonService.getReviews(book.getTitle(), book.getAuthors());
+			}
+			return reviews;
+		}
+		return book.getReviews();
 	}
 
 	@Override
@@ -400,22 +462,22 @@ public class MetadataServiceImpl implements MetadataService {
 
 	}
 
-	@Override
-	public List<Review> getReviews(String path) {
-		return bookRepository.findByPath(path).map(book -> {
-			if (CollectionUtils.isEmpty(book.getReviews())) {
-				List<Review> reviews = goodReadsComponent.getReviews(book.getTitle(), book.getAuthors());
-				if (CollectionUtils.isEmpty(reviews)) {
-					reviews = amazonService.getReviews(book.getTitle(), book.getAuthors());
-				}
-				if (!CollectionUtils.isEmpty(reviews)) {
-					book.setReviews(reviews);
-					bookRepository.save(book);
-				}
-			}
-			return book.getReviews();
-		}).orElse(null);
-	}
+	//	@Override
+	//	public List<Review> getReviews(String path) {
+	//		return bookRepository.findByPath(path).map(book -> {
+	//			if (CollectionUtils.isEmpty(book.getReviews())) {
+	//				List<Review> reviews = goodReadsComponent.getReviews(book.getTitle(), book.getAuthors());
+	//				if (CollectionUtils.isEmpty(reviews)) {
+	//					reviews = amazonService.getReviews(book.getTitle(), book.getAuthors());
+	//				}
+	//				if (!CollectionUtils.isEmpty(reviews)) {
+	//					book.setReviews(reviews);
+	//					bookRepository.save(book);
+	//				}
+	//			}
+	//			return book.getReviews();
+	//		}).orElse(null);
+	//	}
 
 	private Book findBookRecommendations(Book book) {
 
@@ -579,6 +641,9 @@ public class MetadataServiceImpl implements MetadataService {
 			if (entity.equals("all")) {
 				initialLoad(lang);
 			}
+			if (entity.equals("reviews")) {
+				fillMetadataReviews(lang, true);
+			}
 			if (entity.equals("authors")) {
 				fillMetadataAuthors(lang, true);
 			}
@@ -590,6 +655,9 @@ public class MetadataServiceImpl implements MetadataService {
 		if (type.equals("partial")) {
 			if (entity.equals("all")) {
 				noFilledMetadata(lang);
+			}
+			if (entity.equals("reviews")) {
+				fillMetadataReviews(lang, false);
 			}
 			if (entity.equals("authors")) {
 				fillMetadataAuthors(lang, false);

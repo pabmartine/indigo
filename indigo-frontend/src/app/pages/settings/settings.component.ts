@@ -284,6 +284,14 @@ export class SettingsComponent implements OnInit {
     return this.type === 'partial' && this.entity === 'authors';
   }
 
+  isReviewsFull() {
+    return this.type === 'full' && this.entity === 'reviews';
+  }
+
+  isReviewsPartial() {
+    return this.type === 'partial' && this.entity === 'reviews';
+  }
+
   isAllFull() {
     return this.type === 'full' && this.entity === 'all';
   }
@@ -297,6 +305,8 @@ export class SettingsComponent implements OnInit {
   doExecuteMetadata(type: string, entity: string) {
 
     if (
+      type === 'full' && entity === 'reviews' && this.isReviewsFull() ||
+      type === 'partial' && entity === 'reviews' && this.isReviewsPartial() ||
       type === 'full' && entity === 'authors' && this.isAuthorsFull() ||
       type === 'partial' && entity === 'authors' && this.isAuthorsPartial() ||
       type === 'full' && entity === 'books' && this.isBooksFull() ||

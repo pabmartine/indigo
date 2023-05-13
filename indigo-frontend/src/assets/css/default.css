@@ -417,7 +417,7 @@ body a {
 	color: #EBCB8B;
 }
 
-.header .messages {
+.header .messages, .messages {
 	padding: 5px;
 	text-align: justify;
 }
@@ -426,11 +426,10 @@ body a {
 	padding-right: 10px;
 }
 
-.header .message-icon {
+.header .message-icon, .message-icon {
 	color: #495057;
 	transition: color 0.3s;
 	float: right;
-	padding-top: 4px;
 }
 
 .header .message-icon:hover {

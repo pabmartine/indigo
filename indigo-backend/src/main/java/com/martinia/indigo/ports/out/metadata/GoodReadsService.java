@@ -10,6 +10,6 @@ public interface GoodReadsService {
 
 	String[] findBook(String key, String title, List<String> authors, boolean withAuthor);
 
-	List<Review> getReviews(String title, List<String> authors);
+	List<Review> getReviews(String lang, String title, List<String> authors);
 
 }

@@ -14,8 +14,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.sql.Array;
 import java.text.Normalizer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,13 +45,13 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 	private LibreTranslateService libreTranslateService;
 
 	@Override
-	public List<Review> getReviews(String title, List<String> authors) {
+	public List<Review> getReviews(String lang, String title, List<String> authors) {
 
 		List<Review> listReviews = null;
 		try {
 			String path = getPath(title, authors.stream().collect(Collectors.joining(" ")));
 			if (path != null) {
-				listReviews = getReviews(path, 1);
+				listReviews = getReviews(lang, path, 1);
 			}
 		}
 		catch (Exception e) {
@@ -116,7 +118,7 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 				.replaceAll(",", "").replaceAll("\\.", "+").replaceAll(":", "+").replaceAll("\\+\\+", "+");
 	}
 
-	private List<Review> getReviews(String url, int numPage) throws Exception {
+	private List<Review> getReviews(String lang, String url, int numPage) throws Exception {
 
 		List<Review> reviews = new ArrayList<>();
 
@@ -126,7 +128,8 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 
 		HtmlPage page = webClient.getPage("https://www.goodreads.com" + url);
 
-		page.getByXPath("//article[@class='ReviewCard']").stream().forEach(item -> {
+		List<Review> foreignComments = new ArrayList<>();
+		page.getByXPath("//article[@class='ReviewCard']").stream().takeWhile(data -> reviews.size() < 10).forEach(item -> {
 			HtmlArticle htmlArticle = (HtmlArticle) item;
 			try {
 				String name = htmlArticle.getFirstChild().getFirstChild().getFirstChild().getNextSibling().getFirstChild().getFirstChild()
@@ -143,26 +146,31 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 						.getFirstChild().getFirstChild().getFirstChild().asText();
 
 				String language = libreTranslateService.detect(comment);
-				if (language != null && !language.equals("es")) {
-					comment = libreTranslateService.translate(comment, "es");
+				Review review = Review.builder().comment(comment).name(name).date(date).rating(rating).title(title)
+						.lastMetadataSync(new Date()).provider(PROVIDER).build();
+				if (language != null && !language.equals(lang)) {
+					foreignComments.add(review);
 				}
-
-				reviews.add(Review.builder().comment(comment).name(name).date(date).rating(rating).title(title).lastMetadataSync(new Date())
-						.provider(PROVIDER).build());
+				else {
+					reviews.add(review);
+				}
 			}
 			catch (Exception e) {
 				System.out.println(e.getMessage());
 			}
 		});
 
-		//		long next = page.getByXPath("//li[@class='a-last']").stream().count();
-		//		long end = page.getByXPath("//li[@class='a-disabled a-last']").stream().count();
+		if (reviews.size() < 10 && !CollectionUtils.isEmpty(foreignComments)) {
+			for (Review review : foreignComments) {
+				review.setComment(libreTranslateService.translate(review.getComment(), lang));
+				reviews.add(review);
+				if (reviews.size() == 10) {
+					break;
+				}
+			}
+		}
 
 		webClient.close();
-
-		//		if (next > 0 && end == 0) {
-		//			reviews.addAll(getReviews(asin, ++numPage));
-		//		}
 
 		return reviews;
 	}
