@@ -2,6 +2,7 @@ package com.martinia.indigo.adapters.in.login.service;
 
 import com.martinia.indigo.domain.model.User;
 import com.martinia.indigo.ports.in.rest.UserService;
+import com.martinia.indigo.user.domain.service.FindUserByUsernameUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,11 +17,11 @@ import java.util.Optional;
 public class LoginService implements org.springframework.security.core.userdetails.UserDetailsService {
 
     @Autowired
-    private UserService userService;
+    private FindUserByUsernameUseCase findUserByUsernameUseCase;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> user = userService.findByUsername(username);
+        Optional<User> user = findUserByUsernameUseCase.findByUsername(username);
         if (user.isEmpty()) {
             throw new UsernameNotFoundException("User not found");
         }

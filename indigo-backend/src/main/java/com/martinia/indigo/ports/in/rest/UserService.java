@@ -1,11 +1,10 @@
 package com.martinia.indigo.ports.in.rest;
 
-import java.util.List;
-import java.util.Optional;
-
 import com.martinia.indigo.domain.model.Author;
 import com.martinia.indigo.domain.model.Book;
 import com.martinia.indigo.domain.model.User;
+
+import java.util.List;
 
 public interface UserService {
 
@@ -19,14 +18,8 @@ public interface UserService {
 
 	void deleteFavoriteBook(String book, String user);
 
-	List<User> findAll();
-
-	Optional<User> findById(String id);
-
-	Optional<User> findByUsername(String username);
-
 	List<Author> getFavoriteAuthors(String user);
-	
+
 	List<Book> getFavoriteBooks(String user);
 
 	Boolean isFavoriteAuthor(String user, String valueOf);
@@ -34,9 +27,6 @@ public interface UserService {
 	Boolean isFavoriteBook(String book, String user);
 
 	void save(User user, boolean isNew);
-
-	void update(User user);
-
 
 
 
