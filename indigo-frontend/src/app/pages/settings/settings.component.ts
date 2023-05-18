@@ -8,7 +8,7 @@ import { AuthorService } from 'src/app/services/author.service';
 import { ConfigService } from 'src/app/services/config.service';
 import { MetadataService } from 'src/app/services/metadata.service';
 import { UserService } from 'src/app/services/user.service';
-import { UtilService } from 'src/app/services/util.service';
+import { MailService } from 'src/app/services/mail.service';
 
 @Component({
   selector: 'app-settings',
@@ -60,7 +60,7 @@ export class SettingsComponent implements OnInit {
     public authorService: AuthorService,
     public metadataService: MetadataService,
     public configService: ConfigService,
-    public utilService: UtilService,
+    public mailService: MailService,
     public userService: UserService,
     private router: Router) {
 
@@ -350,7 +350,7 @@ export class SettingsComponent implements OnInit {
     this.isSendTestMail = true;
 
     const user = JSON.parse(sessionStorage.user);
-    this.utilService.sendTestMail(user.kindle).subscribe(
+    this.mailService.sendTestMail(user.kindle).subscribe(
       data => {
         this.getSmtp(true);
         this.isSendTestMail = false;

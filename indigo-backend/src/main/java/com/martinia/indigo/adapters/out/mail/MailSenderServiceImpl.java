@@ -1,9 +1,8 @@
 package com.martinia.indigo.adapters.out.mail;
 
 import com.martinia.indigo.domain.beans.EmailConfiguration;
-import com.martinia.indigo.ports.out.mail.MailSender;
+import com.martinia.indigo.ports.out.mail.MailSenderService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.MailException;
@@ -13,6 +12,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
@@ -22,9 +22,9 @@ import java.util.Properties;
 
 @Slf4j
 @Service
-public class MailSenderImpl implements MailSender {
+public class MailSenderServiceImpl implements MailSenderService {
 
-    @Autowired
+    @Resource
     private JavaMailSender javaMailSender;
 
     @Value("${book.library.path}")

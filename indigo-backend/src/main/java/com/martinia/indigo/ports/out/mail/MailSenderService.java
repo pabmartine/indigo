@@ -2,7 +2,7 @@ package com.martinia.indigo.ports.out.mail;
 
 import com.martinia.indigo.domain.beans.EmailConfiguration;
 
-public interface MailSender {
+public interface MailSenderService {
 
 	boolean testEmail(String address, EmailConfiguration emailConfig);
 

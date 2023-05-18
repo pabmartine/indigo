@@ -15,7 +15,7 @@ import { BookService } from 'src/app/services/book.service';
 import { ConfigService } from 'src/app/services/config.service';
 import { MetadataService } from 'src/app/services/metadata.service';
 import { NotificationService } from 'src/app/services/notification.service';
-import { UtilService } from 'src/app/services/util.service';
+import { MailService } from 'src/app/services/mail.service';
 
 @Component({
   selector: 'app-detail',
@@ -64,7 +64,7 @@ export class DetailComponent implements OnInit {
 
   constructor(
     private bookService: BookService,
-    private utilService: UtilService,
+    private mailService: MailService,
     private configService: ConfigService,
     private router: Router,
     private route: ActivatedRoute,
@@ -234,7 +234,7 @@ export class DetailComponent implements OnInit {
     this.messageService.clear();
     this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.kindle.todo'), closable: false, life: 5000 });
 
-    this.utilService.sendMail(book, user.kindle).subscribe(
+    this.mailService.sendMail(book, user.kindle).subscribe(
       data => {
         this.messageService.clear();
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.kindle.ok'), closable: false, life: 5000 });
