@@ -7,4 +7,5 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface ConfigurationDtoMapper {
     ConfigurationDto domain2Dto(Configuration domain);
+
 }
