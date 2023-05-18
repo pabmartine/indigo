@@ -15,7 +15,7 @@ public class FindUserByUsernameUseCaseImpl implements FindUserByUsernameUseCase 
 	UserRepository userRepository;
 
 	@Override
-	public Optional<User> findByUsername(String username) {
+	public Optional<User> findByUsername(final String username) {
 		return userRepository.findByUsername(username);
 	}
 

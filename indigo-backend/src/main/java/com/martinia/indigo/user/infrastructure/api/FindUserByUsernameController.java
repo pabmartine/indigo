@@ -26,9 +26,9 @@ public class FindUserByUsernameController {
 	protected UserDtoMapper mapper;
 
 	@GetMapping(value = "/get", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<UserDto> get(@RequestParam String username) {
-		Optional<User> user = useCase.findByUsername(username);
-		UserDto userDto = user.map(usr -> mapper.domain2Dto(usr)).orElse(null);
+	public ResponseEntity<UserDto> get(@RequestParam final String username) {
+		final Optional<User> user = useCase.findByUsername(username);
+		final UserDto userDto = user.map(usr -> mapper.domain2Dto(usr)).orElse(null);
 		return new ResponseEntity<>(userDto, HttpStatus.OK);
 	}
 

@@ -1,9 +1,7 @@
 package com.martinia.indigo.domain.services;
 
-import com.martinia.indigo.domain.enums.RolesEnum;
 import com.martinia.indigo.domain.model.Author;
 import com.martinia.indigo.domain.model.Book;
-import com.martinia.indigo.domain.model.User;
 import com.martinia.indigo.ports.in.rest.UserService;
 import com.martinia.indigo.ports.out.mongo.UserRepository;
 import com.martinia.indigo.user.domain.service.FindUserByIdUseCase;
@@ -24,22 +22,6 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	PasswordEncoder passwordEncoder;
-
-	@Override
-	public void save(User user, boolean isNew) {
-		if (isNew) {
-			user.setRole(RolesEnum.USER.name());
-			user.setPassword(passwordEncoder.encode(user.getPassword()));
-		}
-		userRepository.save(user);
-	}
-
-	@Override
-	public void delete(String id) {
-		userRepository.delete(id);
-	}
-
-
 
 	@Override
 	public void addFavoriteBook(String user, String book) {

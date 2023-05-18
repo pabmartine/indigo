@@ -1,34 +1,31 @@
 package com.martinia.indigo.user.infrastructure.api;
 
-import com.martinia.indigo.adapters.in.rest.dtos.UserDto;
 import com.martinia.indigo.adapters.in.rest.mappers.UserDtoMapper;
 import com.martinia.indigo.domain.model.User;
-import com.martinia.indigo.user.domain.service.FindAllUsersUseCase;
+import com.martinia.indigo.user.domain.service.SaveUserUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/rest/user")
-public class FindAllUsersController {
+public class SaveUserController {
 
 	@Autowired
-	private FindAllUsersUseCase useCase;
+	private SaveUserUseCase useCase;
 
 	@Autowired
 	protected UserDtoMapper mapper;
 
-	@GetMapping(value = "/getAll", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<UserDto>> getAll() {
-		final List<User> users = useCase.findAll();
-		final List<UserDto> usersDto = mapper.domains2Dtos(users);
-		return new ResponseEntity<>(usersDto, HttpStatus.OK);
+	@PostMapping(value = "/save", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Void> save(@RequestBody final User user) {
+		useCase.save(user, true);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 }

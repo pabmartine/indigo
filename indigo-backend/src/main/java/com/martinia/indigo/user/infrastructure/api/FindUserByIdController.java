@@ -25,9 +25,9 @@ public class FindUserByIdController {
 	protected UserDtoMapper mapper;
 
 	@GetMapping(value = "/getById", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<UserDto> getById(@RequestParam String id) {
-		UserDto userDto = useCase.findById(id).map(user -> mapper.domain2Dto(user)).orElse(null);
-		HttpHeaders headers = new HttpHeaders();
+	public ResponseEntity<UserDto> getById(@RequestParam final String id) {
+		final UserDto userDto = useCase.findById(id).map(user -> mapper.domain2Dto(user)).orElse(null);
+		final HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		return new ResponseEntity<>(userDto, headers, HttpStatus.OK);
 	}

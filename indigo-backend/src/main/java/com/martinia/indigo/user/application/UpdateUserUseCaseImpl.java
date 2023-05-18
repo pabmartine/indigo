@@ -22,7 +22,7 @@ public class UpdateUserUseCaseImpl implements UpdateUserUseCase {
 	private PasswordEncoder passwordEncoder;
 
 	@Override
-	public void update(User user) {
+	public void update(final User user) {
 		findUserByIdUseCase.findById(user.getId()).ifPresent(_user -> {
 
 			if (!_user.getPassword().equals(user.getPassword())) {
