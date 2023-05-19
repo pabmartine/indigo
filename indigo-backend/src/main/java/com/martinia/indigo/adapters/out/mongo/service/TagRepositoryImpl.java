@@ -5,8 +5,8 @@ import com.martinia.indigo.adapters.out.mongo.entities.TagMongoEntity;
 import com.martinia.indigo.adapters.out.mongo.mapper.TagMongoMapper;
 import com.martinia.indigo.adapters.out.mongo.repository.BookMongoRepository;
 import com.martinia.indigo.adapters.out.mongo.repository.TagMongoRepository;
-import com.martinia.indigo.domain.model.Tag;
-import com.martinia.indigo.ports.out.mongo.TagRepository;
+import com.martinia.indigo.tag.domain.model.Tag;
+import com.martinia.indigo.tag.domain.repository.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
@@ -58,7 +58,7 @@ public class TagRepositoryImpl implements TagRepository {
     }
 
     @Override
-    public void image(String source, String image) {
+    public void setImage(String source, String image) {
         TagMongoEntity entity = tagMongoRepository.findById(source)
                 .get();
         entity.setImage(image);

@@ -5,7 +5,7 @@ import java.util.List;
 import org.mapstruct.Mapper;
 
 import com.martinia.indigo.adapters.out.mongo.entities.TagMongoEntity;
-import com.martinia.indigo.domain.model.Tag;
+import com.martinia.indigo.tag.domain.model.Tag;
 
 @Mapper(componentModel = "spring")
 public interface TagMongoMapper {

@@ -4,6 +4,8 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Locale;
 import javax.annotation.PostConstruct;
+
+import com.martinia.indigo.user.domain.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.datasource.init.ScriptException;
@@ -12,7 +14,6 @@ import com.martinia.indigo.domain.enums.RolesEnum;
 import com.martinia.indigo.domain.model.Configuration;
 import com.martinia.indigo.domain.model.User;
 import com.martinia.indigo.ports.out.mongo.ConfigurationRepository;
-import com.martinia.indigo.ports.out.mongo.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

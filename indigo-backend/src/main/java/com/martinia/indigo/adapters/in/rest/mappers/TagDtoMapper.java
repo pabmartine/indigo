@@ -7,7 +7,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
 import com.martinia.indigo.adapters.in.rest.dtos.TagDto;
-import com.martinia.indigo.domain.model.Tag;
+import com.martinia.indigo.tag.domain.model.Tag;
 
 @Mapper(componentModel = "spring")
 public interface TagDtoMapper {

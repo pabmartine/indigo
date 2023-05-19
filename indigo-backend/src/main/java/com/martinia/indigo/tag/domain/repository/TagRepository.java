@@ -1,9 +1,9 @@
-package com.martinia.indigo.ports.out.mongo;
+package com.martinia.indigo.tag.domain.repository;
 
 import java.util.List;
 import java.util.Optional;
 
-import com.martinia.indigo.domain.model.Tag;
+import com.martinia.indigo.tag.domain.model.Tag;
 
 public interface TagRepository {
 
@@ -12,7 +12,7 @@ public interface TagRepository {
 
 	Optional<Tag> findByName(String name);
 
-	void image(String source, String image);
+	void setImage(String source, String image);
 
 	void merge(String source, String target);
 
