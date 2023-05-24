@@ -1,12 +1,11 @@
 package com.martinia.indigo.ports.in.rest;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import org.springframework.core.io.Resource;
 import com.martinia.indigo.domain.model.Book;
 import com.martinia.indigo.domain.model.Search;
+import org.springframework.core.io.Resource;
+
+import java.util.List;
+import java.util.Optional;
 
 public interface BookService {
 
@@ -23,12 +22,6 @@ public interface BookService {
 	List<Book> getRecommendationsByBook(List<String> recommendations, List<String> languages);
 
 	List<Book> getRecommendationsByUser(String user, int page, int size, String sort, String order);
-
-	Map<String, Long> getNumBooksBySerie(List<String> languages, int page, int size, String sort, String order);
-
-	Long getNumSeries(List<String> languages);
-
-	List<Book> findBooksBySerie(String serie);
 
 	Optional<Book> findByPath(String path);
 

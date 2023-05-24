@@ -15,15 +15,9 @@ public interface BookRepository {
 
 	List<Book> findAll(Search search, int page, int size, String sort, String order);
 
-	List<Book> findBooksBySerie(String serie);
-
 	Optional<Book> findById(String id);
 
 	Optional<Book> findByPath(String path);
-
-	Map<String, Long> getNumBooksBySerie(List<String> languages, int page, int size, String sort, String order);
-
-	Long getNumSeries(List<String> languages);
 
 	List<Book> getRecommendationsByBook(List<String> recommendations, List<String> languages, int num);
 
@@ -38,7 +32,7 @@ public interface BookRepository {
 	void save(Book book);
 
 	Long countRecommendationsByUser(String user);
-	
+
 	List<String> getBookLanguages();
 
 }
