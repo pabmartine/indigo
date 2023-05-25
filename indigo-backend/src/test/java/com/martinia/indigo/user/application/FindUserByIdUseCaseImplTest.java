@@ -1,6 +1,6 @@
 package com.martinia.indigo.user.application;
 
-import com.martinia.indigo.domain.model.User;
+import com.martinia.indigo.user.domain.model.User;
 import com.martinia.indigo.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

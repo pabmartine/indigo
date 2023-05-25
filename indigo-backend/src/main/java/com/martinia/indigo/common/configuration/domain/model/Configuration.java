@@ -1,4 +1,4 @@
-package com.martinia.indigo.domain.model;
+package com.martinia.indigo.common.configuration.domain.model;
 
 import java.io.Serializable;
 

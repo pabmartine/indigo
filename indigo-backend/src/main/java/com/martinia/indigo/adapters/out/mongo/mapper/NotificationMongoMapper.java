@@ -5,7 +5,7 @@ import java.util.List;
 import org.mapstruct.Mapper;
 
 import com.martinia.indigo.adapters.out.mongo.entities.NotificationMongoEntity;
-import com.martinia.indigo.domain.model.Notification;
+import com.martinia.indigo.notification.domain.model.Notification;
 
 @Mapper(componentModel = "spring")
 public interface NotificationMongoMapper {

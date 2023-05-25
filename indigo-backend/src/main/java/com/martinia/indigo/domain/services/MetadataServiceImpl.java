@@ -15,7 +15,7 @@ import com.martinia.indigo.ports.out.metadata.GoogleBooksService;
 import com.martinia.indigo.ports.out.metadata.WikipediaService;
 import com.martinia.indigo.ports.out.mongo.AuthorRepository;
 import com.martinia.indigo.ports.out.mongo.BookRepository;
-import com.martinia.indigo.ports.out.mongo.ConfigurationRepository;
+import com.martinia.indigo.common.configuration.domain.repository.ConfigurationRepository;
 import com.martinia.indigo.tag.domain.repository.TagRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

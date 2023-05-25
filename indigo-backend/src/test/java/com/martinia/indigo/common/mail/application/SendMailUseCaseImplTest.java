@@ -1,8 +1,8 @@
 package com.martinia.indigo.common.mail.application;
 
-import com.martinia.indigo.domain.model.Configuration;
+import com.martinia.indigo.common.configuration.domain.model.Configuration;
 import com.martinia.indigo.ports.out.mail.MailSenderService;
-import com.martinia.indigo.ports.out.mongo.ConfigurationRepository;
+import com.martinia.indigo.common.configuration.domain.repository.ConfigurationRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;

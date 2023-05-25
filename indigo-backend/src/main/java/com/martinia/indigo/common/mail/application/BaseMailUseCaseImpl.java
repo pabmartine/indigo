@@ -1,7 +1,7 @@
 package com.martinia.indigo.common.mail.application;
 
 import com.martinia.indigo.domain.beans.EmailConfiguration;
-import com.martinia.indigo.ports.out.mongo.ConfigurationRepository;
+import com.martinia.indigo.common.configuration.domain.repository.ConfigurationRepository;
 
 import javax.annotation.Resource;
 

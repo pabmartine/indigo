@@ -1,10 +1,9 @@
 package com.martinia.indigo.adapters.in.login.service;
 
-import com.martinia.indigo.domain.model.User;
-import com.martinia.indigo.ports.in.rest.UserService;
 import com.martinia.indigo.user.domain.service.FindUserByUsernameUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -21,7 +20,7 @@ public class LoginService implements org.springframework.security.core.userdetai
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> user = findUserByUsernameUseCase.findByUsername(username);
+        Optional<com.martinia.indigo.user.domain.model.User> user = findUserByUsernameUseCase.findByUsername(username);
         if (user.isEmpty()) {
             throw new UsernameNotFoundException("User not found");
         }

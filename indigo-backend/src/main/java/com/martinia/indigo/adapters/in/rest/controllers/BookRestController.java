@@ -5,8 +5,8 @@ import com.martinia.indigo.adapters.in.rest.mappers.BookDtoMapper;
 import com.martinia.indigo.domain.model.Book;
 import com.martinia.indigo.domain.model.Search;
 import com.martinia.indigo.domain.model.View;
+import com.martinia.indigo.notification.domain.service.FindSendBooksNotificationUseCase;
 import com.martinia.indigo.ports.in.rest.BookService;
-import com.martinia.indigo.ports.in.rest.NotificationService;
 import com.martinia.indigo.ports.in.rest.UserService;
 import com.martinia.indigo.ports.in.rest.ViewService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,7 +45,7 @@ public class BookRestController {
 	private ViewService viewService;
 
 	@Autowired
-	private NotificationService notificationService;
+	private FindSendBooksNotificationUseCase findSendBooksNotificationUseCase;
 
 	@Autowired
 	protected BookDtoMapper bookDtoMapper;
@@ -155,7 +154,7 @@ public class BookRestController {
 	@GetMapping(value = "/sent", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<BookDto>> getSentBooks(@RequestParam String user) {
 
-		List<Book> books = notificationService.getSentBooks(user);
+		List<Book> books = findSendBooksNotificationUseCase.getSentBooks(user);
 		List<BookDto> booksDto = bookDtoMapper.domains2Dtos(books);
 		return new ResponseEntity<>(booksDto, HttpStatus.OK);
 

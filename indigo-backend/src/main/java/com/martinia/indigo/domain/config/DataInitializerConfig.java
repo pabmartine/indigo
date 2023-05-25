@@ -5,15 +5,15 @@ import java.util.Arrays;
 import java.util.Locale;
 import javax.annotation.PostConstruct;
 
+import com.martinia.indigo.user.domain.model.User;
 import com.martinia.indigo.user.domain.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.datasource.init.ScriptException;
 import org.springframework.stereotype.Component;
 import com.martinia.indigo.domain.enums.RolesEnum;
-import com.martinia.indigo.domain.model.Configuration;
-import com.martinia.indigo.domain.model.User;
-import com.martinia.indigo.ports.out.mongo.ConfigurationRepository;
+import com.martinia.indigo.common.configuration.domain.model.Configuration;
+import com.martinia.indigo.common.configuration.domain.repository.ConfigurationRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

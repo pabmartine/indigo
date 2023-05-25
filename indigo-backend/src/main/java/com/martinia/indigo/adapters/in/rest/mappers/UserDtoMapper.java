@@ -2,10 +2,10 @@ package com.martinia.indigo.adapters.in.rest.mappers;
 
 import java.util.List;
 
+import com.martinia.indigo.user.domain.model.User;
 import org.mapstruct.Mapper;
 
 import com.martinia.indigo.adapters.in.rest.dtos.UserDto;
-import com.martinia.indigo.domain.model.User;
 
 @Mapper(componentModel = "spring")
 public interface UserDtoMapper {

@@ -5,7 +5,7 @@ import java.util.List;
 import org.mapstruct.Mapper;
 
 import com.martinia.indigo.adapters.in.rest.dtos.NotificationDto;
-import com.martinia.indigo.domain.model.Notification;
+import com.martinia.indigo.notification.domain.model.Notification;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")

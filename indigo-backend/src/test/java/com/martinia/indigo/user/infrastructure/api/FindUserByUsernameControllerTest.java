@@ -3,7 +3,7 @@ package com.martinia.indigo.user.infrastructure.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.martinia.indigo.adapters.in.rest.dtos.UserDto;
 import com.martinia.indigo.adapters.in.rest.mappers.UserDtoMapper;
-import com.martinia.indigo.domain.model.User;
+import com.martinia.indigo.user.domain.model.User;
 import com.martinia.indigo.user.domain.service.FindUserByUsernameUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,7 +1,7 @@
 package com.martinia.indigo.common.mail.application;
 
 import com.martinia.indigo.common.mail.domain.service.SendTestMailUseCase;
-import com.martinia.indigo.domain.model.Configuration;
+import com.martinia.indigo.common.configuration.domain.model.Configuration;
 import com.martinia.indigo.ports.out.mail.MailSenderService;
 import org.springframework.stereotype.Service;
 

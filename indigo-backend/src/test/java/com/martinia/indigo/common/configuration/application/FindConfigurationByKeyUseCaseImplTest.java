@@ -1,8 +1,8 @@
 package com.martinia.indigo.common.configuration.application;
 
 import com.martinia.indigo.common.configuration.domain.service.FindConfigurationByKeyUseCase;
-import com.martinia.indigo.domain.model.Configuration;
-import com.martinia.indigo.ports.out.mongo.ConfigurationRepository;
+import com.martinia.indigo.common.configuration.domain.model.Configuration;
+import com.martinia.indigo.common.configuration.domain.repository.ConfigurationRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;

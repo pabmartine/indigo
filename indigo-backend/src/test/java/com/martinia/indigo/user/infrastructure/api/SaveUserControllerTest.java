@@ -1,6 +1,6 @@
 package com.martinia.indigo.user.infrastructure.api;
 
-import com.martinia.indigo.domain.model.User;
+import com.martinia.indigo.user.domain.model.User;
 import com.martinia.indigo.user.domain.service.SaveUserUseCase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

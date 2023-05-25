@@ -6,9 +6,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.martinia.indigo.domain.beans.EmailConfiguration;
-import com.martinia.indigo.domain.model.Configuration;
+import com.martinia.indigo.common.configuration.domain.model.Configuration;
 import com.martinia.indigo.ports.out.mail.MailSenderService;
-import com.martinia.indigo.ports.out.mongo.ConfigurationRepository;
+import com.martinia.indigo.common.configuration.domain.repository.ConfigurationRepository;
 
 import java.util.Optional;
 

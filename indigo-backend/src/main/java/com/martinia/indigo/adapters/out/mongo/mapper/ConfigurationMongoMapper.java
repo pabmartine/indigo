@@ -5,7 +5,7 @@ import java.util.List;
 import org.mapstruct.Mapper;
 
 import com.martinia.indigo.adapters.out.mongo.entities.ConfigurationMongoEntity;
-import com.martinia.indigo.domain.model.Configuration;
+import com.martinia.indigo.common.configuration.domain.model.Configuration;
 
 @Mapper(componentModel = "spring")
 public interface ConfigurationMongoMapper {

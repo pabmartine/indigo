@@ -1,4 +1,4 @@
-package com.martinia.indigo.ports.out.mongo;
+package com.martinia.indigo.notification.domain.repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -6,7 +6,7 @@ import java.util.Optional;
 import com.martinia.indigo.domain.enums.NotificationEnum;
 import com.martinia.indigo.domain.enums.StatusEnum;
 import com.martinia.indigo.domain.model.Book;
-import com.martinia.indigo.domain.model.Notification;
+import com.martinia.indigo.notification.domain.model.Notification;
 
 public interface NotificationRepository {
 

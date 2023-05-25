@@ -1,7 +1,7 @@
 package com.martinia.indigo.user.infrastructure.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.martinia.indigo.domain.model.User;
+import com.martinia.indigo.user.domain.model.User;
 import com.martinia.indigo.user.domain.service.UpdateUserUseCase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,18 +41,5 @@ public class UpdateUserControllerTest {
 
 		verify(useCase).update(any());
 	}
-
-	//	@Test
-	//	public void testUpdateUser_ReturnsBadRequest() throws Exception {
-	//		User user = new User();
-	//		String userJson = objectMapper.writeValueAsString(user);
-	//
-	//		MvcResult result = mockMvc
-	//				.perform(MockMvcRequestBuilders.put("/rest/user/update").contentType(MediaType.APPLICATION_JSON).content(userJson))
-	//				.andReturn();
-	//
-	//		assertEquals(HttpStatus.BAD_REQUEST.value(), result.getResponse().getStatus());
-	//		assertEquals("Invalid request", result.getResponse().getContentAsString());
-	//	}
 
 }

@@ -2,7 +2,7 @@ package com.martinia.indigo.user.infrastructure.api;
 
 import com.martinia.indigo.adapters.in.rest.dtos.UserDto;
 import com.martinia.indigo.adapters.in.rest.mappers.UserDtoMapper;
-import com.martinia.indigo.domain.model.User;
+import com.martinia.indigo.user.domain.model.User;
 import com.martinia.indigo.user.domain.service.FindAllUsersUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

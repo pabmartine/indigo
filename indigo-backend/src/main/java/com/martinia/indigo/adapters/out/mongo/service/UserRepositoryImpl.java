@@ -5,7 +5,7 @@ import com.martinia.indigo.adapters.out.mongo.mapper.UserMongoMapper;
 import com.martinia.indigo.adapters.out.mongo.repository.UserMongoRepository;
 import com.martinia.indigo.domain.model.Author;
 import com.martinia.indigo.domain.model.Book;
-import com.martinia.indigo.domain.model.User;
+import com.martinia.indigo.user.domain.model.User;
 import com.martinia.indigo.user.domain.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
