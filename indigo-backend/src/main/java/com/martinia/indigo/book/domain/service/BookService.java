@@ -1,6 +1,6 @@
-package com.martinia.indigo.ports.in.rest;
+package com.martinia.indigo.book.domain.service;
 
-import com.martinia.indigo.domain.model.Book;
+import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.domain.model.Search;
 import org.springframework.core.io.Resource;
 
@@ -13,8 +13,6 @@ public interface BookService {
 
 	List<Book> findAll(Search search, int page, int size, String sort, String order);
 
-	Optional<Book> findById(String id);
-
 	List<Book> getSimilar(List<String> similar, List<String> languages);
 
 	List<Book> getSerie(String serie, List<String> languages);
@@ -22,8 +20,6 @@ public interface BookService {
 	List<Book> getRecommendationsByBook(List<String> recommendations, List<String> languages);
 
 	List<Book> getRecommendationsByUser(String user, int page, int size, String sort, String order);
-
-	Optional<Book> findByPath(String path);
 
 	Long countRecommendationsByUser(String user);
 

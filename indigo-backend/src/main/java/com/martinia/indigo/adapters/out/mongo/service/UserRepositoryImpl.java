@@ -3,14 +3,17 @@ package com.martinia.indigo.adapters.out.mongo.service;
 import com.martinia.indigo.adapters.out.mongo.entities.UserMongoEntity;
 import com.martinia.indigo.adapters.out.mongo.mapper.UserMongoMapper;
 import com.martinia.indigo.adapters.out.mongo.repository.UserMongoRepository;
+import com.martinia.indigo.book.domain.model.Book;
+import com.martinia.indigo.book.domain.repository.BookRepository;
 import com.martinia.indigo.domain.model.Author;
-import com.martinia.indigo.domain.model.Book;
+import com.martinia.indigo.ports.out.mongo.AuthorRepository;
 import com.martinia.indigo.user.domain.model.User;
 import com.martinia.indigo.user.domain.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -21,11 +24,11 @@ public class UserRepositoryImpl implements UserRepository {
     @Autowired
     UserMongoRepository userMongoRepository;
 
-    @Autowired
-    BookRepositoryImpl bookMongoRepository;
+    @Resource
+    BookRepository bookRepository;
 
     @Autowired
-    AuthorRepositoryImpl authorMongoRepository;
+    AuthorRepository authorMongoRepository;
 
     @Autowired
     UserMongoMapper userMongoMapper;
@@ -103,7 +106,7 @@ public class UserRepositoryImpl implements UserRepository {
         List<Book> ret = new ArrayList<>(books != null ? books.size() : 0);
         if (books != null)
             books.forEach(book -> {
-                Optional<Book> _book = bookMongoRepository.findByPath(book);
+                Optional<Book> _book = bookRepository.findByPath(book);
                 if (_book.isPresent())
                     ret.add(_book.get());
             });

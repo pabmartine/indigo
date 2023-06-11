@@ -1,12 +1,12 @@
-package com.martinia.indigo.adapters.in.rest.controllers;
+package com.martinia.indigo.book.infrastructure.api;
 
 import com.martinia.indigo.adapters.in.rest.dtos.BookDto;
 import com.martinia.indigo.adapters.in.rest.mappers.BookDtoMapper;
-import com.martinia.indigo.domain.model.Book;
+import com.martinia.indigo.book.domain.model.Book;
+import com.martinia.indigo.book.domain.service.BookService;
 import com.martinia.indigo.domain.model.Search;
 import com.martinia.indigo.domain.model.View;
 import com.martinia.indigo.notification.domain.service.FindSendBooksNotificationUseCase;
-import com.martinia.indigo.ports.in.rest.BookService;
 import com.martinia.indigo.ports.in.rest.UserService;
 import com.martinia.indigo.ports.in.rest.ViewService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,17 +72,6 @@ public class BookRestController {
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + epub.getFilename() + "\"").body(epub);
 	}
 
-	@GetMapping(value = "/id", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<BookDto> getBookById(@RequestParam String id) {
-		BookDto bookDto = bookService.findById(id).map(book -> bookDtoMapper.domain2Dto(book)).orElse(null);
-		return new ResponseEntity<>(bookDto, HttpStatus.OK);
-	}
-
-	@GetMapping(value = "/path", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<BookDto> getBookByPath(@RequestParam String path) {
-		BookDto bookDto = bookService.findByPath(path).map(book -> bookDtoMapper.domain2Dto(book)).orElse(null);
-		return new ResponseEntity<>(bookDto, HttpStatus.OK);
-	}
 
 	@GetMapping(value = "/similar", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<BookDto>> getSimilar(@RequestParam List<String> similar, @RequestParam List<String> languages) {

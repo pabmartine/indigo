@@ -7,7 +7,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
 import com.martinia.indigo.adapters.in.rest.dtos.BookDto;
-import com.martinia.indigo.domain.model.Book;
+import com.martinia.indigo.book.domain.model.Book;
 
 @Mapper(componentModel = "spring")
 public interface BookDtoMapper {

@@ -1,7 +1,7 @@
 package com.martinia.indigo.domain.services;
 
 import com.martinia.indigo.domain.model.Author;
-import com.martinia.indigo.domain.model.Book;
+import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.ports.in.rest.UserService;
 import com.martinia.indigo.user.domain.repository.UserRepository;
 import com.martinia.indigo.user.domain.service.FindUserByIdUseCase;

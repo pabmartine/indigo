@@ -1,12 +1,10 @@
 package com.martinia.indigo.ports.in.rest;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import com.martinia.indigo.domain.model.Author;
-import com.martinia.indigo.domain.model.Book;
-import com.martinia.indigo.domain.model.inner.Review;
+import com.martinia.indigo.book.domain.model.Book;
 
 public interface MetadataService {
 

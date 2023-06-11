@@ -1,6 +1,6 @@
 package com.martinia.indigo.notification.application;
 
-import com.martinia.indigo.domain.model.Book;
+import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.notification.domain.repository.NotificationRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

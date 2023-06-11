@@ -14,7 +14,7 @@ import com.martinia.indigo.adapters.out.sqlite.mapper.BookSqliteMapper;
 import com.martinia.indigo.adapters.out.sqlite.repository.AuthorSqliteRepository;
 import com.martinia.indigo.adapters.out.sqlite.repository.BookSqliteRepository;
 import com.martinia.indigo.domain.model.Author;
-import com.martinia.indigo.domain.model.Book;
+import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.domain.model.Search;
 import com.martinia.indigo.ports.out.calibre.CalibreRepository;
 

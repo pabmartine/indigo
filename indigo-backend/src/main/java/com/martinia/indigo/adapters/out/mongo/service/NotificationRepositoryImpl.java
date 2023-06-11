@@ -16,7 +16,7 @@ import com.martinia.indigo.adapters.out.mongo.repository.NotificationMongoReposi
 import com.martinia.indigo.adapters.out.mongo.repository.UserMongoRepository;
 import com.martinia.indigo.domain.enums.NotificationEnum;
 import com.martinia.indigo.domain.enums.StatusEnum;
-import com.martinia.indigo.domain.model.Book;
+import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.notification.domain.model.Notification;
 import com.martinia.indigo.notification.domain.repository.NotificationRepository;
 

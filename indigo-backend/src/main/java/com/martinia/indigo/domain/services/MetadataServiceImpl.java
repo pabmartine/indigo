@@ -1,7 +1,7 @@
 package com.martinia.indigo.domain.services;
 
 import com.martinia.indigo.domain.model.Author;
-import com.martinia.indigo.domain.model.Book;
+import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.domain.model.Search;
 import com.martinia.indigo.domain.model.inner.NumBooks;
 import com.martinia.indigo.domain.model.inner.Review;
@@ -14,7 +14,7 @@ import com.martinia.indigo.ports.out.metadata.GoodReadsService;
 import com.martinia.indigo.ports.out.metadata.GoogleBooksService;
 import com.martinia.indigo.ports.out.metadata.WikipediaService;
 import com.martinia.indigo.ports.out.mongo.AuthorRepository;
-import com.martinia.indigo.ports.out.mongo.BookRepository;
+import com.martinia.indigo.book.domain.repository.BookRepository;
 import com.martinia.indigo.common.configuration.domain.repository.ConfigurationRepository;
 import com.martinia.indigo.tag.domain.repository.TagRepository;
 import lombok.extern.slf4j.Slf4j;

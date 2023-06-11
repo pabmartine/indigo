@@ -1,4 +1,4 @@
-package com.martinia.indigo.domain.model;
+package com.martinia.indigo.book.domain.model;
 
 import java.io.Serializable;
 import java.util.Date;

@@ -2,7 +2,7 @@ package com.martinia.indigo.adapters.out.mongo.service;
 
 import com.martinia.indigo.adapters.out.mongo.mapper.BookMongoMapper;
 import com.martinia.indigo.adapters.out.mongo.repository.BookMongoRepository;
-import com.martinia.indigo.domain.model.Book;
+import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.serie.domain.repository.SerieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

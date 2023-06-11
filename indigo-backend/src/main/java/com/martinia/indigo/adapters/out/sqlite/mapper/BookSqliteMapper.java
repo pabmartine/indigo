@@ -15,7 +15,7 @@ import com.martinia.indigo.adapters.out.sqlite.repository.LanguageSqliteReposito
 import com.martinia.indigo.adapters.out.sqlite.repository.PageSqliteRepository;
 import com.martinia.indigo.adapters.out.sqlite.repository.SerieSqliteRepository;
 import com.martinia.indigo.adapters.out.sqlite.repository.TagSqliteRepository;
-import com.martinia.indigo.domain.model.Book;
+import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.domain.model.inner.Serie;
 
 import lombok.extern.slf4j.Slf4j;

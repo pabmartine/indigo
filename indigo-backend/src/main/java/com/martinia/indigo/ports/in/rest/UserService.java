@@ -1,7 +1,7 @@
 package com.martinia.indigo.ports.in.rest;
 
 import com.martinia.indigo.domain.model.Author;
-import com.martinia.indigo.domain.model.Book;
+import com.martinia.indigo.book.domain.model.Book;
 
 import java.util.List;
 

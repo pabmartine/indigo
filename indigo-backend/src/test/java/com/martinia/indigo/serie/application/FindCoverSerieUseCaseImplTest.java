@@ -1,6 +1,6 @@
 package com.martinia.indigo.serie.application;
 
-import com.martinia.indigo.domain.model.Book;
+import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.domain.model.inner.Serie;
 import com.martinia.indigo.serie.domain.repository.SerieRepository;
 import com.martinia.indigo.serie.domain.service.FindCoverSerieUseCase;

@@ -1,11 +1,10 @@
-package com.martinia.indigo.ports.out.mongo;
+package com.martinia.indigo.book.domain.repository;
+
+import com.martinia.indigo.book.domain.model.Book;
+import com.martinia.indigo.domain.model.Search;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-
-import com.martinia.indigo.domain.model.Book;
-import com.martinia.indigo.domain.model.Search;
 
 public interface BookRepository {
 

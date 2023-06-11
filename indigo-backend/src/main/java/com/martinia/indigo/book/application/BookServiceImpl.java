@@ -1,11 +1,11 @@
-package com.martinia.indigo.domain.services;
+package com.martinia.indigo.book.application;
 
-import com.martinia.indigo.domain.model.Book;
+import com.martinia.indigo.book.domain.model.Book;
+import com.martinia.indigo.book.domain.repository.BookRepository;
+import com.martinia.indigo.book.domain.service.BookService;
+import com.martinia.indigo.common.configuration.domain.repository.ConfigurationRepository;
 import com.martinia.indigo.domain.model.Search;
 import com.martinia.indigo.domain.util.UtilComponent;
-import com.martinia.indigo.ports.in.rest.BookService;
-import com.martinia.indigo.ports.out.mongo.BookRepository;
-import com.martinia.indigo.common.configuration.domain.repository.ConfigurationRepository;
 import com.martinia.indigo.notification.domain.repository.NotificationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -39,15 +39,6 @@ public class BookServiceImpl implements BookService {
 		return bookRepository.findAll(search, page, size, sort, order);
 	}
 
-	@Override
-	public Optional<Book> findById(String id) {
-		return bookRepository.findById(id);
-	}
-
-	@Override
-	public Optional<Book> findByPath(String path) {
-		return bookRepository.findByPath(path);
-	}
 
 	@Override
 	public List<Book> getRecommendationsByBook(List<String> recommendations, List<String> languages) {
