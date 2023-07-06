@@ -1,5 +1,6 @@
 package com.martinia.indigo.user.application;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -9,8 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest
-public class DeleteUserUseCaseImplTest {
+public class DeleteUserUseCaseImplTest extends BaseIndigoTest {
 
 	@Mock
 	private UserRepository userRepository;

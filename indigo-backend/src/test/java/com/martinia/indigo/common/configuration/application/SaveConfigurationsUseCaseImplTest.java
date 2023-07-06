@@ -1,5 +1,6 @@
 package com.martinia.indigo.common.configuration.application;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.common.configuration.domain.model.Configuration;
 import com.martinia.indigo.common.configuration.domain.repository.ConfigurationRepository;
 import org.junit.jupiter.api.Test;
@@ -16,9 +17,8 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
-@ExtendWith(MockitoExtension.class)
-public class SaveConfigurationsUseCaseImplTest {
+
+public class SaveConfigurationsUseCaseImplTest extends BaseIndigoTest {
 
 	@MockBean
 	private ConfigurationRepository configurationRepository;

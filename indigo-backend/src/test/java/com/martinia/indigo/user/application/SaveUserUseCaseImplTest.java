@@ -1,5 +1,6 @@
 package com.martinia.indigo.user.application;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.user.domain.model.User;
 import com.martinia.indigo.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -11,8 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest
-public class SaveUserUseCaseImplTest {
+public class SaveUserUseCaseImplTest extends BaseIndigoTest {
 
 	@Autowired
 	private SaveUserUseCaseImpl saveUserUseCase;

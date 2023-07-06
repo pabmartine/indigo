@@ -1,7 +1,6 @@
 package com.martinia.indigo.domain.services;
 
 import com.martinia.indigo.domain.model.Author;
-import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.ports.in.rest.UserService;
 import com.martinia.indigo.user.domain.repository.UserRepository;
 import com.martinia.indigo.user.domain.service.FindUserByIdUseCase;
@@ -24,37 +23,14 @@ public class UserServiceImpl implements UserService {
 	PasswordEncoder passwordEncoder;
 
 	@Override
-	public void addFavoriteBook(String user, String book) {
-		userRepository.addFavoriteBook(user, book);
-
-	}
-
-	@Override
 	public void addFavoriteAuthor(String user, String author) {
 		userRepository.addFavoriteAuthor(user, author);
 
 	}
 
 	@Override
-	public void deleteFavoriteBook(String user, String book) {
-		userRepository.deleteFavoriteBook(user, book);
-	}
-
-	@Override
-	public Boolean isFavoriteBook(String user, String book) {
-		return userRepository.isFavoriteBook(user, book);
-
-	}
-
-	@Override
 	public List<Author> getFavoriteAuthors(String user) {
 		return userRepository.getFavoriteAuthors(user);
-
-	}
-
-	@Override
-	public List<Book> getFavoriteBooks(String user) {
-		return userRepository.getFavoriteBooks(user);
 
 	}
 

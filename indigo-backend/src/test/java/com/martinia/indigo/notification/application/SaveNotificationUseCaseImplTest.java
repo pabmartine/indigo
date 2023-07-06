@@ -1,5 +1,6 @@
 package com.martinia.indigo.notification.application;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.notification.domain.model.Notification;
 import com.martinia.indigo.notification.domain.repository.NotificationRepository;
 import org.junit.jupiter.api.Test;
@@ -12,9 +13,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest
-@ExtendWith({ SpringExtension.class, MockitoExtension.class })
-public class SaveNotificationUseCaseImplTest {
+
+public class SaveNotificationUseCaseImplTest extends BaseIndigoTest {
 
 	@InjectMocks
 	private SaveNotificationUseCaseImpl saveNotificationUseCase;

@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Arrays;
 import java.util.List;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.adapters.in.rest.dtos.TagDto;
 import com.martinia.indigo.adapters.in.rest.mappers.TagDtoMapper;
 import com.martinia.indigo.domain.model.inner.NumBooks;
@@ -31,10 +32,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import javax.annotation.Resource;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ExtendWith({ SpringExtension.class, MockitoExtension.class })
-public class FindAllTagsControllerTest {
+
+public class FindAllTagsControllerTest extends BaseIndigoTest {
 
 
 	@Resource

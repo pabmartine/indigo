@@ -12,15 +12,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
+
 @RestController
 @RequestMapping("/rest/book")
 public class FindBookByIdController {
 
-	@Autowired
+	@Resource
 	private FindBookByIdUseCase useCase;
 
-	@Autowired
-	protected BookDtoMapper mapper;
+	@Resource
+	private BookDtoMapper mapper;
 
 	@GetMapping(value = "/id", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<BookDto> getBookById(@RequestParam String id) {

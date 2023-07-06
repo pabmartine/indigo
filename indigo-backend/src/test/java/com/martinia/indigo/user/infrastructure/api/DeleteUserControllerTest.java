@@ -1,5 +1,6 @@
 package com.martinia.indigo.user.infrastructure.api;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.user.domain.service.DeleteUserUseCase;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -15,9 +16,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-public class DeleteUserControllerTest {
+
+public class DeleteUserControllerTest extends BaseIndigoTest {
 
 	@Autowired
 	private MockMvc mockMvc;

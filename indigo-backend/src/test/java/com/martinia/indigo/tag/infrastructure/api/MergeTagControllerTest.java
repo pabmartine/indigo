@@ -1,5 +1,6 @@
 package com.martinia.indigo.tag.infrastructure.api;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.tag.domain.service.MergeTagUseCase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,11 +21,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
-@ExtendWith(MockitoExtension.class)
-@SpringBootTest
-@AutoConfigureMockMvc
-public class MergeTagControllerTest {
+
+public class MergeTagControllerTest extends BaseIndigoTest {
 
 	@Resource
 	private MockMvc mockMvc;

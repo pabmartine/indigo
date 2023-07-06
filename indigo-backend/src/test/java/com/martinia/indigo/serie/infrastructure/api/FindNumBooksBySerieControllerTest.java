@@ -1,5 +1,6 @@
 package com.martinia.indigo.serie.infrastructure.api;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.serie.domain.service.FindNumBooksBySerieUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,10 +29,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@ExtendWith({ SpringExtension.class, MockitoExtension.class })
-@AutoConfigureMockMvc
-public class FindNumBooksBySerieControllerTest {
+
+public class FindNumBooksBySerieControllerTest  extends BaseIndigoTest {
 
 	@MockBean
 	private FindNumBooksBySerieUseCase useCase;

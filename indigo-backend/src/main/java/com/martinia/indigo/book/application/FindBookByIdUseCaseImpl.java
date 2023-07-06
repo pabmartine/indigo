@@ -6,13 +6,15 @@ import com.martinia.indigo.book.domain.service.FindBookByIdUseCase;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class FindBookByIdUseCaseImpl implements FindBookByIdUseCase {
 
 	@Resource
-	BookRepository bookRepository;
+	private BookRepository bookRepository;
 
 	@Override
 	public Optional<Book> findById(String id) {

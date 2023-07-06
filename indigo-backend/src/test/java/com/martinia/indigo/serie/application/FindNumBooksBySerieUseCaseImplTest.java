@@ -1,5 +1,6 @@
 package com.martinia.indigo.serie.application;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.serie.domain.repository.SerieRepository;
 import com.martinia.indigo.serie.domain.service.FindNumBooksBySerieUseCase;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,10 +21,8 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@ExtendWith({ SpringExtension.class, MockitoExtension.class })
-@AutoConfigureMockMvc
-public class FindNumBooksBySerieUseCaseImplTest {
+
+public class FindNumBooksBySerieUseCaseImplTest extends BaseIndigoTest {
 
 	@MockBean
 	private SerieRepository serieRepository;

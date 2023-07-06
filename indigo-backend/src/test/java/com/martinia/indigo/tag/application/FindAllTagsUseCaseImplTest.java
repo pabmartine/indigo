@@ -1,5 +1,6 @@
 package com.martinia.indigo.tag.application;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.domain.model.inner.NumBooks;
 import com.martinia.indigo.tag.domain.model.Tag;
 import com.martinia.indigo.tag.domain.repository.TagRepository;
@@ -18,9 +19,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-@SpringBootTest
-public class FindAllTagsUseCaseImplTest {
+
+public class FindAllTagsUseCaseImplTest extends BaseIndigoTest {
 
 	@MockBean
 	private TagRepository tagRepository;

@@ -1,5 +1,6 @@
 package com.martinia.indigo.notification.infrastructure.api;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.adapters.in.rest.dtos.NotificationDto;
 import com.martinia.indigo.adapters.in.rest.mappers.NotificationDtoMapper;
 import com.martinia.indigo.notification.domain.model.Notification;
@@ -26,10 +27,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@ExtendWith({SpringExtension.class, MockitoExtension.class})
-@AutoConfigureMockMvc
-public class FindNotReadNotificationsByUserControllerTest {
+
+public class FindNotReadNotificationsByUserControllerTest extends BaseIndigoTest {
 
 	@InjectMocks
 	private FindNotReadNotificationsByUserController findNotReadNotificationsByUserController;

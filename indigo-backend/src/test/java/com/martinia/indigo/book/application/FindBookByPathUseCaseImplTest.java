@@ -1,13 +1,11 @@
 package com.martinia.indigo.book.application;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.repository.BookRepository;
 import com.martinia.indigo.book.domain.service.FindBookByPathUseCase;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import javax.annotation.Resource;
@@ -15,9 +13,7 @@ import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@ExtendWith(MockitoExtension.class)
-public class FindBookByPathUseCaseImplTest {
+public class FindBookByPathUseCaseImplTest extends BaseIndigoTest {
 
 	@Resource
 	private FindBookByPathUseCase findBookByPathUseCase;

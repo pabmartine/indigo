@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import static org.mockito.Mockito.verify;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.tag.domain.repository.TagRepository;
 import com.martinia.indigo.tag.domain.service.RenameTagUseCase;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,9 +20,8 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.annotation.Resource;
 
-@ExtendWith(MockitoExtension.class)
-@SpringBootTest
-public class RenameTagUseCaseImplTest {
+
+public class RenameTagUseCaseImplTest  extends BaseIndigoTest {
 
 	@MockBean
 	private TagRepository tagRepository;

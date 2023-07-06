@@ -1,5 +1,6 @@
 package com.martinia.indigo.user.application;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.user.domain.model.User;
 import com.martinia.indigo.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +16,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class FindUserByUsernameUseCaseImplTest {
+class FindUserByUsernameUseCaseImplTest extends BaseIndigoTest {
 
 	@Mock
 	private UserRepository userRepository;

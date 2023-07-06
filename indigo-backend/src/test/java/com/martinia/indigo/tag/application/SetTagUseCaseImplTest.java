@@ -1,5 +1,6 @@
 package com.martinia.indigo.tag.application;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.tag.domain.repository.TagRepository;
 import com.martinia.indigo.tag.domain.service.SetTagImageUseCase;
 import org.junit.jupiter.api.Test;
@@ -12,9 +13,8 @@ import javax.annotation.Resource;
 
 import static org.mockito.Mockito.verify;
 
-@ExtendWith(MockitoExtension.class)
-@SpringBootTest
-public class SetTagUseCaseImplTest {
+
+public class SetTagUseCaseImplTest extends BaseIndigoTest {
 
 	@MockBean
 	private TagRepository tagRepository;

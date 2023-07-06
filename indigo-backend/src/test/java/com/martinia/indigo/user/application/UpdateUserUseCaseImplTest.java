@@ -1,4 +1,5 @@
 package com.martinia.indigo.user.application;
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.user.domain.model.User;
 import com.martinia.indigo.user.domain.repository.UserRepository;
 import com.martinia.indigo.user.domain.service.FindUserByIdUseCase;
@@ -17,9 +18,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@SpringJUnitConfig
-@SpringBootTest
-class UpdateUserUseCaseImplTest {
+
+class UpdateUserUseCaseImplTest extends BaseIndigoTest {
 
 	@Autowired
 	private UpdateUserUseCase useCase;

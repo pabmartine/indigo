@@ -1,5 +1,6 @@
 package com.martinia.indigo.notification.infrastructure.api;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.notification.domain.service.MarkAsReadNotificationUseCase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,10 +19,8 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@ExtendWith({SpringExtension.class, MockitoExtension.class})
-@AutoConfigureMockMvc
-public class MarkAsReadNotificationControllerTest {
+
+public class MarkAsReadNotificationControllerTest extends BaseIndigoTest {
 
 	@InjectMocks
 	private MarkAsReadNotificationController markAsReadNotificationController;

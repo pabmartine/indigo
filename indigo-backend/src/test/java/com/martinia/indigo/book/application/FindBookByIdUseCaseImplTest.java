@@ -1,5 +1,6 @@
 package com.martinia.indigo.book.application;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.repository.BookRepository;
 import com.martinia.indigo.book.domain.service.FindBookByIdUseCase;
@@ -15,9 +16,8 @@ import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
-@SpringBootTest
-public class FindBookByIdUseCaseImplTest {
+
+public class FindBookByIdUseCaseImplTest extends BaseIndigoTest {
 
 	@Resource
 	private FindBookByIdUseCase findBookByIdUseCase;

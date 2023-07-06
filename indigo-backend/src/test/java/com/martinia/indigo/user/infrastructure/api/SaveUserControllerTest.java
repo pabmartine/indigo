@@ -1,5 +1,6 @@
 package com.martinia.indigo.user.infrastructure.api;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.user.domain.model.User;
 import com.martinia.indigo.user.domain.service.SaveUserUseCase;
 import org.junit.jupiter.api.Test;
@@ -17,9 +18,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-public class SaveUserControllerTest {
+public class SaveUserControllerTest  extends BaseIndigoTest {
 
 	@Autowired
 	private MockMvc mockMvc;

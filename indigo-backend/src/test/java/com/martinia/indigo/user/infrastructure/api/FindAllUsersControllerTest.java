@@ -1,5 +1,6 @@
 package com.martinia.indigo.user.infrastructure.api;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.adapters.in.rest.dtos.UserDto;
 import com.martinia.indigo.adapters.in.rest.mappers.UserDtoMapper;
 import com.martinia.indigo.user.domain.model.User;
@@ -23,7 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class FindAllUsersControllerTest {
+class FindAllUsersControllerTest extends BaseIndigoTest {
 
 	private MockMvc mockMvc;
 

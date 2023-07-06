@@ -1,5 +1,6 @@
 package com.martinia.indigo.serie.application;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.domain.model.inner.Serie;
 import com.martinia.indigo.serie.domain.repository.SerieRepository;
@@ -21,10 +22,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@ExtendWith({ SpringExtension.class, MockitoExtension.class })
-@AutoConfigureMockMvc
-public class FindCoverSerieUseCaseImplTest {
+
+public class FindCoverSerieUseCaseImplTest extends BaseIndigoTest {
 
 	@MockBean
 	private SerieRepository serieRepository;

@@ -6,13 +6,16 @@ import com.martinia.indigo.book.domain.service.FindBookByPathUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class FindBookByPathUseCaseImpl implements FindBookByPathUseCase {
 
-	@Autowired
-	BookRepository bookRepository;
+	@Resource
+	private BookRepository bookRepository;
 
 	@Override
 	public Optional<Book> findByPath(String path) {

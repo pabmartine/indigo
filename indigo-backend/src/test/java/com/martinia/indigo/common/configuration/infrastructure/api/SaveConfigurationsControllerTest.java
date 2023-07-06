@@ -1,6 +1,7 @@
 package com.martinia.indigo.common.configuration.infrastructure.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.adapters.in.rest.mappers.ConfigurationDtoMapper;
 import com.martinia.indigo.common.configuration.domain.service.SaveConfigurationsUseCase;
 import com.martinia.indigo.common.configuration.domain.model.Configuration;
@@ -24,10 +25,8 @@ import java.util.List;
 
 import static org.mockito.Mockito.doNothing;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@ExtendWith({ SpringExtension.class, MockitoExtension.class })
-public class SaveConfigurationsControllerTest {
+
+public class SaveConfigurationsControllerTest extends BaseIndigoTest {
 
 	@Autowired
 	private MockMvc mockMvc;

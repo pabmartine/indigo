@@ -1,5 +1,6 @@
 package com.martinia.indigo.common.mail.application;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.common.configuration.domain.model.Configuration;
 import com.martinia.indigo.ports.out.mail.MailSenderService;
 import com.martinia.indigo.common.configuration.domain.repository.ConfigurationRepository;
@@ -16,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
-public class SendMailUseCaseImplTest {
+
+public class SendMailUseCaseImplTest extends BaseIndigoTest {
 
 	@Mock
 	private MailSenderService mailSenderService;

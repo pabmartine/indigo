@@ -1,5 +1,6 @@
 package com.martinia.indigo.common.configuration.application;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.common.configuration.domain.service.FindConfigurationByKeyUseCase;
 import com.martinia.indigo.common.configuration.domain.model.Configuration;
 import com.martinia.indigo.common.configuration.domain.repository.ConfigurationRepository;
@@ -15,9 +16,8 @@ import java.util.Optional;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@ExtendWith(MockitoExtension.class)
-public class FindConfigurationByKeyUseCaseImplTest {
+
+public class FindConfigurationByKeyUseCaseImplTest extends BaseIndigoTest {
 
 	@Resource
 	private FindConfigurationByKeyUseCase useCase;

@@ -1,5 +1,6 @@
 package com.martinia.indigo.common.mail.infrastructure.api;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.common.mail.domain.service.SendMailUseCase;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,9 +20,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-public class SendMailControllerTest {
+
+public class SendMailControllerTest extends BaseIndigoTest {
 
 	@MockBean
 	private SendMailUseCase useCase;

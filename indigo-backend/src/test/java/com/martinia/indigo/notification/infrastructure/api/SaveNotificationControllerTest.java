@@ -1,6 +1,7 @@
 package com.martinia.indigo.notification.infrastructure.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.adapters.in.rest.dtos.NotificationDto;
 import com.martinia.indigo.adapters.in.rest.mappers.NotificationDtoMapper;
 import com.martinia.indigo.notification.domain.model.Notification;
@@ -25,10 +26,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@ExtendWith({ SpringExtension.class, MockitoExtension.class })
-@AutoConfigureMockMvc
-public class SaveNotificationControllerTest {
+
+public class SaveNotificationControllerTest extends BaseIndigoTest {
 
 
 	@MockBean

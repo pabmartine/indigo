@@ -1,5 +1,6 @@
 package com.martinia.indigo.tag.infrastructure.api;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.adapters.in.rest.dtos.TagDto;
 import com.martinia.indigo.adapters.in.rest.mappers.TagDtoMapper;
 import com.martinia.indigo.domain.model.inner.NumBooks;
@@ -24,11 +25,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
-@ExtendWith(MockitoExtension.class)
-@SpringBootTest
-@AutoConfigureMockMvc
-public class FindTagByNameControllerTest {
+
+public class FindTagByNameControllerTest extends BaseIndigoTest {
 
 	@Resource
 	private MockMvc mockMvc;

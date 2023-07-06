@@ -1,5 +1,6 @@
 package com.martinia.indigo.notification.application;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.notification.domain.model.Notification;
 import com.martinia.indigo.notification.domain.repository.NotificationRepository;
 import org.junit.jupiter.api.Test;
@@ -17,9 +18,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@ExtendWith({ SpringExtension.class, MockitoExtension.class })
-public class FindAllNotificationsUseCaseImplTest {
+
+public class FindAllNotificationsUseCaseImplTest extends BaseIndigoTest {
 
 	@InjectMocks
 	private FindAllNotificationsUseCaseImpl findAllNotificationsUseCase;

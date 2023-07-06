@@ -1,5 +1,6 @@
 package com.martinia.indigo.notification.application;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.notification.domain.repository.NotificationRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,10 +13,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest
-@ExtendWith({ SpringExtension.class, MockitoExtension.class })
-@AutoConfigureMockMvc
-public class DeleteNotificationUseCaseImplTest {
+
+public class DeleteNotificationUseCaseImplTest  extends BaseIndigoTest {
 
 	@InjectMocks
 	private DeleteNotificationUseCaseImpl deleteNotificationUseCase;

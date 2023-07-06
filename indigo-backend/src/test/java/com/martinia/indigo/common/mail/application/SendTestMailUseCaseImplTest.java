@@ -5,6 +5,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.domain.beans.EmailConfiguration;
 import com.martinia.indigo.common.configuration.domain.model.Configuration;
 import com.martinia.indigo.ports.out.mail.MailSenderService;
@@ -21,8 +22,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ContextConfiguration(classes = { SendTestMailUseCaseImpl.class })
-@ExtendWith(SpringExtension.class)
-class SendTestMailUseCaseImplTest {
+class SendTestMailUseCaseImplTest extends BaseIndigoTest {
 	@MockBean
 	private ConfigurationRepository configurationRepository;
 

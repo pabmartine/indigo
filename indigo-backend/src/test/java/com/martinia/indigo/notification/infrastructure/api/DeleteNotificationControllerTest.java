@@ -1,5 +1,6 @@
 package com.martinia.indigo.notification.infrastructure.api;
 
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.notification.domain.service.DeleteNotificationUseCase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,10 +20,8 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
-@ExtendWith({ SpringExtension.class, MockitoExtension.class })
-@AutoConfigureMockMvc
-public class DeleteNotificationControllerTest {
+
+public class DeleteNotificationControllerTest extends BaseIndigoTest {
 
 	@InjectMocks
 	private DeleteNotificationController deleteNotificationController;

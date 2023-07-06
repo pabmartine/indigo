@@ -1,12 +1,11 @@
 package com.martinia.indigo.user.infrastructure.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.user.domain.model.User;
 import com.martinia.indigo.user.domain.service.UpdateUserUseCase;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -17,9 +16,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-public class UpdateUserControllerTest {
+public class UpdateUserControllerTest extends BaseIndigoTest {
 
 	@Autowired
 	private MockMvc mockMvc;
