@@ -1,10 +1,10 @@
 package com.martinia.indigo.common.configuration.infrastructure.api;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.common.configuration.infrastructure.model.ConfigurationDto;
-import com.martinia.indigo.common.configuration.infrastructure.mapper.ConfigurationDtoMapper;
-import com.martinia.indigo.common.configuration.domain.service.FindConfigurationByKeyUseCase;
-import com.martinia.indigo.common.configuration.domain.model.Configuration;
+import com.martinia.indigo.configuration.infrastructure.model.ConfigurationDto;
+import com.martinia.indigo.configuration.infrastructure.mapper.ConfigurationDtoMapper;
+import com.martinia.indigo.configuration.domain.service.FindConfigurationByKeyUseCase;
+import com.martinia.indigo.configuration.domain.model.Configuration;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;

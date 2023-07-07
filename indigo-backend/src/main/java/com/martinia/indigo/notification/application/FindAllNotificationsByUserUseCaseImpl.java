@@ -1,6 +1,6 @@
 package com.martinia.indigo.notification.application;
 
-import com.martinia.indigo.domain.enums.NotificationEnum;
+import com.martinia.indigo.notification.domain.model.NotificationEnum;
 import com.martinia.indigo.notification.domain.model.Notification;
 import com.martinia.indigo.notification.domain.repository.NotificationRepository;
 import com.martinia.indigo.notification.domain.service.FindAllNotificationsByUserUseCase;

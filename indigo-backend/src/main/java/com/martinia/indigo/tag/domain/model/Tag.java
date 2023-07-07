@@ -2,7 +2,7 @@ package com.martinia.indigo.tag.domain.model;
 
 import java.io.Serializable;
 
-import com.martinia.indigo.domain.model.inner.NumBooks;
+import com.martinia.indigo.common.model.NumBooks;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

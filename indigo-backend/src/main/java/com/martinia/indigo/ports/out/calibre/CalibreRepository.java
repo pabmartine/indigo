@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.martinia.indigo.author.domain.model.Author;
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.domain.model.Search;
+import com.martinia.indigo.common.model.Search;
 
 public interface CalibreRepository {
 

@@ -1,6 +1,6 @@
 package com.martinia.indigo.user.application;
 
-import com.martinia.indigo.domain.enums.RolesEnum;
+import com.martinia.indigo.user.domain.model.RolesEnum;
 import com.martinia.indigo.user.domain.model.User;
 import com.martinia.indigo.user.domain.repository.UserRepository;
 import com.martinia.indigo.user.domain.service.SaveUserUseCase;

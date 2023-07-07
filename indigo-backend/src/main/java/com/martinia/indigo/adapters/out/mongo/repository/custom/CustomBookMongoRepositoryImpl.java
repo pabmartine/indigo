@@ -3,7 +3,7 @@ package com.martinia.indigo.adapters.out.mongo.repository.custom;
 import com.martinia.indigo.adapters.out.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.adapters.out.mongo.entities.NotificationMongoEntity;
 import com.martinia.indigo.adapters.out.mongo.entities.UserMongoEntity;
-import com.martinia.indigo.domain.model.Search;
+import com.martinia.indigo.common.model.Search;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;

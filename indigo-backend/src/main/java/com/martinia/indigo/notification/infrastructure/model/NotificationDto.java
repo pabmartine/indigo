@@ -2,8 +2,8 @@ package com.martinia.indigo.notification.infrastructure.model;
 
 import java.io.Serializable;
 
-import com.martinia.indigo.domain.enums.NotificationEnum;
-import com.martinia.indigo.domain.enums.StatusEnum;
+import com.martinia.indigo.notification.domain.model.NotificationEnum;
+import com.martinia.indigo.notification.domain.model.StatusEnum;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

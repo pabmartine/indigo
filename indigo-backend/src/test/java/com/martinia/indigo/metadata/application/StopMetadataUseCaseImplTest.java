@@ -1,7 +1,7 @@
 package com.martinia.indigo.metadata.application;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.domain.singletons.MetadataSingleton;
+import com.martinia.indigo.common.singletons.MetadataSingleton;
 import com.martinia.indigo.metadata.domain.service.StopMetadataUseCase;
 import org.junit.jupiter.api.Test;
 

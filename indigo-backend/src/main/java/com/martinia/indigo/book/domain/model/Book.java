@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-import com.martinia.indigo.domain.model.inner.Review;
-import com.martinia.indigo.domain.model.inner.Serie;
+import com.martinia.indigo.common.model.Review;
+import com.martinia.indigo.common.model.Serie;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

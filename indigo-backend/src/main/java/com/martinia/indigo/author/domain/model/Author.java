@@ -3,7 +3,7 @@ package com.martinia.indigo.author.domain.model;
 import java.io.Serializable;
 import java.util.Date;
 
-import com.martinia.indigo.domain.model.inner.NumBooks;
+import com.martinia.indigo.common.model.NumBooks;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

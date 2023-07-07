@@ -4,7 +4,7 @@ import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.author.domain.model.Author;
 import com.martinia.indigo.author.domain.repository.AuthorRepository;
 import com.martinia.indigo.book.domain.repository.BookRepository;
-import com.martinia.indigo.domain.util.DataUtils;
+import com.martinia.indigo.common.util.DataUtils;
 import com.martinia.indigo.metadata.domain.service.RefreshAuthorMetadataUseCase;
 import com.martinia.indigo.ports.out.metadata.AmazonService;
 import com.martinia.indigo.ports.out.metadata.GoodReadsService;

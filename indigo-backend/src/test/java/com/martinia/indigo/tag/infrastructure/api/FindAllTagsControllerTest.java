@@ -10,7 +10,7 @@ import java.util.List;
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.tag.infrastructure.model.TagDto;
 import com.martinia.indigo.tag.infrastructure.mapper.TagDtoMapper;
-import com.martinia.indigo.domain.model.inner.NumBooks;
+import com.martinia.indigo.common.model.NumBooks;
 import com.martinia.indigo.tag.domain.model.Tag;
 import com.martinia.indigo.tag.domain.service.FindAllTagsUseCase;
 import org.junit.jupiter.api.BeforeEach;

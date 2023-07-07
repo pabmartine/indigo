@@ -3,7 +3,7 @@ package com.martinia.indigo.book.application.recommendation;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.repository.BookRepository;
 import com.martinia.indigo.book.domain.service.recommendation.FindBookRecommendationsByBookUseCase;
-import com.martinia.indigo.common.configuration.domain.repository.ConfigurationRepository;
+import com.martinia.indigo.configuration.domain.repository.ConfigurationRepository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

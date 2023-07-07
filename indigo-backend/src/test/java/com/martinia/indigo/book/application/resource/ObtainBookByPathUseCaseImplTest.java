@@ -4,7 +4,7 @@ import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.application.sent.FindSentBooksUseCaseImpl;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.service.resource.ObtainBookByPathUseCase;
-import com.martinia.indigo.domain.util.UtilComponent;
+import com.martinia.indigo.common.util.UtilComponent;
 import com.martinia.indigo.notification.domain.repository.NotificationRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

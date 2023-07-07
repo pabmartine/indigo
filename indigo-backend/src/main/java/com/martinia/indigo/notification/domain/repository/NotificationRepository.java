@@ -3,8 +3,8 @@ package com.martinia.indigo.notification.domain.repository;
 import java.util.List;
 import java.util.Optional;
 
-import com.martinia.indigo.domain.enums.NotificationEnum;
-import com.martinia.indigo.domain.enums.StatusEnum;
+import com.martinia.indigo.notification.domain.model.NotificationEnum;
+import com.martinia.indigo.notification.domain.model.StatusEnum;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.notification.domain.model.Notification;
 

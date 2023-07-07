@@ -1,6 +1,6 @@
 package com.martinia.indigo.adapters.out.metadata;
 
-import com.martinia.indigo.domain.util.DataUtils;
+import com.martinia.indigo.common.util.DataUtils;
 import com.martinia.indigo.ports.out.metadata.GoogleBooksService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

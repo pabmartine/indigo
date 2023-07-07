@@ -2,9 +2,9 @@ package com.martinia.indigo.common.configuration.infrastructure.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.common.configuration.infrastructure.mapper.ConfigurationDtoMapper;
-import com.martinia.indigo.common.configuration.domain.service.SaveConfigurationsUseCase;
-import com.martinia.indigo.common.configuration.domain.model.Configuration;
+import com.martinia.indigo.configuration.infrastructure.mapper.ConfigurationDtoMapper;
+import com.martinia.indigo.configuration.domain.service.SaveConfigurationsUseCase;
+import com.martinia.indigo.configuration.domain.model.Configuration;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;

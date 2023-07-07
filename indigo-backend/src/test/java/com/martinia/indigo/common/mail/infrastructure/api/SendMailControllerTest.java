@@ -1,10 +1,8 @@
 package com.martinia.indigo.common.mail.infrastructure.api;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.common.mail.domain.service.SendMailUseCase;
+import com.martinia.indigo.mail.domain.service.SendMailUseCase;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;

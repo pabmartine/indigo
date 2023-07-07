@@ -4,8 +4,8 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlArticle;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.martinia.indigo.domain.model.inner.Review;
-import com.martinia.indigo.domain.util.DataUtils;
+import com.martinia.indigo.common.model.Review;
+import com.martinia.indigo.common.util.DataUtils;
 import com.martinia.indigo.ports.out.metadata.GoodReadsService;
 import com.martinia.indigo.ports.out.metadata.LibreTranslateService;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.sql.Array;
 import java.text.Normalizer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

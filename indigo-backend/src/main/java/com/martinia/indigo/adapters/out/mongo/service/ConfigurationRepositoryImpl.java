@@ -2,8 +2,8 @@ package com.martinia.indigo.adapters.out.mongo.service;
 
 import com.martinia.indigo.adapters.out.mongo.mapper.ConfigurationMongoMapper;
 import com.martinia.indigo.adapters.out.mongo.repository.ConfigurationMongoRepository;
-import com.martinia.indigo.common.configuration.domain.model.Configuration;
-import com.martinia.indigo.common.configuration.domain.repository.ConfigurationRepository;
+import com.martinia.indigo.configuration.domain.model.Configuration;
+import com.martinia.indigo.configuration.domain.repository.ConfigurationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
