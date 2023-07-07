@@ -1,7 +1,7 @@
 package com.martinia.indigo.notification.infrastructure.api;
 
-import com.martinia.indigo.adapters.in.rest.dtos.NotificationDto;
-import com.martinia.indigo.adapters.in.rest.mappers.NotificationDtoMapper;
+import com.martinia.indigo.notification.infrastructure.model.NotificationDto;
+import com.martinia.indigo.notification.infrastructure.mapper.NotificationDtoMapper;
 import com.martinia.indigo.notification.domain.model.Notification;
 import com.martinia.indigo.notification.domain.service.FindNotReadNotificationsUseCase;
 import org.springframework.http.HttpStatus;
@@ -22,7 +22,7 @@ public class FindNotReadNotificationsController {
 	private FindNotReadNotificationsUseCase useCase;
 
 	@Resource
-	protected NotificationDtoMapper mapper;
+	private NotificationDtoMapper mapper;
 
 	@GetMapping(value = "/not_read", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<NotificationDto>> findAllNotRead() {

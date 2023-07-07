@@ -5,7 +5,7 @@ import java.util.List;
 import org.mapstruct.Mapper;
 
 import com.martinia.indigo.adapters.out.mongo.entities.AuthorMongoEntity;
-import com.martinia.indigo.domain.model.Author;
+import com.martinia.indigo.author.domain.model.Author;
 
 @Mapper(componentModel = "spring")
 public interface AuthorMongoMapper {

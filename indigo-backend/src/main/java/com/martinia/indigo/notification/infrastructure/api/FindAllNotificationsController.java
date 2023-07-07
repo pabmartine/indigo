@@ -1,10 +1,9 @@
 package com.martinia.indigo.notification.infrastructure.api;
 
-import com.martinia.indigo.adapters.in.rest.dtos.NotificationDto;
-import com.martinia.indigo.adapters.in.rest.mappers.NotificationDtoMapper;
+import com.martinia.indigo.notification.infrastructure.model.NotificationDto;
+import com.martinia.indigo.notification.infrastructure.mapper.NotificationDtoMapper;
 import com.martinia.indigo.notification.domain.model.Notification;
 import com.martinia.indigo.notification.domain.service.FindAllNotificationsUseCase;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +22,7 @@ public class FindAllNotificationsController {
 	private FindAllNotificationsUseCase useCase;
 
 	@Resource
-	protected NotificationDtoMapper mapper;
+	private NotificationDtoMapper mapper;
 
 	@GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<List<NotificationDto>> findAll() {

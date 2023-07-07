@@ -1,7 +1,5 @@
 package com.martinia.indigo.tag.infrastructure.api;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -10,23 +8,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.adapters.in.rest.dtos.TagDto;
-import com.martinia.indigo.adapters.in.rest.mappers.TagDtoMapper;
+import com.martinia.indigo.tag.infrastructure.model.TagDto;
+import com.martinia.indigo.tag.infrastructure.mapper.TagDtoMapper;
 import com.martinia.indigo.domain.model.inner.NumBooks;
 import com.martinia.indigo.tag.domain.model.Tag;
 import com.martinia.indigo.tag.domain.service.FindAllTagsUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 

@@ -1,6 +1,6 @@
 package com.martinia.indigo.common.configuration.infrastructure.api;
 
-import com.martinia.indigo.adapters.in.rest.mappers.ConfigurationDtoMapper;
+import com.martinia.indigo.common.configuration.infrastructure.mapper.ConfigurationDtoMapper;
 import com.martinia.indigo.common.configuration.domain.service.SaveConfigurationsUseCase;
 import com.martinia.indigo.common.configuration.domain.model.Configuration;
 import org.springframework.beans.factory.annotation.Autowired;

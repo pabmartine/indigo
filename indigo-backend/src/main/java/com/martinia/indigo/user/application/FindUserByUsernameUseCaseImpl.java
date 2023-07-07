@@ -6,13 +6,14 @@ import com.martinia.indigo.user.domain.service.FindUserByUsernameUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.Optional;
 
 @Service
 public class FindUserByUsernameUseCaseImpl implements FindUserByUsernameUseCase {
 
-	@Autowired
-	UserRepository userRepository;
+	@Resource
+	private UserRepository userRepository;
 
 	@Override
 	public Optional<User> findByUsername(final String username) {

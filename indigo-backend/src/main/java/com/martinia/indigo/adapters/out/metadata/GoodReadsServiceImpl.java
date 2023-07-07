@@ -44,6 +44,9 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 	@Resource
 	private LibreTranslateService libreTranslateService;
 
+	@Resource
+	private DataUtils dataUtils;
+
 	@Override
 	public List<Review> getReviews(String lang, String title, List<String> authors) {
 
@@ -192,7 +195,7 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 				url += "&authors=" + author.replace(" ", "%20");
 			}
 
-			String xml = DataUtils.getData(url);
+			String xml = dataUtils.getData(url);
 
 			if (StringUtils.isNoneEmpty(xml)) {
 				Document doc = Jsoup.parse(xml, "", Parser.xmlParser());
@@ -271,7 +274,7 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 			subject = StringUtils.stripAccents(subject).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ");
 
 			String url = endpoint + "search.xml?q=" + subject.replace(" ", "+") + "&key=" + key;
-			String xml = DataUtils.getData(url);
+			String xml = dataUtils.getData(url);
 
 			if (StringUtils.isNoneEmpty(xml)) {
 				Document doc = Jsoup.parse(xml, "", Parser.xmlParser());
@@ -315,7 +318,7 @@ public class GoodReadsServiceImpl implements GoodReadsService {
 
 		try {
 			String url = endpoint + "author/show/" + id + "?format=xml&key=" + key;
-			String xml = DataUtils.getData(url);
+			String xml = dataUtils.getData(url);
 
 			if (xml != null) {
 				Document doc = Jsoup.parse(xml, "", Parser.xmlParser());

@@ -1,12 +1,11 @@
 package com.martinia.indigo.adapters.out.sqlite.mapper;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.mapstruct.Mapper;
 
 import com.martinia.indigo.adapters.out.sqlite.entities.AuthorSqliteEntity;
-import com.martinia.indigo.domain.model.Author;
+import com.martinia.indigo.author.domain.model.Author;
 
 @Mapper(componentModel = "spring")
 public interface AuthorSqliteMapper {

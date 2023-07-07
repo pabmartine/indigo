@@ -1,7 +1,7 @@
 package com.martinia.indigo.book.infrastructure.api.recommendation;
 
-import com.martinia.indigo.adapters.in.rest.dtos.BookDto;
-import com.martinia.indigo.adapters.in.rest.mappers.BookDtoMapper;
+import com.martinia.indigo.book.infrastructure.model.BookDto;
+import com.martinia.indigo.book.infrastructure.mapper.BookDtoMapper;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.service.recommendation.FindBookRecommendationsByBookUseCase;
 import org.springframework.http.HttpStatus;

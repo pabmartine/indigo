@@ -1,6 +1,6 @@
 package com.martinia.indigo.book.infrastructure.api.cover;
 
-import com.martinia.indigo.adapters.in.rest.mappers.BookDtoMapper;
+import com.martinia.indigo.book.infrastructure.mapper.BookDtoMapper;
 import com.martinia.indigo.book.domain.service.cover.FindBookCoverByPathUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

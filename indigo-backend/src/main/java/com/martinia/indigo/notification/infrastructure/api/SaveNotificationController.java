@@ -1,7 +1,7 @@
 package com.martinia.indigo.notification.infrastructure.api;
 
-import com.martinia.indigo.adapters.in.rest.dtos.NotificationDto;
-import com.martinia.indigo.adapters.in.rest.mappers.NotificationDtoMapper;
+import com.martinia.indigo.notification.infrastructure.model.NotificationDto;
+import com.martinia.indigo.notification.infrastructure.mapper.NotificationDtoMapper;
 import com.martinia.indigo.notification.domain.service.SaveNotificationUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,7 +21,7 @@ public class SaveNotificationController {
 	private SaveNotificationUseCase useCase;
 
 	@Resource
-	protected NotificationDtoMapper mapper;
+	private NotificationDtoMapper mapper;
 
 	@PutMapping(value = "/save", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Void> save(@RequestBody NotificationDto notificationDto) {

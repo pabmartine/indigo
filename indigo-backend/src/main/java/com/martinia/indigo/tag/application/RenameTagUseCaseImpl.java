@@ -6,14 +6,15 @@ import com.martinia.indigo.tag.domain.service.RenameTagUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class RenameTagUseCaseImpl implements RenameTagUseCase {
 
-	@Autowired
-	TagRepository tagRepository;
+	@Resource
+	private TagRepository tagRepository;
 
 	@Override
 	public void rename(final String source, final String target) {

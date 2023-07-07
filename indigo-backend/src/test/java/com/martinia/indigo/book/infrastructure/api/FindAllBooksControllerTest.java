@@ -2,7 +2,7 @@ package com.martinia.indigo.book.infrastructure.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.adapters.in.rest.dtos.BookDto;
+import com.martinia.indigo.book.infrastructure.model.BookDto;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.service.FindAllBooksUseCase;
 import org.junit.jupiter.api.Assertions;

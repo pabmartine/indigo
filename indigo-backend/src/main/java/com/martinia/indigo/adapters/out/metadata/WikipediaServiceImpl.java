@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.Arrays;
 
 @Slf4j
@@ -16,6 +17,9 @@ import java.util.Arrays;
 public class WikipediaServiceImpl implements WikipediaService {
 
     private String PROVIDER = "Wikipedia";
+
+    @Resource
+    private DataUtils dataUtils;
 
     @Override
     public String[] findAuthor(String subject, String lang, int cont) {
@@ -32,7 +36,7 @@ public class WikipediaServiceImpl implements WikipediaService {
                 + subject.replace(" ", "%20");
         try {
 
-            String json = DataUtils.getData(url);
+            String json = dataUtils.getData(url);
 
             if (StringUtils.isNoneEmpty(json)) {
 
@@ -104,7 +108,7 @@ public class WikipediaServiceImpl implements WikipediaService {
                 + ".wikipedia.org/w/api.php?format=json&action=query&prop=extracts|pageimages&exintro&explaintext&generator=search&gsrlimit=1&redirects=1&piprop=original&gsrsearch="
                 + subject.replace(" ", "%20");
         try {
-            String json = DataUtils.getData(url);
+            String json = dataUtils.getData(url);
 
             if (StringUtils.isNoneEmpty(json)) {
 

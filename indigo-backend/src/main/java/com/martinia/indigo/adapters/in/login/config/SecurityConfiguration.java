@@ -1,7 +1,6 @@
 package com.martinia.indigo.adapters.in.login.config;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +21,7 @@ import com.martinia.indigo.adapters.in.login.filters.JWTAuthenticationFilter;
 import com.martinia.indigo.adapters.in.login.filters.JWTAuthorizationFilter;
 import com.martinia.indigo.adapters.in.login.service.LoginService;
 import com.martinia.indigo.adapters.in.login.utils.JWTParserComponent;
-import com.martinia.indigo.adapters.in.rest.error.Http401UnauthorizedEntryPoint;
+import com.martinia.indigo.common.error.infrastructure.Http401UnauthorizedEntryPoint;
 
 @Configuration
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {

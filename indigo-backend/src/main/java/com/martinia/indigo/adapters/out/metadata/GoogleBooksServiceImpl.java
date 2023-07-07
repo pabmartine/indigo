@@ -8,6 +8,7 @@ import org.springframework.boot.json.JsonParser;
 import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.*;
 
 @Slf4j
@@ -17,6 +18,9 @@ public class GoogleBooksServiceImpl implements GoogleBooksService {
     private String endpoint = "https://www.googleapis.com/books/v1/volumes?q=";
 
     private String PROVIDER = "Google Books";
+
+    @Resource
+    private DataUtils dataUtils;
 
     @Override
     public String[] findBook(String title, List<String> authors) {
@@ -36,7 +40,7 @@ public class GoogleBooksServiceImpl implements GoogleBooksService {
                     .replaceAll(" ", "%20");
 
             String url = endpoint + "intitle:" + title;
-            String json = DataUtils.getData(url);
+            String json = dataUtils.getData(url);
 
             if (StringUtils.isNoneEmpty(json)) {
                 JsonParser springParser = JsonParserFactory.getJsonParser();

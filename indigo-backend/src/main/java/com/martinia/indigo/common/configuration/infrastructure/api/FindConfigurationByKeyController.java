@@ -1,7 +1,7 @@
 package com.martinia.indigo.common.configuration.infrastructure.api;
 
-import com.martinia.indigo.adapters.in.rest.dtos.ConfigurationDto;
-import com.martinia.indigo.adapters.in.rest.mappers.ConfigurationDtoMapper;
+import com.martinia.indigo.common.configuration.infrastructure.model.ConfigurationDto;
+import com.martinia.indigo.common.configuration.infrastructure.mapper.ConfigurationDtoMapper;
 import com.martinia.indigo.common.configuration.domain.service.FindConfigurationByKeyUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

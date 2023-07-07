@@ -6,13 +6,15 @@ import com.martinia.indigo.user.domain.service.FindAllUsersUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 @Service
 public class FindAllUsersUseCaseImpl implements FindAllUsersUseCase {
 
-	@Autowired
-	UserRepository userRepository;
+
+	@Resource
+	private UserRepository userRepository;
 
 	@Override
 	public List<User> findAll() {
