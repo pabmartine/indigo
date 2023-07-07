@@ -1,6 +1,6 @@
 package com.martinia.indigo.book.infrastructure.mapper;
 
-import com.martinia.indigo.adapters.in.rest.dtos.inner.ReviewDto;
+import com.martinia.indigo.book.infrastructure.model.ReviewDto;
 import com.martinia.indigo.domain.model.inner.Review;
 import org.mapstruct.Mapper;
 
