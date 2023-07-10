@@ -5,9 +5,10 @@ import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlArticle;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.martinia.indigo.common.model.Review;
+import com.martinia.indigo.metadata.domain.model.ProviderEnum;
+import com.martinia.indigo.metadata.domain.ports.adapters.libretranslate.DetectLibreTranslatePort;
+import com.martinia.indigo.metadata.domain.ports.adapters.libretranslate.TranslateLibreTranslatePort;
 import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsReviewsUseCase;
-import com.martinia.indigo.metadata.domain.ports.usecases.libretranslate.DetectLibreTranslateUseCase;
-import com.martinia.indigo.metadata.domain.ports.usecases.libretranslate.TranslateLibreTranslateUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -34,13 +35,11 @@ public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseC
 
 	private String endpoint = "https://www.goodreads.com/";
 
-	private String PROVIDER = "Goodreads";
+	@Resource
+	private DetectLibreTranslatePort detectLibreTranslatePort;
 
 	@Resource
-	private DetectLibreTranslateUseCase detectLibreTranslateUseCase;
-
-	@Resource
-	private TranslateLibreTranslateUseCase translateLibreTranslateUseCase;
+	private TranslateLibreTranslatePort translateLibreTranslatePort;
 
 	@Override
 	public List<Review> getReviews(String lang, String title, List<String> authors) {
@@ -143,9 +142,9 @@ public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseC
 				String comment = htmlArticle.getFirstChild().getNextSibling().getFirstChild().getNextSibling().getFirstChild()
 						.getFirstChild().getFirstChild().getFirstChild().asText();
 
-				String language = detectLibreTranslateUseCase.detect(comment);
+				String language = detectLibreTranslatePort.detect(comment);
 				Review review = Review.builder().comment(comment).name(name).date(date).rating(rating).title(title)
-						.lastMetadataSync(new Date()).provider(PROVIDER).build();
+						.lastMetadataSync(new Date()).provider(ProviderEnum.GOODREADS.name()).build();
 				if (language != null && !language.equals(lang)) {
 					foreignComments.add(review);
 				}
@@ -160,7 +159,7 @@ public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseC
 
 		if (reviews.size() < 10 && !CollectionUtils.isEmpty(foreignComments)) {
 			for (Review review : foreignComments) {
-				review.setComment(translateLibreTranslateUseCase.translate(review.getComment(), lang));
+				review.setComment(translateLibreTranslatePort.translate(review.getComment(), lang));
 				reviews.add(review);
 				if (reviews.size() == 10) {
 					break;

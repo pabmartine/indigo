@@ -1,4 +1,4 @@
-package com.martinia.indigo.ports.out.mongo;
+package com.martinia.indigo.book.domain.ports.repositories;
 
 import com.martinia.indigo.common.model.View;
 

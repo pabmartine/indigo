@@ -1,4 +1,4 @@
-package com.martinia.indigo.ports.out.calibre;
+package com.martinia.indigo.adapters.out.sqlite.service;
 
 import java.util.List;
 

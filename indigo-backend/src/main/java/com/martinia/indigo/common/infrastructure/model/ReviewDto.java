@@ -1,4 +1,4 @@
-package com.martinia.indigo.book.infrastructure.model;
+package com.martinia.indigo.common.infrastructure.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

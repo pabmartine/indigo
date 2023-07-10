@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.martinia.indigo.common.util.DataUtils;
+import com.martinia.indigo.metadata.domain.model.ProviderEnum;
 import com.martinia.indigo.metadata.domain.ports.usecases.wikipedia.FindWikipediaAuthorInfoUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -15,8 +16,6 @@ import java.util.Arrays;
 @Slf4j
 @Service
 public class FindWikipediaAuthorInfoUseCaseImpl implements FindWikipediaAuthorInfoUseCase {
-
-	private String PROVIDER = "Wikipedia";
 
 	@Resource
 	private DataUtils dataUtils;
@@ -58,7 +57,7 @@ public class FindWikipediaAuthorInfoUseCaseImpl implements FindWikipediaAuthorIn
 							.filter(term -> filterTitle.contains(StringUtils.stripAccents(term).toLowerCase().trim())).count();
 
 					if (terms.length == 1 && hasTerms > 0 || terms.length > 1 && hasTerms > 1) {
-						ret = new String[] { extract.asText(), source != null ? source.asText() : null, PROVIDER };
+						ret = new String[] { extract.asText(), source != null ? source.asText() : null, ProviderEnum.WIKIPEDIA.name() };
 					}
 
 				}

@@ -1,6 +1,7 @@
 package com.martinia.indigo.metadata.application.goodreads;
 
 import com.martinia.indigo.common.util.DataUtils;
+import com.martinia.indigo.metadata.domain.model.ProviderEnum;
 import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsBookUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -20,8 +21,6 @@ import java.util.stream.Collectors;
 public class FindGoodReadsBookUseCaseImpl implements FindGoodReadsBookUseCase {
 
 	private String endpoint = "https://www.goodreads.com/";
-
-	private String PROVIDER = "Goodreads";
 
 	@Resource
 	private DataUtils dataUtils;
@@ -88,7 +87,7 @@ public class FindGoodReadsBookUseCaseImpl implements FindGoodReadsBookUseCase {
 								}).collect(Collectors.joining("#;#"));
 
 								if (StringUtils.isNoneEmpty(similar)) {
-									return new String[] { String.valueOf(rating), similar, PROVIDER };
+									return new String[] { String.valueOf(rating), similar, ProviderEnum.GOODREADS.name() };
 								}
 
 							}

@@ -3,6 +3,7 @@ package com.martinia.indigo.book.infrastructure.model;
 import java.io.Serializable;
 import java.util.List;
 
+import com.martinia.indigo.common.infrastructure.model.ReviewDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

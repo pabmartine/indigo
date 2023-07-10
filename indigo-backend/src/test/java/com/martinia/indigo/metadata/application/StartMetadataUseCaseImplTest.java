@@ -42,7 +42,6 @@ public class StartMetadataUseCaseImplTest extends BaseIndigoTest {
 	private FindAmazonReviewsUseCase findAmazonReviewsUseCase;
 	@MockBean
 	private ConfigurationRepository mockConfigurationRepository;
-
 	@Resource
 	private StartMetadataUseCase startMetadataUseCase;
 
@@ -55,10 +54,10 @@ public class StartMetadataUseCaseImplTest extends BaseIndigoTest {
 
 		Mockito.when(mockConfigurationRepository.findByKey("goodreads.key"))
 				.thenReturn(Optional.of(new Configuration("goodreads.key", "123456")));
-		Mockito.when(mockConfigurationRepository.findByKey("metadata.pull"))
-				.thenReturn(Optional.of(new Configuration("metadata.pull", "1000")));
-		Mockito.when(mockConfigurationRepository.findByKey("metadata.pull"))
-				.thenReturn(Optional.of(new Configuration("metadata.pull", "1000")));
+//		Mockito.when(mockConfigurationRepository.findByKey("metadata.pull"))
+//				.thenReturn(Optional.of(new Configuration("metadata.pull", "1000")));
+//		Mockito.when(mockConfigurationRepository.findByKey("metadata.pull"))
+//				.thenReturn(Optional.of(new Configuration("metadata.pull", "1000")));
 
 		// When
 		startMetadataUseCase.start(lang, type, entity);

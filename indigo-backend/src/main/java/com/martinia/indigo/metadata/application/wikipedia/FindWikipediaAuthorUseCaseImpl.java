@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.martinia.indigo.common.util.DataUtils;
-import com.martinia.indigo.metadata.domain.ports.usecases.wikipedia.FindWikipediaAuthorInfoUseCase;
+import com.martinia.indigo.metadata.domain.ports.adapters.wikipedia.FindWikipediaAuthorInfoPort;
 import com.martinia.indigo.metadata.domain.ports.usecases.wikipedia.FindWikipediaAuthorUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -20,7 +20,7 @@ public class FindWikipediaAuthorUseCaseImpl implements FindWikipediaAuthorUseCas
 	private String PROVIDER = "Wikipedia";
 
 	@Resource
-	private FindWikipediaAuthorInfoUseCase findWikipediaAuthorInfoUseCase;
+	private FindWikipediaAuthorInfoPort findWikipediaAuthorInfoPort;
 	@Resource
 	private DataUtils dataUtils;
 
@@ -79,7 +79,7 @@ public class FindWikipediaAuthorUseCaseImpl implements FindWikipediaAuthorUseCas
 				}
 
 				if (StringUtils.isNotEmpty(strTitle)) {
-					ret = findWikipediaAuthorInfoUseCase.getAuthorInfo(strTitle, lang);
+					ret = findWikipediaAuthorInfoPort.getAuthorInfo(strTitle, lang);
 				}
 			}
 		}

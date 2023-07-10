@@ -16,7 +16,6 @@ import com.martinia.indigo.adapters.out.sqlite.repository.BookSqliteRepository;
 import com.martinia.indigo.author.domain.model.Author;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.common.model.Search;
-import com.martinia.indigo.ports.out.calibre.CalibreRepository;
 
 @Component
 public class CalibreRepositoryImpl implements CalibreRepository {

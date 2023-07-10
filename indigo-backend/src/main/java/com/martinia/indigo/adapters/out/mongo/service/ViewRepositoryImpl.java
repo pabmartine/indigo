@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import com.martinia.indigo.adapters.out.mongo.mapper.ViewMongoMapper;
 import com.martinia.indigo.adapters.out.mongo.repository.ViewMongoRepository;
 import com.martinia.indigo.common.model.View;
-import com.martinia.indigo.ports.out.mongo.ViewRepository;
+import com.martinia.indigo.book.domain.ports.repositories.ViewRepository;
 
 @Component
 public class ViewRepositoryImpl implements ViewRepository {

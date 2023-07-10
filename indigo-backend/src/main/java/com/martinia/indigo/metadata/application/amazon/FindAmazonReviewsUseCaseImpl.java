@@ -5,6 +5,7 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlDivision;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.martinia.indigo.common.model.Review;
+import com.martinia.indigo.metadata.domain.model.ProviderEnum;
 import com.martinia.indigo.metadata.domain.ports.usecases.amazon.FindAmazonReviewsUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -27,8 +28,6 @@ import java.util.stream.Collectors;
 public class FindAmazonReviewsUseCaseImpl implements FindAmazonReviewsUseCase {
 
 	private static SimpleDateFormat SDF = new SimpleDateFormat("d MMMM yyyy");
-
-	private String PROVIDER = "Amazon";
 
 	@Override
 	public List<Review> getReviews(String title, List<String> authors) {
@@ -150,7 +149,7 @@ public class FindAmazonReviewsUseCaseImpl implements FindAmazonReviewsUseCase {
 						.getNextSibling().getNextSibling().getFirstChild().getFirstChild().getNextSibling().getFirstChild().asText();
 
 				reviews.add(Review.builder().comment(comment).name(name).date(date).rating(rating).title(title).lastMetadataSync(new Date())
-						.provider(PROVIDER).build());
+						.provider(ProviderEnum.WIKIPEDIA.name()).build());
 			}
 			catch (Exception e) {
 				log.error(e.getMessage());

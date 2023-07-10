@@ -2,7 +2,7 @@ package com.martinia.indigo.book.application.view;
 
 import com.martinia.indigo.book.domain.ports.usecases.view.MarkBookAsViewUseCase;
 import com.martinia.indigo.common.model.View;
-import com.martinia.indigo.ports.out.mongo.ViewRepository;
+import com.martinia.indigo.book.domain.ports.repositories.ViewRepository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

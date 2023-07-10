@@ -1,6 +1,7 @@
 package com.martinia.indigo.metadata.application.google;
 
 import com.martinia.indigo.common.util.DataUtils;
+import com.martinia.indigo.metadata.domain.model.ProviderEnum;
 import com.martinia.indigo.metadata.domain.ports.usecases.google.FindGoogleBooksBookUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -16,8 +17,6 @@ import java.util.*;
 public class FindGoogleBooksBookUseCaseImpl implements FindGoogleBooksBookUseCase {
 
     private String endpoint = "https://www.googleapis.com/books/v1/volumes?q=";
-
-    private String PROVIDER = "Google Books";
 
     @Resource
     private DataUtils dataUtils;
@@ -93,7 +92,7 @@ public class FindGoogleBooksBookUseCaseImpl implements FindGoogleBooksBookUseCas
                                         if (volumeInfo.get("averageRating") != null) {
                                             String rating = volumeInfo.get("averageRating")
                                                     .toString();
-                                            return new String[]{rating, PROVIDER};
+                                            return new String[]{rating, ProviderEnum.GOOGLE.name()};
                                         }
                                     }
                                     return null;

@@ -1,6 +1,7 @@
 package com.martinia.indigo.metadata.application.goodreads;
 
 import com.martinia.indigo.common.util.DataUtils;
+import com.martinia.indigo.metadata.domain.model.ProviderEnum;
 import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsAuthorUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -18,8 +19,6 @@ import java.util.Arrays;
 public class FindGoodReadsAuthorUseCaseImpl implements FindGoodReadsAuthorUseCase {
 
 	private String endpoint = "https://www.goodreads.com/";
-
-	private String PROVIDER = "Goodreads";
 
 	@Resource
 	private DataUtils dataUtils;
@@ -96,7 +95,7 @@ public class FindGoodReadsAuthorUseCaseImpl implements FindGoodReadsAuthorUseCas
 					String image = doc.select("author").select("image_url").get(0).text();
 
 					if (StringUtils.isNotEmpty(name)) {
-						ret = new String[] { description, image, PROVIDER };
+						ret = new String[] { description, image, ProviderEnum.GOODREADS.name() };
 					}
 				}
 			}
