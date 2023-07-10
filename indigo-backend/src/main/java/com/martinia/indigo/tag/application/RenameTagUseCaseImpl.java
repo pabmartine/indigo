@@ -1,14 +1,10 @@
 package com.martinia.indigo.tag.application;
 
-import com.martinia.indigo.tag.domain.model.Tag;
-import com.martinia.indigo.tag.domain.repository.TagRepository;
-import com.martinia.indigo.tag.domain.service.RenameTagUseCase;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
+import com.martinia.indigo.tag.domain.ports.usecases.RenameTagUseCase;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class RenameTagUseCaseImpl implements RenameTagUseCase {

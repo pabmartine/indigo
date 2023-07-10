@@ -1,6 +1,6 @@
 package com.martinia.indigo.configuration.infrastructure.api;
 
-import com.martinia.indigo.configuration.domain.service.FindConfigurationByKeyUseCase;
+import com.martinia.indigo.configuration.domain.ports.usecases.FindConfigurationByKeyUseCase;
 import com.martinia.indigo.configuration.infrastructure.mapper.ConfigurationDtoMapper;
 import com.martinia.indigo.configuration.infrastructure.model.ConfigurationDto;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,7 @@
 package com.martinia.indigo.metadata.application;
 
 import com.martinia.indigo.metadata.application.common.BaseMetadataUseCaseImpl;
-import com.martinia.indigo.metadata.domain.service.StartMetadataUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.StartMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;

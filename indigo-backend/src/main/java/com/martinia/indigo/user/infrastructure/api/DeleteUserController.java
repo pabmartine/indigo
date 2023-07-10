@@ -1,7 +1,7 @@
 package com.martinia.indigo.user.infrastructure.api;
 
 import com.martinia.indigo.user.infrastructure.mapper.UserDtoMapper;
-import com.martinia.indigo.user.domain.service.DeleteUserUseCase;
+import com.martinia.indigo.user.domain.ports.usecases.DeleteUserUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

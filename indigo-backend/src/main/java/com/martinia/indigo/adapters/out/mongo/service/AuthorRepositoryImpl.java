@@ -4,7 +4,7 @@ import com.martinia.indigo.adapters.out.mongo.entities.AuthorMongoEntity;
 import com.martinia.indigo.adapters.out.mongo.mapper.AuthorMongoMapper;
 import com.martinia.indigo.adapters.out.mongo.repository.AuthorMongoRepository;
 import com.martinia.indigo.author.domain.model.Author;
-import com.martinia.indigo.author.domain.repository.AuthorRepository;
+import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;

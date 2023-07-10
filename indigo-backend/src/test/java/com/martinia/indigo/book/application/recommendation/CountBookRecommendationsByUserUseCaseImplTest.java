@@ -1,8 +1,8 @@
 package com.martinia.indigo.book.application.recommendation;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.book.domain.repository.BookRepository;
-import com.martinia.indigo.book.domain.service.recommendation.CountBookRecommendationsByUserUseCase;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
+import com.martinia.indigo.book.domain.ports.usecases.recommendation.CountBookRecommendationsByUserUseCase;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 

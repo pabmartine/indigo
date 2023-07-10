@@ -3,7 +3,7 @@ package com.martinia.indigo.author.infrastructure.api;
 import com.martinia.indigo.author.infrastructure.model.AuthorDto;
 import com.martinia.indigo.author.infrastructure.mapper.AuthorDtoMapper;
 import com.martinia.indigo.author.domain.model.Author;
-import com.martinia.indigo.author.domain.service.FindAllAuthorsUseCase;
+import com.martinia.indigo.author.domain.ports.usecases.FindAllAuthorsUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

@@ -2,8 +2,8 @@ package com.martinia.indigo.book.application.serie;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.repository.BookRepository;
-import com.martinia.indigo.book.domain.service.serie.FindBooksBySerieUseCase;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
+import com.martinia.indigo.book.domain.ports.usecases.serie.FindBooksBySerieUseCase;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 

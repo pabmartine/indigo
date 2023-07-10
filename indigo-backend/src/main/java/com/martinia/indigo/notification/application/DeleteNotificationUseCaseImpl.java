@@ -1,7 +1,7 @@
 package com.martinia.indigo.notification.application;
 
-import com.martinia.indigo.notification.domain.repository.NotificationRepository;
-import com.martinia.indigo.notification.domain.service.DeleteNotificationUseCase;
+import com.martinia.indigo.notification.domain.ports.repositories.NotificationRepository;
+import com.martinia.indigo.notification.domain.ports.usecases.DeleteNotificationUseCase;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

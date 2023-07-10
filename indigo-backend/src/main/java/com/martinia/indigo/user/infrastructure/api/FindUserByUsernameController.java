@@ -3,7 +3,7 @@ package com.martinia.indigo.user.infrastructure.api;
 import com.martinia.indigo.user.infrastructure.model.UserDto;
 import com.martinia.indigo.user.infrastructure.mapper.UserDtoMapper;
 import com.martinia.indigo.user.domain.model.User;
-import com.martinia.indigo.user.domain.service.FindUserByUsernameUseCase;
+import com.martinia.indigo.user.domain.ports.usecases.FindUserByUsernameUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

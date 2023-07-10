@@ -2,13 +2,15 @@ package com.martinia.indigo.metadata.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.configuration.domain.model.Configuration;
-import com.martinia.indigo.configuration.domain.repository.ConfigurationRepository;
+import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
 import com.martinia.indigo.common.util.DataUtils;
-import com.martinia.indigo.metadata.domain.service.StartMetadataUseCase;
-import com.martinia.indigo.ports.out.metadata.AmazonService;
-import com.martinia.indigo.ports.out.metadata.GoodReadsService;
-import com.martinia.indigo.ports.out.metadata.GoogleBooksService;
-import com.martinia.indigo.ports.out.metadata.WikipediaService;
+import com.martinia.indigo.metadata.domain.ports.usecases.StartMetadataUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.amazon.FindAmazonReviewsUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsAuthorUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsBookUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsReviewsUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.google.FindGoogleBooksBookUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.wikipedia.FindWikipediaAuthorUseCase;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -22,16 +24,22 @@ public class StartMetadataUseCaseImplTest extends BaseIndigoTest {
 	private DataUtils dataUtils;
 
 	@MockBean
-	private GoodReadsService goodReadsService;
+	private FindGoodReadsBookUseCase findGoodReadsBookUseCase;
 
 	@MockBean
-	private WikipediaService wikipediaService;
+	private FindGoodReadsAuthorUseCase findGoodReadsAuthorUseCase;
 
 	@MockBean
-	private GoogleBooksService googleBooksService;
+	private FindGoodReadsReviewsUseCase findGoodReadsReviewsUseCase;
 
 	@MockBean
-	private AmazonService amazonService;
+	private FindWikipediaAuthorUseCase findWikipediaAuthorUseCase;
+
+	@MockBean
+	private FindGoogleBooksBookUseCase findGoogleBooksBookUseCase;
+
+	@MockBean
+	private FindAmazonReviewsUseCase findAmazonReviewsUseCase;
 	@MockBean
 	private ConfigurationRepository mockConfigurationRepository;
 

@@ -1,7 +1,7 @@
 package com.martinia.indigo.configuration.infrastructure.api;
 
 import com.martinia.indigo.configuration.domain.model.Configuration;
-import com.martinia.indigo.configuration.domain.service.SaveConfigurationsUseCase;
+import com.martinia.indigo.configuration.domain.ports.usecases.SaveConfigurationsUseCase;
 import com.martinia.indigo.configuration.infrastructure.mapper.ConfigurationDtoMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

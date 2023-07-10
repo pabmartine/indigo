@@ -1,6 +1,6 @@
 package com.martinia.indigo.book.infrastructure.api.language;
 
-import com.martinia.indigo.book.domain.service.language.FindBookLanguagesUseCase;
+import com.martinia.indigo.book.domain.ports.usecases.language.FindBookLanguagesUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

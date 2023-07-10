@@ -1,6 +1,6 @@
 package com.martinia.indigo.tag.infrastructure.api;
 
-import com.martinia.indigo.tag.domain.service.MergeTagUseCase;
+import com.martinia.indigo.tag.domain.ports.usecases.MergeTagUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

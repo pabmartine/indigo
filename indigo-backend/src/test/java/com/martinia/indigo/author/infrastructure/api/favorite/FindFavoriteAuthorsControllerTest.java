@@ -4,7 +4,7 @@ import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.author.infrastructure.model.AuthorDto;
 import com.martinia.indigo.author.infrastructure.mapper.AuthorDtoMapper;
 import com.martinia.indigo.author.domain.model.Author;
-import com.martinia.indigo.author.domain.service.favorite.FindFavoriteAuthorsUseCase;
+import com.martinia.indigo.author.domain.ports.usecases.favorite.FindFavoriteAuthorsUseCase;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;

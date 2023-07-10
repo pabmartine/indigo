@@ -1,7 +1,7 @@
 package com.martinia.indigo.book.infrastructure.api.resource;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.book.domain.service.resource.ObtainBookByPathUseCase;
+import com.martinia.indigo.book.domain.ports.usecases.resource.ObtainBookByPathUseCase;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;

@@ -1,7 +1,7 @@
 package com.martinia.indigo.book.application.recommendation;
 
-import com.martinia.indigo.book.domain.repository.BookRepository;
-import com.martinia.indigo.book.domain.service.recommendation.CountBookRecommendationsByUserUseCase;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
+import com.martinia.indigo.book.domain.ports.usecases.recommendation.CountBookRecommendationsByUserUseCase;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

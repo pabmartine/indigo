@@ -5,7 +5,7 @@ import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.notification.infrastructure.model.NotificationDto;
 import com.martinia.indigo.notification.infrastructure.mapper.NotificationDtoMapper;
 import com.martinia.indigo.notification.domain.model.Notification;
-import com.martinia.indigo.notification.domain.service.SaveNotificationUseCase;
+import com.martinia.indigo.notification.domain.ports.usecases.SaveNotificationUseCase;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;

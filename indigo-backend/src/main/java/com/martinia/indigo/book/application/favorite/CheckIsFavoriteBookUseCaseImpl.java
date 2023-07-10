@@ -1,7 +1,7 @@
 package com.martinia.indigo.book.application.favorite;
 
-import com.martinia.indigo.book.domain.service.favorite.CheckIsFavoriteBookUseCase;
-import com.martinia.indigo.user.domain.repository.UserRepository;
+import com.martinia.indigo.book.domain.ports.usecases.favorite.CheckIsFavoriteBookUseCase;
+import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

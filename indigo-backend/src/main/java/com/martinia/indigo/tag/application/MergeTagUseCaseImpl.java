@@ -1,8 +1,7 @@
 package com.martinia.indigo.tag.application;
 
-import com.martinia.indigo.tag.domain.repository.TagRepository;
-import com.martinia.indigo.tag.domain.service.MergeTagUseCase;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
+import com.martinia.indigo.tag.domain.ports.usecases.MergeTagUseCase;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

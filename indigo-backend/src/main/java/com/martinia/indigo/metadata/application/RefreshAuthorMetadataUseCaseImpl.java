@@ -2,7 +2,7 @@ package com.martinia.indigo.metadata.application;
 
 import com.martinia.indigo.author.domain.model.Author;
 import com.martinia.indigo.metadata.application.common.BaseMetadataUseCaseImpl;
-import com.martinia.indigo.metadata.domain.service.RefreshAuthorMetadataUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.RefreshAuthorMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

@@ -1,21 +1,24 @@
 package com.martinia.indigo.metadata.application.common;
 
 import com.martinia.indigo.author.domain.model.Author;
-import com.martinia.indigo.author.domain.repository.AuthorRepository;
+import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.repository.BookRepository;
-import com.martinia.indigo.configuration.domain.repository.ConfigurationRepository;
-import com.martinia.indigo.common.model.Search;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.common.model.NumBooks;
 import com.martinia.indigo.common.model.Review;
+import com.martinia.indigo.common.model.Search;
 import com.martinia.indigo.common.singletons.MetadataSingleton;
 import com.martinia.indigo.common.util.UtilComponent;
+import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
+import com.martinia.indigo.metadata.domain.ports.usecases.amazon.FindAmazonReviewsUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsAuthorUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsBookUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsReviewsUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.google.FindGoogleBooksBookUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.wikipedia.FindWikipediaAuthorInfoUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.wikipedia.FindWikipediaAuthorUseCase;
 import com.martinia.indigo.ports.out.calibre.CalibreRepository;
-import com.martinia.indigo.ports.out.metadata.AmazonService;
-import com.martinia.indigo.ports.out.metadata.GoodReadsService;
-import com.martinia.indigo.ports.out.metadata.GoogleBooksService;
-import com.martinia.indigo.ports.out.metadata.WikipediaService;
-import com.martinia.indigo.tag.domain.repository.TagRepository;
+import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -45,16 +48,25 @@ public class BaseMetadataUseCaseImpl {
 	protected ConfigurationRepository configurationRepository;
 
 	@Resource
-	private WikipediaService wikipediaComponent;
+	private FindWikipediaAuthorUseCase findWikipediaAuthorUseCase;
 
 	@Resource
-	private GoodReadsService goodReadsComponent;
+	private FindWikipediaAuthorInfoUseCase findWikipediaAuthorInfoUseCase;
 
 	@Resource
-	private GoogleBooksService googleBooksComponent;
+	private FindGoodReadsReviewsUseCase findGoodReadsReviewsUseCase;
 
 	@Resource
-	private AmazonService amazonService;
+	private FindGoodReadsAuthorUseCase findGoodReadsAuthorUseCase;
+
+	@Resource
+	private FindGoodReadsBookUseCase findGoodReadsBookUseCase;
+
+	@Resource
+	private FindGoogleBooksBookUseCase googleBooksComponent;
+
+	@Resource
+	private FindAmazonReviewsUseCase findAmazonReviewsUseCase;
 
 	@Resource
 	private CalibreRepository calibreRepository;
@@ -292,14 +304,14 @@ public class BaseMetadataUseCaseImpl {
 				author.setImage(null);
 				author.setProvider(null);
 
-				String[] wikipedia = wikipediaComponent.findAuthor(author.getName(), lang, 0);
+				String[] wikipedia = findWikipediaAuthorUseCase.findAuthor(author.getName(), lang, 0);
 
 				if (wikipedia == null && !lang.equals("en")) {
-					wikipedia = wikipediaComponent.findAuthor(author.getName(), "en", 0);
+					wikipedia = findWikipediaAuthorUseCase.findAuthor(author.getName(), "en", 0);
 				}
 
 				if (wikipedia == null || wikipedia[1] == null) {
-					String[] goodReads = goodReadsComponent.findAuthor(goodreads, author.getName());
+					String[] goodReads = findGoodReadsAuthorUseCase.findAuthor(goodreads, author.getName());
 					if (goodReads != null) {
 						author.setDescription(goodReads[0]);
 						author.setImage(goodReads[1]);
@@ -369,7 +381,7 @@ public class BaseMetadataUseCaseImpl {
 					Thread.sleep(pullTime);
 				}
 
-				String[] bookData = goodReadsComponent.findBook(goodreads, book.getTitle(), book.getAuthors(), false);
+				String[] bookData = findGoodReadsBookUseCase.findBook(goodreads, book.getTitle(), book.getAuthors(), false);
 
 				lastExecution = System.currentTimeMillis();
 
@@ -422,31 +434,14 @@ public class BaseMetadataUseCaseImpl {
 
 	private List<Review> findReviewMetadata(boolean override, String lang, Book book) {
 		if (override || refreshReviewMetadata(book.getReviews())) {
-			List<Review> reviews = goodReadsComponent.getReviews(lang, book.getTitle(), book.getAuthors());
+			List<Review> reviews = findGoodReadsReviewsUseCase.getReviews(lang, book.getTitle(), book.getAuthors());
 			if (CollectionUtils.isEmpty(reviews)) {
-				reviews = amazonService.getReviews(book.getTitle(), book.getAuthors());
+				reviews = findAmazonReviewsUseCase.getReviews(book.getTitle(), book.getAuthors());
 			}
 			return reviews;
 		}
 		return book.getReviews();
 	}
-
-	//	@Override
-	//	public List<Review> getReviews(String path) {
-	//		return bookRepository.findByPath(path).map(book -> {
-	//			if (CollectionUtils.isEmpty(book.getReviews())) {
-	//				List<Review> reviews = goodReadsComponent.getReviews(book.getTitle(), book.getAuthors());
-	//				if (CollectionUtils.isEmpty(reviews)) {
-	//					reviews = amazonService.getReviews(book.getTitle(), book.getAuthors());
-	//				}
-	//				if (!CollectionUtils.isEmpty(reviews)) {
-	//					book.setReviews(reviews);
-	//					bookRepository.save(book);
-	//				}
-	//			}
-	//			return book.getReviews();
-	//		}).orElse(null);
-	//	}
 
 	private Book findBookRecommendations(Book book) {
 

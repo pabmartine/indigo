@@ -2,7 +2,7 @@ package com.martinia.indigo.book.infrastructure.api;
 
 import com.martinia.indigo.book.infrastructure.model.BookDto;
 import com.martinia.indigo.book.infrastructure.mapper.BookDtoMapper;
-import com.martinia.indigo.book.domain.service.FindBookByIdUseCase;
+import com.martinia.indigo.book.domain.ports.usecases.FindBookByIdUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

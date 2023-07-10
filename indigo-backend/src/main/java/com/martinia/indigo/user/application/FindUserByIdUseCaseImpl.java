@@ -1,9 +1,8 @@
 package com.martinia.indigo.user.application;
 
 import com.martinia.indigo.user.domain.model.User;
-import com.martinia.indigo.user.domain.repository.UserRepository;
-import com.martinia.indigo.user.domain.service.FindUserByIdUseCase;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
+import com.martinia.indigo.user.domain.ports.usecases.FindUserByIdUseCase;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

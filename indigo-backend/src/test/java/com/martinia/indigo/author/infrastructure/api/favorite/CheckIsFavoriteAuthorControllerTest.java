@@ -1,7 +1,7 @@
 package com.martinia.indigo.author.infrastructure.api.favorite;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.author.domain.service.favorite.CheckIsFavoriteAuthorUseCase;
+import com.martinia.indigo.author.domain.ports.usecases.favorite.CheckIsFavoriteAuthorUseCase;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;

@@ -1,7 +1,7 @@
 package com.martinia.indigo.metadata.application;
 
 import com.martinia.indigo.metadata.application.common.BaseMetadataUseCaseImpl;
-import com.martinia.indigo.metadata.domain.service.FindStatusMetadataUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.FindStatusMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

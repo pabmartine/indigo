@@ -1,8 +1,8 @@
 package com.martinia.indigo.book.application.serie;
 
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.repository.BookRepository;
-import com.martinia.indigo.book.domain.service.serie.FindBooksBySerieUseCase;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
+import com.martinia.indigo.book.domain.ports.usecases.serie.FindBooksBySerieUseCase;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

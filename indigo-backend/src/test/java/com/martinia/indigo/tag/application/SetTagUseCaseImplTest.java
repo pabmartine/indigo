@@ -1,12 +1,9 @@
 package com.martinia.indigo.tag.application;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.tag.domain.repository.TagRepository;
-import com.martinia.indigo.tag.domain.service.SetTagImageUseCase;
+import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
+import com.martinia.indigo.tag.domain.ports.usecases.SetTagImageUseCase;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import javax.annotation.Resource;

@@ -3,7 +3,7 @@ package com.martinia.indigo.notification.infrastructure.api;
 import com.martinia.indigo.notification.infrastructure.model.NotificationDto;
 import com.martinia.indigo.notification.infrastructure.mapper.NotificationDtoMapper;
 import com.martinia.indigo.notification.domain.model.Notification;
-import com.martinia.indigo.notification.domain.service.FindAllNotificationsUseCase;
+import com.martinia.indigo.notification.domain.ports.usecases.FindAllNotificationsUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

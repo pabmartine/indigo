@@ -1,7 +1,7 @@
 package com.martinia.indigo.book.infrastructure.api.view;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.book.domain.service.view.MarkBookAsViewUseCase;
+import com.martinia.indigo.book.domain.ports.usecases.view.MarkBookAsViewUseCase;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithMockUser;

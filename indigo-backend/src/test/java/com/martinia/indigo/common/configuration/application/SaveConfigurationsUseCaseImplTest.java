@@ -3,7 +3,7 @@ package com.martinia.indigo.common.configuration.application;
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.configuration.application.SaveConfigurationsUseCaseImpl;
 import com.martinia.indigo.configuration.domain.model.Configuration;
-import com.martinia.indigo.configuration.domain.repository.ConfigurationRepository;
+import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 

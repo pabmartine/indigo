@@ -4,7 +4,7 @@ import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.notification.infrastructure.model.NotificationDto;
 import com.martinia.indigo.notification.infrastructure.mapper.NotificationDtoMapper;
 import com.martinia.indigo.notification.domain.model.Notification;
-import com.martinia.indigo.notification.domain.service.FindNotReadNotificationsByUserUseCase;
+import com.martinia.indigo.notification.domain.ports.usecases.FindNotReadNotificationsByUserUseCase;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.springframework.boot.test.mock.mockito.MockBean;

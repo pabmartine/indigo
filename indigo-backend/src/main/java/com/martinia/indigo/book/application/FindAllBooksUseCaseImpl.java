@@ -1,8 +1,8 @@
 package com.martinia.indigo.book.application;
 
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.repository.BookRepository;
-import com.martinia.indigo.book.domain.service.FindAllBooksUseCase;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
+import com.martinia.indigo.book.domain.ports.usecases.FindAllBooksUseCase;
 import com.martinia.indigo.common.model.Search;
 import org.springframework.stereotype.Service;
 

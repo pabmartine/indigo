@@ -2,8 +2,8 @@ package com.martinia.indigo.author.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.author.domain.model.Author;
-import com.martinia.indigo.author.domain.repository.AuthorRepository;
-import com.martinia.indigo.author.domain.service.FindAuthorsSortByNameUseCase;
+import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
+import com.martinia.indigo.author.domain.ports.usecases.FindAuthorsSortByNameUseCase;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 

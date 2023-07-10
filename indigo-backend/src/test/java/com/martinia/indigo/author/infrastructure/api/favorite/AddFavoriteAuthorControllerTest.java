@@ -1,7 +1,7 @@
 package com.martinia.indigo.author.infrastructure.api.favorite;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.author.domain.service.favorite.AddFavoriteAuthorUseCase;
+import com.martinia.indigo.author.domain.ports.usecases.favorite.AddFavoriteAuthorUseCase;
 import com.martinia.indigo.book.domain.model.Book;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

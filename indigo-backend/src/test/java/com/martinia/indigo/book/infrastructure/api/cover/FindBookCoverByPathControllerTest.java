@@ -2,7 +2,7 @@ package com.martinia.indigo.book.infrastructure.api.cover;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.infrastructure.mapper.BookDtoMapper;
-import com.martinia.indigo.book.domain.service.cover.FindBookCoverByPathUseCase;
+import com.martinia.indigo.book.domain.ports.usecases.cover.FindBookCoverByPathUseCase;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.springframework.boot.test.mock.mockito.MockBean;

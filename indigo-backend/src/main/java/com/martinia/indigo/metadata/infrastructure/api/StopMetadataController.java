@@ -1,6 +1,6 @@
 package com.martinia.indigo.metadata.infrastructure.api;
 
-import com.martinia.indigo.metadata.domain.service.StopMetadataUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.StopMetadataUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

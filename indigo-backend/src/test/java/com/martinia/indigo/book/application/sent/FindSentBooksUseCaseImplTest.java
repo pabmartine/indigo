@@ -2,8 +2,8 @@ package com.martinia.indigo.book.application.sent;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.service.sent.FindSentBooksUseCase;
-import com.martinia.indigo.notification.domain.repository.NotificationRepository;
+import com.martinia.indigo.book.domain.ports.usecases.sent.FindSentBooksUseCase;
+import com.martinia.indigo.notification.domain.ports.repositories.NotificationRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 

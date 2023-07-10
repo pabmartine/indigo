@@ -2,8 +2,8 @@ package com.martinia.indigo.notification.application;
 
 import com.martinia.indigo.notification.domain.model.NotificationEnum;
 import com.martinia.indigo.notification.domain.model.Notification;
-import com.martinia.indigo.notification.domain.repository.NotificationRepository;
-import com.martinia.indigo.notification.domain.service.FindAllNotificationsByUserUseCase;
+import com.martinia.indigo.notification.domain.ports.repositories.NotificationRepository;
+import com.martinia.indigo.notification.domain.ports.usecases.FindAllNotificationsByUserUseCase;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

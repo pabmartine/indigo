@@ -1,6 +1,6 @@
 package com.martinia.indigo.author.infrastructure.api.favorite;
 
-import com.martinia.indigo.author.domain.service.favorite.CheckIsFavoriteAuthorUseCase;
+import com.martinia.indigo.author.domain.ports.usecases.favorite.CheckIsFavoriteAuthorUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

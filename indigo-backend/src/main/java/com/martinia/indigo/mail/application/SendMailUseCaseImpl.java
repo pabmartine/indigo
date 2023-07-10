@@ -1,7 +1,7 @@
 package com.martinia.indigo.mail.application;
 
 import com.martinia.indigo.mail.domain.EmailConfiguration;
-import com.martinia.indigo.mail.domain.service.SendMailUseCase;
+import com.martinia.indigo.mail.domain.ports.usecases.SendMailUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.MailException;

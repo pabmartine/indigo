@@ -1,6 +1,6 @@
 package com.martinia.indigo.notification.infrastructure.api;
 
-import com.martinia.indigo.notification.domain.service.MarkAsReadNotificationUseCase;
+import com.martinia.indigo.notification.domain.ports.usecases.MarkAsReadNotificationUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

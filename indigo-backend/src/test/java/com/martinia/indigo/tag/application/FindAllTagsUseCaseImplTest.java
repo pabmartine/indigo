@@ -3,8 +3,8 @@ package com.martinia.indigo.tag.application;
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.common.model.NumBooks;
 import com.martinia.indigo.tag.domain.model.Tag;
-import com.martinia.indigo.tag.domain.repository.TagRepository;
-import com.martinia.indigo.tag.domain.service.FindAllTagsUseCase;
+import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
+import com.martinia.indigo.tag.domain.ports.usecases.FindAllTagsUseCase;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 

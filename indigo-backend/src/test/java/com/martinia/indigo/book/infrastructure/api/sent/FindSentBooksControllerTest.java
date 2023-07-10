@@ -4,7 +4,7 @@ import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.infrastructure.model.BookDto;
 import com.martinia.indigo.book.infrastructure.mapper.BookDtoMapper;
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.service.sent.FindSentBooksUseCase;
+import com.martinia.indigo.book.domain.ports.usecases.sent.FindSentBooksUseCase;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;

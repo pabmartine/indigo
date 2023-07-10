@@ -1,6 +1,6 @@
 package com.martinia.indigo.author.infrastructure.api;
 
-import com.martinia.indigo.author.domain.service.CountAllAuthorsUseCase;
+import com.martinia.indigo.author.domain.ports.usecases.CountAllAuthorsUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

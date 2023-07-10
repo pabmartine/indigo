@@ -1,7 +1,7 @@
 package com.martinia.indigo.book.application.cover;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.book.domain.service.cover.FindBookCoverByPathUseCase;
+import com.martinia.indigo.book.domain.ports.usecases.cover.FindBookCoverByPathUseCase;
 import com.martinia.indigo.common.util.UtilComponent;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;

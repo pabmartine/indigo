@@ -5,7 +5,7 @@ import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.user.infrastructure.model.UserDto;
 import com.martinia.indigo.user.infrastructure.mapper.UserDtoMapper;
 import com.martinia.indigo.user.domain.model.User;
-import com.martinia.indigo.user.domain.service.FindUserByUsernameUseCase;
+import com.martinia.indigo.user.domain.ports.usecases.FindUserByUsernameUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

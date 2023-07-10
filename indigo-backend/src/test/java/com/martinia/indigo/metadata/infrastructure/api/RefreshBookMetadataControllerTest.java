@@ -4,7 +4,7 @@ import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.infrastructure.model.BookDto;
 import com.martinia.indigo.book.infrastructure.mapper.BookDtoMapper;
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.metadata.domain.service.RefreshBookMetadataUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.RefreshBookMetadataUseCase;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;

@@ -1,7 +1,7 @@
 package com.martinia.indigo.user.application;
 
-import com.martinia.indigo.user.domain.repository.UserRepository;
-import com.martinia.indigo.user.domain.service.DeleteUserUseCase;
+import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
+import com.martinia.indigo.user.domain.ports.usecases.DeleteUserUseCase;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

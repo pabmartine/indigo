@@ -2,7 +2,7 @@ package com.martinia.indigo.tag.infrastructure.api;
 
 import com.martinia.indigo.tag.infrastructure.model.TagDto;
 import com.martinia.indigo.tag.infrastructure.mapper.TagDtoMapper;
-import com.martinia.indigo.tag.domain.service.FindTagByNameUseCase;
+import com.martinia.indigo.tag.domain.ports.usecases.FindTagByNameUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

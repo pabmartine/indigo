@@ -18,7 +18,7 @@ import com.martinia.indigo.notification.domain.model.NotificationEnum;
 import com.martinia.indigo.notification.domain.model.StatusEnum;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.notification.domain.model.Notification;
-import com.martinia.indigo.notification.domain.repository.NotificationRepository;
+import com.martinia.indigo.notification.domain.ports.repositories.NotificationRepository;
 
 @Component
 public class NotificationRepositoryImpl implements NotificationRepository {

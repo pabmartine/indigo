@@ -1,7 +1,7 @@
 package com.martinia.indigo.book.application.language;
 
-import com.martinia.indigo.book.domain.repository.BookRepository;
-import com.martinia.indigo.book.domain.service.language.FindBookLanguagesUseCase;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
+import com.martinia.indigo.book.domain.ports.usecases.language.FindBookLanguagesUseCase;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

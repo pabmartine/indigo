@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.infrastructure.model.BookDto;
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.service.FindAllBooksUseCase;
+import com.martinia.indigo.book.domain.ports.usecases.FindAllBooksUseCase;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

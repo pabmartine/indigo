@@ -4,7 +4,7 @@ import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.author.infrastructure.model.AuthorDto;
 import com.martinia.indigo.author.infrastructure.mapper.AuthorDtoMapper;
 import com.martinia.indigo.author.domain.model.Author;
-import com.martinia.indigo.metadata.domain.service.RefreshAuthorMetadataUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.RefreshAuthorMetadataUseCase;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;

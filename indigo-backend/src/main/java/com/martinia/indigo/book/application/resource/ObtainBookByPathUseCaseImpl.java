@@ -1,6 +1,6 @@
 package com.martinia.indigo.book.application.resource;
 
-import com.martinia.indigo.book.domain.service.resource.ObtainBookByPathUseCase;
+import com.martinia.indigo.book.domain.ports.usecases.resource.ObtainBookByPathUseCase;
 import com.martinia.indigo.common.util.UtilComponent;
 import org.springframework.stereotype.Service;
 

@@ -1,8 +1,8 @@
 package com.martinia.indigo.author.application;
 
 import com.martinia.indigo.author.domain.model.Author;
-import com.martinia.indigo.author.domain.repository.AuthorRepository;
-import com.martinia.indigo.author.domain.service.FindAuthorsSortByNameUseCase;
+import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
+import com.martinia.indigo.author.domain.ports.usecases.FindAuthorsSortByNameUseCase;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

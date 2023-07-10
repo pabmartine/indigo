@@ -1,6 +1,6 @@
 package com.martinia.indigo.metadata.infrastructure.api;
 
-import com.martinia.indigo.metadata.domain.service.FindStatusMetadataUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.FindStatusMetadataUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

@@ -5,7 +5,7 @@ import com.martinia.indigo.tag.infrastructure.model.TagDto;
 import com.martinia.indigo.tag.infrastructure.mapper.TagDtoMapper;
 import com.martinia.indigo.common.model.NumBooks;
 import com.martinia.indigo.tag.domain.model.Tag;
-import com.martinia.indigo.tag.domain.service.FindTagByNameUseCase;
+import com.martinia.indigo.tag.domain.ports.usecases.FindTagByNameUseCase;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;

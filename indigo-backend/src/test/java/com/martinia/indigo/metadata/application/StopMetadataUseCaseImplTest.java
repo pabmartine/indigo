@@ -2,7 +2,7 @@ package com.martinia.indigo.metadata.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.common.singletons.MetadataSingleton;
-import com.martinia.indigo.metadata.domain.service.StopMetadataUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.StopMetadataUseCase;
 import org.junit.jupiter.api.Test;
 
 import javax.annotation.Resource;

@@ -1,6 +1,6 @@
 package com.martinia.indigo.mail.application;
 
-import com.martinia.indigo.configuration.domain.repository.ConfigurationRepository;
+import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
 import com.martinia.indigo.mail.domain.EmailConfiguration;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;

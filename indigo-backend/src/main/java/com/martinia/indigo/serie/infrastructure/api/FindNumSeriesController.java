@@ -1,6 +1,6 @@
 package com.martinia.indigo.serie.infrastructure.api;
 
-import com.martinia.indigo.serie.domain.service.FindNumSeriesUseCase;
+import com.martinia.indigo.serie.domain.ports.usecases.FindNumSeriesUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -2,7 +2,7 @@ package com.martinia.indigo.mail.application;
 
 import com.martinia.indigo.configuration.domain.model.Configuration;
 import com.martinia.indigo.mail.domain.EmailConfiguration;
-import com.martinia.indigo.mail.domain.service.SendTestMailUseCase;
+import com.martinia.indigo.mail.domain.ports.usecases.SendTestMailUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;

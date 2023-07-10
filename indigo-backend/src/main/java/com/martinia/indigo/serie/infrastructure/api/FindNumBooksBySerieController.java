@@ -1,6 +1,6 @@
 package com.martinia.indigo.serie.infrastructure.api;
 
-import com.martinia.indigo.serie.domain.service.FindNumBooksBySerieUseCase;
+import com.martinia.indigo.serie.domain.ports.usecases.FindNumBooksBySerieUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

@@ -2,8 +2,8 @@ package com.martinia.indigo.book.application.favorite;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.service.favorite.FindFavoriteBooksUseCase;
-import com.martinia.indigo.user.domain.repository.UserRepository;
+import com.martinia.indigo.book.domain.ports.usecases.favorite.FindFavoriteBooksUseCase;
+import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 

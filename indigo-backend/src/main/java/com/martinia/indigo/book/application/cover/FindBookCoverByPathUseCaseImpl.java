@@ -1,6 +1,6 @@
 package com.martinia.indigo.book.application.cover;
 
-import com.martinia.indigo.book.domain.service.cover.FindBookCoverByPathUseCase;
+import com.martinia.indigo.book.domain.ports.usecases.cover.FindBookCoverByPathUseCase;
 import com.martinia.indigo.common.util.UtilComponent;
 import org.springframework.stereotype.Service;
 

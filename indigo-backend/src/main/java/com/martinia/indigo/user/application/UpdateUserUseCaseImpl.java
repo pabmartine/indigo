@@ -1,9 +1,9 @@
 package com.martinia.indigo.user.application;
 
 import com.martinia.indigo.user.domain.model.User;
-import com.martinia.indigo.user.domain.repository.UserRepository;
-import com.martinia.indigo.user.domain.service.FindUserByIdUseCase;
-import com.martinia.indigo.user.domain.service.UpdateUserUseCase;
+import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
+import com.martinia.indigo.user.domain.ports.usecases.FindUserByIdUseCase;
+import com.martinia.indigo.user.domain.ports.usecases.UpdateUserUseCase;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

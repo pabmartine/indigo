@@ -2,7 +2,7 @@ package com.martinia.indigo.user.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.user.domain.model.User;
-import com.martinia.indigo.user.domain.repository.UserRepository;
+import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

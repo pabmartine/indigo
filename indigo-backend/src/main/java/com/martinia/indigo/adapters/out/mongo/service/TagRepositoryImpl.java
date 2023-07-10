@@ -6,7 +6,7 @@ import com.martinia.indigo.adapters.out.mongo.mapper.TagMongoMapper;
 import com.martinia.indigo.adapters.out.mongo.repository.BookMongoRepository;
 import com.martinia.indigo.adapters.out.mongo.repository.TagMongoRepository;
 import com.martinia.indigo.tag.domain.model.Tag;
-import com.martinia.indigo.tag.domain.repository.TagRepository;
+import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;

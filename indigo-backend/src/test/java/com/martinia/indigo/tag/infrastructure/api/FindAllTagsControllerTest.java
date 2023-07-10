@@ -12,7 +12,7 @@ import com.martinia.indigo.tag.infrastructure.model.TagDto;
 import com.martinia.indigo.tag.infrastructure.mapper.TagDtoMapper;
 import com.martinia.indigo.common.model.NumBooks;
 import com.martinia.indigo.tag.domain.model.Tag;
-import com.martinia.indigo.tag.domain.service.FindAllTagsUseCase;
+import com.martinia.indigo.tag.domain.ports.usecases.FindAllTagsUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;

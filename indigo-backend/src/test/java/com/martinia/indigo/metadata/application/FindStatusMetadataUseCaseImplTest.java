@@ -2,7 +2,7 @@ package com.martinia.indigo.metadata.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.common.singletons.MetadataSingleton;
-import com.martinia.indigo.metadata.domain.service.FindStatusMetadataUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.FindStatusMetadataUseCase;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

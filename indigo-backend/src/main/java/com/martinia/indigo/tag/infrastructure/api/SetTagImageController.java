@@ -1,6 +1,6 @@
 package com.martinia.indigo.tag.infrastructure.api;
 
-import com.martinia.indigo.tag.domain.service.SetTagImageUseCase;
+import com.martinia.indigo.tag.domain.ports.usecases.SetTagImageUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

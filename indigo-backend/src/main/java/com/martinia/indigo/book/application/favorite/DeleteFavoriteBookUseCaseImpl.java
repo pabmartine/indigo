@@ -1,7 +1,7 @@
 package com.martinia.indigo.book.application.favorite;
 
-import com.martinia.indigo.book.domain.service.favorite.DeleteFavoriteBookUseCase;
-import com.martinia.indigo.user.domain.repository.UserRepository;
+import com.martinia.indigo.book.domain.ports.usecases.favorite.DeleteFavoriteBookUseCase;
+import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

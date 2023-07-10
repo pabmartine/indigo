@@ -1,6 +1,6 @@
 package com.martinia.indigo.mail.infrastructure.api;
 
-import com.martinia.indigo.mail.domain.service.SendTestMailUseCase;
+import com.martinia.indigo.mail.domain.ports.usecases.SendTestMailUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

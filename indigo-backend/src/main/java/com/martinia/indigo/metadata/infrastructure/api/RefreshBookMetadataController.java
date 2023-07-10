@@ -2,7 +2,7 @@ package com.martinia.indigo.metadata.infrastructure.api;
 
 import com.martinia.indigo.book.infrastructure.model.BookDto;
 import com.martinia.indigo.book.infrastructure.mapper.BookDtoMapper;
-import com.martinia.indigo.metadata.domain.service.RefreshBookMetadataUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.RefreshBookMetadataUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

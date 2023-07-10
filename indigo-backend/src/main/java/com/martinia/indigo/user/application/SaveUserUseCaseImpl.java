@@ -2,8 +2,8 @@ package com.martinia.indigo.user.application;
 
 import com.martinia.indigo.user.domain.model.RolesEnum;
 import com.martinia.indigo.user.domain.model.User;
-import com.martinia.indigo.user.domain.repository.UserRepository;
-import com.martinia.indigo.user.domain.service.SaveUserUseCase;
+import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
+import com.martinia.indigo.user.domain.ports.usecases.SaveUserUseCase;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

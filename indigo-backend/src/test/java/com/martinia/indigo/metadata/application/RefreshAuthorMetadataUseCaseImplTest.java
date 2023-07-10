@@ -2,14 +2,16 @@ package com.martinia.indigo.metadata.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.author.domain.model.Author;
-import com.martinia.indigo.author.domain.repository.AuthorRepository;
-import com.martinia.indigo.book.domain.repository.BookRepository;
+import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.common.util.DataUtils;
-import com.martinia.indigo.metadata.domain.service.RefreshAuthorMetadataUseCase;
-import com.martinia.indigo.ports.out.metadata.AmazonService;
-import com.martinia.indigo.ports.out.metadata.GoodReadsService;
-import com.martinia.indigo.ports.out.metadata.GoogleBooksService;
-import com.martinia.indigo.ports.out.metadata.WikipediaService;
+import com.martinia.indigo.metadata.domain.ports.usecases.RefreshAuthorMetadataUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.amazon.FindAmazonReviewsUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsAuthorUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsBookUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsReviewsUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.google.FindGoogleBooksBookUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.wikipedia.FindWikipediaAuthorUseCase;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,22 +42,28 @@ public class RefreshAuthorMetadataUseCaseImplTest extends BaseIndigoTest {
 	private RefreshAuthorMetadataUseCase refreshAuthorMetadataUseCase;
 
 	@MockBean
-	private GoodReadsService goodReadsService;
+	private FindGoodReadsBookUseCase findGoodReadsBookUseCase;
 
 	@MockBean
-	private WikipediaService wikipediaService;
+	private FindGoodReadsAuthorUseCase findGoodReadsAuthorUseCase;
 
 	@MockBean
-	private GoogleBooksService googleBooksService;
+	private FindGoodReadsReviewsUseCase findGoodReadsReviewsUseCase;
 
 	@MockBean
-	private AmazonService amazonService;
+	private FindWikipediaAuthorUseCase findWikipediaAuthorUseCase;
+
+	@MockBean
+	private FindGoogleBooksBookUseCase findGoogleBooksBookUseCase;
+
+	@MockBean
+	private FindAmazonReviewsUseCase findAmazonReviewsUseCase;
 
 	@BeforeEach
 	@SneakyThrows
 	void init() {
 		Mockito.when(dataUtils.getData(any())).thenReturn(null);
-		Mockito.when(googleBooksService.findBook(any(), any())).thenReturn(null);
+		Mockito.when(findGoogleBooksBookUseCase.findBook(any(), any())).thenReturn(null);
 	}
 
 	@Test

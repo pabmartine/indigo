@@ -1,7 +1,7 @@
 package com.martinia.indigo.book.infrastructure.api.recommendation;
 
 import com.martinia.indigo.book.infrastructure.mapper.BookDtoMapper;
-import com.martinia.indigo.book.domain.service.recommendation.CountBookRecommendationsByUserUseCase;
+import com.martinia.indigo.book.domain.ports.usecases.recommendation.CountBookRecommendationsByUserUseCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

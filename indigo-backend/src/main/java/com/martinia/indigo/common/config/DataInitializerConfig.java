@@ -6,14 +6,14 @@ import java.util.Locale;
 import javax.annotation.PostConstruct;
 
 import com.martinia.indigo.user.domain.model.User;
-import com.martinia.indigo.user.domain.repository.UserRepository;
+import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.datasource.init.ScriptException;
 import org.springframework.stereotype.Component;
 import com.martinia.indigo.user.domain.model.RolesEnum;
 import com.martinia.indigo.configuration.domain.model.Configuration;
-import com.martinia.indigo.configuration.domain.repository.ConfigurationRepository;
+import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

@@ -1,12 +1,9 @@
 package com.martinia.indigo.user.infrastructure.api;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.user.domain.service.DeleteUserUseCase;
+import com.martinia.indigo.user.domain.ports.usecases.DeleteUserUseCase;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
