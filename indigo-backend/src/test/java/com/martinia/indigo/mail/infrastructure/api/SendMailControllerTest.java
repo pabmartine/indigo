@@ -31,7 +31,7 @@ public class SendMailControllerTest extends BaseIndigoTest {
 		when(sendMailUseCase.mail(path, address)).thenReturn(error);
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/mail/send").param("path", path).param("address", address))
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/mail/send").param("path", path).param("address", address))
 				.andExpect(MockMvcResultMatchers.status().isOk());
 
 		// Then
@@ -49,7 +49,7 @@ public class SendMailControllerTest extends BaseIndigoTest {
 		when(sendMailUseCase.mail(path, address)).thenReturn(error);
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/mail/send").param("path", path).param("address", address))
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/mail/send").param("path", path).param("address", address))
 				.andExpect(MockMvcResultMatchers.status().isInternalServerError());
 
 		// Then

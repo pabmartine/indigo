@@ -12,7 +12,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 @RestController
-@RequestMapping("/rest/book")
+@RequestMapping("/api/book")
 public class FindBookLanguagesController {
 
 	@Resource

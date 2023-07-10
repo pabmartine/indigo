@@ -55,7 +55,7 @@ public class FindUserByIdControllerTest extends BaseIndigoTest {
 		when(userDtoMapper.domain2Dto(user)).thenReturn(userDto);
 
 		// Act & Assert
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/user/getById").param("id", id).contentType(MediaType.APPLICATION_JSON))
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/user/getById").param("id", id).contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andExpect(jsonPath("$.id").value(id)).andExpect(jsonPath("$.username").value("johnDoe"))
 				.andExpect(jsonPath("$.kindle").value("kindle")).andExpect(jsonPath("$.role").value("role"))
@@ -72,7 +72,7 @@ public class FindUserByIdControllerTest extends BaseIndigoTest {
 		when(findUserByIdUseCase.findById(id)).thenReturn(Optional.empty());
 
 		// Act & Assert
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/user/getById").param("id", id).contentType(MediaType.APPLICATION_JSON))
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/user/getById").param("id", id).contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andExpect(jsonPath("$").doesNotExist());
 

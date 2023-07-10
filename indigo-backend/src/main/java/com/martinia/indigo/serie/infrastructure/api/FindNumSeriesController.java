@@ -12,7 +12,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 @RestController
-@RequestMapping("/rest/serie")
+@RequestMapping("/api/serie")
 public class FindNumSeriesController {
 
 	@Resource

@@ -38,7 +38,7 @@ public class MergeTagControllerTest extends BaseIndigoTest {
 		doNothing().when(mergeTagUseCase).merge(source, target);
 
 		// When
-		mockMvc.perform(get("/rest/tag/merge").param("source", source).param("target", target).contentType(MediaType.APPLICATION_JSON))
+		mockMvc.perform(get("/api/tag/merge").param("source", source).param("target", target).contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk()).andExpect(content().string(""));
 	}
 }

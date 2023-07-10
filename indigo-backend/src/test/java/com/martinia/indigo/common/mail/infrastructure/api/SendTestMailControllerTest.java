@@ -25,7 +25,7 @@ class SendTestMailControllerTest extends BaseIndigoTest {
 	void testSendTestMail() throws Exception {
 		String address = "test@example.com";
 
-		mockMvc.perform(get("/rest/mail/test").param("address", address)).andExpect(status().isOk());
+		mockMvc.perform(get("/api/mail/test").param("address", address)).andExpect(status().isOk());
 
 		verify(sendTestMailUseCase).test(address);
 	}

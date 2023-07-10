@@ -45,7 +45,7 @@ class FindBooksBySerieControllerTest extends BaseIndigoTest {
 		when(mapper.domains2Dtos(books)).thenReturn(bookDtos);
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/book/serie").param("serie", serie).param("languages", "English", "Spanish"))
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/book/serie").param("serie", serie).param("languages", "English", "Spanish"))
 				.andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$[0]").exists())
 				.andExpect(MockMvcResultMatchers.jsonPath("$[1]").exists());
 

@@ -36,7 +36,7 @@ public class SendMailControllerTest extends BaseIndigoTest {
 		when(useCase.mail(eq(path), eq(address))).thenReturn(null);
 
 		// When-Then
-		mockMvc.perform(get("/rest/mail/send").param("path", path).param("address", address).contentType(MediaType.APPLICATION_JSON))
+		mockMvc.perform(get("/api/mail/send").param("path", path).param("address", address).contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk());
 
 		verify(useCase, times(1)).mail(eq(path), eq(address));
@@ -52,7 +52,7 @@ public class SendMailControllerTest extends BaseIndigoTest {
 		when(useCase.mail(eq(path), eq(address))).thenReturn(error);
 
 		// When-Then
-		mockMvc.perform(get("/rest/mail/send").param("path", path).param("address", address).contentType(MediaType.APPLICATION_JSON))
+		mockMvc.perform(get("/api/mail/send").param("path", path).param("address", address).contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isInternalServerError())
 				.andExpect(result -> assertTrue(result.getResolvedException() instanceof Exception))
 				.andExpect(result -> assertEquals(error, result.getResolvedException().getMessage()));

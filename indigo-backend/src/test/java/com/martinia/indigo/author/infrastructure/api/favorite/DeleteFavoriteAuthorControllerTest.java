@@ -29,7 +29,7 @@ public class DeleteFavoriteAuthorControllerTest extends BaseIndigoTest {
 		String user = "exampleUser";
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.delete("/rest/author/favorite").param("author", author).param("user", user)
+		mockMvc.perform(MockMvcRequestBuilders.delete("/api/author/favorite").param("author", author).param("user", user)
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
 
 		// Then

@@ -53,7 +53,7 @@ public class FindNumBooksBySerieControllerTest  extends BaseIndigoTest {
 
 		// When
 		ResultActions resultActions = mockMvc.perform(
-				get("/rest/serie/all").param("languages", String.join(",", languages)).param("page", String.valueOf(page))
+				get("/api/serie/all").param("languages", String.join(",", languages)).param("page", String.valueOf(page))
 						.param("size", String.valueOf(size)).param("sort", sort).param("order", order)
 						.contentType(MediaType.APPLICATION_JSON));
 		MvcResult mvcResult = resultActions.andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(data.size()))

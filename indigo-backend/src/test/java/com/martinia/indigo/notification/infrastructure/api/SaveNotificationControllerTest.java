@@ -46,7 +46,7 @@ public class SaveNotificationControllerTest extends BaseIndigoTest {
 		when(notificationDtoMapper.dto2Domain(notificationDto)).thenReturn(notification);
 
 		// When
-		mockMvc.perform(put("/rest/notification/save").content(asJsonString(notificationDto)).contentType(MediaType.APPLICATION_JSON_VALUE))
+		mockMvc.perform(put("/api/notification/save").content(asJsonString(notificationDto)).contentType(MediaType.APPLICATION_JSON_VALUE))
 				.andExpect(status().isOk()).andReturn();
 
 		// Then

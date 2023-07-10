@@ -67,7 +67,7 @@ public class FindNotReadNotificationsControllerTest extends BaseIndigoTest {
 				.thenReturn(expectedNotificationDtos);
 
 		// When
-		mockMvc.perform(get("/rest/notification/not_read")
+		mockMvc.perform(get("/api/notification/not_read")
 						.contentType(MediaType.APPLICATION_JSON_VALUE))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))

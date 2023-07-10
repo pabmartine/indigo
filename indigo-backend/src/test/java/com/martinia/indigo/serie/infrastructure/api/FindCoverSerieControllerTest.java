@@ -41,7 +41,7 @@ public class FindCoverSerieControllerTest  extends BaseIndigoTest {
 
 		// When
 		ResultActions resultActions = mockMvc.perform(
-				get("/rest/serie/cover").param("serie", serie).contentType(MediaType.APPLICATION_JSON));
+				get("/api/serie/cover").param("serie", serie).contentType(MediaType.APPLICATION_JSON));
 		MvcResult mvcResult = resultActions.andExpect(status().isOk()).andExpect(jsonPath("$.image").value(coverImage)).andReturn();
 
 	}

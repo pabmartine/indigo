@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/rest/book")
+@RequestMapping("/api/book")
 public class FindBookCoverByPathController {
 
 	@Resource

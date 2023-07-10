@@ -49,7 +49,7 @@ class FindBookRecommendationsByUserControllerTest extends BaseIndigoTest {
 
 		// When
 		mockMvc.perform(
-						MockMvcRequestBuilders.get("/rest/book/recommendations/user").param("user", user).param("page", String.valueOf(page))
+						MockMvcRequestBuilders.get("/api/book/recommendations/user").param("user", user).param("page", String.valueOf(page))
 								.param("size", String.valueOf(size)).param("sort", sort).param("order", order))
 				.andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$[0]").exists())
 				.andExpect(MockMvcResultMatchers.jsonPath("$[1]").exists());

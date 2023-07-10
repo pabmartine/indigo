@@ -41,7 +41,7 @@ class FindBookRecommendationsByBookControllerTest extends BaseIndigoTest {
 
 		// When
 		mockMvc.perform(
-						MockMvcRequestBuilders.get("/rest/book/recommendations/book").param("recommendations", "recommendation1", "recommendation2")
+						MockMvcRequestBuilders.get("/api/book/recommendations/book").param("recommendations", "recommendation1", "recommendation2")
 								.param("languages", "English", "Spanish")).andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(MockMvcResultMatchers.jsonPath("$[0]").exists()).andExpect(MockMvcResultMatchers.jsonPath("$[1]").exists());
 

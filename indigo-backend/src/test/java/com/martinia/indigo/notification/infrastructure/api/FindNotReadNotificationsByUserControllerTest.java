@@ -69,7 +69,7 @@ public class FindNotReadNotificationsByUserControllerTest extends BaseIndigoTest
 				.thenReturn(expectedNotificationDtos);
 
 		// When
-		mockMvc.perform(get("/rest/notification/not_read_user")
+		mockMvc.perform(get("/api/notification/not_read_user")
 						.param("user", user)
 						.contentType(MediaType.APPLICATION_JSON_VALUE))
 				.andExpect(status().isOk())

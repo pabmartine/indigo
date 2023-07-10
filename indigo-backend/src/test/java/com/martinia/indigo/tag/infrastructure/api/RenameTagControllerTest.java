@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class RenameTagControllerTest extends BaseIndigoTest {
 
-	private static final String BASE_PATH = "/rest/tag";
+	private static final String BASE_PATH = "/api/tag";
 
 	@MockBean
 	private RenameTagUseCase renameTagUseCase;

@@ -44,7 +44,7 @@ public class FindNumSeriesControllerTest extends BaseIndigoTest {
 
 		// When
 		ResultActions resultActions = mockMvc.perform(
-				get("/rest/serie/count").param("languages", String.join(",", languages)).contentType(MediaType.APPLICATION_JSON));
+				get("/api/serie/count").param("languages", String.join(",", languages)).contentType(MediaType.APPLICATION_JSON));
 		MvcResult mvcResult = resultActions.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andExpect(jsonPath("$").value(numSeries)).andReturn();
 

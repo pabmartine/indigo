@@ -34,7 +34,7 @@ public class FindStatusMetadataControllerTest extends BaseIndigoTest {
 		Mockito.when(mockUseCase.getStatus()).thenReturn(statusMetadata);
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/metadata/status").contentType(MediaType.APPLICATION_JSON))
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/metadata/status").contentType(MediaType.APPLICATION_JSON))
 				.andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$.status").value("OK"))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.version").value("1.0"));
 

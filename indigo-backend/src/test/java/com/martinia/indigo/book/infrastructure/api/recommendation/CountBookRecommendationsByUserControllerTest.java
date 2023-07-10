@@ -29,7 +29,7 @@ class CountBookRecommendationsByUserControllerTest extends BaseIndigoTest {
 		when(useCase.countRecommendationsByUser(user)).thenReturn(5L);
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/book/recommendations/user/count").param("user", user))
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/book/recommendations/user/count").param("user", user))
 				.andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$").value(5));
 
 		// Then

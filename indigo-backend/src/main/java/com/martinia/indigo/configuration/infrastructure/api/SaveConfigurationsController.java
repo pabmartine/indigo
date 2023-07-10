@@ -16,7 +16,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 @RestController
-@RequestMapping("/rest/config")
+@RequestMapping("/api/config")
 public class SaveConfigurationsController {
 
 	@Resource

@@ -67,7 +67,7 @@ public class FindUserByUsernameControllerTest extends BaseIndigoTest {
 		when(findUserByUsernameUseCase.findByUsername(username)).thenReturn(Optional.of(user));
 		when(userDtoMapper.domain2Dto(user)).thenReturn(userDto);
 
-		MvcResult result = mockMvc.perform(get("/rest/user/get").param("username", username).accept(MediaType.APPLICATION_JSON))
+		MvcResult result = mockMvc.perform(get("/api/user/get").param("username", username).accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
 
 		String responseContent = result.getResponse().getContentAsString();
@@ -81,7 +81,7 @@ public class FindUserByUsernameControllerTest extends BaseIndigoTest {
 		String username = "nonExistentUser";
 		when(findUserByUsernameUseCase.findByUsername(username)).thenReturn(Optional.empty());
 
-		mockMvc.perform(get("/rest/user/get").param("username", username).accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+		mockMvc.perform(get("/api/user/get").param("username", username).accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 				.andExpect(content().string(""));
 	}
 

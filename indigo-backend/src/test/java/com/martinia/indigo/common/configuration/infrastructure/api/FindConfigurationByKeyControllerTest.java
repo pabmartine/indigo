@@ -39,7 +39,7 @@ public class FindConfigurationByKeyControllerTest extends BaseIndigoTest {
 		when(useCase.findByKey(key)).thenReturn(Optional.of(configuration));
 
 		// Act & Assert
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/config/get").param("key", key).contentType(MediaType.APPLICATION_JSON))
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/config/get").param("key", key).contentType(MediaType.APPLICATION_JSON))
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(MockMvcResultMatchers.jsonPath("$.key").value(expectedDto.getKey()));
 	}

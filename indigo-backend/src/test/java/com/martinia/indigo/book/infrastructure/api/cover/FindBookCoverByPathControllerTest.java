@@ -38,7 +38,7 @@ class FindBookCoverByPathControllerTest extends BaseIndigoTest {
 		when(useCase.getImage(bookPath)).thenReturn(Optional.of(imageUrl));
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/book/image").param("path", bookPath))
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/book/image").param("path", bookPath))
 				.andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$.image").value(imageUrl));
 
 		// Then
@@ -52,7 +52,7 @@ class FindBookCoverByPathControllerTest extends BaseIndigoTest {
 		when(useCase.getImage(bookPath)).thenReturn(Optional.empty());
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/book/image").param("path", bookPath))
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/book/image").param("path", bookPath))
 				.andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$").doesNotExist());
 
 		// Then

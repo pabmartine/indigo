@@ -43,7 +43,7 @@ public class FindAuthorsSortByNameControllerTest extends BaseIndigoTest {
 		Mockito.when(mockMapper.domain2Dto(author)).thenReturn(authorDto);
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/author/sort").param("sort", sort).contentType(MediaType.APPLICATION_JSON))
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/author/sort").param("sort", sort).contentType(MediaType.APPLICATION_JSON))
 				.andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$.name").value("John Doe"));
 
 		// Then

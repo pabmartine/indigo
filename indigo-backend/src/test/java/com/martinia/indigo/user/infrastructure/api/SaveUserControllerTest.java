@@ -31,7 +31,7 @@ public class SaveUserControllerTest  extends BaseIndigoTest {
 		user.setUsername("testuser");
 		user.setPassword("password");
 
-		mockMvc.perform(MockMvcRequestBuilders.post("/rest/user/save").contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(MockMvcRequestBuilders.post("/api/user/save").contentType(MediaType.APPLICATION_JSON)
 				.content("{\"username\":\"testuser\",\"password\":\"password\"}")).andExpect(MockMvcResultMatchers.status().isOk());
 
 		verify(saveUserUseCase).save(any(), anyBoolean());

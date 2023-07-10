@@ -15,7 +15,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 @RestController
-@RequestMapping("/rest/user")
+@RequestMapping("/api/user")
 public class FindAllUsersController {
 
 	@Resource

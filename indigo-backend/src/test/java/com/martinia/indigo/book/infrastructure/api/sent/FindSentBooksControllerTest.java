@@ -40,7 +40,7 @@ class FindSentBooksControllerTest extends BaseIndigoTest {
 		when(mapper.domains2Dtos(books)).thenReturn(bookDtos);
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/book/sent").param("user", user)).andExpect(MockMvcResultMatchers.status().isOk())
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/book/sent").param("user", user)).andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(MockMvcResultMatchers.jsonPath("$[0]").exists()).andExpect(MockMvcResultMatchers.jsonPath("$[1]").exists());
 
 		// Then

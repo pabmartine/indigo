@@ -38,7 +38,7 @@ class ObtainBookByPathControllerTest extends BaseIndigoTest {
 		when(useCase.getEpub(any())).thenReturn(epubResource);
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/book/epub").param("path", path))
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/book/epub").param("path", path))
 				.andExpect(MockMvcResultMatchers.status().isInternalServerError());
 
 		// Then

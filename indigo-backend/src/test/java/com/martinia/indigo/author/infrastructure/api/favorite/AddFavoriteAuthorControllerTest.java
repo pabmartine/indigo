@@ -33,7 +33,7 @@ class AddFavoriteAuthorControllerTest extends BaseIndigoTest {
 		String user = "exampleUser";
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.post("/rest/author/favorite").param("author", author).param("user", user)
+		mockMvc.perform(MockMvcRequestBuilders.post("/api/author/favorite").param("author", author).param("user", user)
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
 
 		// Then

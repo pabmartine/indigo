@@ -54,7 +54,7 @@ public class FindFavoriteAuthorsControllerTest extends BaseIndigoTest {
 		Mockito.when(mockMapper.domains2Dtos(authors)).thenReturn(authorsDto);
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/author/favorites").param("user", user).contentType(MediaType.APPLICATION_JSON))
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/author/favorites").param("user", user).contentType(MediaType.APPLICATION_JSON))
 				.andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value("John Doe"))
 				.andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value("Jane Smith"));
 

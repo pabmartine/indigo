@@ -13,7 +13,7 @@ import javax.annotation.Resource;
 import javax.transaction.Transactional;
 
 @RestController
-@RequestMapping("/rest/author")
+@RequestMapping("/api/author")
 public class DeleteFavoriteAuthorController {
 
 	@Resource

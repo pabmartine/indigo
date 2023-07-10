@@ -34,7 +34,7 @@ public class DeleteNotificationControllerTest extends BaseIndigoTest {
 		String id = "notificationId";
 
 		// When
-		mockMvc.perform(delete("/rest/notification/delete").param("id", id).contentType(MediaType.APPLICATION_JSON_VALUE))
+		mockMvc.perform(delete("/api/notification/delete").param("id", id).contentType(MediaType.APPLICATION_JSON_VALUE))
 				.andExpect(status().isOk()).andReturn();
 
 		// Then

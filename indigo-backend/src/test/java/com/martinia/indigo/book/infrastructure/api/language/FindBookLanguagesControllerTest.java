@@ -31,7 +31,7 @@ class FindBookLanguagesControllerTest extends BaseIndigoTest {
 		when(useCase.getBookLanguages()).thenReturn(languages);
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/book/languages")).andExpect(MockMvcResultMatchers.status().isOk())
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/book/languages")).andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(MockMvcResultMatchers.jsonPath("$[0]").value("English"))
 				.andExpect(MockMvcResultMatchers.jsonPath("$[1]").value("Spanish"))
 				.andExpect(MockMvcResultMatchers.jsonPath("$[2]").value("French"));

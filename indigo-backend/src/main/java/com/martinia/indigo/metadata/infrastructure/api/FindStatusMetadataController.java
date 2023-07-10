@@ -12,7 +12,7 @@ import javax.annotation.Resource;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/rest/metadata")
+@RequestMapping("/api/metadata")
 public class FindStatusMetadataController {
 
 	@Resource

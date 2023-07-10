@@ -31,7 +31,7 @@ class MarkBookAsViewControllerTest extends BaseIndigoTest {
 		String book = "example_book";
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.post("/rest/book/view").param("user", user).param("book", book))
+		mockMvc.perform(MockMvcRequestBuilders.post("/api/book/view").param("user", user).param("book", book))
 				.andExpect(MockMvcResultMatchers.status().isOk());
 
 		// Then

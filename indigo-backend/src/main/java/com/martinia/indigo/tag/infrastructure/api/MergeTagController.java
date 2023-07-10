@@ -12,7 +12,7 @@ import javax.annotation.Resource;
 import javax.transaction.Transactional;
 
 @RestController
-@RequestMapping("/rest/tag")
+@RequestMapping("/api/tag")
 public class MergeTagController {
 
 	@Resource

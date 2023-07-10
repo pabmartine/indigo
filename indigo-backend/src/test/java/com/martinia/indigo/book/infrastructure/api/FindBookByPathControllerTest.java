@@ -43,7 +43,7 @@ class FindBookByPathControllerTest extends BaseIndigoTest {
 		when(mapper.domain2Dto(any())).thenReturn(bookDto);
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/book/path").param("path", bookPath))
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/book/path").param("path", bookPath))
 				.andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.content().json("{\"path\":\"example_path\"}"));
 
 		// Then

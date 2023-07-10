@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/rest/serie")
+@RequestMapping("/api/serie")
 public class FindNumBooksBySerieController {
 
 	@Resource

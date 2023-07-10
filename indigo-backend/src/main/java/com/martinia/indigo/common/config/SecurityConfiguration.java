@@ -52,7 +52,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.cors()
 				.and()
 				.authorizeRequests()
-				.antMatchers(HttpMethod.POST, "/rest/login")
+				.antMatchers(HttpMethod.POST, "/api/login")
 				.permitAll()
 				.antMatchers(HttpMethod.GET, "/**")
 				.permitAll()
@@ -60,7 +60,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.authenticated()
 				.and()
 				.addFilterBefore(
-						new JWTAuthenticationFilter("/rest/login", authenticationManager(), jwtParserComponent),
+						new JWTAuthenticationFilter("/api/login", authenticationManager(), jwtParserComponent),
 						UsernamePasswordAuthenticationFilter.class)
 				.addFilterBefore(new JWTAuthorizationFilter(authenticationManager(), jwtParserComponent),
 						UsernamePasswordAuthenticationFilter.class)

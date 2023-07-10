@@ -30,7 +30,7 @@ public class StartMetadataControllerTest extends BaseIndigoTest {
 		String entity = "exampleEntity";
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/metadata/start").param("lang", lang).param("type", type).param("entity", entity)
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/metadata/start").param("lang", lang).param("type", type).param("entity", entity)
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
 
 		// Then

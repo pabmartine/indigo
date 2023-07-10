@@ -43,7 +43,7 @@ class FindBookByIdControllerTest extends BaseIndigoTest {
 		when(mapper.domain2Dto(any())).thenReturn(bookDto);
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/book/id").param("id", bookId)).andExpect(MockMvcResultMatchers.status().isOk())
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/book/id").param("id", bookId)).andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(MockMvcResultMatchers.content().json("{\"id\":\"example_id\"}"));
 
 		// Then

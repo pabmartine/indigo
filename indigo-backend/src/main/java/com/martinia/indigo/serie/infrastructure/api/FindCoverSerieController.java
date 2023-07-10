@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/rest/serie")
+@RequestMapping("/api/serie")
 public class FindCoverSerieController {
 
 	@Resource

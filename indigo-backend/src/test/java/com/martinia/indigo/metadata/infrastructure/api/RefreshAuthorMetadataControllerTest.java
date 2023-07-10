@@ -44,7 +44,7 @@ public class RefreshAuthorMetadataControllerTest extends BaseIndigoTest {
 		Mockito.when(mockMapper.domain2Dto(_author)).thenReturn(authorDto);
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/metadata/author").param("lang", lang).param("author", author)
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/metadata/author").param("lang", lang).param("author", author)
 						.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(MockMvcResultMatchers.jsonPath("$.name").value("John Doe"));
 

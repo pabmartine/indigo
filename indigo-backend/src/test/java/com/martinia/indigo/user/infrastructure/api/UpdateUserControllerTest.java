@@ -33,7 +33,7 @@ public class UpdateUserControllerTest extends BaseIndigoTest {
 		User user = new User();
 		String userJson = objectMapper.writeValueAsString(user);
 
-		mockMvc.perform(MockMvcRequestBuilders.put("/rest/user/update").contentType(MediaType.APPLICATION_JSON).content(userJson))
+		mockMvc.perform(MockMvcRequestBuilders.put("/api/user/update").contentType(MediaType.APPLICATION_JSON).content(userJson))
 				.andExpect(MockMvcResultMatchers.status().isOk());
 
 		verify(useCase).update(any());

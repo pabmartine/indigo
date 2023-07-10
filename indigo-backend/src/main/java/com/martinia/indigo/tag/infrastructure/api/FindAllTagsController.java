@@ -16,7 +16,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 @RestController
-@RequestMapping("/rest/tag")
+@RequestMapping("/api/tag")
 public class FindAllTagsController {
 
 	@Resource

@@ -67,7 +67,7 @@ public class FindAllNotificationsControllerTest extends BaseIndigoTest {
 				.thenReturn(expectedNotificationDtos);
 
 		// When
-		mockMvc.perform(get("/rest/notification/all")
+		mockMvc.perform(get("/api/notification/all")
 						.contentType(MediaType.APPLICATION_JSON_VALUE))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$", hasSize(2)))

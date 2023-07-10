@@ -59,7 +59,7 @@ class FindAllUsersControllerTest extends BaseIndigoTest {
 		when(mapper.domains2Dtos(users)).thenReturn(usersDto);
 
 		// Act
-		MvcResult mvcResult = mockMvc.perform(get("/rest/user/getAll").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+		MvcResult mvcResult = mockMvc.perform(get("/api/user/getAll").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
 
 		// Assert
@@ -77,7 +77,7 @@ class FindAllUsersControllerTest extends BaseIndigoTest {
 		when(useCase.findAll()).thenReturn(emptyList);
 
 		// Act
-		MvcResult mvcResult = mockMvc.perform(get("/rest/user/getAll").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+		MvcResult mvcResult = mockMvc.perform(get("/api/user/getAll").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
 
 		// Assert

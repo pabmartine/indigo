@@ -15,7 +15,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 @RestController
-@RequestMapping("/rest/notification")
+@RequestMapping("/api/notification")
 public class FindAllNotificationsController {
 
 	@Resource

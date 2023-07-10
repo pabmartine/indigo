@@ -46,7 +46,7 @@ public class FindTagByNameControllerTest extends BaseIndigoTest {
 		when(tagDtoMapper.domain2Dto(tag)).thenReturn(tagDto);
 
 		// When
-		mockMvc.perform(get("/rest/tag/tag").param("name", tagName).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+		mockMvc.perform(get("/api/tag/tag").param("name", tagName).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
 				.andExpect(jsonPath("$.id").value(tagDto.getId())).andExpect(jsonPath("$.name").value(tagDto.getName()))
 				.andExpect(jsonPath("$.image").value(tagDto.getImage())).andExpect(jsonPath("$.numBooks").value(tagDto.getNumBooks()));
 	}

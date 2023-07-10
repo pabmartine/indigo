@@ -30,7 +30,7 @@ class DeleteFavoriteBookControllerTest extends BaseIndigoTest {
 		String book = "example_book";
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.delete("/rest/book/favorite").param("user", user).param("book", book))
+		mockMvc.perform(MockMvcRequestBuilders.delete("/api/book/favorite").param("user", user).param("book", book))
 				.andExpect(MockMvcResultMatchers.status().isOk());
 
 		// Then

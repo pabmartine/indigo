@@ -61,7 +61,7 @@ public class FindAllAuthorsControllerTest extends BaseIndigoTest {
 		Mockito.when(mockMapper.domains2Dtos(authors)).thenReturn(authorsDto);
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/author/all").param("languages", "English", "Spanish").param("page", "1")
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/author/all").param("languages", "English", "Spanish").param("page", "1")
 						.param("size", "10").param("sort", "name").param("order", "asc").contentType(MediaType.APPLICATION_JSON))
 				.andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$[0].name").value("John Doe"))
 				.andExpect(MockMvcResultMatchers.jsonPath("$[1].name").value("Jane Smith"));

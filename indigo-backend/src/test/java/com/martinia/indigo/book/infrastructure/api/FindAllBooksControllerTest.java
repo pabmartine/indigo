@@ -52,7 +52,7 @@ class FindAllBooksControllerTest extends BaseIndigoTest {
 		when(findAllBooksUseCase.findAll(any(), anyInt(), anyInt(), any(), any())).thenReturn(expectedBooks);
 
 		// When
-		MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/rest/book/all/advance").contentType(MediaType.APPLICATION_JSON)
+		MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/api/book/all/advance").contentType(MediaType.APPLICATION_JSON)
 						.param("page", String.valueOf(page)).param("size", String.valueOf(size)).param("sort", sort).param("order", order))
 				.andExpect(status().isOk()).andReturn();
 

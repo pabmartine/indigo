@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 
 @RestController
-@RequestMapping("/rest/metadata")
+@RequestMapping("/api/metadata")
 public class StopMetadataController {
 
 	@Resource

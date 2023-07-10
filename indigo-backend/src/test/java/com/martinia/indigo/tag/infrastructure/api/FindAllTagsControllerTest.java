@@ -63,7 +63,7 @@ public class FindAllTagsControllerTest extends BaseIndigoTest {
 		when(tagDtoMapper.domains2Dtos(tags)).thenReturn(tagsDto);
 
 		// When
-		mockMvc.perform(get("/rest/tag/all").param("languages", "en", "es").param("sort", sort).param("order", order)
+		mockMvc.perform(get("/api/tag/all").param("languages", "en", "es").param("sort", sort).param("order", order)
 						.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andExpect(jsonPath("$.size()").value(tagsDto.size()))
 				.andExpect(jsonPath("$[0].id").value(tagDto1.getId())).andExpect(jsonPath("$[0].name").value(tagDto1.getName()))
 				.andExpect(jsonPath("$[0].image").value(tagDto1.getImage()))

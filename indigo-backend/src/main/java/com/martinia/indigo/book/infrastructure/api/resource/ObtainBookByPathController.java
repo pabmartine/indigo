@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 @RestController
-@RequestMapping("/rest/book")
+@RequestMapping("/api/book")
 public class ObtainBookByPathController {
 
 	@Resource

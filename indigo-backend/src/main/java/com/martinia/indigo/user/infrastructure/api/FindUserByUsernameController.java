@@ -16,7 +16,7 @@ import javax.annotation.Resource;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/rest/user")
+@RequestMapping("/api/user")
 public class FindUserByUsernameController {
 
 	@Resource

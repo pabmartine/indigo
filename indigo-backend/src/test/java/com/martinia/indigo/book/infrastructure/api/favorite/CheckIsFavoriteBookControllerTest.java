@@ -31,7 +31,7 @@ class CheckIsFavoriteBookControllerTest extends BaseIndigoTest {
 		when(useCase.isFavoriteBook(user, book)).thenReturn(isFavorite);
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/book/favorite").param("user", user).param("book", book))
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/book/favorite").param("user", user).param("book", book))
 				.andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.content().string(isFavorite.toString()));
 
 		// Then

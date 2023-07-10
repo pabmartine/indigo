@@ -12,7 +12,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 @RestController
-@RequestMapping("/rest/author")
+@RequestMapping("/api/author")
 public class CountAllAuthorsController {
 
 	@Resource

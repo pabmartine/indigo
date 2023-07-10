@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 
 @RestController
-@RequestMapping("/rest/config")
+@RequestMapping("/api/config")
 public class FindConfigurationByKeyController {
 
 	@Resource

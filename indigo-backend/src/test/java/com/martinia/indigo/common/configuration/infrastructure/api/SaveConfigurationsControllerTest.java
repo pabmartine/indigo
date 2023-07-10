@@ -42,7 +42,7 @@ public class SaveConfigurationsControllerTest extends BaseIndigoTest {
 		doNothing().when(useCase).save(configurations);
 
 		// Act & Assert
-		mockMvc.perform(MockMvcRequestBuilders.put("/rest/config/save").contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(MockMvcRequestBuilders.put("/api/config/save").contentType(MediaType.APPLICATION_JSON)
 						.content(requestBody))
 				.andExpect(MockMvcResultMatchers.status().isOk());
 

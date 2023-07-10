@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 
 @RestController
-@RequestMapping("/rest/book")
+@RequestMapping("/api/book")
 public class CheckIsFavoriteBookController {
 
 	@Resource

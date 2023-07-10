@@ -45,7 +45,7 @@ class FindSimilarBooksControllerTest extends BaseIndigoTest {
 		when(mapper.domains2Dtos(books)).thenReturn(bookDtos);
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/book/similar").param("similar", "similar1", "similar2")
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/book/similar").param("similar", "similar1", "similar2")
 						.param("languages", "English", "Spanish")).andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(MockMvcResultMatchers.jsonPath("$[0]").exists()).andExpect(MockMvcResultMatchers.jsonPath("$[1]").exists());
 

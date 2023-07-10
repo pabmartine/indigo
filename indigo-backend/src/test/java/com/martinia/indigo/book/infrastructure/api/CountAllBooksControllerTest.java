@@ -36,7 +36,7 @@ class CountAllBooksControllerTest extends BaseIndigoTest {
 		when(useCase.count(any())).thenReturn(10L);
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.post("/rest/book/count/search/advance").contentType(MediaType.APPLICATION_JSON_VALUE)
+		mockMvc.perform(MockMvcRequestBuilders.post("/api/book/count/search/advance").contentType(MediaType.APPLICATION_JSON_VALUE)
 						.content("{\"query\":\"example\"}")).andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(MockMvcResultMatchers.jsonPath("$").value(10));
 

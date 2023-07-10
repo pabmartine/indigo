@@ -31,7 +31,7 @@ class CheckIsFavoriteAuthorControllerTest extends BaseIndigoTest {
 		Mockito.when(mockUseCase.isFavoriteAuthor(user, author)).thenReturn(isFavorite);
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/author/favorite").param("author", author).param("user", user)
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/author/favorite").param("author", author).param("user", user)
 						.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(MockMvcResultMatchers.content().string(String.valueOf(isFavorite)));
 

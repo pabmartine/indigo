@@ -27,7 +27,7 @@ public class SendTestMailControllerTest extends BaseIndigoTest {
 		String address = "example_address";
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/mail/test").param("address", address))
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/mail/test").param("address", address))
 				.andExpect(MockMvcResultMatchers.status().isOk());
 
 		// Then

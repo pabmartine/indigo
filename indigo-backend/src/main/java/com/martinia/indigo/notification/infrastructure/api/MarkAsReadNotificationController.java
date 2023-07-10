@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 
 @RestController
-@RequestMapping("/rest/notification")
+@RequestMapping("/api/notification")
 public class MarkAsReadNotificationController {
 
 	@Resource

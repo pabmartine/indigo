@@ -27,7 +27,7 @@ public class DeleteUserControllerTest extends BaseIndigoTest {
 	public void testDeleteUser() throws Exception {
 		String userId = "12345";
 
-		mockMvc.perform(MockMvcRequestBuilders.delete("/rest/user/delete").param("id", userId).contentType(MediaType.APPLICATION_JSON))
+		mockMvc.perform(MockMvcRequestBuilders.delete("/api/user/delete").param("id", userId).contentType(MediaType.APPLICATION_JSON))
 				.andExpect(MockMvcResultMatchers.status().isOk());
 
 		verify(deleteUserUseCase).delete(userId);

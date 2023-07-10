@@ -33,7 +33,7 @@ public class MarkAsReadNotificationControllerTest extends BaseIndigoTest {
 		String user = "john";
 
 		// When
-		mockMvc.perform(get("/rest/notification/read")
+		mockMvc.perform(get("/api/notification/read")
 						.param("id", id)
 						.param("user", user)
 						.contentType(MediaType.APPLICATION_JSON_VALUE))

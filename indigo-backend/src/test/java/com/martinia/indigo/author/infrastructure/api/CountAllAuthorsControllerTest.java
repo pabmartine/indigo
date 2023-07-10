@@ -32,7 +32,7 @@ public class CountAllAuthorsControllerTest extends BaseIndigoTest {
 		Mockito.when(mockUseCase.count(languages)).thenReturn(count);
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/rest/author/count").param("languages", "English", "Spanish")
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/author/count").param("languages", "English", "Spanish")
 						.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk())
 				.andExpect(MockMvcResultMatchers.content().string(String.valueOf(count)));
 
