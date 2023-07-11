@@ -2,8 +2,9 @@ package com.martinia.indigo.user.infrastructure.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.user.infrastructure.model.UserDto;
-import com.martinia.indigo.user.infrastructure.mapper.UserDtoMapper;
+import com.martinia.indigo.user.infrastructure.api.controllers.FindUserByUsernameController;
+import com.martinia.indigo.user.infrastructure.api.model.UserDto;
+import com.martinia.indigo.user.infrastructure.api.mappers.UserDtoMapper;
 import com.martinia.indigo.user.domain.model.User;
 import com.martinia.indigo.user.domain.ports.usecases.FindUserByUsernameUseCase;
 import org.junit.jupiter.api.BeforeEach;

@@ -2,8 +2,8 @@ package com.martinia.indigo.notification.infrastructure.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.notification.infrastructure.model.NotificationDto;
-import com.martinia.indigo.notification.infrastructure.mapper.NotificationDtoMapper;
+import com.martinia.indigo.notification.infrastructure.api.model.NotificationDto;
+import com.martinia.indigo.notification.infrastructure.api.mappers.NotificationDtoMapper;
 import com.martinia.indigo.notification.domain.model.Notification;
 import com.martinia.indigo.notification.domain.ports.usecases.SaveNotificationUseCase;
 import org.junit.jupiter.api.Test;

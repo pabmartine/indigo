@@ -1,8 +1,9 @@
 package com.martinia.indigo.book.infrastructure.api.serie;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.book.infrastructure.model.BookDto;
-import com.martinia.indigo.book.infrastructure.mapper.BookDtoMapper;
+import com.martinia.indigo.book.infrastructure.api.controllers.serie.FindBooksBySerieController;
+import com.martinia.indigo.book.infrastructure.api.model.BookDto;
+import com.martinia.indigo.book.infrastructure.api.mappers.BookDtoMapper;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.ports.usecases.serie.FindBooksBySerieUseCase;
 import org.junit.jupiter.api.Test;

@@ -1,7 +1,7 @@
 package com.martinia.indigo.metadata.infrastructure.adapters.goodreads;
 
-import com.martinia.indigo.common.infrastructure.mapper.ReviewDtoMapper;
-import com.martinia.indigo.common.infrastructure.model.ReviewDto;
+import com.martinia.indigo.common.infrastructure.api.mappers.ReviewDtoMapper;
+import com.martinia.indigo.common.infrastructure.api.model.ReviewDto;
 import com.martinia.indigo.metadata.domain.ports.adapters.goodreads.FindGoodReadsReviewsPort;
 import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsReviewsUseCase;
 import org.springframework.stereotype.Component;

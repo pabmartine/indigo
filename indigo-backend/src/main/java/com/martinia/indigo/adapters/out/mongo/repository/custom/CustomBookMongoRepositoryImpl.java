@@ -1,8 +1,8 @@
 package com.martinia.indigo.adapters.out.mongo.repository.custom;
 
-import com.martinia.indigo.adapters.out.mongo.entities.BookMongoEntity;
-import com.martinia.indigo.adapters.out.mongo.entities.NotificationMongoEntity;
-import com.martinia.indigo.adapters.out.mongo.entities.UserMongoEntity;
+import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
+import com.martinia.indigo.notification.infrastructure.mongo.entities.NotificationMongoEntity;
+import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
 import com.martinia.indigo.common.model.Search;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.AggregateIterable;
@@ -22,8 +22,10 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -36,10 +38,11 @@ import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Filters.in;
 
+@Repository
 public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository {
 
-	@Autowired
-	MongoTemplate mongoTemplate;
+	@Resource
+	private MongoTemplate mongoTemplate;
 
 	public long count(Search search) {
 

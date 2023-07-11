@@ -6,12 +6,13 @@ import java.util.Optional;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
-import com.martinia.indigo.adapters.out.mongo.entities.BookMongoEntity;
+import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.adapters.out.mongo.repository.custom.CustomBookMongoRepository;
-import com.martinia.indigo.adapters.out.mongo.repository.custom.CustomGlobalMongoRepository;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface BookMongoRepository
-		extends MongoRepository<BookMongoEntity, String>, CustomBookMongoRepository, CustomGlobalMongoRepository {
+		extends MongoRepository<BookMongoEntity, String>, CustomBookMongoRepository {
 
 	@Query("{ 'serie.name' : ?0 }")
 	List<BookMongoEntity> findBooksBySerie(String serie);

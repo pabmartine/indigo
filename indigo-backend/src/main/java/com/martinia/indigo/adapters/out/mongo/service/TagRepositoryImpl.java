@@ -1,8 +1,8 @@
 package com.martinia.indigo.adapters.out.mongo.service;
 
-import com.martinia.indigo.adapters.out.mongo.entities.BookMongoEntity;
-import com.martinia.indigo.adapters.out.mongo.entities.TagMongoEntity;
-import com.martinia.indigo.adapters.out.mongo.mapper.TagMongoMapper;
+import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
+import com.martinia.indigo.tag.infrastructure.mongo.entities.TagMongoEntity;
+import com.martinia.indigo.tag.infrastructure.mongo.mappers.TagMongoMapper;
 import com.martinia.indigo.adapters.out.mongo.repository.BookMongoRepository;
 import com.martinia.indigo.adapters.out.mongo.repository.TagMongoRepository;
 import com.martinia.indigo.tag.domain.model.Tag;
@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -19,14 +20,14 @@ import java.util.Optional;
 @Component
 public class TagRepositoryImpl implements TagRepository {
 
-	@Autowired
-	TagMongoRepository tagMongoRepository;
+	@Resource
+	private TagMongoRepository tagMongoRepository;
 
-	@Autowired
-	BookMongoRepository bookMongoRepository;
+	@Resource
+	private BookMongoRepository bookMongoRepository;
 
-	@Autowired
-	TagMongoMapper tagMongoMapper;
+	@Resource
+	private TagMongoMapper tagMongoMapper;
 
 	@Override
 	public List<Tag> findAll(List<String> languages, String sort, String order) {
@@ -126,8 +127,8 @@ public class TagRepositoryImpl implements TagRepository {
 	}
 
 	@Override
-	public void dropCollection() {
-		tagMongoRepository.dropCollection(TagMongoEntity.class);
+	public void deleteAll() {
+		tagMongoRepository.deleteAll();
 	}
 
 }

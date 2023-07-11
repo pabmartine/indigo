@@ -1,8 +1,8 @@
 package com.martinia.indigo.author.infrastructure.api;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.author.infrastructure.model.AuthorDto;
-import com.martinia.indigo.author.infrastructure.mapper.AuthorDtoMapper;
+import com.martinia.indigo.author.infrastructure.api.model.AuthorDto;
+import com.martinia.indigo.author.infrastructure.api.mappers.AuthorDtoMapper;
 import com.martinia.indigo.author.domain.model.Author;
 import com.martinia.indigo.author.domain.ports.usecases.FindAllAuthorsUseCase;
 import org.junit.jupiter.api.Test;

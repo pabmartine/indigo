@@ -1,7 +1,7 @@
 package com.martinia.indigo.adapters.out.mongo.service;
 
-import com.martinia.indigo.adapters.out.mongo.entities.UserMongoEntity;
-import com.martinia.indigo.adapters.out.mongo.mapper.UserMongoMapper;
+import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
+import com.martinia.indigo.user.infrastructure.mongo.mappers.UserMongoMapper;
 import com.martinia.indigo.adapters.out.mongo.repository.UserMongoRepository;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
@@ -21,17 +21,17 @@ import java.util.Optional;
 @Component
 public class UserRepositoryImpl implements UserRepository {
 
-    @Autowired
-    UserMongoRepository userMongoRepository;
+    @Resource
+    private UserMongoRepository userMongoRepository;
 
     @Resource
-    BookRepository bookRepository;
+    private BookRepository bookRepository;
 
-    @Autowired
-    AuthorRepository authorMongoRepository;
+    @Resource
+    private AuthorRepository authorRepository;
 
-    @Autowired
-    UserMongoMapper userMongoMapper;
+    @Resource
+    private UserMongoMapper userMongoMapper;
 
     @Override
     public void addFavoriteAuthor(String user, String author) {
@@ -119,7 +119,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .getFavoriteAuthors();
         List<Author> ret = new ArrayList<>(authors != null ? authors.size() : 0);
         if (!CollectionUtils.isEmpty(authors))
-            authors.forEach(author -> ret.add(authorMongoRepository.findBySort(author).get()));
+            authors.forEach(author -> ret.add(authorRepository.findBySort(author).get()));
         return ret;
     }
 

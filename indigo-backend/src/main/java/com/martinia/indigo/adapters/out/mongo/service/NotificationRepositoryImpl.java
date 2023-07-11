@@ -6,11 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
-import com.martinia.indigo.adapters.out.mongo.entities.BookMongoEntity;
-import com.martinia.indigo.adapters.out.mongo.entities.NotificationMongoEntity;
-import com.martinia.indigo.adapters.out.mongo.entities.UserMongoEntity;
-import com.martinia.indigo.adapters.out.mongo.mapper.BookMongoMapper;
-import com.martinia.indigo.adapters.out.mongo.mapper.NotificationMongoMapper;
+import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
+import com.martinia.indigo.notification.infrastructure.mongo.entities.NotificationMongoEntity;
+import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
+import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
+import com.martinia.indigo.notification.infrastructure.mongo.mappers.NotificationMongoMapper;
 import com.martinia.indigo.adapters.out.mongo.repository.BookMongoRepository;
 import com.martinia.indigo.adapters.out.mongo.repository.NotificationMongoRepository;
 import com.martinia.indigo.adapters.out.mongo.repository.UserMongoRepository;
@@ -20,23 +20,25 @@ import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.notification.domain.model.Notification;
 import com.martinia.indigo.notification.domain.ports.repositories.NotificationRepository;
 
+import javax.annotation.Resource;
+
 @Component
 public class NotificationRepositoryImpl implements NotificationRepository {
 
-	@Autowired
-	NotificationMongoRepository notificationMongoRepository;
+	@Resource
+	private NotificationMongoRepository notificationMongoRepository;
 
-	@Autowired
-	BookMongoRepository bookMongoRepository;
+	@Resource
+	private BookMongoRepository bookMongoRepository;
 
-	@Autowired
-	UserMongoRepository userMongoRepository;
+	@Resource
+	private UserMongoRepository userMongoRepository;
 
-	@Autowired
-	NotificationMongoMapper notificationMongoMapper;
+	@Resource
+	private NotificationMongoMapper notificationMongoMapper;
 
-	@Autowired
-	BookMongoMapper bookMongoMapper;
+	@Resource
+	private BookMongoMapper bookMongoMapper;
 
 	@Override
 	public List<Notification> findAllByOrderBySendDateDesc() {

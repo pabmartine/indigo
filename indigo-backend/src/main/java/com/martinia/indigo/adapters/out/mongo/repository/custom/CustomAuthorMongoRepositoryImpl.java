@@ -8,14 +8,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
-import com.martinia.indigo.adapters.out.mongo.entities.AuthorMongoEntity;
+import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
 
+import javax.annotation.Resource;
+
+@Repository
 public class CustomAuthorMongoRepositoryImpl implements CustomAuthorMongoRepository {
 
-	@Autowired
-	MongoTemplate mongoTemplate;
+	@Resource
+	private MongoTemplate mongoTemplate;
 
 	@Override
 	public long count(List<String> languages) {

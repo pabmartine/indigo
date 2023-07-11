@@ -2,6 +2,7 @@ package com.martinia.indigo.notification.infrastructure.api;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.notification.domain.ports.usecases.DeleteNotificationUseCase;
+import com.martinia.indigo.notification.infrastructure.api.controllers.DeleteNotificationController;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.springframework.boot.test.mock.mockito.MockBean;

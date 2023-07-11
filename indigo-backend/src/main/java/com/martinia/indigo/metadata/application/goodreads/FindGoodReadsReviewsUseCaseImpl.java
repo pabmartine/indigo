@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,10 +37,10 @@ public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseC
 	private String endpoint = "https://www.goodreads.com/";
 
 	@Resource
-	private DetectLibreTranslatePort detectLibreTranslatePort;
+	private Optional<DetectLibreTranslatePort> detectLibreTranslatePort;
 
 	@Resource
-	private TranslateLibreTranslatePort translateLibreTranslatePort;
+	private Optional<TranslateLibreTranslatePort> translateLibreTranslatePort;
 
 	@Override
 	public List<Review> getReviews(String lang, String title, List<String> authors) {
@@ -142,7 +143,8 @@ public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseC
 				String comment = htmlArticle.getFirstChild().getNextSibling().getFirstChild().getNextSibling().getFirstChild()
 						.getFirstChild().getFirstChild().getFirstChild().asText();
 
-				String language = detectLibreTranslatePort.detect(comment);
+				String language = detectLibreTranslatePort.map(libreTranslate -> libreTranslate.detect(comment)).orElse(null);
+
 				Review review = Review.builder().comment(comment).name(name).date(date).rating(rating).title(title)
 						.lastMetadataSync(new Date()).provider(ProviderEnum.GOODREADS.name()).build();
 				if (language != null && !language.equals(lang)) {
@@ -159,7 +161,8 @@ public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseC
 
 		if (reviews.size() < 10 && !CollectionUtils.isEmpty(foreignComments)) {
 			for (Review review : foreignComments) {
-				review.setComment(translateLibreTranslatePort.translate(review.getComment(), lang));
+				review.setComment(translateLibreTranslatePort.map(libreTranslate -> libreTranslate.translate(review.getComment(), lang))
+						.orElse(null));
 				reviews.add(review);
 				if (reviews.size() == 10) {
 					break;

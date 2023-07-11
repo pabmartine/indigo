@@ -1,15 +1,17 @@
 package com.martinia.indigo.metadata.infrastructure.adapters.amazon;
 
-import com.martinia.indigo.common.infrastructure.mapper.ReviewDtoMapper;
-import com.martinia.indigo.common.infrastructure.model.ReviewDto;
+import com.martinia.indigo.common.infrastructure.api.mappers.ReviewDtoMapper;
+import com.martinia.indigo.common.infrastructure.api.model.ReviewDto;
 import com.martinia.indigo.metadata.domain.ports.adapters.amazon.FindAmazonReviewsPort;
 import com.martinia.indigo.metadata.domain.ports.usecases.amazon.FindAmazonReviewsUseCase;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
 
 @Component
+@ConditionalOnProperty(name = "flags.amazon", havingValue="true")
 public class FindAmazonReviewsAdapter implements FindAmazonReviewsPort {
 
 	@Resource

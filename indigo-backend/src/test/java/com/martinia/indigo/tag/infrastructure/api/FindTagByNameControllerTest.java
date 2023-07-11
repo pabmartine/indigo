@@ -1,8 +1,9 @@
 package com.martinia.indigo.tag.infrastructure.api;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.tag.infrastructure.model.TagDto;
-import com.martinia.indigo.tag.infrastructure.mapper.TagDtoMapper;
+import com.martinia.indigo.tag.infrastructure.api.controllers.FindTagByNameController;
+import com.martinia.indigo.tag.infrastructure.api.model.TagDto;
+import com.martinia.indigo.tag.infrastructure.api.mappers.TagDtoMapper;
 import com.martinia.indigo.common.model.NumBooks;
 import com.martinia.indigo.tag.domain.model.Tag;
 import com.martinia.indigo.tag.domain.ports.usecases.FindTagByNameUseCase;

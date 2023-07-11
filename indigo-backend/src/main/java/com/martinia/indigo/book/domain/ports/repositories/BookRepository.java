@@ -10,7 +10,7 @@ public interface BookRepository {
 
 	Long count(Search search);
 
-	void dropCollection();
+	void deleteAll();
 
 	List<Book> findAll(Search search, int page, int size, String sort, String order);
 

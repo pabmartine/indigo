@@ -5,9 +5,11 @@ import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
-import com.martinia.indigo.adapters.out.mongo.entities.NotificationMongoEntity;
+import com.martinia.indigo.notification.infrastructure.mongo.entities.NotificationMongoEntity;
 import com.martinia.indigo.notification.domain.model.StatusEnum;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface NotificationMongoRepository extends MongoRepository<NotificationMongoEntity, String> {
 
 	List<NotificationMongoEntity> findAllByOrderBySendDateDesc();

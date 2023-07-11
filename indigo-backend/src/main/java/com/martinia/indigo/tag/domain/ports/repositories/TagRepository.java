@@ -20,6 +20,6 @@ public interface TagRepository {
 
 	void save(List<String> tags, List<String> languages);
 
-	void dropCollection();
+	void deleteAll();
 
 }

@@ -1,52 +1,56 @@
 book:
-    library:
-        path: /home/pablo/Escritorio/EPL
+  library:
+    path: /home/pablo/Escritorio/EPL
 data:
-    initializer:
-        books:
-            recommendations: 20
-        metadata:
-            pull: 1000
-        user:
-            admin:
-                password: $2a$10$U47NDeBbqVmBHQsYXh8HI.IpxGiopQ0cWgXTkwU/AwFmGRf5l9lfq
-                username: admin
+  initializer:
+    books:
+      recommendations: 20
+    metadata:
+      pull: 1000
+    user:
+      admin:
+        password: $2a$10$U47NDeBbqVmBHQsYXh8HI.IpxGiopQ0cWgXTkwU/AwFmGRf5l9lfq
+        username: admin
 jwt:
-    criptKey: '&8e#tGj$45JSGSma'
-    expiration: 36000000
+  criptKey: '&8e#tGj$45JSGSma'
+  expiration: 36000000
 server:
-    max-http-header-size: 40KB
-    port: 8080
+  max-http-header-size: 40KB
+  port: 8080
 spring:
-    data:
-        mongodb:
-            authentication-database: admin
-            auto-index-creation: true
-            database: indigo
-            host: 192.168.1.40
-            password: 5N27A-Bjac{=wt_3
-            port: 27017
-            username: indigo
-    datasource:
-        driver-class-name: org.sqlite.JDBC
-        initialSize: 1
-        jdbcUrl: ${spring.datasource-calibre.url}
-        maxActive: 1
-        maxIdle: 1
-        password: ''
-        url: jdbc:sqlite:/${book.library.path}/metadata.db
-        username: ''
-    jpa:
-        properties:
-            hibernate:
-                dialect: org.hibernate.dialect.SQLiteDialect
-    mail:
-        properties:
-            mail:
-                smtp:
-                    auth: true
-                    connectiontimeout: 5000
-                    starttls:
-                        enable: true
-                    timeout: 5000
-                    writetimeout: 5000
+  data:
+    mongodb:
+      authentication-database: admin
+      auto-index-creation: true
+      database: indigo
+      host: 192.168.1.40
+      password: 5N27A-Bjac{=wt_3
+      port: 27017
+      username: indigo
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    initialSize: 1
+    jdbcUrl: ${spring.datasource-calibre.url}
+    maxActive: 1
+    maxIdle: 1
+    password: ''
+    url: jdbc:sqlite:/${book.library.path}/metadata.db
+    username: ''
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLiteDialect
+  mail:
+    properties:
+      mail:
+        smtp:
+          auth: true
+          connectiontimeout: 5000
+          starttls:
+            enable: true
+          timeout: 5000
+          writetimeout: 5000
+
+flags:
+  amazon: false
+  libretranslate: false

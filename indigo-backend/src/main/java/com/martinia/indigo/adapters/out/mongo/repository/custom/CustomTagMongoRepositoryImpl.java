@@ -9,14 +9,18 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
-import com.martinia.indigo.adapters.out.mongo.entities.TagMongoEntity;
+import com.martinia.indigo.tag.infrastructure.mongo.entities.TagMongoEntity;
 
+import javax.annotation.Resource;
+
+@Repository
 public class CustomTagMongoRepositoryImpl implements CustomTagMongoRepository {
 
-	@Autowired
-	MongoTemplate mongoTemplate;
+	@Resource
+	private MongoTemplate mongoTemplate;
 
 	@Override
 	public List<TagMongoEntity> findAll(List<String> languages, Sort sort) {

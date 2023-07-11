@@ -1,8 +1,9 @@
 package com.martinia.indigo.book.infrastructure.api.similar;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.book.infrastructure.model.BookDto;
-import com.martinia.indigo.book.infrastructure.mapper.BookDtoMapper;
+import com.martinia.indigo.book.infrastructure.api.controllers.similar.FindSimilarBooksController;
+import com.martinia.indigo.book.infrastructure.api.model.BookDto;
+import com.martinia.indigo.book.infrastructure.api.mappers.BookDtoMapper;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.ports.usecases.similar.FindSimilarBooksUseCase;
 import org.junit.jupiter.api.Test;

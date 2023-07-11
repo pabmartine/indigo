@@ -17,7 +17,7 @@ public interface AuthorRepository {
 
 	void save(Author author);
 
-	void dropCollection();
+	void deleteAll();
 
 	void update(Author author);
 

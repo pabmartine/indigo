@@ -2,6 +2,7 @@ package com.martinia.indigo.tag.infrastructure.api;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.tag.domain.ports.usecases.RenameTagUseCase;
+import com.martinia.indigo.tag.infrastructure.api.controllers.RenameTagController;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;

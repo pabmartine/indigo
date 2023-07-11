@@ -1,15 +1,15 @@
 package com.martinia.indigo.adapters.out.mongo.service;
 
-import com.martinia.indigo.adapters.out.mongo.entities.AuthorMongoEntity;
-import com.martinia.indigo.adapters.out.mongo.mapper.AuthorMongoMapper;
 import com.martinia.indigo.adapters.out.mongo.repository.AuthorMongoRepository;
 import com.martinia.indigo.author.domain.model.Author;
 import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
+import com.martinia.indigo.author.infrastructure.mongo.mappers.AuthorMongoMapper;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,11 +17,11 @@ import java.util.stream.Collectors;
 @Component
 public class AuthorRepositoryImpl implements AuthorRepository {
 
-    @Autowired
-    AuthorMongoRepository authorMongoRepository;
+    @Resource
+    private AuthorMongoRepository authorMongoRepository;
 
-    @Autowired
-    AuthorMongoMapper authorMongoMapper;
+    @Resource
+    private AuthorMongoMapper authorMongoMapper;
 
     @Override
     public Long count(List<String> languages) {
@@ -112,8 +112,8 @@ public class AuthorRepositoryImpl implements AuthorRepository {
     }
 
     @Override
-    public void dropCollection() {
-        authorMongoRepository.dropCollection(AuthorMongoEntity.class);
+    public void deleteAll() {
+        authorMongoRepository.deleteAll();
     }
 
 }

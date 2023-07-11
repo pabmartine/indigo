@@ -4,8 +4,8 @@ import com.martinia.indigo.author.domain.model.Author;
 import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
-import com.martinia.indigo.common.infrastructure.mapper.ReviewDtoMapper;
-import com.martinia.indigo.common.infrastructure.model.ReviewDto;
+import com.martinia.indigo.common.infrastructure.api.mappers.ReviewDtoMapper;
+import com.martinia.indigo.common.infrastructure.api.model.ReviewDto;
 import com.martinia.indigo.common.model.NumBooks;
 import com.martinia.indigo.common.model.Review;
 import com.martinia.indigo.common.model.Search;
@@ -32,6 +32,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -68,7 +69,7 @@ public class BaseMetadataUseCaseImpl {
 	private FindGoogleBooksBookPort googleBooksComponent;
 
 	@Resource
-	private FindAmazonReviewsPort findAmazonReviewsPort;
+	private Optional<FindAmazonReviewsPort> findAmazonReviewsPort;
 
 	@Resource
 	private CalibreRepository calibreRepository;
@@ -430,7 +431,7 @@ public class BaseMetadataUseCaseImpl {
 
 	private boolean refreshReviewMetadata(final List<Review> reviews) {
 		return CollectionUtils.isEmpty(reviews) || reviews.stream().anyMatch(review -> {
-			LocalDateTime lastMetadataSync = review.getLastMetadataSync().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+			LocalDateTime lastMetadataSync = Optional.ofNullable(review.getLastMetadataSync()).map(date -> date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()).orElse(LocalDateTime.now());
 			LocalDateTime currentDate = LocalDateTime.now();
 			LocalDateTime expirationDate = lastMetadataSync.plusDays(7);
 			return expirationDate.isBefore(currentDate);
@@ -441,7 +442,7 @@ public class BaseMetadataUseCaseImpl {
 		if (override || refreshReviewMetadata(book.getReviews())) {
 			List<ReviewDto> reviews = findGoodReadsReviewsPort.getReviews(lang, book.getTitle(), book.getAuthors());
 			if (CollectionUtils.isEmpty(reviews)) {
-				reviews = findAmazonReviewsPort.getReviews(book.getTitle(), book.getAuthors());
+				reviews = findAmazonReviewsPort.map(amazon -> amazon.getReviews(book.getTitle(), book.getAuthors())).orElse(null);
 			}
 			return reviewDtoMapper.dtos2domains(reviews);
 		}
@@ -515,9 +516,9 @@ public class BaseMetadataUseCaseImpl {
 
 		metadataSingleton.setMessage("indexing_books");
 
-		tagRepository.dropCollection();
-		authorRepository.dropCollection();
-		bookRepository.dropCollection();
+		tagRepository.deleteAll();
+		authorRepository.deleteAll();
+		bookRepository.deleteAll();
 
 		Long numBooks = calibreRepository.count(null);
 		metadataSingleton.setTotal(metadataSingleton.getTotal() + numBooks);

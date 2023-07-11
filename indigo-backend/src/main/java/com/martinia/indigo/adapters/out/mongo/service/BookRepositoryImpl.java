@@ -1,7 +1,7 @@
 package com.martinia.indigo.adapters.out.mongo.service;
 
-import com.martinia.indigo.adapters.out.mongo.entities.BookMongoEntity;
-import com.martinia.indigo.adapters.out.mongo.mapper.BookMongoMapper;
+import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
+import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
 import com.martinia.indigo.adapters.out.mongo.repository.BookMongoRepository;
 import com.martinia.indigo.adapters.out.mongo.repository.ViewMongoRepository;
 import com.martinia.indigo.book.domain.model.Book;
@@ -21,13 +21,13 @@ import java.util.stream.Collectors;
 public class BookRepositoryImpl implements BookRepository {
 
 	@Resource
-	BookMongoRepository bookMongoRepository;
+	private BookMongoRepository bookMongoRepository;
 
-	@Autowired
-	ViewMongoRepository viewMongoRepository;
+	@Resource
+	private ViewMongoRepository viewMongoRepository;
 
-	@Autowired
-	BookMongoMapper bookMongoMapper;
+	@Resource
+	private BookMongoMapper bookMongoMapper;
 
 	@Override
 	public Long count(Search search) {
@@ -96,8 +96,8 @@ public class BookRepositoryImpl implements BookRepository {
 	}
 
 	@Override
-	public void dropCollection() {
-		bookMongoRepository.dropCollection(BookMongoEntity.class);
+	public void deleteAll() {
+		bookMongoRepository.deleteAll();
 	}
 
 	public Optional<Book> findByPath(String path) {

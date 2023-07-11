@@ -1,8 +1,8 @@
 package com.martinia.indigo.common.configuration.infrastructure.api;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.configuration.infrastructure.model.ConfigurationDto;
-import com.martinia.indigo.configuration.infrastructure.mapper.ConfigurationDtoMapper;
+import com.martinia.indigo.configuration.infrastructure.api.model.ConfigurationDto;
+import com.martinia.indigo.configuration.infrastructure.api.mappers.ConfigurationDtoMapper;
 import com.martinia.indigo.configuration.domain.ports.usecases.FindConfigurationByKeyUseCase;
 import com.martinia.indigo.configuration.domain.model.Configuration;
 import org.junit.jupiter.api.Test;
