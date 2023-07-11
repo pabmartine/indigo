@@ -2,10 +2,12 @@ package com.martinia.indigo.book.application.recommendation;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
 import com.martinia.indigo.book.domain.ports.usecases.recommendation.FindBookRecommendationsByBookUseCase;
+import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.configuration.domain.model.Configuration;
-import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
+import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationMongoRepository;
+import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -22,10 +24,10 @@ import static org.mockito.Mockito.when;
 public class FindBookRecommendationsByBookUseCaseImplTest extends BaseIndigoTest {
 
 	@MockBean
-	private BookRepository bookRepository;
+	private BookMongoRepository bookRepository;
 
 	@MockBean
-	private ConfigurationRepository configurationRepository;
+	private ConfigurationMongoRepository configurationRepository;
 
 	@Resource
 	private FindBookRecommendationsByBookUseCase findBookRecommendationsByBookUseCase;
@@ -36,11 +38,11 @@ public class FindBookRecommendationsByBookUseCaseImplTest extends BaseIndigoTest
 		List<String> recommendations = Arrays.asList("123", "456");
 		List<String> languages = Arrays.asList("English", "Spanish");
 		int numRecommendations = 5;
-		List<Book> expectedRecommendations = Arrays.asList(new Book(), new Book());
+		List<BookMongoEntity> expectedRecommendations = Arrays.asList(new BookMongoEntity(), new BookMongoEntity());
 
 		// Mock the behavior of configurationRepository.findByKey()
 		when(configurationRepository.findByKey("books.recommendations")).thenReturn(
-				Optional.of(new Configuration("books.recommendations", String.valueOf(numRecommendations))));
+				Optional.of(ConfigurationMongoEntity.builder().key("books.recommendations").value(String.valueOf(numRecommendations)).build()));
 
 		// Mock the behavior of bookRepository.getRecommendationsByBook()
 		when(bookRepository.getRecommendationsByBook(recommendations, languages, numRecommendations)).thenReturn(expectedRecommendations);

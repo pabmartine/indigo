@@ -2,7 +2,6 @@ package com.martinia.indigo.adapters.out.mongo.service;
 
 import java.util.*;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +10,7 @@ import com.martinia.indigo.notification.infrastructure.mongo.entities.Notificati
 import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
 import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
 import com.martinia.indigo.notification.infrastructure.mongo.mappers.NotificationMongoMapper;
-import com.martinia.indigo.adapters.out.mongo.repository.BookMongoRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
 import com.martinia.indigo.adapters.out.mongo.repository.NotificationMongoRepository;
 import com.martinia.indigo.adapters.out.mongo.repository.UserMongoRepository;
 import com.martinia.indigo.notification.domain.model.NotificationEnum;

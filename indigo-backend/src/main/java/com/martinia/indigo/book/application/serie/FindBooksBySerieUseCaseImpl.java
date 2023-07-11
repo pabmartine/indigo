@@ -1,8 +1,9 @@
 package com.martinia.indigo.book.application.serie;
 
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
 import com.martinia.indigo.book.domain.ports.usecases.serie.FindBooksBySerieUseCase;
+import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -14,11 +15,14 @@ import java.util.List;
 public class FindBooksBySerieUseCaseImpl implements FindBooksBySerieUseCase {
 
 	@Resource
-	private BookRepository bookRepository;
+	private BookMongoRepository bookMongoRepository;
+
+	@Resource
+	private BookMongoMapper bookMongoMapper;
 
 	@Override
 	public List<Book> getSerie(String serie, List<String> languages) {
-		return bookRepository.getSerie(serie, languages);
+		return bookMongoMapper.entities2Domains(bookMongoRepository.getSerie(serie, languages));
 	}
 
 }

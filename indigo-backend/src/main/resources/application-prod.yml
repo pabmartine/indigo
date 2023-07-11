@@ -1,6 +1,11 @@
 book:
   library:
     path: /EPL
+
+logging.level:
+  root: INFO
+  com.martinia.indigo: DEBUG
+
 data:
   initializer:
     books:
@@ -11,12 +16,17 @@ data:
       admin:
         password: $2a$10$U47NDeBbqVmBHQsYXh8HI.IpxGiopQ0cWgXTkwU/AwFmGRf5l9lfq
         username: admin
+  author:
+    default-image: https://s.gr-assets.com/assets/nophoto/user/u_200x266-e183445fd1a1b5cc7075bb1cf7043306.png
+
 jwt:
   criptKey: '&8e#tGj$45JSGSma'
   expiration: 36000000
+
 server:
   max-http-header-size: 40KB
   port: 8080
+
 spring:
   data:
     mongodb:

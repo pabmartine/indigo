@@ -2,8 +2,9 @@ package com.martinia.indigo.book.application.similar;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
 import com.martinia.indigo.book.domain.ports.usecases.similar.FindSimilarBooksUseCase;
+import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -19,7 +20,7 @@ import static org.mockito.Mockito.when;
 public class FindSimilarBooksUseCaseImplTest extends BaseIndigoTest {
 
 	@MockBean
-	private BookRepository bookRepository;
+	private BookMongoRepository bookRepository;
 
 	@Resource
 	private FindSimilarBooksUseCase findSimilarBooksUseCase;
@@ -29,7 +30,7 @@ public class FindSimilarBooksUseCaseImplTest extends BaseIndigoTest {
 		// Given
 		List<String> similar = Arrays.asList("book1", "book2");
 		List<String> languages = Arrays.asList("English", "Spanish");
-		List<Book> expectedBooks = Arrays.asList(new Book(), new Book());
+		List<BookMongoEntity> expectedBooks = Arrays.asList(new BookMongoEntity(), new BookMongoEntity());
 
 		// Mock the behavior of bookRepository.getSimilar()
 		when(bookRepository.getSimilar(similar, languages)).thenReturn(expectedBooks);

@@ -1,6 +1,7 @@
 package com.martinia.indigo.metadata.application;
 
 import com.martinia.indigo.author.domain.model.Author;
+import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
 import com.martinia.indigo.metadata.application.common.BaseMetadataUseCaseImpl;
 import com.martinia.indigo.metadata.domain.ports.usecases.RefreshAuthorMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
@@ -15,10 +16,10 @@ public class RefreshAuthorMetadataUseCaseImpl extends BaseMetadataUseCaseImpl im
 	@Override
 	public Optional<Author> findAuthorMetadata(String sort, String lang) {
 
-		return authorRepository.findBySort(sort).map(author -> {
-			Author _author = findAuthorMetadata(lang, true, author);
-			authorRepository.update(_author);
-			return Optional.of(_author);
+		return authorMongoRepository.findBySort(sort).map(author -> {
+			AuthorMongoEntity _author = findAuthorMetadata(lang, true, author);
+			authorMongoRepository.save(_author);
+			return Optional.of(authorMongoMapper.entity2Domain(_author));
 		}).orElse(Optional.empty());
 
 	}

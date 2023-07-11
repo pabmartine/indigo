@@ -2,10 +2,12 @@ package com.martinia.indigo.metadata.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
+import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.common.util.DataUtils;
 import com.martinia.indigo.configuration.domain.model.Configuration;
-import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
+import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationMongoRepository;
+import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
 import com.martinia.indigo.metadata.domain.ports.usecases.RefreshBookMetadataUseCase;
 import com.martinia.indigo.metadata.domain.ports.usecases.amazon.FindAmazonReviewsUseCase;
 import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsAuthorUseCase;
@@ -30,10 +32,10 @@ import static org.mockito.ArgumentMatchers.any;
 public class RefreshBookMetadataUseCaseImplTest extends BaseIndigoTest {
 
 	@MockBean
-	private BookRepository mockBookRepository;
+	private BookMongoRepository mockBookRepository;
 
 	@MockBean
-	private ConfigurationRepository mockConfigurationRepository;
+	private ConfigurationMongoRepository mockConfigurationRepository;
 
 	@MockBean
 	private DataUtils dataUtils;
@@ -62,7 +64,8 @@ public class RefreshBookMetadataUseCaseImplTest extends BaseIndigoTest {
 	@BeforeEach
 	@SneakyThrows
 	void init() {
-		Mockito.when(mockConfigurationRepository.findByKey(any())).thenReturn(Optional.of(new Configuration("key", "value")));
+		Mockito.when(mockConfigurationRepository.findByKey(any())).thenReturn(Optional.of(
+				ConfigurationMongoEntity.builder().key("goodreads.key").value("123456").build()));
 		Mockito.when(dataUtils.getData(any())).thenReturn(null);
 		Mockito.when(findGoogleBooksBookUseCase.findBook(any(), any())).thenReturn(null);
 	}
@@ -72,7 +75,7 @@ public class RefreshBookMetadataUseCaseImplTest extends BaseIndigoTest {
 		// Given
 		String path = "/path/to/book";
 
-		Book book = new Book();
+		BookMongoEntity book = new BookMongoEntity();
 		book.setTitle("title");
 		book.setPath(path);
 
@@ -116,7 +119,7 @@ public class RefreshBookMetadataUseCaseImplTest extends BaseIndigoTest {
 		// Given
 		String path = "/path/to/book";
 
-		Book book = new Book();
+		BookMongoEntity book = new BookMongoEntity();
 		book.setPath(path);
 
 		Mockito.when(mockBookRepository.findByPath(path)).thenReturn(Optional.of(book));

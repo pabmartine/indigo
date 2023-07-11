@@ -2,8 +2,9 @@ package com.martinia.indigo.book.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
 import com.martinia.indigo.book.domain.ports.usecases.FindAllBooksUseCase;
+import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.common.model.Search;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -20,7 +21,7 @@ class FindAllBooksUseCaseImplTest extends BaseIndigoTest {
 	private FindAllBooksUseCase findAllBooksUseCase;
 
 	@MockBean
-	private BookRepository bookRepository;
+	private BookMongoRepository bookRepository;
 
 	@Test
 	public void testFindAll() {
@@ -30,7 +31,7 @@ class FindAllBooksUseCaseImplTest extends BaseIndigoTest {
 		int size = 10;
 		String sort = "title";
 		String order = "asc";
-		List<Book> expectedBooks = new ArrayList<>();
+		List<BookMongoEntity> expectedBooks = new ArrayList<>();
 		// Add some sample books to the expectedBooks list
 
 		// Mock the behavior of the bookRepository

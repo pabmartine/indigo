@@ -1,17 +1,23 @@
 package com.martinia.indigo.metadata.application.common;
 
+import com.martinia.indigo.adapters.out.sqlite.service.CalibreRepository;
 import com.martinia.indigo.author.domain.model.Author;
-import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
+import com.martinia.indigo.author.domain.ports.repositories.AuthorMongoRepository;
+import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
+import com.martinia.indigo.author.infrastructure.mongo.mappers.AuthorMongoMapper;
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
+import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
+import com.martinia.indigo.book.infrastructure.mongo.entities.ReviewMongo;
+import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
 import com.martinia.indigo.common.infrastructure.api.mappers.ReviewDtoMapper;
 import com.martinia.indigo.common.infrastructure.api.model.ReviewDto;
+import com.martinia.indigo.common.infrastructure.mongo.mappers.ReviewMongoMapper;
 import com.martinia.indigo.common.model.NumBooks;
-import com.martinia.indigo.common.model.Review;
 import com.martinia.indigo.common.model.Search;
 import com.martinia.indigo.common.singletons.MetadataSingleton;
 import com.martinia.indigo.common.util.UtilComponent;
-import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
+import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationMongoRepository;
 import com.martinia.indigo.metadata.domain.ports.adapters.amazon.FindAmazonReviewsPort;
 import com.martinia.indigo.metadata.domain.ports.adapters.goodreads.FindGoodReadsAuthorPort;
 import com.martinia.indigo.metadata.domain.ports.adapters.goodreads.FindGoodReadsBookPort;
@@ -19,10 +25,11 @@ import com.martinia.indigo.metadata.domain.ports.adapters.goodreads.FindGoodRead
 import com.martinia.indigo.metadata.domain.ports.adapters.google.FindGoogleBooksBookPort;
 import com.martinia.indigo.metadata.domain.ports.adapters.wikipedia.FindWikipediaAuthorInfoPort;
 import com.martinia.indigo.metadata.domain.ports.adapters.wikipedia.FindWikipediaAuthorPort;
-import com.martinia.indigo.adapters.out.sqlite.service.CalibreRepository;
 import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -39,16 +46,16 @@ import java.util.Optional;
 public class BaseMetadataUseCaseImpl {
 
 	@Resource
-	protected BookRepository bookRepository;
+	protected ConfigurationMongoRepository configurationMongoRepository;
+
+	@Resource
+	protected BookMongoRepository bookMongoRepository;
 
 	@Resource
 	private TagRepository tagRepository;
 
 	@Resource
-	protected AuthorRepository authorRepository;
-
-	@Resource
-	protected ConfigurationRepository configurationRepository;
+	protected AuthorMongoRepository authorMongoRepository;
 
 	@Resource
 	private FindWikipediaAuthorPort findWikipediaAuthorPort;
@@ -82,6 +89,15 @@ public class BaseMetadataUseCaseImpl {
 
 	@Resource
 	private ReviewDtoMapper reviewDtoMapper;
+
+	@Resource
+	private BookMongoMapper bookMongoMapper;
+
+	@Resource
+	private ReviewMongoMapper reviewMongoMapper;
+
+	@Resource
+	protected AuthorMongoMapper authorMongoMapper;
 
 	protected String goodreads;
 
@@ -146,13 +162,29 @@ public class BaseMetadataUseCaseImpl {
 						domainAuthor.getNumBooks().getLanguages().put(lang, 1);
 					}
 
-					authorRepository.save(domainAuthor);
+					//save author
+					AuthorMongoEntity authorMongoEntity = authorMongoMapper.domain2Entity(domainAuthor);
+					authorMongoRepository.findByName(author.getName()).ifPresent(entity -> {
+						authorMongoEntity.setId(entity.getId());
+						authorMongoEntity.getNumBooks().setTotal(entity.getNumBooks().getTotal() + 1);
+						entity.getNumBooks().getLanguages().keySet().forEach(key -> {
+							if (authorMongoEntity.getNumBooks().getLanguages().get(key) != null) {
+								authorMongoEntity.getNumBooks().getLanguages().put(key,
+										authorMongoEntity.getNumBooks().getLanguages().get(key) + entity.getNumBooks().getLanguages()
+												.get(key));
+							}
+							else {
+								authorMongoEntity.getNumBooks().getLanguages().put(key, entity.getNumBooks().getLanguages().get(key));
+							}
+						});
+					});
+					authorMongoRepository.save(authorMongoEntity);
 				}
 
 				if (updateBook == true) {
-					String bookId = bookRepository.findByPath(book.getPath()).get().getId();
+					String bookId = bookMongoRepository.findByPath(book.getPath()).get().getId();
 					book.setId(bookId);
-					bookRepository.save(book);
+					bookMongoRepository.save(bookMongoMapper.domain2Entity(book));
 				}
 			}
 
@@ -164,8 +196,8 @@ public class BaseMetadataUseCaseImpl {
 
 		metadataSingleton.setMessage("obtaining_metadata_authors");
 
-		List<String> languages = bookRepository.getBookLanguages();
-		Long numAuthors = authorRepository.count(languages);
+		List<String> languages = bookMongoRepository.getBookLanguages();
+		Long numAuthors = authorMongoRepository.count(languages);
 
 		metadataSingleton.setTotal(metadataSingleton.getTotal() + numAuthors);
 
@@ -177,10 +209,11 @@ public class BaseMetadataUseCaseImpl {
 				break;
 			}
 
-			List<Author> authors = authorRepository.findAll(languages, page, size, "id", "asc");
+			List<AuthorMongoEntity> authors = authorMongoRepository.findAll(languages,
+					PageRequest.of(page, size, Sort.by(Sort.Direction.fromString("asc"), "id")));
 
 			if (!CollectionUtils.isEmpty(authors)) {
-				for (Author author : authors) {
+				for (AuthorMongoEntity author : authors) {
 
 					if (!metadataSingleton.isRunning()) {
 						break;
@@ -190,7 +223,7 @@ public class BaseMetadataUseCaseImpl {
 
 					author = findAuthorMetadata(lang, override, author);
 
-					authorRepository.update(author);
+					authorMongoRepository.save(author);
 
 					log.debug("Obtained {}/{} authors metadata", metadataSingleton.getCurrent(), numAuthors);
 
@@ -210,7 +243,7 @@ public class BaseMetadataUseCaseImpl {
 
 		metadataSingleton.setMessage("obtaining_metadata_books");
 
-		Long numBooks = bookRepository.count(null);
+		Long numBooks = bookMongoRepository.count();
 
 		metadataSingleton.setTotal(metadataSingleton.getTotal() + numBooks);
 
@@ -222,10 +255,10 @@ public class BaseMetadataUseCaseImpl {
 				break;
 			}
 
-			List<Book> books = bookRepository.findAll(null, page, size, "id", "asc");
+			List<BookMongoEntity> books = bookMongoRepository.findAll(null, page, size, "id", "asc");
 
 			if (!CollectionUtils.isEmpty(books)) {
-				for (Book book : books) {
+				for (BookMongoEntity book : books) {
 
 					if (!metadataSingleton.isRunning()) {
 						break;
@@ -236,7 +269,7 @@ public class BaseMetadataUseCaseImpl {
 					book = findBookRecommendations(book);
 					book = findBookMetadata(override, book);
 
-					bookRepository.save(book);
+					bookMongoRepository.save(book);
 
 					log.debug("Obtained {}/{} books metadata", metadataSingleton.getCurrent(), numBooks);
 				}
@@ -255,7 +288,7 @@ public class BaseMetadataUseCaseImpl {
 
 		metadataSingleton.setMessage("obtaining_metadata_reviews");
 
-		Long numBooks = bookRepository.count(null);
+		Long numBooks = bookMongoRepository.count();
 
 		metadataSingleton.setTotal(metadataSingleton.getTotal() + numBooks);
 
@@ -267,10 +300,10 @@ public class BaseMetadataUseCaseImpl {
 				break;
 			}
 
-			List<Book> books = bookRepository.findAll(null, page, size, "id", "asc");
+			List<BookMongoEntity> books = bookMongoRepository.findAll(null, page, size, "id", "asc");
 
 			if (!CollectionUtils.isEmpty(books)) {
-				for (Book book : books) {
+				for (BookMongoEntity book : books) {
 
 					if (!metadataSingleton.isRunning()) {
 						break;
@@ -280,7 +313,7 @@ public class BaseMetadataUseCaseImpl {
 
 					book.setReviews(findReviewMetadata(override, lang, book));
 
-					bookRepository.save(book);
+					bookMongoRepository.save(book);
 
 					log.debug("Obtained {}/{} books reviews", metadataSingleton.getCurrent(), numBooks);
 				}
@@ -295,14 +328,14 @@ public class BaseMetadataUseCaseImpl {
 
 	}
 
-	private boolean refreshAuthorMetadata(final Author author) {
+	private boolean refreshAuthorMetadata(final AuthorMongoEntity author) {
 		return (author == null || StringUtils.isEmpty(author.getDescription()) || StringUtils.isEmpty(author.getImage())
 				|| StringUtils.isEmpty(author.getProvider())) && (author.getLastMetadataSync() == null || author.getLastMetadataSync()
 				.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime().plusDays(7)
 				.isBefore(Calendar.getInstance().getTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()));
 	}
 
-	protected Author findAuthorMetadata(String lang, boolean override, Author author) {
+	protected AuthorMongoEntity findAuthorMetadata(String lang, boolean override, AuthorMongoEntity author) {
 		if (override || refreshAuthorMetadata(author)) {
 			try {
 
@@ -347,8 +380,8 @@ public class BaseMetadataUseCaseImpl {
 				if (StringUtils.isEmpty(author.getImage())) {
 					Search search = new Search();
 					search.setAuthor(author.getSort());
-					List<Book> books = bookRepository.findAll(search, 0, Integer.MAX_VALUE, "pubDate", "desc");
-					for (Book book : books) {
+					List<BookMongoEntity> books = bookMongoRepository.findAll(search, 0, Integer.MAX_VALUE, "pubDate", "desc");
+					for (BookMongoEntity book : books) {
 						String image = utilComponent.getImageFromEpub(book.getPath(), "autor", "author");
 						author.setImage(image);
 						if (author.getImage() != null) {
@@ -369,14 +402,14 @@ public class BaseMetadataUseCaseImpl {
 		return author;
 	}
 
-	private boolean refreshBookMetadata(final Book book) {
+	private boolean refreshBookMetadata(final BookMongoEntity book) {
 		return (book.getRating() == 0 || book.getProvider() == null || CollectionUtils.isEmpty(book.getSimilar())) && (
 				book.getLastMetadataSync() == null || book.getLastMetadataSync().toInstant().atZone(ZoneId.systemDefault())
 						.toLocalDateTime().plusDays(7)
 						.isBefore(Calendar.getInstance().getTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()));
 	}
 
-	protected Book findBookMetadata(boolean override, Book book) {
+	protected BookMongoEntity findBookMetadata(boolean override, BookMongoEntity book) {
 		if (override || refreshBookMetadata(book)) {
 
 			try {
@@ -414,7 +447,7 @@ public class BaseMetadataUseCaseImpl {
 				}
 
 				//Find reviews
-				List<Review> reviews = findReviewMetadata(override, "es", book);
+				List<ReviewMongo> reviews = findReviewMetadata(override, "es", book);
 				if (!CollectionUtils.isEmpty(reviews)) {
 					book.setReviews(reviews);
 				}
@@ -429,29 +462,30 @@ public class BaseMetadataUseCaseImpl {
 		return book;
 	}
 
-	private boolean refreshReviewMetadata(final List<Review> reviews) {
+	private boolean refreshReviewMetadata(final List<ReviewMongo> reviews) {
 		return CollectionUtils.isEmpty(reviews) || reviews.stream().anyMatch(review -> {
-			LocalDateTime lastMetadataSync = Optional.ofNullable(review.getLastMetadataSync()).map(date -> date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()).orElse(LocalDateTime.now());
+			LocalDateTime lastMetadataSync = Optional.ofNullable(review.getLastMetadataSync())
+					.map(date -> date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()).orElse(LocalDateTime.now());
 			LocalDateTime currentDate = LocalDateTime.now();
 			LocalDateTime expirationDate = lastMetadataSync.plusDays(7);
 			return expirationDate.isBefore(currentDate);
 		});
 	}
 
-	private List<Review> findReviewMetadata(boolean override, String lang, Book book) {
+	private List<ReviewMongo> findReviewMetadata(boolean override, String lang, BookMongoEntity book) {
 		if (override || refreshReviewMetadata(book.getReviews())) {
 			List<ReviewDto> reviews = findGoodReadsReviewsPort.getReviews(lang, book.getTitle(), book.getAuthors());
 			if (CollectionUtils.isEmpty(reviews)) {
 				reviews = findAmazonReviewsPort.map(amazon -> amazon.getReviews(book.getTitle(), book.getAuthors())).orElse(null);
 			}
-			return reviewDtoMapper.dtos2domains(reviews);
+			return reviewMongoMapper.domains2Entities(reviewDtoMapper.dtos2domains(reviews));
 		}
 		return book.getReviews();
 	}
 
-	private Book findBookRecommendations(Book book) {
+	private BookMongoEntity findBookRecommendations(BookMongoEntity book) {
 
-		List<Book> recommendations = bookRepository.getRecommendationsByBook(book);
+		List<BookMongoEntity> recommendations = bookMongoRepository.getRecommendationsByBook(book);
 		if (!CollectionUtils.isEmpty(recommendations)) {
 			book.setRecommendations(new ArrayList<>());
 			recommendations.forEach(b -> book.getRecommendations().add(b.getId()));
@@ -483,9 +517,9 @@ public class BaseMetadataUseCaseImpl {
 			search.setTitle(title.replace("+", "").replace("¿", "").replace("?", "").replace("*", "").replace("(", "").replace(")", "")
 					.replace("[", "").replace("]", ""));
 
-			List<Book> books = bookRepository.findAll(search, 0, Integer.MAX_VALUE, "_id", "asc");
+			List<BookMongoEntity> books = bookMongoRepository.findAll(search, 0, Integer.MAX_VALUE, "_id", "asc");
 			if (!CollectionUtils.isEmpty(books)) {
-				for (Book book : books) {
+				for (BookMongoEntity book : books) {
 					String _authors = String.join(" ", book.getAuthors());
 
 					String filterSimilarAuthor = StringUtils.stripAccents(author).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ")
@@ -517,8 +551,8 @@ public class BaseMetadataUseCaseImpl {
 		metadataSingleton.setMessage("indexing_books");
 
 		tagRepository.deleteAll();
-		authorRepository.deleteAll();
-		bookRepository.deleteAll();
+		authorMongoRepository.deleteAll();
+		bookMongoRepository.deleteAll();
 
 		Long numBooks = calibreRepository.count(null);
 		metadataSingleton.setTotal(metadataSingleton.getTotal() + numBooks);
@@ -547,7 +581,7 @@ public class BaseMetadataUseCaseImpl {
 					book.setImage(image);
 					book.setId(null);
 					tagRepository.save(book.getTags(), book.getLanguages());
-					bookRepository.save(book);
+					bookMongoRepository.save(bookMongoMapper.domain2Entity(book));
 
 					fillAuthors(id, book);
 

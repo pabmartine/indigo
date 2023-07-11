@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import javax.persistence.Id;
 
+import lombok.Builder;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
@@ -13,6 +14,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "configurations")

@@ -1,6 +1,6 @@
 package com.martinia.indigo.mail.application;
 
-import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
+import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationMongoRepository;
 import com.martinia.indigo.mail.domain.EmailConfiguration;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ import java.util.Properties;
 public class BaseMailUseCaseImpl {
 
 	@Resource
-	protected ConfigurationRepository configurationRepository;
+	protected ConfigurationMongoRepository configurationMongoRepository;
 
 	@Resource
 	protected JavaMailSender javaMailSender;
@@ -55,12 +55,12 @@ public class BaseMailUseCaseImpl {
 
 	protected EmailConfiguration getEmailConfig() {
 		final EmailConfiguration config = new EmailConfiguration();
-		config.setHost(configurationRepository.findByKey("smtp.host").map(host -> host.getValue()).orElse(null));
+		config.setHost(configurationMongoRepository.findByKey("smtp.host").map(host -> host.getValue()).orElse(null));
 		config.setPort(
-				Integer.parseInt(configurationRepository.findByKey("smtp.port").map(port -> port.getValue()).orElse(String.valueOf(0))));
-		config.setUsername(configurationRepository.findByKey("smtp.username").map(username -> username.getValue()).orElse(null));
-		config.setPassword(configurationRepository.findByKey("smtp.password").map(password -> password.getValue()).orElse(null));
-		config.setEncryption(configurationRepository.findByKey("smtp.encryption").map(encryption -> encryption.getValue()).orElse(null));
+				Integer.parseInt(configurationMongoRepository.findByKey("smtp.port").map(port -> port.getValue()).orElse(String.valueOf(0))));
+		config.setUsername(configurationMongoRepository.findByKey("smtp.username").map(username -> username.getValue()).orElse(null));
+		config.setPassword(configurationMongoRepository.findByKey("smtp.password").map(password -> password.getValue()).orElse(null));
+		config.setEncryption(configurationMongoRepository.findByKey("smtp.encryption").map(encryption -> encryption.getValue()).orElse(null));
 		return config;
 	}
 

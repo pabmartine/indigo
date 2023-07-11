@@ -1,6 +1,6 @@
 package com.martinia.indigo.mail.application;
 
-import com.martinia.indigo.configuration.domain.model.Configuration;
+import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
 import com.martinia.indigo.mail.domain.EmailConfiguration;
 import com.martinia.indigo.mail.domain.ports.usecases.SendTestMailUseCase;
 import lombok.extern.slf4j.Slf4j;
@@ -17,12 +17,12 @@ public class SendTestMailUseCaseImpl extends BaseMailUseCaseImpl implements Send
 	@Override
 	public void test(final String address) {
 		boolean ret = send(address, getEmailConfig());
-		Optional<Configuration> configuration = configurationRepository.findByKey("smtp.status");
+		Optional<ConfigurationMongoEntity> configuration = configurationMongoRepository.findByKey("smtp.status");
 
-		configurationRepository.save(configuration.map(conf -> {
+		configurationMongoRepository.save(configuration.map(conf -> {
 			conf.setValue(ret ? "ok" : "error");
 			return conf;
-		}).orElse(new Configuration("smtp.status", ret ? "ok" : "error")));
+		}).orElse(ConfigurationMongoEntity.builder().key("smtp.status").value(ret ? "ok" : "error").build()));
 	}
 
 	public boolean send(String address, EmailConfiguration emailConfig) {

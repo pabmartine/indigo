@@ -2,8 +2,9 @@ package com.martinia.indigo.metadata.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.author.domain.model.Author;
-import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
-import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
+import com.martinia.indigo.author.domain.ports.repositories.AuthorMongoRepository;
+import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
+import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
 import com.martinia.indigo.common.util.DataUtils;
 import com.martinia.indigo.metadata.domain.ports.usecases.RefreshAuthorMetadataUseCase;
 import com.martinia.indigo.metadata.domain.ports.usecases.amazon.FindAmazonReviewsUseCase;
@@ -30,10 +31,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 public class RefreshAuthorMetadataUseCaseImplTest extends BaseIndigoTest {
 
 	@MockBean
-	private AuthorRepository authorRepository;
+	private AuthorMongoRepository authorMongoRepository;
 
 	@MockBean
-	private BookRepository bookRepository;
+	private BookMongoRepository bookMongoRepository;
 
 	@MockBean
 	private DataUtils dataUtils;
@@ -72,7 +73,7 @@ public class RefreshAuthorMetadataUseCaseImplTest extends BaseIndigoTest {
 		String sort = "John Doe";
 		String lang = "en";
 
-		Author author = new Author();
+		AuthorMongoEntity author = new AuthorMongoEntity();
 		author.setName(sort);
 		author.setSort(sort);
 
@@ -80,17 +81,17 @@ public class RefreshAuthorMetadataUseCaseImplTest extends BaseIndigoTest {
 		expectedAuthor.setName(sort);
 		expectedAuthor.setSort(sort);
 
-		Mockito.when(authorRepository.findBySort(sort)).thenReturn(Optional.of(author));
+		Mockito.when(authorMongoRepository.findBySort(sort)).thenReturn(Optional.of(author));
 		Mockito.when(dataUtils.getData(any())).thenReturn(null);
-		Mockito.when(bookRepository.findAll(any(), anyInt(), anyInt(), anyString(), anyString())).thenReturn(Collections.emptyList());
+		Mockito.when(bookMongoRepository.findAll(any(), anyInt(), anyInt(), anyString(), anyString())).thenReturn(Collections.emptyList());
 		// When
 		Optional<Author> result = refreshAuthorMetadataUseCase.findAuthorMetadata(sort, lang);
 
 		// Then
 		Assertions.assertTrue(result.isPresent());
 		super.assertRecursively(expectedAuthor, result.get(), "lastMetadataSync");
-		Mockito.verify(authorRepository).findBySort(sort);
-		Mockito.verify(authorRepository).update(any());
+		Mockito.verify(authorMongoRepository).findBySort(sort);
+		Mockito.verify(authorMongoRepository).save(any());
 	}
 
 	@Test
@@ -99,14 +100,14 @@ public class RefreshAuthorMetadataUseCaseImplTest extends BaseIndigoTest {
 		String sort = "John Doe";
 		String lang = "en";
 
-		Mockito.when(authorRepository.findBySort(sort)).thenReturn(Optional.empty());
+		Mockito.when(authorMongoRepository.findBySort(sort)).thenReturn(Optional.empty());
 
 		// When
 		Optional<Author> result = refreshAuthorMetadataUseCase.findAuthorMetadata(sort, lang);
 
 		// Then
 		Assertions.assertTrue(result.isEmpty());
-		Mockito.verify(authorRepository).findBySort(sort);
-		Mockito.verifyNoMoreInteractions(authorRepository);
+		Mockito.verify(authorMongoRepository).findBySort(sort);
+		Mockito.verifyNoMoreInteractions(authorMongoRepository);
 	}
 }

@@ -2,8 +2,9 @@ package com.martinia.indigo.book.application.serie;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
 import com.martinia.indigo.book.domain.ports.usecases.serie.FindBooksBySerieUseCase;
+import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -19,7 +20,7 @@ import static org.mockito.Mockito.when;
 public class FindBooksBySerieUseCaseImplTest extends BaseIndigoTest {
 
 	@MockBean
-	private BookRepository bookRepository;
+	private BookMongoRepository bookRepository;
 	@Resource
 	private FindBooksBySerieUseCase findBooksBySerieUseCase;
 
@@ -28,7 +29,7 @@ public class FindBooksBySerieUseCaseImplTest extends BaseIndigoTest {
 		// Given
 		String serie = "exampleSerie";
 		List<String> languages = Arrays.asList("English", "Spanish");
-		List<Book> expectedBooks = Arrays.asList(new Book(), new Book());
+		List<BookMongoEntity> expectedBooks = Arrays.asList(new BookMongoEntity(), new BookMongoEntity());
 
 		// Mock the behavior of bookRepository.getSerie()
 		when(bookRepository.getSerie(serie, languages)).thenReturn(expectedBooks);

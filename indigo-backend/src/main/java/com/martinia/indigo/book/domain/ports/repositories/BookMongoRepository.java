@@ -1,18 +1,15 @@
-package com.martinia.indigo.adapters.out.mongo.repository;
+package com.martinia.indigo.book.domain.ports.repositories;
+
+import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
-
-import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
-import com.martinia.indigo.adapters.out.mongo.repository.custom.CustomBookMongoRepository;
-import org.springframework.stereotype.Repository;
-
 @Repository
-public interface BookMongoRepository
-		extends MongoRepository<BookMongoEntity, String>, CustomBookMongoRepository {
+public interface BookMongoRepository extends MongoRepository<BookMongoEntity, String>, CustomBookMongoRepository {
 
 	@Query("{ 'serie.name' : ?0 }")
 	List<BookMongoEntity> findBooksBySerie(String serie);
@@ -25,8 +22,5 @@ public interface BookMongoRepository
 
 	@Query("{ 'path' : ?0 }")
 	Optional<BookMongoEntity> findByPath(String path);
-
-//	BookMongoEntity findFirstByReviewsLastMetadataSyncExistsTrue();
-	
 
 }

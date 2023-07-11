@@ -1,6 +1,6 @@
 package com.martinia.indigo.book.application;
 
-import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
 import com.martinia.indigo.book.domain.ports.usecases.CountAllBooksUseCase;
 import com.martinia.indigo.common.model.Search;
 import org.springframework.stereotype.Service;
@@ -13,11 +13,11 @@ import javax.transaction.Transactional;
 public class CountAllBooksUseCaseImpl implements CountAllBooksUseCase {
 
 	@Resource
-	private BookRepository bookRepository;
+	private BookMongoRepository bookMongoRepository;
 
 	@Override
 	public Long count(Search search) {
-		return bookRepository.count(search);
+		return bookMongoRepository.count(search);
 	}
 
 }

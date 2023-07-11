@@ -2,8 +2,9 @@ package com.martinia.indigo.book.application.recommendation;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
 import com.martinia.indigo.book.domain.ports.usecases.recommendation.FindBookRecommendationsByUserUseCase;
+import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.common.util.UtilComponent;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -19,7 +20,7 @@ import static org.mockito.Mockito.when;
 
 class FindBookRecommendationsByUserUseCaseImplTest extends BaseIndigoTest {
 	@MockBean
-	private BookRepository bookRepository;
+	private BookMongoRepository bookRepository;
 
 	@MockBean
 	private UtilComponent utilComponent;
@@ -35,7 +36,7 @@ class FindBookRecommendationsByUserUseCaseImplTest extends BaseIndigoTest {
 		int size = 10;
 		String sort = "title";
 		String order = "asc";
-		List<Book> expectedRecommendations = Arrays.asList(new Book(), new Book());
+		List<BookMongoEntity> expectedRecommendations = Arrays.asList(new BookMongoEntity(), new BookMongoEntity());
 
 		// Mock the behavior of bookRepository.getRecommendationsByUser()
 		when(bookRepository.getRecommendationsByUser(user, page, size, sort, order)).thenReturn(expectedRecommendations);

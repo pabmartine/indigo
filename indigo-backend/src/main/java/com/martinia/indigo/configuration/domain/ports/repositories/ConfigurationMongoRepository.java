@@ -1,4 +1,4 @@
-package com.martinia.indigo.adapters.out.mongo.repository;
+package com.martinia.indigo.configuration.domain.ports.repositories;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 

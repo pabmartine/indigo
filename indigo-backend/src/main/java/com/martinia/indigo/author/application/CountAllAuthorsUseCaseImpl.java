@@ -1,6 +1,6 @@
 package com.martinia.indigo.author.application;
 
-import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
+import com.martinia.indigo.author.domain.ports.repositories.AuthorMongoRepository;
 import com.martinia.indigo.author.domain.ports.usecases.CountAllAuthorsUseCase;
 import org.springframework.stereotype.Service;
 
@@ -11,11 +11,11 @@ import java.util.List;
 public class CountAllAuthorsUseCaseImpl implements CountAllAuthorsUseCase {
 
 	@Resource
-	private AuthorRepository authorRepository;
+	private AuthorMongoRepository authorMongoRepository;
 
 	@Override
 	public Long count(List<String> languages) {
-		return authorRepository.count(languages);
+		return authorMongoRepository.count(languages);
 	}
 
 }

@@ -1,9 +1,9 @@
 package com.martinia.indigo.metadata.application;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.configuration.domain.model.Configuration;
-import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
 import com.martinia.indigo.common.util.DataUtils;
+import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationMongoRepository;
+import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
 import com.martinia.indigo.metadata.domain.ports.usecases.StartMetadataUseCase;
 import com.martinia.indigo.metadata.domain.ports.usecases.amazon.FindAmazonReviewsUseCase;
 import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsAuthorUseCase;
@@ -41,7 +41,7 @@ public class StartMetadataUseCaseImplTest extends BaseIndigoTest {
 	@MockBean
 	private FindAmazonReviewsUseCase findAmazonReviewsUseCase;
 	@MockBean
-	private ConfigurationRepository mockConfigurationRepository;
+	private ConfigurationMongoRepository mockConfigurationRepository;
 	@Resource
 	private StartMetadataUseCase startMetadataUseCase;
 
@@ -53,11 +53,7 @@ public class StartMetadataUseCaseImplTest extends BaseIndigoTest {
 		String entity = "all";
 
 		Mockito.when(mockConfigurationRepository.findByKey("goodreads.key"))
-				.thenReturn(Optional.of(new Configuration("goodreads.key", "123456")));
-//		Mockito.when(mockConfigurationRepository.findByKey("metadata.pull"))
-//				.thenReturn(Optional.of(new Configuration("metadata.pull", "1000")));
-//		Mockito.when(mockConfigurationRepository.findByKey("metadata.pull"))
-//				.thenReturn(Optional.of(new Configuration("metadata.pull", "1000")));
+				.thenReturn(Optional.of(ConfigurationMongoEntity.builder().key("goodreads.key").value("123456").build()));
 
 		// When
 		startMetadataUseCase.start(lang, type, entity);

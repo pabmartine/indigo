@@ -1,4 +1,4 @@
-package com.martinia.indigo.adapters.out.mongo.repository.custom;
+package com.martinia.indigo.author.domain.ports.repositories;
 
 import java.util.List;
 

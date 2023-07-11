@@ -2,10 +2,13 @@ package com.martinia.indigo.author.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.author.domain.model.Author;
-import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
+import com.martinia.indigo.author.domain.ports.repositories.AuthorMongoRepository;
 import com.martinia.indigo.author.domain.ports.usecases.FindAllAuthorsUseCase;
+import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
@@ -19,7 +22,7 @@ class FindAllAuthorsUseCaseImplTest extends BaseIndigoTest {
 	private FindAllAuthorsUseCase findAllAuthorsUseCase;
 
 	@MockBean
-	private AuthorRepository authorRepository;
+	private AuthorMongoRepository authorMongoRepository;
 
 	@Test
 	void givenLanguagesPageAndSize_whenFindAllAuthors_thenReturnListOfAuthors() {
@@ -29,11 +32,8 @@ class FindAllAuthorsUseCaseImplTest extends BaseIndigoTest {
 		int size = 10;
 		String sort = "name";
 		String order = "asc";
-		List<Author> expectedAuthors = Arrays.asList(
-				new Author(),
-				new Author()
-		);
-		when(authorRepository.findAll(languages, page, size, sort, order)).thenReturn(expectedAuthors);
+		List<AuthorMongoEntity> expectedAuthors = Arrays.asList(new AuthorMongoEntity(), new AuthorMongoEntity());
+		when(authorMongoRepository.findAll(languages, PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(order), sort)))).thenReturn(expectedAuthors);
 
 		// When
 		List<Author> result = findAllAuthorsUseCase.findAll(languages, page, size, sort, order);

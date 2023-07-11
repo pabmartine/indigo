@@ -3,11 +3,10 @@ package com.martinia.indigo.adapters.out.mongo.service;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.tag.infrastructure.mongo.entities.TagMongoEntity;
 import com.martinia.indigo.tag.infrastructure.mongo.mappers.TagMongoMapper;
-import com.martinia.indigo.adapters.out.mongo.repository.BookMongoRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
 import com.martinia.indigo.adapters.out.mongo.repository.TagMongoRepository;
 import com.martinia.indigo.tag.domain.model.Tag;
 import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 

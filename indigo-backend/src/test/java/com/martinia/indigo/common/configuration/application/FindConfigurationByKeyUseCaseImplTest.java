@@ -1,9 +1,10 @@
 package com.martinia.indigo.common.configuration.application;
 
 import com.martinia.indigo.BaseIndigoTest;
+import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationMongoRepository;
 import com.martinia.indigo.configuration.domain.ports.usecases.FindConfigurationByKeyUseCase;
 import com.martinia.indigo.configuration.domain.model.Configuration;
-import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
+import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -19,13 +20,13 @@ public class FindConfigurationByKeyUseCaseImplTest extends BaseIndigoTest {
 	@Resource
 	private FindConfigurationByKeyUseCase useCase;
 	@MockBean
-	private ConfigurationRepository configurationRepository;
+	private ConfigurationMongoRepository configurationRepository;
 
 	@Test
 	public void testFindByKey() {
 		// Arrange
 		String key = "testKey";
-		Configuration configuration = new Configuration();
+		ConfigurationMongoEntity configuration = new ConfigurationMongoEntity();
 		when(configurationRepository.findByKey(key)).thenReturn(Optional.of(configuration));
 
 		// Act

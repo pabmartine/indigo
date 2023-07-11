@@ -3,7 +3,8 @@ package com.martinia.indigo.common.configuration.application;
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.configuration.application.SaveConfigurationsUseCaseImpl;
 import com.martinia.indigo.configuration.domain.model.Configuration;
-import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
+import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationMongoRepository;
+import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -13,13 +14,16 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
-
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class SaveConfigurationsUseCaseImplTest extends BaseIndigoTest {
 
 	@MockBean
-	private ConfigurationRepository configurationRepository;
+	private ConfigurationMongoRepository configurationRepository;
 
 	@Resource
 	private SaveConfigurationsUseCaseImpl useCase;
@@ -37,7 +41,7 @@ public class SaveConfigurationsUseCaseImplTest extends BaseIndigoTest {
 
 		List<Configuration> configurations = Arrays.asList(configuration1, configuration2);
 
-		Configuration existingConfiguration = new Configuration();
+		ConfigurationMongoEntity existingConfiguration = new ConfigurationMongoEntity();
 		existingConfiguration.setKey("key1");
 		existingConfiguration.setValue("oldValue");
 
@@ -71,8 +75,8 @@ public class SaveConfigurationsUseCaseImplTest extends BaseIndigoTest {
 		useCase.save(configurations);
 
 		// Then
-		verify(configurationRepository, times(1)).save(configuration1);
-		verify(configurationRepository, times(1)).save(configuration2);
+		verify(configurationRepository, times(1)).save(any());
+		verify(configurationRepository, times(1)).save(any());
 	}
 }
 

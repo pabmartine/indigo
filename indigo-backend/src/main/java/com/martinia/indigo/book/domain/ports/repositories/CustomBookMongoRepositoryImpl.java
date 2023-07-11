@@ -1,4 +1,4 @@
-package com.martinia.indigo.adapters.out.mongo.repository.custom;
+package com.martinia.indigo.book.domain.ports.repositories;
 
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.notification.infrastructure.mongo.entities.NotificationMongoEntity;
@@ -15,7 +15,6 @@ import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;

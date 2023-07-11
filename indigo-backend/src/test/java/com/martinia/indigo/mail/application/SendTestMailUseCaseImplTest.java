@@ -2,7 +2,8 @@ package com.martinia.indigo.mail.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.configuration.domain.model.Configuration;
-import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
+import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationMongoRepository;
+import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -20,7 +21,7 @@ class SendTestMailUseCaseImplTest extends BaseIndigoTest {
 	private JavaMailSender javaMailSender;
 
 	@MockBean
-	private ConfigurationRepository configurationRepository;
+	private ConfigurationMongoRepository configurationRepository;
 
 	@Resource
 	private SendTestMailUseCaseImpl sendMailUseCase;
@@ -31,8 +32,8 @@ class SendTestMailUseCaseImplTest extends BaseIndigoTest {
 		//Given
 		Mockito.doNothing().when(javaMailSender).send(Mockito.any(SimpleMailMessage.class));
 		Mockito.when(configurationRepository.findByKey(Mockito.any())).thenReturn(Optional.empty());
-		final Configuration confEncryption = new Configuration("smtp.encryption", "starttls");
-		final Optional<Configuration> optConfEncryption = Optional.of(confEncryption);
+		final ConfigurationMongoEntity confEncryption = ConfigurationMongoEntity.builder().key("smtp.encryption").value("starttls").build();
+		final Optional<ConfigurationMongoEntity> optConfEncryption = Optional.of(confEncryption);
 		Mockito.when(configurationRepository.findByKey("smtp.encryption")).thenReturn(optConfEncryption);
 		//When
 		sendMailUseCase.test("address");
