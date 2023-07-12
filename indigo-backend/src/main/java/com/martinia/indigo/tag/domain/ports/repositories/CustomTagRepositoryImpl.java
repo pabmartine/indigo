@@ -1,9 +1,8 @@
-package com.martinia.indigo.adapters.out.mongo.repository.custom;
+package com.martinia.indigo.tag.domain.ports.repositories;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -17,7 +16,7 @@ import com.martinia.indigo.tag.infrastructure.mongo.entities.TagMongoEntity;
 import javax.annotation.Resource;
 
 @Repository
-public class CustomTagMongoRepositoryImpl implements CustomTagMongoRepository {
+public class CustomTagRepositoryImpl implements CustomTagRepository {
 
 	@Resource
 	private MongoTemplate mongoTemplate;

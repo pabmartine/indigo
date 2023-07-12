@@ -1,7 +1,7 @@
 package com.martinia.indigo.book.application.view;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.book.domain.ports.repositories.ViewMongoRepository;
+import com.martinia.indigo.book.domain.ports.repositories.ViewRepository;
 import com.martinia.indigo.book.domain.ports.usecases.view.MarkBookAsViewUseCase;
 import com.martinia.indigo.common.model.View;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,7 @@ import static org.mockito.Mockito.verify;
 class MarkBookAsViewUseCaseImplTest extends BaseIndigoTest {
 
 	@MockBean
-	private ViewMongoRepository viewRepository;
+	private ViewRepository viewRepository;
 	@Resource
 	private MarkBookAsViewUseCase useCase;
 

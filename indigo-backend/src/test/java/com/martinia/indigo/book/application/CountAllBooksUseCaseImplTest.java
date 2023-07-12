@@ -1,7 +1,7 @@
 package com.martinia.indigo.book.application;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.common.model.Search;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -17,7 +17,7 @@ class CountAllBooksUseCaseImplTest extends BaseIndigoTest {
 	private CountAllBooksUseCaseImpl countAllUseCase;
 
 	@MockBean
-	private BookMongoRepository bookRepository;
+	private BookRepository bookRepository;
 
 	@Test
 	public void testCount() {

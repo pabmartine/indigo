@@ -14,8 +14,10 @@ public class SetTagUseCaseImpl implements SetTagImageUseCase {
 
 	@Override
 	public void setImage(final String source, final String image) {
-		tagRepository.setImage(source, image);
-
+		tagRepository.findById(source).ifPresent(tag -> {
+			tag.setImage(image);
+			tagRepository.save(tag);
+		});
 	}
 
 }

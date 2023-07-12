@@ -1,8 +1,7 @@
 package com.martinia.indigo.mail.application;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.configuration.domain.model.Configuration;
-import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationMongoRepository;
+import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
 import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -21,7 +20,7 @@ class SendTestMailUseCaseImplTest extends BaseIndigoTest {
 	private JavaMailSender javaMailSender;
 
 	@MockBean
-	private ConfigurationMongoRepository configurationRepository;
+	private ConfigurationRepository configurationRepository;
 
 	@Resource
 	private SendTestMailUseCaseImpl sendMailUseCase;

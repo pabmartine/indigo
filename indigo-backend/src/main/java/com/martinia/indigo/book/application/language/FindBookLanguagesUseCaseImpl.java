@@ -1,6 +1,6 @@
 package com.martinia.indigo.book.application.language;
 
-import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.domain.ports.usecases.language.FindBookLanguagesUseCase;
 import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
 import org.springframework.stereotype.Service;
@@ -14,14 +14,14 @@ import java.util.List;
 public class FindBookLanguagesUseCaseImpl implements FindBookLanguagesUseCase {
 
 	@Resource
-	private BookMongoRepository bookMongoRepository;
+	private BookRepository bookRepository;
 
 	@Resource
 	private BookMongoMapper bookMongoMapper;
 
 	@Override
 	public List<String> getBookLanguages() {
-		return bookMongoRepository.getBookLanguages();
+		return bookRepository.getBookLanguages();
 	}
 
 }

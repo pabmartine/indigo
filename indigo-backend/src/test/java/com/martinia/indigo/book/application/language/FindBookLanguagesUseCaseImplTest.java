@@ -1,7 +1,7 @@
 package com.martinia.indigo.book.application.language;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.domain.ports.usecases.language.FindBookLanguagesUseCase;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -21,7 +21,7 @@ public class FindBookLanguagesUseCaseImplTest extends BaseIndigoTest {
 	private FindBookLanguagesUseCase findBookLanguagesUseCase;
 
 	@MockBean
-	private BookMongoRepository bookRepository;
+	private BookRepository bookRepository;
 
 	@Test
 	public void testGetBookLanguages() {

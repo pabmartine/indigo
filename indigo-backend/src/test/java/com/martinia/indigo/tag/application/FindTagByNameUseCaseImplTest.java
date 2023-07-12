@@ -1,10 +1,11 @@
 package com.martinia.indigo.tag.application;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.common.model.NumBooks;
+import com.martinia.indigo.common.infrastructure.mongo.entities.NumBooksMongo;
 import com.martinia.indigo.tag.domain.model.Tag;
 import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
 import com.martinia.indigo.tag.domain.ports.usecases.FindTagByNameUseCase;
+import com.martinia.indigo.tag.infrastructure.mongo.entities.TagMongoEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -28,7 +29,7 @@ public class FindTagByNameUseCaseImplTest extends BaseIndigoTest {
 	public void testFindByName_TagExists() {
 		// Given
 		String tagName = "Java";
-		Tag expectedTag = new Tag("1", tagName, "image.png", new NumBooks());
+		TagMongoEntity expectedTag = new TagMongoEntity("1", tagName, "image.png", new NumBooksMongo());
 
 		when(tagRepository.findByName(tagName)).thenReturn(Optional.of(expectedTag));
 

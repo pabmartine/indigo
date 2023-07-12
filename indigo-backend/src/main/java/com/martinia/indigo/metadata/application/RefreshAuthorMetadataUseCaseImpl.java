@@ -16,9 +16,9 @@ public class RefreshAuthorMetadataUseCaseImpl extends BaseMetadataUseCaseImpl im
 	@Override
 	public Optional<Author> findAuthorMetadata(String sort, String lang) {
 
-		return authorMongoRepository.findBySort(sort).map(author -> {
+		return authorRepository.findBySort(sort).map(author -> {
 			AuthorMongoEntity _author = findAuthorMetadata(lang, true, author);
-			authorMongoRepository.save(_author);
+			authorRepository.save(_author);
 			return Optional.of(authorMongoMapper.entity2Domain(_author));
 		}).orElse(Optional.empty());
 

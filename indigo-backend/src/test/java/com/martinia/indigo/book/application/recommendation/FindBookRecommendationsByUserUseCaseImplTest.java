@@ -2,7 +2,7 @@ package com.martinia.indigo.book.application.recommendation;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.domain.ports.usecases.recommendation.FindBookRecommendationsByUserUseCase;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.common.util.UtilComponent;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 
 class FindBookRecommendationsByUserUseCaseImplTest extends BaseIndigoTest {
 	@MockBean
-	private BookMongoRepository bookRepository;
+	private BookRepository bookRepository;
 
 	@MockBean
 	private UtilComponent utilComponent;

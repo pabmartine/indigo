@@ -1,39 +1,14 @@
 package com.martinia.indigo.user.domain.ports.repositories;
 
-import com.martinia.indigo.author.domain.model.Author;
-import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.user.domain.model.User;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.util.List;
+import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
+import org.springframework.stereotype.Repository;
+
 import java.util.Optional;
 
-public interface UserRepository {
+@Repository
+public interface UserRepository extends MongoRepository<UserMongoEntity, String> {
 
-	void addFavoriteAuthor(String user, String author);
-
-	void addFavoriteBook(String user, String book);
-
-	void delete(String id);
-
-	void deleteFavoriteAuthor(String user, String author);
-
-	void deleteFavoriteBook(String user, String book);
-
-	List<User> findAll();
-
-	Optional<User> findById(String id);
-
-	Optional<User> findByUsername(String string);
-
-	List<Book> getFavoriteBooks(String user);
-	
-	List<Author> getFavoriteAuthors(String user);
-
-	Boolean isFavoriteAuthor(String user, String author);
-
-	Boolean isFavoriteBook(String user, String book);
-
-	void save(User user);
-
-
+	Optional<UserMongoEntity> findByUsername(String username);
 }

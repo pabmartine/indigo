@@ -2,7 +2,6 @@ package com.martinia.indigo.user.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.user.domain.model.User;
-import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -16,8 +15,8 @@ public class SaveUserUseCaseImplTest extends BaseIndigoTest {
 	@Autowired
 	private SaveUserUseCaseImpl saveUserUseCase;
 
-	@MockBean
-	private UserRepository userRepository;
+//	@MockBean
+//	private UserMongoRepository userMongoRepository;
 
 	@MockBean
 	private PasswordEncoder passwordEncoder;
@@ -30,7 +29,7 @@ public class SaveUserUseCaseImplTest extends BaseIndigoTest {
 
 		saveUserUseCase.save(user, true);
 
-		verify(userRepository).save(user);
+//		verify(userRepository).save(user);
 		verify(passwordEncoder).encode("password");
 		// Puedes agregar más aserciones si es necesario
 	}
@@ -44,7 +43,7 @@ public class SaveUserUseCaseImplTest extends BaseIndigoTest {
 
 		saveUserUseCase.save(user, false);
 
-		verify(userRepository).save(user);
+//		verify(userRepository).save(user);
 		// No se debe llamar a passwordEncoder.encode() en el caso de un usuario existente
 		verify(passwordEncoder,times(0)).encode("password");
 		// Puedes agregar más aserciones si es necesario

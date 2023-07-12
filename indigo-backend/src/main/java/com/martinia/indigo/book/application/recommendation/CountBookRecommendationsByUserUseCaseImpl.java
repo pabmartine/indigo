@@ -1,6 +1,6 @@
 package com.martinia.indigo.book.application.recommendation;
 
-import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.domain.ports.usecases.recommendation.CountBookRecommendationsByUserUseCase;
 import org.springframework.stereotype.Service;
 
@@ -12,11 +12,11 @@ import javax.transaction.Transactional;
 public class CountBookRecommendationsByUserUseCaseImpl implements CountBookRecommendationsByUserUseCase {
 
 	@Resource
-	private BookMongoRepository bookMongoRepository;
+	private BookRepository bookRepository;
 
 	@Override
 	public Long countRecommendationsByUser(String user) {
-		return bookMongoRepository.countRecommendationsByUser(user);
+		return bookRepository.countRecommendationsByUser(user);
 	}
 
 }

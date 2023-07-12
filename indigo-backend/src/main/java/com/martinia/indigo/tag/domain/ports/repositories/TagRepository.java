@@ -1,25 +1,15 @@
 package com.martinia.indigo.tag.domain.ports.repositories;
 
-import java.util.List;
+import com.martinia.indigo.tag.infrastructure.mongo.entities.TagMongoEntity;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
+import org.springframework.stereotype.Repository;
+
 import java.util.Optional;
 
-import com.martinia.indigo.tag.domain.model.Tag;
+@Repository
+public interface TagRepository extends MongoRepository<TagMongoEntity, String>, CustomTagRepository {
 
-public interface TagRepository {
-
-
-	List<Tag> findAll(List<String> languages, String sort, String order);
-
-	Optional<Tag> findByName(String name);
-
-	void setImage(String source, String image);
-
-	void merge(String source, String target);
-
-	void rename(String source, String target);
-
-	void save(List<String> tags, List<String> languages);
-
-	void deleteAll();
-
+	@Query("{ 'name' : ?0 }")
+	Optional<TagMongoEntity> findByName(String tag);
 }

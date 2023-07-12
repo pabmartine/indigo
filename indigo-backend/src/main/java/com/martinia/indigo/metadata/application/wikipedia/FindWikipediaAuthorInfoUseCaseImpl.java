@@ -8,6 +8,7 @@ import com.martinia.indigo.metadata.domain.model.ProviderEnum;
 import com.martinia.indigo.metadata.domain.ports.usecases.wikipedia.FindWikipediaAuthorInfoUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -20,6 +21,9 @@ public class FindWikipediaAuthorInfoUseCaseImpl implements FindWikipediaAuthorIn
 	@Resource
 	private DataUtils dataUtils;
 
+	@Value("${metadata.wikipedia.author-info}")
+	private String endpoint;
+
 	@Override
 	public String[] getAuthorInfo(String subject, String lang) {
 
@@ -27,9 +31,8 @@ public class FindWikipediaAuthorInfoUseCaseImpl implements FindWikipediaAuthorIn
 
 		subject = StringUtils.stripAccents(subject).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ");
 
-		String url = "https://" + lang
-				+ ".wikipedia.org/w/api.php?format=json&action=query&prop=extracts|pageimages&exintro&explaintext&generator=search&gsrlimit=1&redirects=1&piprop=original&gsrsearch="
-				+ subject.replace(" ", "%20");
+		String url = endpoint.replace("$lang", lang).replace("$subject", subject.replace(" ", "%20"));
+
 		try {
 			String json = dataUtils.getData(url);
 

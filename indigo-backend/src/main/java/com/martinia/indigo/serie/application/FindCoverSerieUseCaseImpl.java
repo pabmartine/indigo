@@ -1,7 +1,8 @@
 package com.martinia.indigo.serie.application;
 
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.serie.domain.ports.repositories.SerieRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
+import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
 import com.martinia.indigo.serie.domain.ports.usecases.FindCoverSerieUseCase;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -15,12 +16,14 @@ import java.util.stream.Collectors;
 public class FindCoverSerieUseCaseImpl implements FindCoverSerieUseCase {
 
 	@Resource
-	private SerieRepository serieRepository;
+	private BookRepository bookRepository;
+
+	@Resource
+	private BookMongoMapper bookMongoMapper;
 
 	@Override
 	public String getCover(final String serie) {
-
-		List<Book> books = serieRepository.findBooksBySerie(serie.replace("@_@", "&"));
+		List<Book> books = bookMongoMapper.entities2Domains(bookRepository.findBooksBySerie(serie.replace("@_@", "&")));
 		List<Book> sorted = books.stream().sorted(Comparator.comparingInt(b -> b.getSerie().getIndex())).collect(Collectors.toList());
 
 		if (!CollectionUtils.isEmpty(sorted)) {

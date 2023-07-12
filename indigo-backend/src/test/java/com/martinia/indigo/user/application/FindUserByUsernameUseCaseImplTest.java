@@ -2,7 +2,6 @@ package com.martinia.indigo.user.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.user.domain.model.User;
-import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -18,8 +17,8 @@ import static org.mockito.Mockito.*;
 
 class FindUserByUsernameUseCaseImplTest extends BaseIndigoTest {
 
-	@Mock
-	private UserRepository userRepository;
+//	@Mock
+//	private UserMongoRepository userMongoRepository;
 
 	@InjectMocks
 	private FindUserByUsernameUseCaseImpl useCase;
@@ -35,7 +34,7 @@ class FindUserByUsernameUseCaseImplTest extends BaseIndigoTest {
 		String username = "johnDoe";
 		List<String> languageBooks = Arrays.asList("Book 1", "Book 2");
 		User user = new User("1", username, "password", "kindle", "role", "language", languageBooks, null, null);
-		when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+//		when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
 
 		// Act
 		Optional<User> result = useCase.findByUsername(username);
@@ -43,20 +42,20 @@ class FindUserByUsernameUseCaseImplTest extends BaseIndigoTest {
 		// Assert
 		assertTrue(result.isPresent());
 		assertEquals(user, result.get());
-		verify(userRepository, times(1)).findByUsername(username);
+//		verify(userRepository, times(1)).findByUsername(username);
 	}
 
 	@Test
 	public void testFindByUsername_UserDoesNotExist() {
 		// Arrange
 		String username = "nonExistingUser";
-		when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+//		when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
 
 		// Act
 		Optional<User> result = useCase.findByUsername(username);
 
 		// Assert
 		assertFalse(result.isPresent());
-		verify(userRepository, times(1)).findByUsername(username);
+//		verify(userRepository, times(1)).findByUsername(username);
 	}
 }

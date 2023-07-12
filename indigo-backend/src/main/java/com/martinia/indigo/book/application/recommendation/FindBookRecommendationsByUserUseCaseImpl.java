@@ -1,7 +1,7 @@
 package com.martinia.indigo.book.application.recommendation;
 
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.domain.ports.usecases.recommendation.FindBookRecommendationsByUserUseCase;
 import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class FindBookRecommendationsByUserUseCaseImpl implements FindBookRecommendationsByUserUseCase {
 
 	@Resource
-	private BookMongoRepository bookMongoRepository;
+	private BookRepository bookRepository;
 
 	@Resource
 	private BookMongoMapper bookMongoMapper;
@@ -27,7 +27,7 @@ public class FindBookRecommendationsByUserUseCaseImpl implements FindBookRecomme
 	public List<Book> getRecommendationsByUser(String user, int page, int size, String sort, String order) {
 		List<Book> ret = null;
 
-		List<Book> books = bookMongoMapper.entities2Domains(bookMongoRepository.getRecommendationsByUser(user, page, size, sort, order));
+		List<Book> books = bookMongoMapper.entities2Domains(bookRepository.getRecommendationsByUser(user, page, size, sort, order));
 
 		Map<String, Book> map = books.stream().collect(LinkedHashMap::new, (_map, item) -> _map.put(item.getId(), item), Map::putAll);
 

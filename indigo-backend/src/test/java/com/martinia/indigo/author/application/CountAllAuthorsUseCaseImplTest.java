@@ -1,7 +1,7 @@
 package com.martinia.indigo.author.application;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.author.domain.ports.repositories.AuthorMongoRepository;
+import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
 import com.martinia.indigo.author.domain.ports.usecases.CountAllAuthorsUseCase;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -18,14 +18,14 @@ class CountAllAuthorsUseCaseImplTest extends BaseIndigoTest {
 	private CountAllAuthorsUseCase countAllAuthorsUseCase;
 
 	@MockBean
-	private AuthorMongoRepository authorMongoRepository;
+	private AuthorRepository authorRepository;
 
 	@Test
 	void givenLanguages_whenCountAuthors_thenReturnCount() {
 		// Given
 		List<String> languages = Arrays.asList("English", "Spanish", "French");
 		Long expectedCount = 42L;
-		when(authorMongoRepository.count(languages)).thenReturn(expectedCount);
+		when(authorRepository.count(languages)).thenReturn(expectedCount);
 
 		// When
 		Long result = countAllAuthorsUseCase.count(languages);

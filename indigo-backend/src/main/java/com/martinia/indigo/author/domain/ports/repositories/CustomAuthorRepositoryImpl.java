@@ -15,7 +15,7 @@ import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntit
 import javax.annotation.Resource;
 
 @Repository
-public class CustomAuthorMongoRepositoryImpl implements CustomAuthorMongoRepository {
+public class CustomAuthorRepositoryImpl implements CustomAuthorRepository {
 
 	@Resource
 	private MongoTemplate mongoTemplate;

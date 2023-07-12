@@ -22,12 +22,12 @@ public class RefreshBookMetadataUseCaseImpl extends BaseMetadataUseCaseImpl impl
 	public Optional<Book> findBookMetadata(String path) {
 
 		if (goodreads == null) {
-			goodreads = configurationMongoRepository.findByKey("goodreads.key").get().getValue();
+			goodreads = configurationRepository.findByKey("goodreads.key").get().getValue();
 		}
 
-		return bookMongoRepository.findByPath(path).map(book -> {
+		return bookRepository.findByPath(path).map(book -> {
 			BookMongoEntity _book = findBookMetadata(true, book);
-			bookMongoRepository.save(_book);
+			bookRepository.save(_book);
 			return Optional.of(mapper.entity2Domain(_book));
 		}).orElse(Optional.empty());
 

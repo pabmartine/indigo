@@ -2,7 +2,7 @@ package com.martinia.indigo.metadata.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.common.util.DataUtils;
-import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationMongoRepository;
+import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
 import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
 import com.martinia.indigo.metadata.domain.ports.usecases.StartMetadataUseCase;
 import com.martinia.indigo.metadata.domain.ports.usecases.amazon.FindAmazonReviewsUseCase;
@@ -41,7 +41,7 @@ public class StartMetadataUseCaseImplTest extends BaseIndigoTest {
 	@MockBean
 	private FindAmazonReviewsUseCase findAmazonReviewsUseCase;
 	@MockBean
-	private ConfigurationMongoRepository mockConfigurationRepository;
+	private ConfigurationRepository mockConfigurationRepository;
 	@Resource
 	private StartMetadataUseCase startMetadataUseCase;
 

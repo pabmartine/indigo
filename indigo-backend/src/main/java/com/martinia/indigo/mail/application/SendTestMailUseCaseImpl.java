@@ -17,9 +17,9 @@ public class SendTestMailUseCaseImpl extends BaseMailUseCaseImpl implements Send
 	@Override
 	public void test(final String address) {
 		boolean ret = send(address, getEmailConfig());
-		Optional<ConfigurationMongoEntity> configuration = configurationMongoRepository.findByKey("smtp.status");
+		Optional<ConfigurationMongoEntity> configuration = configurationRepository.findByKey("smtp.status");
 
-		configurationMongoRepository.save(configuration.map(conf -> {
+		configurationRepository.save(configuration.map(conf -> {
 			conf.setValue(ret ? "ok" : "error");
 			return conf;
 		}).orElse(ConfigurationMongoEntity.builder().key("smtp.status").value(ret ? "ok" : "error").build()));

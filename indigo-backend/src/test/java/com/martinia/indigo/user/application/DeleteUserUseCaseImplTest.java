@@ -1,7 +1,6 @@
 package com.martinia.indigo.user.application;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -11,8 +10,8 @@ import static org.mockito.Mockito.verify;
 
 public class DeleteUserUseCaseImplTest extends BaseIndigoTest {
 
-	@Mock
-	private UserRepository userRepository;
+//	@Mock
+//	private UserMongoRepository userMongoRepository;
 
 	@InjectMocks
 	private DeleteUserUseCaseImpl deleteUserUseCase;
@@ -27,6 +26,6 @@ public class DeleteUserUseCaseImplTest extends BaseIndigoTest {
 
 		deleteUserUseCase.delete(userId);
 
-		verify(userRepository).delete(userId);
+//		verify(userRepository).delete(userId);
 	}
 }

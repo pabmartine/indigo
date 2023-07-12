@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface AuthorMongoRepository extends MongoRepository<AuthorMongoEntity, String>, CustomAuthorMongoRepository {
+public interface AuthorRepository extends MongoRepository<AuthorMongoEntity, String>, CustomAuthorRepository {
 
 	@Query("{ 'name' : ?0 }")
 	Optional<AuthorMongoEntity> findByName(String name);

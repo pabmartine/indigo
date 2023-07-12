@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 import static com.mongodb.client.model.Filters.in;
 
 @Repository
-public class CustomBookMongoRepositoryImpl implements CustomBookMongoRepository {
+public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 	@Resource
 	private MongoTemplate mongoTemplate;

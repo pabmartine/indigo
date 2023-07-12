@@ -8,6 +8,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -16,9 +18,14 @@ import java.util.Arrays;
 
 @Slf4j
 @Service
+@ConditionalOnProperty(name = "flags.goodreads", havingValue = "true")
 public class FindGoodReadsAuthorUseCaseImpl implements FindGoodReadsAuthorUseCase {
 
-	private String endpoint = "https://www.goodreads.com/";
+	@Value("${metadata.goodreads.author}")
+	private String endpointAuthor;
+
+	@Value("${metadata.goodreads.author-info}")
+	private String endpointAuthorInfo;
 
 	@Resource
 	private DataUtils dataUtils;
@@ -40,7 +47,7 @@ public class FindGoodReadsAuthorUseCaseImpl implements FindGoodReadsAuthorUseCas
 
 			subject = StringUtils.stripAccents(subject).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ");
 
-			String url = endpoint + "search.xml?q=" + subject.replace(" ", "+") + "&key=" + key;
+			String url = endpointAuthor.replace("$subject", subject.replace(" ", "+")).replace("$key", key);
 			String xml = dataUtils.getData(url);
 
 			if (StringUtils.isNoneEmpty(xml)) {
@@ -72,7 +79,7 @@ public class FindGoodReadsAuthorUseCaseImpl implements FindGoodReadsAuthorUseCas
 			}
 		}
 		catch (Exception e) {
-			log.error(endpoint + "search.xml?q=" + subject.replace(" ", "+") + "&key=" + key);
+			log.error(e.getMessage());
 		}
 
 		return ret;
@@ -84,7 +91,7 @@ public class FindGoodReadsAuthorUseCaseImpl implements FindGoodReadsAuthorUseCas
 		String[] ret = null;
 
 		try {
-			String url = endpoint + "author/show/" + id + "?format=xml&key=" + key;
+			String url = endpointAuthorInfo.replace("$id", id).replace("$key", key);
 			String xml = dataUtils.getData(url);
 
 			if (xml != null) {
@@ -102,7 +109,7 @@ public class FindGoodReadsAuthorUseCaseImpl implements FindGoodReadsAuthorUseCas
 
 		}
 		catch (Exception e) {
-			log.error(endpoint + "author/show/" + id + "?format=xml&key=" + key);
+			log.error(e.getMessage());
 		}
 
 		return ret;

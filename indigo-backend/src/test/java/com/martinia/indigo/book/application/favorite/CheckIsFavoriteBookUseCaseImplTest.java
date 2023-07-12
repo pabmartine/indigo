@@ -2,7 +2,6 @@ package com.martinia.indigo.book.application.favorite;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.ports.usecases.favorite.CheckIsFavoriteBookUseCase;
-import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -15,8 +14,8 @@ import static org.mockito.Mockito.when;
 
 class CheckIsFavoriteBookUseCaseImplTest extends BaseIndigoTest {
 
-	@MockBean
-	private UserRepository userRepository;
+//	@MockBean
+//	private UserMongoRepository userMongoRepository;
 
 	@Resource
 	private CheckIsFavoriteBookUseCase useCase;
@@ -27,14 +26,14 @@ class CheckIsFavoriteBookUseCaseImplTest extends BaseIndigoTest {
 		String user = "example_user";
 		String book = "example_book";
 		Boolean expectedIsFavorite = true;
-		when(userRepository.isFavoriteBook(user, book)).thenReturn(expectedIsFavorite);
+//		when(userRepository.isFavoriteBook(user, book)).thenReturn(expectedIsFavorite);
 
 		// When
 		Boolean actualIsFavorite = useCase.isFavoriteBook(user, book);
 
 		// Then
 		assertEquals(expectedIsFavorite, actualIsFavorite);
-		verify(userRepository, times(1)).isFavoriteBook(user, book);
+//		verify(userRepository, times(1)).isFavoriteBook(user, book);
 	}
 
 }

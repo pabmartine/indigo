@@ -2,6 +2,7 @@ package com.martinia.indigo.book.application.favorite;
 
 import com.martinia.indigo.book.domain.ports.usecases.favorite.DeleteFavoriteBookUseCase;
 import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
+import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,9 @@ public class DeleteFavoriteBookUseCaseImpl implements DeleteFavoriteBookUseCase 
 
 	@Override
 	public void deleteFavoriteBook(String user, String book) {
-		userRepository.deleteFavoriteBook(user, book);
+		UserMongoEntity _user = userRepository.findByUsername(user).get();
+		_user.getFavoriteBooks().remove(book);
+		userRepository.save(_user);
 	}
 
 }

@@ -2,11 +2,10 @@ package com.martinia.indigo.metadata.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.common.util.DataUtils;
-import com.martinia.indigo.configuration.domain.model.Configuration;
-import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationMongoRepository;
+import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
 import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
 import com.martinia.indigo.metadata.domain.ports.usecases.RefreshBookMetadataUseCase;
 import com.martinia.indigo.metadata.domain.ports.usecases.amazon.FindAmazonReviewsUseCase;
@@ -32,10 +31,10 @@ import static org.mockito.ArgumentMatchers.any;
 public class RefreshBookMetadataUseCaseImplTest extends BaseIndigoTest {
 
 	@MockBean
-	private BookMongoRepository mockBookRepository;
+	private BookRepository mockBookRepository;
 
 	@MockBean
-	private ConfigurationMongoRepository mockConfigurationRepository;
+	private ConfigurationRepository mockConfigurationRepository;
 
 	@MockBean
 	private DataUtils dataUtils;

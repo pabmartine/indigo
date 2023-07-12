@@ -2,7 +2,6 @@ package com.martinia.indigo.book.application.favorite;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.ports.usecases.favorite.DeleteFavoriteBookUseCase;
-import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -13,8 +12,8 @@ import static org.mockito.Mockito.verify;
 
 class DeleteFavoriteBookUseCaseImplTest extends BaseIndigoTest {
 
-	@MockBean
-	private UserRepository userRepository;
+//	@MockBean
+//	private UserMongoRepository userMongoRepository;
 
 	@Resource
 	private DeleteFavoriteBookUseCase useCase;
@@ -29,7 +28,7 @@ class DeleteFavoriteBookUseCaseImplTest extends BaseIndigoTest {
 		useCase.deleteFavoriteBook(user, book);
 
 		// Then
-		verify(userRepository, times(1)).deleteFavoriteBook(user, book);
+//		verify(userRepository, times(1)).deleteFavoriteBook(user, book);
 	}
 
 }

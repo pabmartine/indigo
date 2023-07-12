@@ -3,12 +3,10 @@ package com.martinia.indigo.book.domain.ports.repositories;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.stereotype.Repository;
-
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.common.model.Search;
 
-public interface CustomBookMongoRepository {
+public interface CustomBookRepository {
 
 	List<BookMongoEntity> findAll(Search search, int page, int size, String sort, String order);
 

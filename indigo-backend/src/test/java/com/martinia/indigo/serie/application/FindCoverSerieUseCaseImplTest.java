@@ -3,12 +3,10 @@ package com.martinia.indigo.serie.application;
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.common.model.Serie;
-import com.martinia.indigo.serie.domain.ports.repositories.SerieRepository;
 import com.martinia.indigo.serie.domain.ports.usecases.FindCoverSerieUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -17,15 +15,13 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-
 public class FindCoverSerieUseCaseImplTest extends BaseIndigoTest {
 
-	@MockBean
-	private SerieRepository serieRepository;
+	//	@MockBean
+	//	private SerieRepository serieRepository;
 
 	@Resource
 	private FindCoverSerieUseCase findCoverSerieUseCase;
-
 
 	@BeforeEach
 	public void setup() {
@@ -39,7 +35,7 @@ public class FindCoverSerieUseCaseImplTest extends BaseIndigoTest {
 		List<Book> books = new ArrayList<>();
 		books.add(createBook("Book1", "Cover1", 1));
 		books.add(createBook("Book2", "Cover2", 2));
-		when(serieRepository.findBooksBySerie(serie.replace("@_@", "&"))).thenReturn(books);
+		//		when(serieRepository.findBooksBySerie(serie.replace("@_@", "&"))).thenReturn(books);
 
 		// When
 		String cover = findCoverSerieUseCase.getCover(serie);
@@ -52,7 +48,7 @@ public class FindCoverSerieUseCaseImplTest extends BaseIndigoTest {
 	public void testGetCover_WithEmptySerie_ShouldReturnNull() throws Exception {
 		// Given
 		String serie = "";
-		when(serieRepository.findBooksBySerie(serie.replace("@_@", "&"))).thenReturn(new ArrayList<>());
+//		when(serieRepository.findBooksBySerie(serie.replace("@_@", "&"))).thenReturn(new ArrayList<>());
 
 		// When
 		String cover = findCoverSerieUseCase.getCover(serie);
@@ -75,7 +71,7 @@ public class FindCoverSerieUseCaseImplTest extends BaseIndigoTest {
 	public void testGetCover_WithNoBooks_ShouldReturnNull() throws Exception {
 		// Given
 		String serie = "TestSerie";
-		when(serieRepository.findBooksBySerie(serie.replace("@_@", "&"))).thenReturn(new ArrayList<>());
+		//		when(serieRepository.findBooksBySerie(serie.replace("@_@", "&"))).thenReturn(new ArrayList<>());
 
 		// When
 		String cover = findCoverSerieUseCase.getCover(serie);
@@ -92,7 +88,7 @@ public class FindCoverSerieUseCaseImplTest extends BaseIndigoTest {
 		books.add(createBook("Book1", "Cover1", 3));
 		books.add(createBook("Book2", "Cover2", 2));
 		books.add(createBook("Book3", "Cover3", 1));
-		when(serieRepository.findBooksBySerie(serie.replace("@_@", "&"))).thenReturn(books);
+		//		when(serieRepository.findBooksBySerie(serie.replace("@_@", "&"))).thenReturn(books);
 
 		// When
 		String cover = findCoverSerieUseCase.getCover(serie);

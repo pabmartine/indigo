@@ -8,6 +8,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -18,9 +20,14 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@ConditionalOnProperty(name = "flags.goodreads", havingValue = "true")
 public class FindGoodReadsBookUseCaseImpl implements FindGoodReadsBookUseCase {
 
-	private String endpoint = "https://www.goodreads.com/";
+	@Value("${metadata.goodreads.book}")
+	private String endpointBook;
+
+	@Value("${metadata.goodreads.book-authors}")
+	private String endpointBookAuthors;
 
 	@Resource
 	private DataUtils dataUtils;
@@ -37,9 +44,10 @@ public class FindGoodReadsBookUseCaseImpl implements FindGoodReadsBookUseCase {
 			author = StringUtils.stripAccents(author).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ");
 			title = StringUtils.stripAccents(title.replaceAll("ñ", "-")).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ");
 
-			String url = endpoint + "book/title.xml?title=" + title.replace(" ", "-") + "&key=" + key;
+			String url = endpointBook.replace("$title", title.replace(" ", "-")).replace("$key", key);
 			if (withAuthor) {
-				url += "&authors=" + author.replace(" ", "%20");
+				url += endpointBookAuthors.replace("$title", title.replace(" ", "-")).replace("$key", key)
+						.replace("$authors", author.replace(" ", "%20"));
 			}
 
 			String xml = dataUtils.getData(url);
@@ -100,7 +108,7 @@ public class FindGoodReadsBookUseCaseImpl implements FindGoodReadsBookUseCase {
 			}
 		}
 		catch (Exception e) {
-			log.error(endpoint + "book/title.xml?title=" + title.replace(" ", "-") + "&key=" + key);
+			log.error(e.getMessage());
 		}
 
 		if (ret == null && !withAuthor) {

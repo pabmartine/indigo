@@ -1,6 +1,6 @@
 package com.martinia.indigo.serie.application;
 
-import com.martinia.indigo.serie.domain.ports.repositories.SerieRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.serie.domain.ports.usecases.FindNumBooksBySerieUseCase;
 import org.springframework.stereotype.Service;
 
@@ -12,11 +12,11 @@ import java.util.Map;
 public class FindNumBooksBySerieUseCaseImpl implements FindNumBooksBySerieUseCase {
 
 	@Resource
-	private SerieRepository serieRepository;
+	private BookRepository bookRepository;
 
 	@Override
 	public Map<String, Long> getNumBooksBySerie(final List<String> languages, final int page, final int size, final String sort,
 			final String order) {
-		return serieRepository.getNumBooksBySerie(languages, page, size, sort, order);
+		return bookRepository.getNumBooksBySerie(languages, page, size, sort, order);
 	}
 }

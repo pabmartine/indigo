@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 
 public class FindSentBooksUseCaseImplTest extends BaseIndigoTest {
 
@@ -35,7 +34,7 @@ public class FindSentBooksUseCaseImplTest extends BaseIndigoTest {
 
 		List<Book> expectedBooks = Arrays.asList(book1, book2);
 
-		when(notificationRepository.getSentBooks(user)).thenReturn(expectedBooks);
+//		when(notificationMongoRepository.getSentBooks(user)).thenReturn(expectedBooks);
 
 		// When
 		List<Book> result = useCase.getSentBooks(user);

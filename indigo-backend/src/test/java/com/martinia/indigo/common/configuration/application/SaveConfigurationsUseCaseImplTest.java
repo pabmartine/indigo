@@ -3,7 +3,7 @@ package com.martinia.indigo.common.configuration.application;
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.configuration.application.SaveConfigurationsUseCaseImpl;
 import com.martinia.indigo.configuration.domain.model.Configuration;
-import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationMongoRepository;
+import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
 import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 public class SaveConfigurationsUseCaseImplTest extends BaseIndigoTest {
 
 	@MockBean
-	private ConfigurationMongoRepository configurationRepository;
+	private ConfigurationRepository configurationRepository;
 
 	@Resource
 	private SaveConfigurationsUseCaseImpl useCase;

@@ -63,4 +63,28 @@ spring:
 
 flags:
   amazon: false
+  goodreads: true
+  wikipedia: true
+  google: true
   libretranslate: false
+
+metadata:
+  goodreads:
+    url: https://www.goodreads.com
+    reviews: ${metadata.goodreads.url}/search?q=$title+$author&search_type=books
+    author: ${metadata.goodreads.url}/search.xml?q=$subject&key=$key
+    author-info: ${metadata.goodreads.url}/author/show/$id?format=xml&key=$key
+    book: ${metadata.goodreads.url}/book/title.xml?title=$title&key=$key
+    book-authors: ${metadata.goodreads.url}/book/title.xml?title=$title&key=$key&authors=$authors
+  google:
+    url: https://www.googleapis.com/books/v1/volumes?q=intitle:$title
+  libretranslate:
+    url: http://192.168.1.40:6000
+  amazon:
+    url: https://www.amazon.es
+    asin: ${metadata.amazon.url}/s?k=$title+$author&i=stripbooks
+    reviews: ${metadata.amazon.url}/product-reviews/$asin/?showViewpoints=0&sortBy=byRankDescending&pageNumber=$numPage
+  wikipedia:
+    url: https://$lang.wikipedia.org
+    author: ${metadata.wikipedia.url}/w/api.php?action=query&format=json&list=search&utf8=1&origin=*&srsearch=$subject
+    author-info: ${metadata.wikipedia.url}/w/api.php?format=json&action=query&prop=extracts|pageimages&exintro&explaintext&generator=search&gsrlimit=1&redirects=1&piprop=original&gsrsearch=$subject

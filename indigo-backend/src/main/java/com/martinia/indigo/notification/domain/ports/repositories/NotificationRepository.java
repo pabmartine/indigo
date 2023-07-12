@@ -1,36 +1,29 @@
 package com.martinia.indigo.notification.domain.ports.repositories;
 
-import java.util.List;
-import java.util.Optional;
-
-import com.martinia.indigo.notification.domain.model.NotificationEnum;
 import com.martinia.indigo.notification.domain.model.StatusEnum;
-import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.notification.domain.model.Notification;
+import com.martinia.indigo.notification.infrastructure.mongo.entities.NotificationMongoEntity;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
+import org.springframework.stereotype.Repository;
 
-public interface NotificationRepository {
+import java.util.List;
 
-	List<Notification> findAllByOrderBySendDateDesc();
+@Repository
+public interface NotificationRepository extends MongoRepository<NotificationMongoEntity, String> {
 
-	List<Notification> findByUserAndType(String user, NotificationEnum type);
+	List<NotificationMongoEntity> findAllByOrderBySendDateDesc();
 
-	List<Notification> findByUserAndStatus(String user, StatusEnum status);
+	@Query("{ 'user' : ?0 }")
+	List<NotificationMongoEntity> findByUser(String user);
 
-	List<Notification> findByStatus(StatusEnum status);
+	List<NotificationMongoEntity> findByUserAndStatus(String user, StatusEnum status);
 
-	List<Notification> findByUserAndReadUserFalse(String user);
+	List<NotificationMongoEntity> findByUserAndType(String user, String type);
 
-	List<Notification> findByReadAdminFalse();
+	List<NotificationMongoEntity> findByStatus(StatusEnum status);
 
-	void save(Notification notification);
+	List<NotificationMongoEntity> findByUserAndReadUserIsFalse(String user);
 
-	Optional<Notification> findById(String id);
-
-	void delete(String id);
-
-	void markAsRead(String id, String user);
-
-	List<Book> getSentBooks(String user);
-
+	List<NotificationMongoEntity> findByReadAdminIsFalse();
 
 }

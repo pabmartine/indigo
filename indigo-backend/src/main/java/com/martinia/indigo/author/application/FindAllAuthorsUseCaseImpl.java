@@ -1,7 +1,7 @@
 package com.martinia.indigo.author.application;
 
 import com.martinia.indigo.author.domain.model.Author;
-import com.martinia.indigo.author.domain.ports.repositories.AuthorMongoRepository;
+import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
 import com.martinia.indigo.author.domain.ports.usecases.FindAllAuthorsUseCase;
 import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
 import com.martinia.indigo.author.infrastructure.mongo.mappers.AuthorMongoMapper;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class FindAllAuthorsUseCaseImpl implements FindAllAuthorsUseCase {
 
 	@Resource
-	private AuthorMongoRepository authorMongoRepository;
+	private AuthorRepository authorRepository;
 
 	@Resource
 	private AuthorMongoMapper authorMongoMapper;
@@ -30,7 +30,7 @@ public class FindAllAuthorsUseCaseImpl implements FindAllAuthorsUseCase {
 	@Override
 	public List<Author> findAll(List<String> languages, int page, int size, String sort, String order) {
 
-		List<AuthorMongoEntity> authors = authorMongoRepository.findAll(languages,
+		List<AuthorMongoEntity> authors = authorRepository.findAll(languages,
 				PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(order), sort)));
 
 		authors = authors.stream().map(author -> {

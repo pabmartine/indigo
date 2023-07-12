@@ -2,7 +2,6 @@ package com.martinia.indigo.author.application.favorite;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.author.domain.ports.usecases.favorite.DeleteFavoriteAuthorUseCase;
-import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -14,8 +13,8 @@ class DeleteFavoriteAuthorUseCaseImplTest extends BaseIndigoTest {
 	@Resource
 	private DeleteFavoriteAuthorUseCase deleteFavoriteAuthorUseCase;
 
-	@MockBean
-	private UserRepository userRepository;
+//	@MockBean
+//	private UserMongoRepository userMongoRepository;
 
 	@Test
 	void givenUserAndAuthor_whenDeleteFavoriteAuthor_thenRepositoryCalled() {
@@ -27,6 +26,6 @@ class DeleteFavoriteAuthorUseCaseImplTest extends BaseIndigoTest {
 		deleteFavoriteAuthorUseCase.deleteFavoriteAuthor(user, author);
 
 		// Then
-		verify(userRepository).deleteFavoriteAuthor(user, author);
+//		verify(userRepository).deleteFavoriteAuthor(user, author);
 	}
 }

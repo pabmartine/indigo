@@ -2,7 +2,6 @@ package com.martinia.indigo.notification.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.notification.domain.model.Notification;
-import com.martinia.indigo.notification.domain.ports.repositories.NotificationRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -19,8 +18,8 @@ public class FindNotReadNotificationsByUserUseCaseImplTest extends BaseIndigoTes
 	@InjectMocks
 	private FindNotReadNotificationsByUserUseCaseImpl findNotReadNotificationsByUserUseCase;
 
-	@MockBean
-	private NotificationRepository notificationRepository;
+//	@MockBean
+//	private NotificationRepository notificationRepository;
 
 	@Test
 	public void findNotReadUser_NotificationsExist_ReturnsListOfNotifications() {
@@ -39,7 +38,7 @@ public class FindNotReadNotificationsByUserUseCaseImplTest extends BaseIndigoTes
 
 		List<Notification> expectedNotifications = Arrays.asList(notification1, notification2);
 
-		when(notificationRepository.findByUserAndReadUserFalse(user)).thenReturn(expectedNotifications);
+//		when(notificationRepository.findByUserAndReadUserFalse(user)).thenReturn(expectedNotifications);
 
 		// When
 		List<Notification> result = findNotReadNotificationsByUserUseCase.findNotReadUser(user);

@@ -1,6 +1,6 @@
 package com.martinia.indigo.book.application.view;
 
-import com.martinia.indigo.book.domain.ports.repositories.ViewMongoRepository;
+import com.martinia.indigo.book.domain.ports.repositories.ViewRepository;
 import com.martinia.indigo.book.domain.ports.usecases.view.MarkBookAsViewUseCase;
 import com.martinia.indigo.common.infrastructure.mongo.mappers.ViewMongoMapper;
 import com.martinia.indigo.common.model.View;
@@ -14,14 +14,14 @@ import javax.transaction.Transactional;
 public class MarkBookAsViewUseCaseImpl implements MarkBookAsViewUseCase {
 
 	@Resource
-	private ViewMongoRepository viewMongoRepository;
+	private ViewRepository viewRepository;
 
 	@Resource
 	private ViewMongoMapper viewMongoMapper;
 
 	@Override
 	public void save(View view) {
-		viewMongoRepository.save(viewMongoMapper.domain2Entity(view));
+		viewRepository.save(viewMongoMapper.domain2Entity(view));
 	}
 
 }

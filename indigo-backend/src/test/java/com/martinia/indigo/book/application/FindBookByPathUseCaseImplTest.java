@@ -2,7 +2,7 @@ package com.martinia.indigo.book.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.domain.ports.usecases.FindBookByPathUseCase;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import org.junit.jupiter.api.Assertions;
@@ -20,7 +20,7 @@ public class FindBookByPathUseCaseImplTest extends BaseIndigoTest {
 	private FindBookByPathUseCase findBookByPathUseCase;
 
 	@MockBean
-	private BookMongoRepository bookRepository;
+	private BookRepository bookRepository;
 
 	@Test
 	public void givenExistingBookPath_whenFindByPath_thenReturnBook() throws Exception {

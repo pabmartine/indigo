@@ -1,7 +1,7 @@
 package com.martinia.indigo.common.configuration.application;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationMongoRepository;
+import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
 import com.martinia.indigo.configuration.domain.ports.usecases.FindConfigurationByKeyUseCase;
 import com.martinia.indigo.configuration.domain.model.Configuration;
 import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
@@ -20,7 +20,7 @@ public class FindConfigurationByKeyUseCaseImplTest extends BaseIndigoTest {
 	@Resource
 	private FindConfigurationByKeyUseCase useCase;
 	@MockBean
-	private ConfigurationMongoRepository configurationRepository;
+	private ConfigurationRepository configurationRepository;
 
 	@Test
 	public void testFindByKey() {

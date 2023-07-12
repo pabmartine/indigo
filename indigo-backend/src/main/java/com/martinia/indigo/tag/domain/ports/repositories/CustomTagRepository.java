@@ -1,14 +1,13 @@
-package com.martinia.indigo.adapters.out.mongo.repository.custom;
+package com.martinia.indigo.tag.domain.ports.repositories;
 
 import java.util.List;
 
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Repository;
 
 import com.martinia.indigo.tag.infrastructure.mongo.entities.TagMongoEntity;
 
 
-public interface CustomTagMongoRepository {
+public interface CustomTagRepository {
 
 	List<TagMongoEntity> findAll(List<String> languages, Sort sort);
 }

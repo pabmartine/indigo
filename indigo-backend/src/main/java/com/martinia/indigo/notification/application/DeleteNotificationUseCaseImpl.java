@@ -14,6 +14,7 @@ public class DeleteNotificationUseCaseImpl implements DeleteNotificationUseCase 
 
 	@Override
 	public void delete(final String id) {
-		notificationRepository.delete(id);
+		notificationRepository.findById(id).ifPresent(notification -> notificationRepository.delete(notification));
 	}
+
 }

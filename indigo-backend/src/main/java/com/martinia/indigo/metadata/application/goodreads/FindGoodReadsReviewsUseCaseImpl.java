@@ -11,6 +11,8 @@ import com.martinia.indigo.metadata.domain.ports.adapters.libretranslate.Transla
 import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsReviewsUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -30,11 +32,13 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@ConditionalOnProperty(name = "flags.goodreads", havingValue = "true")
 public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseCase {
 
 	private static SimpleDateFormat SDF = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
 
-	private String endpoint = "https://www.goodreads.com/";
+	@Value("${metadata.goodreads.reviews}")
+	private String endpoint;
 
 	@Resource
 	private Optional<DetectLibreTranslatePort> detectLibreTranslatePort;
@@ -69,7 +73,7 @@ public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseC
 		String tokenized_title = normalize(title);
 		String tokenized_author = normalize(author);
 
-		String url = "https://www.goodreads.com/search?q=" + tokenized_title + "+" + tokenized_author + "&search_type=books";
+		String url = endpoint.replace("$title", tokenized_title).replace("$author", tokenized_author);
 		HtmlPage page = webClient.getPage(url);
 
 		page.getByXPath("//a[@class='bookTitle']").stream().forEach(item -> {
@@ -124,7 +128,7 @@ public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseC
 		webClient.getOptions().setCssEnabled(false);
 		webClient.getOptions().setJavaScriptEnabled(false);
 
-		HtmlPage page = webClient.getPage("https://www.goodreads.com" + url);
+		HtmlPage page = webClient.getPage(endpoint.substring(0, endpoint.indexOf(".com") + 4) + url);
 
 		List<Review> foreignComments = new ArrayList<>();
 		page.getByXPath("//article[@class='ReviewCard']").stream().takeWhile(data -> reviews.size() < 10).forEach(item -> {

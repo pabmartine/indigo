@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface BookMongoRepository extends MongoRepository<BookMongoEntity, String>, CustomBookMongoRepository {
+public interface BookRepository extends MongoRepository<BookMongoEntity, String>, CustomBookRepository {
 
 	@Query("{ 'serie.name' : ?0 }")
 	List<BookMongoEntity> findBooksBySerie(String serie);

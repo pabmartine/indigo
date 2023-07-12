@@ -2,11 +2,10 @@ package com.martinia.indigo.book.application.recommendation;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.domain.ports.usecases.recommendation.FindBookRecommendationsByBookUseCase;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
-import com.martinia.indigo.configuration.domain.model.Configuration;
-import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationMongoRepository;
+import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
 import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -24,10 +23,10 @@ import static org.mockito.Mockito.when;
 public class FindBookRecommendationsByBookUseCaseImplTest extends BaseIndigoTest {
 
 	@MockBean
-	private BookMongoRepository bookRepository;
+	private BookRepository bookRepository;
 
 	@MockBean
-	private ConfigurationMongoRepository configurationRepository;
+	private ConfigurationRepository configurationRepository;
 
 	@Resource
 	private FindBookRecommendationsByBookUseCase findBookRecommendationsByBookUseCase;

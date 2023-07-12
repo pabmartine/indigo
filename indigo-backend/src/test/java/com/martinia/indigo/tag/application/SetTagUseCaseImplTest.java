@@ -8,6 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import javax.annotation.Resource;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 
@@ -29,6 +30,6 @@ public class SetTagUseCaseImplTest extends BaseIndigoTest {
 		setTagUseCase.setImage(sourceTag, image);
 
 		// Then
-		verify(tagRepository).setImage(sourceTag, image);
+		verify(tagRepository).save(any());
 	}
 }

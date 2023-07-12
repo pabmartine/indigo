@@ -9,6 +9,8 @@ import com.martinia.indigo.metadata.domain.model.ProviderEnum;
 import com.martinia.indigo.metadata.domain.ports.usecases.amazon.FindAmazonReviewsUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.net.InetAddress;
@@ -25,9 +27,16 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@ConditionalOnProperty(name = "flags.amazon", havingValue = "true")
 public class FindAmazonReviewsUseCaseImpl implements FindAmazonReviewsUseCase {
 
 	private static SimpleDateFormat SDF = new SimpleDateFormat("d MMMM yyyy");
+
+	@Value("${metadata.amazon.asin}")
+	private String endpointAsin;
+
+	@Value("${metadata.amazon.reviews}")
+	private String endpointReviews;
 
 	@Override
 	public List<Review> getReviews(String title, List<String> authors) {
@@ -67,8 +76,7 @@ public class FindAmazonReviewsUseCaseImpl implements FindAmazonReviewsUseCase {
 		String tokenized_title = normalize(title);
 		String tokenized_author = normalize(author);
 
-		String url = "https://www.amazon.es/s?k=" + tokenized_title + "+" + tokenized_author + "&i=stripbooks";
-		HtmlPage page = webClient.getPage(url);
+		HtmlPage page = webClient.getPage(endpointAsin.replace("$title", tokenized_title).replace("$author", tokenized_author));
 
 		page.getByXPath("//div[@data-component-type='s-search-result']").stream().forEach(item -> {
 			HtmlDivision htmlDivision = (HtmlDivision) item;
@@ -125,7 +133,7 @@ public class FindAmazonReviewsUseCaseImpl implements FindAmazonReviewsUseCase {
 		webClient.getOptions().setCssEnabled(false);
 		webClient.getOptions().setJavaScriptEnabled(false);
 
-		String url = "http://www.amazon.es/product-reviews/" + asin + "/?showViewpoints=0&sortBy=byRankDescending&pageNumber=" + numPage;
+		String url = endpointReviews.replace("$asin", asin).replace("$numPage", String.valueOf(numPage));
 		HtmlPage page = webClient.getPage(url);
 
 		page.getByXPath("//div[@class='a-section review aok-relative']").stream().forEach(item -> {

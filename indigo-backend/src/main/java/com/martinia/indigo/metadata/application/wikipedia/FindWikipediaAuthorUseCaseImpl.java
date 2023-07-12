@@ -8,6 +8,7 @@ import com.martinia.indigo.metadata.domain.ports.adapters.wikipedia.FindWikipedi
 import com.martinia.indigo.metadata.domain.ports.usecases.wikipedia.FindWikipediaAuthorUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -17,7 +18,8 @@ import java.util.Arrays;
 @Service
 public class FindWikipediaAuthorUseCaseImpl implements FindWikipediaAuthorUseCase {
 
-	private String PROVIDER = "Wikipedia";
+	@Value("${metadata.wikipedia.author}")
+	private String endpoint;
 
 	@Resource
 	private FindWikipediaAuthorInfoPort findWikipediaAuthorInfoPort;
@@ -31,8 +33,8 @@ public class FindWikipediaAuthorUseCaseImpl implements FindWikipediaAuthorUseCas
 
 		subject = StringUtils.stripAccents(subject).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ");
 
-		String url = "https://" + lang + ".wikipedia.org/w/api.php?action=query&format=json&list=search&utf8=1&origin=*&srsearch="
-				+ subject.replace(" ", "%20");
+		String url = endpoint.replace("$lang", lang).replace("$subject", subject.replace(" ", "%20"));
+
 		try {
 
 			String json = dataUtils.getData(url);

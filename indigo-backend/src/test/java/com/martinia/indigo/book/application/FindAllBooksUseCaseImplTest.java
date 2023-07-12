@@ -2,7 +2,7 @@ package com.martinia.indigo.book.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.domain.ports.usecases.FindAllBooksUseCase;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.common.model.Search;
@@ -21,7 +21,7 @@ class FindAllBooksUseCaseImplTest extends BaseIndigoTest {
 	private FindAllBooksUseCase findAllBooksUseCase;
 
 	@MockBean
-	private BookMongoRepository bookRepository;
+	private BookRepository bookRepository;
 
 	@Test
 	public void testFindAll() {

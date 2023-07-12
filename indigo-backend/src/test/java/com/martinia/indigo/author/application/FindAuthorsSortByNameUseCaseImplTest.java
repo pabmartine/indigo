@@ -2,7 +2,7 @@ package com.martinia.indigo.author.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.author.domain.model.Author;
-import com.martinia.indigo.author.domain.ports.repositories.AuthorMongoRepository;
+import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
 import com.martinia.indigo.author.domain.ports.usecases.FindAuthorsSortByNameUseCase;
 import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
 import org.junit.jupiter.api.Test;
@@ -19,14 +19,14 @@ class FindAuthorsSortByNameUseCaseImplTest extends BaseIndigoTest {
 	private FindAuthorsSortByNameUseCase findAuthorsSortByNameUseCase;
 
 	@MockBean
-	private AuthorMongoRepository authorMongoRepository;
+	private AuthorRepository authorRepository;
 
 	@Test
 	void givenName_whenFindBySort_thenReturnAuthor() {
 		// Given
 		String name = "John Doe";
 		AuthorMongoEntity expectedAuthor = new AuthorMongoEntity();
-		when(authorMongoRepository.findBySort(name)).thenReturn(Optional.of(expectedAuthor));
+		when(authorRepository.findBySort(name)).thenReturn(Optional.of(expectedAuthor));
 
 		// When
 		Optional<Author> result = findAuthorsSortByNameUseCase.findBySort(name);
@@ -39,7 +39,7 @@ class FindAuthorsSortByNameUseCaseImplTest extends BaseIndigoTest {
 	void givenName_whenFindBySort_thenReturnEmptyOptional() {
 		// Given
 		String name = "Unknown Author";
-		when(authorMongoRepository.findBySort(name)).thenReturn(Optional.empty());
+		when(authorRepository.findBySort(name)).thenReturn(Optional.empty());
 
 		// When
 		Optional<Author> result = findAuthorsSortByNameUseCase.findBySort(name);

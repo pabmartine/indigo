@@ -1,10 +1,10 @@
 package com.martinia.indigo.common.config;
 
-import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationMongoRepository;
+import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
 import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
 import com.martinia.indigo.user.domain.model.RolesEnum;
-import com.martinia.indigo.user.domain.model.User;
 import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
+import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +21,7 @@ import java.util.Locale;
 class DataInitializerConfig {
 
 	@Autowired
-	private ConfigurationMongoRepository configurationRepository;
+	private ConfigurationRepository configurationRepository;
 
 	@Autowired
 	private UserRepository userRepository;
@@ -44,7 +44,8 @@ class DataInitializerConfig {
 		// Insert admin user
 		log.info("Initializating users...");
 		if (userRepository.findByUsername(username).isEmpty()) {
-			User user = new User(username, password, RolesEnum.ADMIN.name(), Locale.ENGLISH.getLanguage(), Arrays.asList("spa", "eng"));
+			UserMongoEntity user = UserMongoEntity.builder().username(username).password(password).role(RolesEnum.ADMIN.name())
+					.language(Locale.ENGLISH.getLanguage()).languageBooks(Arrays.asList("spa", "eng")).build();
 			userRepository.save(user);
 		}
 

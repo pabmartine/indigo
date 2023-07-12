@@ -1,6 +1,8 @@
 package com.martinia.indigo.metadata.application.libretranslate;
 
 import com.martinia.indigo.metadata.domain.ports.usecases.libretranslate.DetectLibreTranslateUseCase;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -12,18 +14,20 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 @Service
+@ConditionalOnProperty(name = "flags.libretranslate", havingValue="true")
 public class DetectLibreTranslateUseCaseImpl implements DetectLibreTranslateUseCase {
 
 	@Resource
 	private RestTemplate restTemplate;
 
-	private static String URL = "http://192.168.1.40:6000";
+	@Value("${metadata.libretranslate.url}")
+	private String endpoint;
 
 	@Override
 	public String detect(String text) {
 		String ret = null;
 		try {
-			String url = URL + "/detect";
+			String url = endpoint + "/detect";
 
 			MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
 			map.add("q", text);

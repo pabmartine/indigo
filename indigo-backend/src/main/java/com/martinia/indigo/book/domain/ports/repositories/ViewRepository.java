@@ -6,6 +6,6 @@ import com.martinia.indigo.common.infrastructure.mongo.entities.ViewMongoEntity;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ViewMongoRepository extends MongoRepository<ViewMongoEntity, String> {
+public interface ViewRepository extends MongoRepository<ViewMongoEntity, String> {
 
 }

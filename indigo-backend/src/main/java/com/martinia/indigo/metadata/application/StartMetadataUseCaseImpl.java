@@ -15,9 +15,9 @@ public class StartMetadataUseCaseImpl extends BaseMetadataUseCaseImpl implements
 	public void start(String lang, String type, String entity) {
 		log.info("Starting async process");
 
-		goodreads = configurationMongoRepository.findByKey("goodreads.key").get().getValue();
+		goodreads = configurationRepository.findByKey("goodreads.key").get().getValue();
 
-		pullTime = Long.parseLong(configurationMongoRepository.findByKey("metadata.pull").get().getValue());
+		pullTime = Long.parseLong(configurationRepository.findByKey("metadata.pull").get().getValue());
 
 		if (metadataSingleton.isRunning()) {
 			stop();

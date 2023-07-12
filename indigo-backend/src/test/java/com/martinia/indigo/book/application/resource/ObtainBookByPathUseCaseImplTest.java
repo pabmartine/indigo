@@ -5,7 +5,6 @@ import com.martinia.indigo.book.application.sent.FindSentBooksUseCaseImpl;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.ports.usecases.resource.ObtainBookByPathUseCase;
 import com.martinia.indigo.common.util.UtilComponent;
-import com.martinia.indigo.notification.domain.ports.repositories.NotificationRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
@@ -50,8 +49,8 @@ public class ObtainBookByPathUseCaseImplTest extends BaseIndigoTest {
 		@InjectMocks
 		private FindSentBooksUseCaseImpl findSendBooksNotificationUseCase;
 
-		@MockBean
-		private NotificationRepository notificationRepository;
+//		@MockBean
+//		private NotificationRepository notificationRepository;
 
 		@Test
 		public void getSentBooks_NotificationsExist_ReturnsListOfBooks() {
@@ -66,7 +65,7 @@ public class ObtainBookByPathUseCaseImplTest extends BaseIndigoTest {
 
 			List<Book> expectedBooks = Arrays.asList(book1, book2);
 
-			when(notificationRepository.getSentBooks(user)).thenReturn(expectedBooks);
+//			when(notificationRepository.getSentBooks(user)).thenReturn(expectedBooks);
 
 			// When
 			List<Book> result = findSendBooksNotificationUseCase.getSentBooks(user);

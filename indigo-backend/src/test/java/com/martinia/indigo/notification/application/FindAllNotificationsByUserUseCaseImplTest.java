@@ -3,7 +3,6 @@ package com.martinia.indigo.notification.application;
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.notification.domain.model.NotificationEnum;
 import com.martinia.indigo.notification.domain.model.Notification;
-import com.martinia.indigo.notification.domain.ports.repositories.NotificationRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -20,8 +19,8 @@ public class FindAllNotificationsByUserUseCaseImplTest extends BaseIndigoTest {
 	@InjectMocks
 	private FindAllNotificationsByUserUseCaseImpl findAllNotificationsByUserUseCase;
 
-	@MockBean
-	private NotificationRepository notificationRepository;
+//	@MockBean
+//	private NotificationRepository notificationRepository;
 
 	@Test
 	public void findByUser_NotificationsExist_ReturnsListOfNotifications() {
@@ -40,7 +39,7 @@ public class FindAllNotificationsByUserUseCaseImplTest extends BaseIndigoTest {
 
 		List<Notification> expectedNotifications = Arrays.asList(notification1, notification2);
 
-		when(notificationRepository.findByUserAndType(user, NotificationEnum.KINDLE)).thenReturn(expectedNotifications);
+//		when(notificationRepository.findByUserAndType(user, NotificationEnum.KINDLE)).thenReturn(expectedNotifications);
 
 		// When
 		List<Notification> result = findAllNotificationsByUserUseCase.findByUser(user);

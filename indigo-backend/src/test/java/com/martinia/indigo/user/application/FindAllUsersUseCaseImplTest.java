@@ -2,7 +2,6 @@ package com.martinia.indigo.user.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.user.domain.model.User;
-import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -17,8 +16,8 @@ import static org.mockito.Mockito.when;
 
 class FindAllUsersUseCaseImplTest extends BaseIndigoTest {
 
-	@Mock
-	private UserRepository userRepository;
+//	@Mock
+//	private UserMongoRepository userMongoRepository;
 
 	@InjectMocks
 	private FindAllUsersUseCaseImpl findAllUsersUseCase;
@@ -36,7 +35,7 @@ class FindAllUsersUseCaseImplTest extends BaseIndigoTest {
 				new ArrayList<>()));
 		expectedUsers.add(new User("2", "user2", "password2", "kindle2", "role2", "language2", new ArrayList<>(), new ArrayList<>(),
 				new ArrayList<>()));
-		when(userRepository.findAll()).thenReturn(expectedUsers);
+//		when(userRepository.findAll()).thenReturn(expectedUsers);
 
 		// Act
 		List<User> actualUsers = findAllUsersUseCase.findAll();

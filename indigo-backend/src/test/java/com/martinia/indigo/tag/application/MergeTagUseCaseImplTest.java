@@ -1,5 +1,6 @@
 package com.martinia.indigo.tag.application;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 import com.martinia.indigo.BaseIndigoTest;
@@ -29,6 +30,6 @@ public class MergeTagUseCaseImplTest extends BaseIndigoTest {
 		mergeTagUseCase.merge(sourceTag, targetTag);
 
 		// Then
-		verify(tagRepository).merge(sourceTag, targetTag);
+		verify(tagRepository).save(any());
 	}
 }

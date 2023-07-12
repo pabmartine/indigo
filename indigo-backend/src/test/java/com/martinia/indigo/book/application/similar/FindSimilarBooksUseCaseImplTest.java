@@ -2,7 +2,7 @@ package com.martinia.indigo.book.application.similar;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.ports.repositories.BookMongoRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.domain.ports.usecases.similar.FindSimilarBooksUseCase;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 public class FindSimilarBooksUseCaseImplTest extends BaseIndigoTest {
 
 	@MockBean
-	private BookMongoRepository bookRepository;
+	private BookRepository bookRepository;
 
 	@Resource
 	private FindSimilarBooksUseCase findSimilarBooksUseCase;

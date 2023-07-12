@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface ConfigurationMongoRepository extends MongoRepository<ConfigurationMongoEntity, String> {
+public interface ConfigurationRepository extends MongoRepository<ConfigurationMongoEntity, String> {
 
 	Optional<ConfigurationMongoEntity> findByKey(String string);
 }
