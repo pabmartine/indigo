@@ -1,10 +1,13 @@
 package com.martinia.indigo.metadata.application;
 
+import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
 import com.martinia.indigo.metadata.application.common.BaseMetadataUseCaseImpl;
 import com.martinia.indigo.metadata.domain.ports.usecases.StartMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -15,9 +18,14 @@ public class StartMetadataUseCaseImpl extends BaseMetadataUseCaseImpl implements
 	public void start(String lang, String type, String entity) {
 		log.info("Starting async process");
 
-		goodreads = configurationRepository.findByKey("goodreads.key").get().getValue();
+		if (Optional.ofNullable(goodreads).isEmpty()) {
+			goodreads = configurationRepository.findByKey("goodreads.key").map(ConfigurationMongoEntity::getValue).orElse(null);
+		}
 
-		pullTime = Long.parseLong(configurationRepository.findByKey("metadata.pull").get().getValue());
+		if (Optional.ofNullable(pullTime).isEmpty()) {
+			pullTime = configurationRepository.findByKey("metadata.pull").map(configuration -> Long.parseLong(configuration.getValue()))
+					.orElse(null);
+		}
 
 		if (metadataSingleton.isRunning()) {
 			stop();
