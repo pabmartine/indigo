@@ -37,11 +37,11 @@
       </div>
 
       <div *ngIf="books?.length == 0" class="loading-container">
-          <p-divider *ngIf="selected.description"></p-divider>
+          <p-divider></p-divider>
           <span class="loading">{{'locale.search.searching' | translate}}</span>
       </div>
       <div *ngIf="books?.length > 0">
-        <p-divider *ngIf="selected.description"></p-divider>
+        <p-divider></p-divider>
         <div class="content-header p-grid">
           <div class="p-col-12 p-md-10">
             <span class="page-title">
