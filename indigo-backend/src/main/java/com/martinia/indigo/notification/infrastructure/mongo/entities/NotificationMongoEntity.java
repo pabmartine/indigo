@@ -5,6 +5,7 @@ import java.util.Date;
 
 import javax.persistence.Id;
 
+import lombok.Builder;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
@@ -16,6 +17,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Document(collection = "notifications")
 public class NotificationMongoEntity implements Serializable {
 

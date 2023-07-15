@@ -2,60 +2,64 @@ package com.martinia.indigo.user.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.user.domain.model.User;
-import org.junit.jupiter.api.BeforeEach;
+import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
+import com.martinia.indigo.user.domain.ports.usecases.FindUserByUsernameUseCase;
+import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
+import com.martinia.indigo.user.infrastructure.mongo.mappers.UserMongoMapper;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.util.Arrays;
-import java.util.List;
+import javax.annotation.Resource;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
-class FindUserByUsernameUseCaseImplTest extends BaseIndigoTest {
+public class FindUserByUsernameUseCaseImplTest extends BaseIndigoTest {
 
-//	@Mock
-//	private UserMongoRepository userMongoRepository;
+	@Resource
+	private FindUserByUsernameUseCase findUserByUsernameUseCase;
 
-	@InjectMocks
-	private FindUserByUsernameUseCaseImpl useCase;
+	@MockBean
+	private UserRepository userRepository;
 
-	@BeforeEach
-	public void setUp() {
-		MockitoAnnotations.openMocks(this);
+	@MockBean
+	private UserMongoMapper userMongoMapper;
+
+	@Test
+	public void testFindUserByUsername_UserExists_ReturnsUser() {
+		// Given
+		String username = "john_doe";
+
+		UserMongoEntity userEntity = new UserMongoEntity();
+		userEntity.setId("1");
+		userEntity.setUsername(username);
+
+		User userDto = new User();
+		userDto.setId("1");
+		userDto.setUsername(username);
+
+		when(userRepository.findByUsername(username)).thenReturn(Optional.of(userEntity));
+		when(userMongoMapper.entity2Domain(userEntity)).thenReturn(userDto);
+
+		// When
+		Optional<User> result = findUserByUsernameUseCase.findByUsername(username);
+
+		// Then
+		assertEquals(Optional.of(userDto), result);
 	}
 
 	@Test
-	public void testFindByUsername_UserExists() {
-		// Arrange
-		String username = "johnDoe";
-		List<String> languageBooks = Arrays.asList("Book 1", "Book 2");
-		User user = new User("1", username, "password", "kindle", "role", "language", languageBooks, null, null);
-//		when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+	public void testFindUserByUsername_UserDoesNotExist_ReturnsEmptyOptional() {
+		// Given
+		String username = "non_existing_user";
 
-		// Act
-		Optional<User> result = useCase.findByUsername(username);
+		when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
 
-		// Assert
-		assertTrue(result.isPresent());
-		assertEquals(user, result.get());
-//		verify(userRepository, times(1)).findByUsername(username);
-	}
+		// When
+		Optional<User> result = findUserByUsernameUseCase.findByUsername(username);
 
-	@Test
-	public void testFindByUsername_UserDoesNotExist() {
-		// Arrange
-		String username = "nonExistingUser";
-//		when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
-
-		// Act
-		Optional<User> result = useCase.findByUsername(username);
-
-		// Assert
-		assertFalse(result.isPresent());
-//		verify(userRepository, times(1)).findByUsername(username);
+		// Then
+		assertEquals(Optional.empty(), result);
 	}
 }

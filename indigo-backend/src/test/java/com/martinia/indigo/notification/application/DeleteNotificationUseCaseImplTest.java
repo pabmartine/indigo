@@ -11,8 +11,17 @@ import javax.annotation.Resource;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+
+import java.util.Optional;
+
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.springframework.boot.test.mock.mockito.MockBean;
+
+import com.martinia.indigo.BaseIndigoTest;
+import com.martinia.indigo.notification.domain.ports.repositories.NotificationRepository;
+import com.martinia.indigo.notification.infrastructure.mongo.entities.NotificationMongoEntity;
 
 public class DeleteNotificationUseCaseImplTest extends BaseIndigoTest {
 
@@ -51,6 +60,6 @@ public class DeleteNotificationUseCaseImplTest extends BaseIndigoTest {
 
 		// Then
 		verify(notificationRepository).findById(id);
-		verify(notificationRepository).delete(any());
+		verify(notificationRepository, times(0)).deleteById(id);
 	}
 }

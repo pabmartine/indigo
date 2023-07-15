@@ -1,97 +1,101 @@
 package com.martinia.indigo.user.application;
+
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.user.domain.model.User;
-import com.martinia.indigo.user.domain.ports.usecases.FindUserByIdUseCase;
+import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import com.martinia.indigo.user.domain.ports.usecases.UpdateUserUseCase;
+import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
+import com.martinia.indigo.user.infrastructure.mongo.mappers.UserMongoMapper;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.annotation.Resource;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.times;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+public class UpdateUserUseCaseImplTest extends BaseIndigoTest {
 
-class UpdateUserUseCaseImplTest extends BaseIndigoTest {
-
-	@Autowired
-	private UpdateUserUseCase useCase;
-
-//	@MockBean
-//	private UserMongoRepository userMongoRepository;
+	@Resource
+	private UpdateUserUseCase updateUserUseCase;
 
 	@MockBean
-	private FindUserByIdUseCase findUserByIdUseCase;
+	private UserRepository userRepository;
 
 	@MockBean
+	private UserMongoMapper userMongoMapper;
+
+	@Mock
 	private PasswordEncoder passwordEncoder;
 
+	@Captor
+	private ArgumentCaptor<UserMongoEntity> userCaptor;
+
 	@Test
-	void testUpdate_PasswordChanged() {
-		// Arrange
+	public void testUpdateUser_UserExists_UpdateUserFields() {
+		// Given
 		String userId = "1";
-		String username = "new_username";
-		String password = "new_password";
-		String language = "new_language";
-		User existingUser = new User(userId, "old_username", "old_password", "kindle", "role", "old_language",
-				null, null, null);
-		User updatedUser = new User(userId, username, password, "kindle", "role", language,
-				null, null, null);
+		String username = "john_doe";
+		String newPassword = "new_password";
+		String language = "en";
+		boolean languageBooks = true;
+		boolean kindle = true;
 
-		when(findUserByIdUseCase.findById(userId)).thenReturn(Optional.of(existingUser));
-		when(passwordEncoder.encode(password)).thenReturn("encoded_password");
+		User userDto = new User();
+		userDto.setId(userId);
+		userDto.setUsername(username);
+		userDto.setPassword(newPassword);
+		userDto.setLanguage(language);
 
-		// Act
-		useCase.update(updatedUser);
+		UserMongoEntity userEntity = new UserMongoEntity();
+		userEntity.setId(userId);
+		userEntity.setUsername(username);
+		userEntity.setPassword("old_password");
+		userEntity.setLanguage("es");
 
-		// Assert
-//		verify(userRepository).save(existingUser);
-		assertEquals(username, existingUser.getUsername());
-		assertEquals(language, existingUser.getLanguage());
-		assertEquals("encoded_password", existingUser.getPassword());
+		when(userRepository.findById(userId)).thenReturn(Optional.of(userEntity));
+		when(passwordEncoder.encode(newPassword)).thenReturn("encoded_password");
+		when(userMongoMapper.domain2Entity(userDto)).thenReturn(userEntity);
+
+		// When
+		updateUserUseCase.update(userDto);
+
+		// Then
+		verify(userRepository).save(userCaptor.capture());
+
+		UserMongoEntity updatedUser = userCaptor.getValue();
+		assertEquals(userId, updatedUser.getId());
+		assertEquals(username, updatedUser.getUsername());
+		assertEquals(language, updatedUser.getLanguage());
+
 	}
 
 	@Test
-	void testUpdate_PasswordNotChanged() {
-		// Arrange
-		String userId = "1";
-		String username = "new_username";
-		String password = "old_password";
-		String language = "new_language";
-		User existingUser = new User(userId, "old_username", "old_password", "kindle", "role", "old_language",
-				null, null, null);
-		User updatedUser = new User(userId, username, password, "kindle", "role", language,
-				null, null, null);
+	public void testUpdateUser_UserDoesNotExist_NothingIsUpdated() {
+		// Given
+		String userId = "non_existing_user";
 
-		when(findUserByIdUseCase.findById(userId)).thenReturn(Optional.of(existingUser));
+		User userDto = new User();
+		userDto.setId(userId);
+		userDto.setUsername("john_doe");
 
-		// Act
-		useCase.update(updatedUser);
+		when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-		// Assert
-//		verify(userRepository).save(existingUser);
-		assertEquals(username, existingUser.getUsername());
-		assertEquals(language, existingUser.getLanguage());
-		assertEquals(password, existingUser.getPassword());
-	}
+		// When
+		updateUserUseCase.update(userDto);
 
-	@Test
-	void testUpdate_UserNotFound() {
-		// Arrange
-		String userId = "1";
-		User updatedUser = new User(userId, "new_username", "new_password", "kindle", "role", "new_language",
-				null, null, null);
+		// Then
+		verify(userRepository).findById(userId);
+		verify(userRepository).save(userCaptor.capture());
 
-		when(findUserByIdUseCase.findById(userId)).thenReturn(Optional.empty());
-
-		// Act
-		useCase.update(updatedUser);
-
-		// Assert
-//		verify(userRepository, times(0)).save(updatedUser);
+		UserMongoEntity updatedUser = userCaptor.getValue();
+		assertNotNull(updatedUser);
 	}
 }

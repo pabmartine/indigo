@@ -2,43 +2,48 @@ package com.martinia.indigo.notification.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.notification.domain.model.Notification;
+import com.martinia.indigo.notification.domain.ports.repositories.NotificationRepository;
+import com.martinia.indigo.notification.domain.ports.usecases.FindNotReadNotificationsByUserUseCase;
+import com.martinia.indigo.notification.infrastructure.mongo.entities.NotificationMongoEntity;
+import com.martinia.indigo.notification.infrastructure.mongo.mappers.NotificationMongoMapper;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.util.Arrays;
+import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-
 public class FindNotReadNotificationsByUserUseCaseImplTest extends BaseIndigoTest {
 
-	@InjectMocks
-	private FindNotReadNotificationsByUserUseCaseImpl findNotReadNotificationsByUserUseCase;
+	@Resource
+	private FindNotReadNotificationsByUserUseCase findNotReadNotificationsByUserUseCase;
 
-//	@MockBean
-//	private NotificationRepository notificationRepository;
+	@MockBean
+	private NotificationRepository notificationRepository;
+
+	@MockBean
+	private NotificationMongoMapper notificationMongoMapper;
 
 	@Test
-	public void findNotReadUser_NotificationsExist_ReturnsListOfNotifications() {
+	public void testFindNotReadUser_ReturnsNotReadNotificationsByUser() {
 		// Given
-		String user = "john";
+		String user = "john_doe";
 
-		Notification notification1 = new Notification();
-		notification1.setId("1");
-		notification1.setUser(user);
-		notification1.setReadUser(false);
+		List<NotificationMongoEntity> notificationEntities = new ArrayList<>();
+		notificationEntities.add(NotificationMongoEntity.builder().id("1").build());
+		notificationEntities.add(NotificationMongoEntity.builder().id("2").build());
+		notificationEntities.add(NotificationMongoEntity.builder().id("3").build());
 
-		Notification notification2 = new Notification();
-		notification2.setId("2");
-		notification2.setUser(user);
-		notification2.setReadUser(false);
+		List<Notification> expectedNotifications = new ArrayList<>();
+		expectedNotifications.add(Notification.builder().id("1").build());
+		expectedNotifications.add(Notification.builder().id("2").build());
+		expectedNotifications.add(Notification.builder().id("3").build());
 
-		List<Notification> expectedNotifications = Arrays.asList(notification1, notification2);
-
-//		when(notificationRepository.findByUserAndReadUserFalse(user)).thenReturn(expectedNotifications);
+		when(notificationRepository.findByUserAndReadUserIsFalse(user)).thenReturn(notificationEntities);
+		when(notificationMongoMapper.entities2Domains(notificationEntities)).thenReturn(expectedNotifications);
 
 		// When
 		List<Notification> result = findNotReadNotificationsByUserUseCase.findNotReadUser(user);

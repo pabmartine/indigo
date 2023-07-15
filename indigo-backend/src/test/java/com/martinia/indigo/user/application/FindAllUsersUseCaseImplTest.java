@@ -2,58 +2,61 @@ package com.martinia.indigo.user.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.user.domain.model.User;
-import org.junit.jupiter.api.BeforeEach;
+import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
+import com.martinia.indigo.user.domain.ports.usecases.FindAllUsersUseCase;
+import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
+import com.martinia.indigo.user.infrastructure.mongo.mappers.UserMongoMapper;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.util.ArrayList;
+import javax.annotation.Resource;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-class FindAllUsersUseCaseImplTest extends BaseIndigoTest {
+public class FindAllUsersUseCaseImplTest extends BaseIndigoTest {
 
-//	@Mock
-//	private UserMongoRepository userMongoRepository;
+	@Resource
+	private FindAllUsersUseCase findAllUsersUseCase;
 
-	@InjectMocks
-	private FindAllUsersUseCaseImpl findAllUsersUseCase;
+	@MockBean
+	private UserRepository userRepository;
 
-	@BeforeEach
-	void setUp() {
-		MockitoAnnotations.openMocks(this);
-	}
+	@MockBean
+	private UserMongoMapper userMongoMapper;
 
 	@Test
-	void testFindAll() {
-		// Arrange
-		List<User> expectedUsers = new ArrayList<>();
-		expectedUsers.add(new User("1", "user1", "password1", "kindle1", "role1", "language1", new ArrayList<>(), new ArrayList<>(),
-				new ArrayList<>()));
-		expectedUsers.add(new User("2", "user2", "password2", "kindle2", "role2", "language2", new ArrayList<>(), new ArrayList<>(),
-				new ArrayList<>()));
-//		when(userRepository.findAll()).thenReturn(expectedUsers);
+	public void testFindAllUsers_ReturnsAllUsers() {
+		// Given
+		UserMongoEntity user1 = new UserMongoEntity();
+		user1.setId("1");
+		user1.setUsername("john_doe");
 
-		// Act
-		List<User> actualUsers = findAllUsersUseCase.findAll();
+		UserMongoEntity user2 = new UserMongoEntity();
+		user2.setId("2");
+		user2.setUsername("jane_smith");
 
-		// Assert
-		assertEquals(expectedUsers.size(), actualUsers.size());
-		for (int i = 0; i < expectedUsers.size(); i++) {
-			User expectedUser = expectedUsers.get(i);
-			User actualUser = actualUsers.get(i);
-			assertEquals(expectedUser.getId(), actualUser.getId());
-			assertEquals(expectedUser.getUsername(), actualUser.getUsername());
-			assertEquals(expectedUser.getPassword(), actualUser.getPassword());
-			assertEquals(expectedUser.getKindle(), actualUser.getKindle());
-			assertEquals(expectedUser.getRole(), actualUser.getRole());
-			assertEquals(expectedUser.getLanguage(), actualUser.getLanguage());
-			assertEquals(expectedUser.getLanguageBooks(), actualUser.getLanguageBooks());
-			assertEquals(expectedUser.getFavoriteBooks(), actualUser.getFavoriteBooks());
-			assertEquals(expectedUser.getFavoriteAuthors(), actualUser.getFavoriteAuthors());
-		}
+		List<UserMongoEntity> userEntities = Arrays.asList(user1, user2);
+
+		User user1Dto = new User();
+		user1Dto.setId("1");
+		user1Dto.setUsername("john_doe");
+
+		User user2Dto = new User();
+		user2Dto.setId("2");
+		user2Dto.setUsername("jane_smith");
+
+		List<User> expectedUsers = Arrays.asList(user1Dto, user2Dto);
+
+		when(userRepository.findAll()).thenReturn(userEntities);
+		when(userMongoMapper.entities2Domains(userEntities)).thenReturn(expectedUsers);
+
+		// When
+		List<User> result = findAllUsersUseCase.findAll();
+
+		// Then
+		assertEquals(expectedUsers, result);
 	}
 }

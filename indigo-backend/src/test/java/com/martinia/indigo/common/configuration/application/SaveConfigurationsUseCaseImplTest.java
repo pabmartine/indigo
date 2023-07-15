@@ -16,6 +16,7 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -74,7 +75,7 @@ public class SaveConfigurationsUseCaseImplTest extends BaseIndigoTest {
 		saveConfigurationsUseCase.save(Arrays.asList(configuration));
 
 		// Then
-		verify(configurationRepository, atLeast(1)).save(any());
+		verify(configurationRepository, times(1)).save(any());
 	}
 
 	@Test

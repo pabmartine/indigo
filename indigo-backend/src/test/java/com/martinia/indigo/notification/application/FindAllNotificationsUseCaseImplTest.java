@@ -2,40 +2,47 @@ package com.martinia.indigo.notification.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.notification.domain.model.Notification;
+import com.martinia.indigo.notification.domain.ports.repositories.NotificationRepository;
+import com.martinia.indigo.notification.domain.ports.usecases.FindAllNotificationsUseCase;
+import com.martinia.indigo.notification.infrastructure.mongo.entities.NotificationMongoEntity;
+import com.martinia.indigo.notification.infrastructure.mongo.mappers.NotificationMongoMapper;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Sort;
 
-import java.util.Arrays;
-import java.util.Date;
+import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-
 public class FindAllNotificationsUseCaseImplTest extends BaseIndigoTest {
 
-	@InjectMocks
-	private FindAllNotificationsUseCaseImpl findAllNotificationsUseCase;
+	@Resource
+	private FindAllNotificationsUseCase findAllNotificationsUseCase;
 
-//	@MockBean
-//	private NotificationRepository notificationRepository;
+	@MockBean
+	private NotificationRepository notificationRepository;
+
+	@MockBean
+	private NotificationMongoMapper notificationMongoMapper;
 
 	@Test
-	public void findAllByOrderBySendDateDesc_NotificationsExist_ReturnsListOfNotifications() {
+	public void testFindAllByOrderBySendDateDesc_ReturnsNotificationsOrderedBySendDateDesc() {
 		// Given
-		Notification notification1 = new Notification();
-		notification1.setId("1");
-		notification1.setSendDate(new Date(2023, 4, 10));
+		List<NotificationMongoEntity> notificationEntities = new ArrayList<>();
+		notificationEntities.add(NotificationMongoEntity.builder().id("1").build());
+		notificationEntities.add(NotificationMongoEntity.builder().id("2").build());
+		notificationEntities.add(NotificationMongoEntity.builder().id("3").build());
 
-		Notification notification2 = new Notification();
-		notification2.setId("2");
-		notification2.setSendDate(new Date(2023, 4, 11));
+		List<Notification> expectedNotifications = new ArrayList<>();
+		expectedNotifications.add(Notification.builder().id("1").build());
+		expectedNotifications.add(Notification.builder().id("2").build());
+		expectedNotifications.add(Notification.builder().id("3").build());
 
-		List<Notification> expectedNotifications = Arrays.asList(notification2, notification1);
-
-//		when(notificationRepository.findAllByOrderBySendDateDesc()).thenReturn(expectedNotifications);
+		when(notificationRepository.findAll(Sort.by(Sort.Direction.DESC, "sendDate"))).thenReturn(notificationEntities);
+		when(notificationMongoMapper.entities2Domains(notificationEntities)).thenReturn(expectedNotifications);
 
 		// When
 		List<Notification> result = findAllNotificationsUseCase.findAllByOrderBySendDateDesc();
@@ -44,3 +51,4 @@ public class FindAllNotificationsUseCaseImplTest extends BaseIndigoTest {
 		assertEquals(expectedNotifications, result);
 	}
 }
+
