@@ -5,6 +5,7 @@ import com.martinia.indigo.author.domain.model.Author;
 import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
 import com.martinia.indigo.author.domain.ports.usecases.FindAuthorsSortByNameUseCase;
 import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
+import com.martinia.indigo.author.infrastructure.mongo.mappers.AuthorMongoMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -12,37 +13,52 @@ import javax.annotation.Resource;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-class FindAuthorsSortByNameUseCaseImplTest extends BaseIndigoTest {
+public class FindAuthorsSortByNameUseCaseImplTest extends BaseIndigoTest {
+
 	@Resource
 	private FindAuthorsSortByNameUseCase findAuthorsSortByNameUseCase;
 
 	@MockBean
 	private AuthorRepository authorRepository;
 
+	@MockBean
+	private AuthorMongoMapper authorMongoMapper;
+
 	@Test
-	void givenName_whenFindBySort_thenReturnAuthor() {
+	public void testFindBySort_WithExistingSort_ReturnsAuthor() {
 		// Given
-		String name = "John Doe";
-		AuthorMongoEntity expectedAuthor = new AuthorMongoEntity();
-		when(authorRepository.findBySort(name)).thenReturn(Optional.of(expectedAuthor));
+		String sort = "name";
+
+		AuthorMongoEntity authorEntity = new AuthorMongoEntity();
+		authorEntity.setId("1");
+		authorEntity.setName("John Doe");
+
+		Author author = new Author();
+		author.setId("1");
+		author.setName("John Doe");
+
+		when(authorRepository.findBySort(eq(sort))).thenReturn(Optional.of(authorEntity));
+		when(authorMongoMapper.entity2Domain(authorEntity)).thenReturn(author);
 
 		// When
-		Optional<Author> result = findAuthorsSortByNameUseCase.findBySort(name);
+		Optional<Author> result = findAuthorsSortByNameUseCase.findBySort(sort);
 
 		// Then
-		assertEquals(Optional.of(expectedAuthor), result);
+		assertEquals(Optional.of(author), result);
 	}
 
 	@Test
-	void givenName_whenFindBySort_thenReturnEmptyOptional() {
+	public void testFindBySort_WithNonExistingSort_ReturnsEmptyOptional() {
 		// Given
-		String name = "Unknown Author";
-		when(authorRepository.findBySort(name)).thenReturn(Optional.empty());
+		String sort = "non-existing-sort";
+
+		when(authorRepository.findBySort(eq(sort))).thenReturn(Optional.empty());
 
 		// When
-		Optional<Author> result = findAuthorsSortByNameUseCase.findBySort(name);
+		Optional<Author> result = findAuthorsSortByNameUseCase.findBySort(sort);
 
 		// Then
 		assertEquals(Optional.empty(), result);

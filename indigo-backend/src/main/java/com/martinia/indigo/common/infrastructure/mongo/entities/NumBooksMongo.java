@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class NumBooksMongo implements Serializable {
 
 	private static final long serialVersionUID = 7556669089558736925L;

@@ -15,9 +15,11 @@ public class DeleteFavoriteAuthorUseCaseImpl implements DeleteFavoriteAuthorUseC
 
 	@Override
 	public void deleteFavoriteAuthor(String user, String author) {
-		UserMongoEntity entity = userRepository.findByUsername(user).get();
-		entity.getFavoriteAuthors().remove(author);
-		userRepository.save(entity);
+		userRepository.findByUsername(user)
+				.ifPresent(entity -> {
+					entity.getFavoriteAuthors().remove(author);
+					userRepository.save(entity);
+				});
 	}
 
 }

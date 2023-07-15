@@ -626,8 +626,8 @@ public class BaseMetadataUseCaseImpl {
 
 		}
 
-		fillMetadataBooks(true);
-		fillMetadataAuthors(lang, true);
+//		fillMetadataBooks(true);
+//		fillMetadataAuthors(lang, true);
 
 		stop();
 	}

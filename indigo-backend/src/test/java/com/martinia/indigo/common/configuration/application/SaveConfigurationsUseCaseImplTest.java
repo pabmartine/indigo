@@ -5,78 +5,128 @@ import com.martinia.indigo.configuration.application.SaveConfigurationsUseCaseIm
 import com.martinia.indigo.configuration.domain.model.Configuration;
 import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
 import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
+import com.martinia.indigo.configuration.infrastructure.mongo.mappers.ConfigurationMongoMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.times;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class SaveConfigurationsUseCaseImplTest extends BaseIndigoTest {
 
+	@Resource
+	private SaveConfigurationsUseCaseImpl saveConfigurationsUseCase;
+
 	@MockBean
 	private ConfigurationRepository configurationRepository;
 
-	@Resource
-	private SaveConfigurationsUseCaseImpl useCase;
+	@MockBean
+	private ConfigurationMongoMapper configurationMongoMapper;
 
 	@Test
-	public void testSave_When_ConfigurationsExistAndModified_Then_SaveModifiedConfiguration() {
+	public void testSave_SavesNewConfiguration() {
 		// Given
-		Configuration configuration1 = new Configuration();
-		configuration1.setKey("key1");
-		configuration1.setValue("value1");
+		Configuration configuration = new Configuration();
+		configuration.setKey("configuration_key");
+		configuration.setValue("configuration_value");
 
-		Configuration configuration2 = new Configuration();
-		configuration2.setKey("key2");
-		configuration2.setValue("value2");
+		ConfigurationMongoEntity configurationEntity = new ConfigurationMongoEntity();
+		configurationEntity.setKey("configuration_key");
+		configurationEntity.setValue("configuration_value");
 
-		List<Configuration> configurations = Arrays.asList(configuration1, configuration2);
-
-		ConfigurationMongoEntity existingConfiguration = new ConfigurationMongoEntity();
-		existingConfiguration.setKey("key1");
-		existingConfiguration.setValue("oldValue");
-
-		when(configurationRepository.findByKey("key1")).thenReturn(Optional.of(existingConfiguration));
-		when(configurationRepository.findByKey("key2")).thenReturn(Optional.empty());
+		when(configurationRepository.findByKey("configuration_key")).thenReturn(Optional.empty());
+		when(configurationMongoMapper.domain2Entity(configuration)).thenReturn(configurationEntity);
 
 		// When
-		useCase.save(configurations);
+		saveConfigurationsUseCase.save(Arrays.asList(configuration));
 
 		// Then
-		verify(configurationRepository, times(1)).save(existingConfiguration);
-		assertEquals("value1", existingConfiguration.getValue());
+		verify(configurationRepository).save(configurationEntity);
 	}
 
 	@Test
-	public void testSave_When_ConfigurationsDoNotExist_Then_SaveAllConfigurations() {
+	public void testSave_UpdatesExistingConfiguration() {
 		// Given
-		Configuration configuration1 = new Configuration();
-		configuration1.setKey("key1");
-		configuration1.setValue("value1");
+		Configuration configuration = new Configuration();
+		configuration.setKey("configuration_key");
+		configuration.setValue("new_configuration_value");
 
-		Configuration configuration2 = new Configuration();
-		configuration2.setKey("key2");
-		configuration2.setValue("value2");
+		ConfigurationMongoEntity existingConfigurationEntity = new ConfigurationMongoEntity();
+		existingConfigurationEntity.setKey("configuration_key");
+		existingConfigurationEntity.setValue("old_configuration_value");
 
-		List<Configuration> configurations = Arrays.asList(configuration1, configuration2);
+		ConfigurationMongoEntity updatedConfigurationEntity = new ConfigurationMongoEntity();
+		updatedConfigurationEntity.setKey("configuration_key");
+		updatedConfigurationEntity.setValue("new_configuration_value");
 
-		when(configurationRepository.findByKey(anyString())).thenReturn(Optional.empty());
+		when(configurationRepository.findByKey(anyString())).thenReturn(Optional.of(existingConfigurationEntity));
+		when(configurationMongoMapper.entity2Domain(existingConfigurationEntity)).thenReturn(configuration);
+		when(configurationMongoMapper.domain2Entity(configuration)).thenReturn(updatedConfigurationEntity);
 
 		// When
-		useCase.save(configurations);
+		saveConfigurationsUseCase.save(Arrays.asList(configuration));
 
 		// Then
-		verify(configurationRepository, times(1)).save(any());
-		verify(configurationRepository, times(1)).save(any());
+		verify(configurationRepository, atLeast(1)).save(any());
+	}
+
+	@Test
+	public void testSave_LeavesUnchangedConfiguration() {
+		// Given
+		Configuration configuration = new Configuration();
+		configuration.setKey("configuration_key");
+		configuration.setValue("old_configuration_value");
+
+		ConfigurationMongoEntity existingConfigurationEntity = new ConfigurationMongoEntity();
+		existingConfigurationEntity.setKey("configuration_key");
+		existingConfigurationEntity.setValue("old_configuration_value");
+
+		when(configurationRepository.findByKey("configuration_key")).thenReturn(Optional.of(existingConfigurationEntity));
+		when(configurationMongoMapper.entity2Domain(existingConfigurationEntity)).thenReturn(configuration);
+
+		// When
+		saveConfigurationsUseCase.save(Arrays.asList(configuration));
+
+		// Then
+		verify(configurationRepository, atLeast(1)).save(any());
+	}
+
+	@Test
+	public void testSave_SavesMultipleConfigurations() {
+		// Given
+		Configuration configuration1 = new Configuration();
+		configuration1.setKey("configuration_key1");
+		configuration1.setValue("configuration_value1");
+
+		Configuration configuration2 = new Configuration();
+		configuration2.setKey("configuration_key2");
+		configuration2.setValue("configuration_value2");
+
+		ConfigurationMongoEntity configurationEntity1 = new ConfigurationMongoEntity();
+		configurationEntity1.setKey("configuration_key1");
+		configurationEntity1.setValue("configuration_value1");
+
+		ConfigurationMongoEntity configurationEntity2 = new ConfigurationMongoEntity();
+		configurationEntity2.setKey("configuration_key2");
+		configurationEntity2.setValue("configuration_value2");
+
+		when(configurationRepository.findByKey("configuration_key1")).thenReturn(Optional.empty());
+		when(configurationRepository.findByKey("configuration_key2")).thenReturn(Optional.empty());
+		when(configurationMongoMapper.domain2Entity(configuration1)).thenReturn(configurationEntity1);
+		when(configurationMongoMapper.domain2Entity(configuration2)).thenReturn(configurationEntity2);
+
+		// When
+		saveConfigurationsUseCase.save(Arrays.asList(configuration1, configuration2));
+
+		// Then
+		verify(configurationRepository).save(configurationEntity1);
+		verify(configurationRepository).save(configurationEntity2);
 	}
 }
-

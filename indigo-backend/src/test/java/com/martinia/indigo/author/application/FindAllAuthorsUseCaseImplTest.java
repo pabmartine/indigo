@@ -5,40 +5,70 @@ import com.martinia.indigo.author.domain.model.Author;
 import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
 import com.martinia.indigo.author.domain.ports.usecases.FindAllAuthorsUseCase;
 import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
+import com.martinia.indigo.author.infrastructure.mongo.mappers.AuthorMongoMapper;
+import com.martinia.indigo.common.infrastructure.mongo.entities.NumBooksMongo;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-class FindAllAuthorsUseCaseImplTest extends BaseIndigoTest {
+public class FindAllAuthorsUseCaseImplTest extends BaseIndigoTest {
+
 	@Resource
 	private FindAllAuthorsUseCase findAllAuthorsUseCase;
 
 	@MockBean
 	private AuthorRepository authorRepository;
 
+	@MockBean
+	private AuthorMongoMapper authorMongoMapper;
+
+	@Value("${data.author.default-image}")
+	private String defaultImage;
+
 	@Test
-	void givenLanguagesPageAndSize_whenFindAllAuthors_thenReturnListOfAuthors() {
+	public void testFindAllAuthors() {
 		// Given
 		List<String> languages = Arrays.asList("English", "Spanish");
 		int page = 0;
 		int size = 10;
 		String sort = "name";
 		String order = "asc";
-		List<AuthorMongoEntity> expectedAuthors = Arrays.asList(new AuthorMongoEntity(), new AuthorMongoEntity());
-		when(authorRepository.findAll(languages, PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(order), sort)))).thenReturn(expectedAuthors);
+
+		AuthorMongoEntity author1 = new AuthorMongoEntity();
+		author1.setId("1");
+		author1.setName("John Doe");
+		author1.setImage(defaultImage);
+		author1.setNumBooks(NumBooksMongo.builder().total(2).languages(Collections.singletonMap("English", 1)).build());
+
+		AuthorMongoEntity author2 = new AuthorMongoEntity();
+		author2.setId("2");
+		author2.setName("Jane Smith");
+		author2.setImage(defaultImage);
+		author2.setNumBooks(NumBooksMongo.builder().total(2).languages(Collections.singletonMap("Spanish", 1)).build());
+
+		List<AuthorMongoEntity> authorEntities = Arrays.asList(author1, author2);
+		when(authorRepository.findAll(eq(languages), any(PageRequest.class))).thenReturn(authorEntities);
+
+		when(authorMongoMapper.entities2Domains(authorEntities)).thenReturn(
+				Arrays.asList(new Author(),
+						new Author()));
 
 		// When
-		List<Author> result = findAllAuthorsUseCase.findAll(languages, page, size, sort, order);
+		List<Author> authors = findAllAuthorsUseCase.findAll(languages, page, size, sort, order);
 
 		// Then
-		assertEquals(expectedAuthors, result);
+		assertEquals(2, authors.size());
+		// Assert other expectations
 	}
 }

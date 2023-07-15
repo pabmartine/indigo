@@ -258,19 +258,10 @@ export class DetailComponent implements OnInit {
 
 
   getKindle() {
-    this.configService.get("kindlegen.path").subscribe(
+    this.configService.get("smtp.status").subscribe(
       data => {
-        if (data.value) {
-          this.configService.get("smtp.status").subscribe(
-            data => {
-              if (data.value == 'ok')
-                this.kindle = true;
-            },
-            error => {
-              console.log(error);
-            }
-          );
-        }
+        if (data.value == 'ok')
+          this.kindle = true;
       },
       error => {
         console.log(error);

@@ -17,29 +17,74 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-public class FindBooksBySerieUseCaseImplTest extends BaseIndigoTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
-	@MockBean
-	private BookRepository bookRepository;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.martinia.indigo.book.domain.model.Book;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
+import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
+import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
+
+public class FindBooksBySerieUseCaseImplTest extends BaseIndigoTest{
+
 	@Resource
 	private FindBooksBySerieUseCase findBooksBySerieUseCase;
 
-	@Test
-	public void testGetSerie() {
-		// Given
-		String serie = "exampleSerie";
-		List<String> languages = Arrays.asList("English", "Spanish");
-		List<BookMongoEntity> expectedBooks = Arrays.asList(new BookMongoEntity(), new BookMongoEntity());
+	@MockBean
+	private BookRepository bookRepository;
 
-		// Mock the behavior of bookRepository.getSerie()
-		when(bookRepository.getSerie(serie, languages)).thenReturn(expectedBooks);
+	@MockBean
+	private BookMongoMapper bookMongoMapper;
+
+	@Test
+	public void testGetSerie_ReturnsEmptyListWhenNoBooksFound() {
+		// Given
+		String serie = "Serie 1";
+		List<String> languages = Arrays.asList("English", "Spanish");
+
+		when(bookRepository.getSerie(serie, languages)).thenReturn(Collections.emptyList());
 
 		// When
-		List<Book> actualBooks = findBooksBySerieUseCase.getSerie(serie, languages);
+		List<Book> result = findBooksBySerieUseCase.getSerie(serie, languages);
 
 		// Then
-		assertNotNull(actualBooks);
-		assertEquals(expectedBooks.size(), actualBooks.size());
-		assertTrue(actualBooks.containsAll(expectedBooks));
+		assertEquals(Collections.emptyList(), result);
+	}
+
+	@Test
+	public void testGetSerie_ReturnsListOfBooksWhenBooksFound() {
+		// Given
+		String serie = "Serie 1";
+		List<String> languages = Arrays.asList("English", "Spanish");
+
+		BookMongoEntity book1 = new BookMongoEntity();
+		book1.setId("1");
+		book1.setTitle("Book 1");
+
+		BookMongoEntity book2 = new BookMongoEntity();
+		book2.setId("2");
+		book2.setTitle("Book 2");
+
+		List<BookMongoEntity> bookEntities = Arrays.asList(book1, book2);
+
+		when(bookRepository.getSerie(serie, languages)).thenReturn(bookEntities);
+		when(bookMongoMapper.entities2Domains(bookEntities)).thenReturn(Arrays.asList(new Book(), new Book()));
+
+		// When
+		List<Book> result = findBooksBySerieUseCase.getSerie(serie, languages);
+
+		// Then
+		assertEquals(2, result.size());
 	}
 }

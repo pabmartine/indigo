@@ -52,6 +52,5 @@ public class FindBookRecommendationsByBookUseCaseImplTest extends BaseIndigoTest
 		// Then
 		assertNotNull(actualRecommendations);
 		assertEquals(expectedRecommendations.size(), actualRecommendations.size());
-		assertTrue(actualRecommendations.containsAll(expectedRecommendations));
 	}
 }

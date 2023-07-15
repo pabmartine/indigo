@@ -1,30 +1,56 @@
 package com.martinia.indigo.notification.application;
 
 import com.martinia.indigo.BaseIndigoTest;
+import com.martinia.indigo.notification.domain.ports.repositories.NotificationRepository;
+import com.martinia.indigo.notification.domain.ports.usecases.DeleteNotificationUseCase;
+import com.martinia.indigo.notification.infrastructure.mongo.entities.NotificationMongoEntity;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import javax.annotation.Resource;
+import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+public class DeleteNotificationUseCaseImplTest extends BaseIndigoTest {
 
-public class DeleteNotificationUseCaseImplTest  extends BaseIndigoTest {
+	@Resource
+	private DeleteNotificationUseCase deleteNotificationUseCase;
 
-	@InjectMocks
-	private DeleteNotificationUseCaseImpl deleteNotificationUseCase;
-
-//	@MockBean
-//	private NotificationRepository notificationRepository;
+	@MockBean
+	private NotificationRepository notificationRepository;
 
 	@Test
-	public void delete_NotificationExists_DeletesNotification() {
+	public void testDelete_DeletesNotificationById() {
 		// Given
-		String notificationId = "notificationId";
+		String id = "notification_id";
+
+		NotificationMongoEntity notificationEntity = new NotificationMongoEntity();
+		notificationEntity.setId(id);
+
+		when(notificationRepository.findById(id)).thenReturn(Optional.of(notificationEntity));
 
 		// When
-		deleteNotificationUseCase.delete(notificationId);
+		deleteNotificationUseCase.delete(id);
 
 		// Then
-//		verify(notificationRepository).delete(notificationId);
+		verify(notificationRepository).delete(notificationEntity);
+	}
+
+	@Test
+	public void testDelete_DoesNotDeleteWhenNotificationNotFound() {
+		// Given
+		String id = "non_existing_id";
+
+		when(notificationRepository.findById(id)).thenReturn(Optional.empty());
+
+		// When
+		deleteNotificationUseCase.delete(id);
+
+		// Then
+		verify(notificationRepository).findById(id);
+		verify(notificationRepository).delete(any());
 	}
 }

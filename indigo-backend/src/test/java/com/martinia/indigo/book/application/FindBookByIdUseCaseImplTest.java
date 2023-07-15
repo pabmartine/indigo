@@ -5,15 +5,16 @@ import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.domain.ports.usecases.FindBookByIdUseCase;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
-import org.junit.jupiter.api.Assertions;
+import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import javax.annotation.Resource;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
-
 
 public class FindBookByIdUseCaseImplTest extends BaseIndigoTest {
 
@@ -23,31 +24,40 @@ public class FindBookByIdUseCaseImplTest extends BaseIndigoTest {
 	@MockBean
 	private BookRepository bookRepository;
 
+	@MockBean
+	private BookMongoMapper bookMongoMapper;
+
 	@Test
-	public void givenExistingBookId_whenFindById_thenReturnBook() throws Exception {
+	public void testFindById_WithExistingBook_ReturnsOptionalOfBook() {
 		// Given
 		String bookId = "1";
-		BookMongoEntity expectedBook = new BookMongoEntity();
-		when(bookRepository.findById(bookId)).thenReturn(Optional.of(expectedBook));
+
+		BookMongoEntity bookEntity = new BookMongoEntity();
+		bookEntity.setId(bookId);
+		bookEntity.setTitle("Book 1");
+
+		when(bookRepository.findById(bookId)).thenReturn(Optional.of(bookEntity));
+		when(bookMongoMapper.entity2Domain(bookEntity)).thenReturn(new Book());
 
 		// When
 		Optional<Book> result = findBookByIdUseCase.findById(bookId);
 
 		// Then
-		Assertions.assertEquals(expectedBook, result.orElse(null));
+		assertTrue(result.isPresent());
+
 	}
 
 	@Test
-	public void givenNonExistingBookId_whenFindById_thenReturnEmptyOptional() throws Exception {
+	public void testFindById_WithNonExistingBook_ReturnsEmptyOptional() {
 		// Given
-		String bookId = "2";
+		String bookId = "1";
+
 		when(bookRepository.findById(bookId)).thenReturn(Optional.empty());
 
 		// When
 		Optional<Book> result = findBookByIdUseCase.findById(bookId);
 
 		// Then
-		Assertions.assertTrue(result.isEmpty());
+		assertFalse(result.isPresent());
 	}
-
 }

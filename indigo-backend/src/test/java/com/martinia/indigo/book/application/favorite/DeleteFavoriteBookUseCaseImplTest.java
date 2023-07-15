@@ -10,25 +10,52 @@ import javax.annotation.Resource;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-class DeleteFavoriteBookUseCaseImplTest extends BaseIndigoTest {
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-//	@MockBean
-//	private UserMongoRepository userMongoRepository;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
+import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
+
+public class DeleteFavoriteBookUseCaseImplTest extends BaseIndigoTest{
 
 	@Resource
-	private DeleteFavoriteBookUseCase useCase;
+	private DeleteFavoriteBookUseCase deleteFavoriteBookUseCase;
+
+	@MockBean
+	private UserRepository userRepository;
 
 	@Test
-	void testDeleteFavoriteBook() {
+	public void testDeleteFavoriteBook_RemovesBookFromUserFavorites() {
 		// Given
-		String user = "example_user";
-		String book = "example_book";
+		String user = "john_doe";
+		String book = "Book 1";
+
+		UserMongoEntity userEntity = new UserMongoEntity();
+		userEntity.setUsername(user);
+		final List<String> list = new ArrayList<>();
+		list.add(book);
+		userEntity.setFavoriteBooks(list);
+
+		when(userRepository.findByUsername(user)).thenReturn(Optional.of(userEntity));
 
 		// When
-		useCase.deleteFavoriteBook(user, book);
+		deleteFavoriteBookUseCase.deleteFavoriteBook(user, book);
 
 		// Then
-//		verify(userRepository, times(1)).deleteFavoriteBook(user, book);
+		verify(userRepository).save(userEntity);
+		List<String> expectedFavoriteBooks = new ArrayList<>();
+		assert (userEntity.getFavoriteBooks().equals(expectedFavoriteBooks));
 	}
-
 }

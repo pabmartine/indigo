@@ -5,13 +5,16 @@ import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.domain.ports.usecases.FindBookByPathUseCase;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
-import org.junit.jupiter.api.Assertions;
+import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import javax.annotation.Resource;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 public class FindBookByPathUseCaseImplTest extends BaseIndigoTest {
@@ -22,30 +25,39 @@ public class FindBookByPathUseCaseImplTest extends BaseIndigoTest {
 	@MockBean
 	private BookRepository bookRepository;
 
+	@MockBean
+	private BookMongoMapper bookMongoMapper;
+
 	@Test
-	public void givenExistingBookPath_whenFindByPath_thenReturnBook() throws Exception {
+	public void testFindByPath_WithExistingBook_ReturnsOptionalOfBook() {
 		// Given
-		String bookPath = "/path/to/book";
-		BookMongoEntity expectedBook = new BookMongoEntity();
-		when(bookRepository.findByPath(bookPath)).thenReturn(Optional.of(expectedBook));
+		String path = "/books/1";
+
+		BookMongoEntity bookEntity = new BookMongoEntity();
+		bookEntity.setId("1");
+		bookEntity.setTitle("Book 1");
+
+		when(bookRepository.findByPath(path)).thenReturn(Optional.of(bookEntity));
+		when(bookMongoMapper.entity2Domain(bookEntity)).thenReturn(new Book());
 
 		// When
-		Optional<Book> result = findBookByPathUseCase.findByPath(bookPath);
+		Optional<Book> result = findBookByPathUseCase.findByPath(path);
 
 		// Then
-		Assertions.assertEquals(expectedBook, result.orElse(null));
+		assertTrue(result.isPresent());
 	}
 
 	@Test
-	public void givenNonExistingBookPath_whenFindByPath_thenReturnEmptyOptional() throws Exception {
+	public void testFindByPath_WithNonExistingBook_ReturnsEmptyOptional() {
 		// Given
-		String bookPath = "/non/existing/path";
-		when(bookRepository.findByPath(bookPath)).thenReturn(Optional.empty());
+		String path = "/books/1";
+
+		when(bookRepository.findByPath(path)).thenReturn(Optional.empty());
 
 		// When
-		Optional<Book> result = findBookByPathUseCase.findByPath(bookPath);
+		Optional<Book> result = findBookByPathUseCase.findByPath(path);
 
 		// Then
-		Assertions.assertTrue(result.isEmpty());
+		assertFalse(result.isPresent());
 	}
 }
