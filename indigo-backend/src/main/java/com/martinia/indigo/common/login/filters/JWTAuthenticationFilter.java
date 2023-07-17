@@ -31,7 +31,7 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-			throws AuthenticationException, IOException, ServletException {
+			throws AuthenticationException, IOException {
 
 		UserLoginDto user = new ObjectMapper().readValue(request.getInputStream(), UserLoginDto.class);
 
@@ -42,7 +42,7 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-			Authentication autentication) throws IOException, ServletException {
+			Authentication autentication) {
 
 		// Add header
 		String userName = autentication.getName();

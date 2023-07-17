@@ -22,10 +22,11 @@ public class SaveConfigurationsUseCaseImpl implements SaveConfigurationsUseCase 
 	@Override
 	public void save(List<Configuration> configurations) {
 
-		for (Configuration configuration : configurations) {
+		configurations.forEach(configuration -> {
 
 			Optional<Configuration> _configuration = configurationRepository.findByKey(configuration.getKey())
-					.map(conf -> Optional.of(configurationMongoMapper.entity2Domain(conf))).orElse(Optional.empty());
+					.map(conf -> Optional.of(configurationMongoMapper.entity2Domain(conf)))
+					.orElse(Optional.empty());
 
 			_configuration.ifPresentOrElse(conf -> {
 				if (conf.getValue() == null || !conf.getValue().equals(configuration.getValue())) {
@@ -34,7 +35,7 @@ public class SaveConfigurationsUseCaseImpl implements SaveConfigurationsUseCase 
 				}
 			}, () -> configurationRepository.save(configurationMongoMapper.domain2Entity(configuration)));
 
-		}
+		});
 
 	}
 

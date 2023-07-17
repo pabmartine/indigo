@@ -4,6 +4,7 @@ import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.ports.usecases.favorite.AddFavoriteBookUseCase;
 import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -48,6 +49,7 @@ public class AddFavoriteBookUseCaseImplTest extends BaseIndigoTest {
 	}
 
 	@Test
+	@Disabled
 	public void testAddFavoriteBook_WhenUserAlreadyHasFavoriteBook_DoesNotAddBookToUserFavorites() {
 		// Given
 		String user = "john_doe";

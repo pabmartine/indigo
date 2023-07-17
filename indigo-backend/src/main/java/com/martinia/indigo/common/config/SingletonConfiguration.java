@@ -9,7 +9,7 @@ import com.martinia.indigo.common.singletons.MetadataSingleton;
 public class SingletonConfiguration {
 
 	@Bean
-	public MetadataSingleton authorsSingleton() {
+	public MetadataSingleton metadataSingleton() {
 		return new MetadataSingleton();
 	}
 }

@@ -103,7 +103,7 @@ public class BaseMetadataUseCaseImpl {
 
 	protected String goodreads;
 
-	protected long pullTime;
+	protected Long pullTime;
 
 	private final int BATCH_SIZE = 500;
 

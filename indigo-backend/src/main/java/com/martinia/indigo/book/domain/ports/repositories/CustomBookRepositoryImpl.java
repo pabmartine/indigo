@@ -1,9 +1,9 @@
 package com.martinia.indigo.book.domain.ports.repositories;
 
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
+import com.martinia.indigo.common.model.Search;
 import com.martinia.indigo.notification.infrastructure.mongo.entities.NotificationMongoEntity;
 import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
-import com.martinia.indigo.common.model.Search;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
@@ -312,7 +312,8 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 				MongoClientSettings.getDefaultCodecRegistry(),
 				org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build()));
 
-		FindIterable<BookMongoEntity> data = mongoTemplate.getCollection("books").withCodecRegistry(pojoCodecRegistry)
+		FindIterable<BookMongoEntity> data = mongoTemplate.getCollection("books")
+				.withCodecRegistry(pojoCodecRegistry)
 				.find(filter, BookMongoEntity.class);
 
 		data.iterator().forEachRemaining(ret::add);
@@ -339,7 +340,8 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 		}
 		Bson filter = in("_id", list);
 
-		FindIterable<BookMongoEntity> books = mongoTemplate.getCollection("books").withCodecRegistry(pojoCodecRegistry)
+		FindIterable<BookMongoEntity> books = mongoTemplate.getCollection("books")
+				.withCodecRegistry(pojoCodecRegistry)
 				.find(filter, BookMongoEntity.class);
 
 		books.iterator().forEachRemaining(ret::add);
@@ -358,7 +360,6 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 		long ret = 0;
 
-		//    long init = System.currentTimeMillis();
 		Query query = new Query();
 		List<Criteria> criterias = new ArrayList<>();
 		criterias.add(Criteria.where("user").is(user));
@@ -399,58 +400,6 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 			}
 
 		}
-		//    System.out.println(System.currentTimeMillis() - init);
-		//    init = System.currentTimeMillis();
-		//    Query query = new Query();
-		//    List<Criteria> criterias = new ArrayList<>();
-		//    criterias.add(Criteria.where("username").is(user));
-		//    query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
-		//    UserMongoEntity userMongoEntity = mongoTemplate.findOne(query, UserMongoEntity.class);
-		//    List<String> languages = userMongoEntity.getLanguageBooks();
-		//
-		//    CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
-		//        MongoClientSettings.getDefaultCodecRegistry(),
-		//        org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder()
-		//            .automatic(true)
-		//            .build()));
-		//
-		//    MongoCollection<Document> collection = mongoTemplate.getCollection("notifications")
-		//        .withCodecRegistry(pojoCodecRegistry);
-		//
-		//    AggregateIterable<Document> data = collection.aggregate(Arrays.asList(
-		//
-		//        new Document("$match", new Document("user", user)),
-		//        new Document("$project", new Document("_id", 0L).append("book", 1L)),
-		//        new Document("$lookup", new Document("from", "books").append("localField", "book")
-		//            .append("foreignField", "path")
-		//            .append("as", "typeCategory")),
-		//        new Document("$match",
-		//            new Document("typeCategory.recommendations", new Document("$ne", new BsonNull()))),
-		//        new Document("$unwind", new Document("path", "$typeCategory")),
-		//        new Document("$unwind", new Document("path", "$typeCategory.recommendations")),
-		//        new Document("$project",
-		//            new Document("_id", new Document("$toObjectId", "$typeCategory.recommendations"))),
-		//        new Document("$group", new Document("_id", "$_id").append("count", new Document("$sum", 1L))),
-		//        new Document("$sort", new Document("count", -1L)),
-		//        new Document("$lookup", new Document("from", "books").append("localField", "_id")
-		//            .append("foreignField", "_id")
-		//            .append("as", "book")),
-		//        new Document("$replaceRoot", new Document("newRoot",
-		//            new Document("$mergeObjects",
-		//                Arrays.asList(new Document("$arrayElemAt", Arrays.asList("$book", 0L)), "$$ROOT")))),
-		//        new Document("$match",
-		//            new Document("languages",
-		//                new Document("$in", languages))),
-		//        new Document("$count", "total")));
-		//
-		//    if (data.iterator()
-		//        .hasNext()) {
-		//      ret = Long.parseLong(data.iterator()
-		//          .next()
-		//          .get("total")
-		//          .toString());
-		//    }
-		//    System.out.println(System.currentTimeMillis() - init);
 		return ret;
 	}
 
@@ -474,7 +423,8 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 		AggregateIterable<BookMongoEntity> data = collection.aggregate(Arrays.asList(new Document("$match", new Document("user", user)),
 				new Document("$project", new Document("_id", 0L).append("book", 1L)), new Document("$lookup",
-						new Document("from", "books").append("localField", "book").append("foreignField", "path")
+						new Document("from", "books").append("localField", "book")
+								.append("foreignField", "path")
 								.append("as", "typeCategory")),
 				new Document("$match", new Document("typeCategory.recommendations", new Document("$ne", new BsonNull()))),
 				new Document("$unwind", new Document("path", "$typeCategory")),
