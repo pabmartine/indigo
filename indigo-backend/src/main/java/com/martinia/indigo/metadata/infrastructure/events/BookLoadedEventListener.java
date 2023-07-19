@@ -17,7 +17,6 @@ public class BookLoadedEventListener extends EventBusListener<BookLoadedEvent> {
 	private BookLoadedEventUseCase bookLoadedEventUseCase;
 
 	@Override
-	@Transactional
 	public void handle(final BookLoadedEvent event) {
 		bookLoadedEventUseCase.fillAuthors(event.getBookId());
 	}

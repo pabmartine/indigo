@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import javax.transaction.Transactional;
 
 @Slf4j
 @Component
@@ -17,7 +16,6 @@ public class StartInitialLoadCommandHandler implements CommandHandler<StartIniti
 	private StartInitialLoadCommandUseCase startInitialLoadCommandUseCase;
 
 	@Override
-	@Transactional
 	public Void handle(final StartInitialLoadCommand command) {
 
 		startInitialLoadCommandUseCase.start();
