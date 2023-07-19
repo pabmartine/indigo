@@ -1,19 +1,24 @@
 package com.martinia.indigo.metadata.application;
 
+import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
 import com.martinia.indigo.metadata.application.common.BaseMetadataUseCaseImpl;
+import com.martinia.indigo.metadata.domain.ports.commands.StartInitialLoadCommand;
 import com.martinia.indigo.metadata.domain.ports.usecases.StartMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.Optional;
 
 @Slf4j
 @Service
 public class StartMetadataUseCaseImpl extends BaseMetadataUseCaseImpl implements StartMetadataUseCase {
 
-	@Async
+	@Resource
+	private CommandBus commandBus;
+
+	//	@Async
 	@Override
 	public void start(String lang, String type, String entity) {
 		log.info("Starting async process");
@@ -23,7 +28,8 @@ public class StartMetadataUseCaseImpl extends BaseMetadataUseCaseImpl implements
 		}
 
 		if (Optional.ofNullable(pullTime).isEmpty()) {
-			pullTime = configurationRepository.findByKey("metadata.pull").map(configuration -> Long.parseLong(configuration.getValue()))
+			pullTime = configurationRepository.findByKey("metadata.pull")
+					.map(configuration -> Long.parseLong(configuration.getValue()))
 					.orElse(null);
 		}
 
@@ -34,7 +40,8 @@ public class StartMetadataUseCaseImpl extends BaseMetadataUseCaseImpl implements
 
 		if (type.equals("full")) {
 			if (entity.equals("all")) {
-				initialLoad(lang);
+				//				initialLoad(lang);
+				commandBus.execute(StartInitialLoadCommand.builder().build());
 			}
 			if (entity.equals("reviews")) {
 				fillMetadataReviews(lang, true);
@@ -62,9 +69,9 @@ public class StartMetadataUseCaseImpl extends BaseMetadataUseCaseImpl implements
 			}
 		}
 
-		if (metadataSingleton.isRunning()) {
-			stop();
-		}
+//		if (metadataSingleton.isRunning()) {
+//			stop();
+//		}
 	}
 
 }

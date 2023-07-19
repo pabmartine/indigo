@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -44,17 +45,33 @@ public class BookSqliteMapper {
 
 	private Date parseDate(String strDate) {
 		Date date = null;
-		try {
-			if (strDate.matches("^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\+\\d{2}:\\d{2}$"))
-				date = SDF.parse(strDate);
-			else if (strDate.matches("^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{6}\\+\\d{2}:\\d{2}$"))
-				date = SDF2.parse(strDate);
-			else {
-				log.error("Unknown date format {}", strDate);
+		if (StringUtils.isNotEmpty(strDate)) {
+			try {
+				if (strDate.matches("^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\+\\d{2}:\\d{2}$")) {
+					try {
+						date = SDF.parse(strDate);
+					}
+					catch (Exception e) {
+						log.error(e.getMessage());
+					}
+				}
+				else {
+					if (strDate.matches("^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{6}\\+\\d{2}:\\d{2}$")) {
+						try {
+							date = SDF2.parse(strDate);
+						}
+						catch (Exception e) {
+							log.error(e.getMessage());
+						}
+					}
+					else {
+						log.error("Unknown date format {}", strDate);
+					}
+				}
 			}
-		} catch (ParseException e) {
-
-			e.printStackTrace();
+			catch (Exception e) {
+				log.error(e.getMessage());
+			}
 		}
 		return date;
 	}
@@ -68,17 +85,15 @@ public class BookSqliteMapper {
 			domain.setPubDate(parseDate(entity.getPubDate()));
 			domain.setLastModified(parseDate(entity.getLastModified()));
 			domain.setPath(entity.getPath());
-			domain.setSerie(new Serie(entity.getSeriesIndex()
-					.intValue(), serieSqliteRepository.getSerieByBook(entity.getId()).orElse(null)));
+			domain.setSerie(
+					new Serie(entity.getSeriesIndex().intValue(), serieSqliteRepository.getSerieByBook(entity.getId()).orElse(null)));
 			domain.setAuthors(new ArrayList<>());
-			String[] authors = entity.getAuthorSort()
-					.split("&");
+			String[] authors = entity.getAuthorSort().split("&");
 			for (String author : authors) {
 				if (author.trim().equals("VV., AA.")) {
 					author = "AA. VV.";
 				}
-				domain.getAuthors()
-						.add(author.trim());
+				domain.getAuthors().add(author.trim());
 			}
 
 			domain.setPages(pageSqliteRepository.findPagesByBookId(entity.getId()).orElse(0));
@@ -90,6 +105,33 @@ public class BookSqliteMapper {
 		});
 		return domains;
 
+	}
+
+	public Book entity2Domain(BookSqliteEntity entity) {
+
+		Book domain = new Book();
+		domain.setId(String.valueOf(entity.getId()));
+		domain.setTitle(entity.getTitle());
+		domain.setPubDate(parseDate(entity.getPubDate()));
+		domain.setLastModified(parseDate(entity.getLastModified()));
+		domain.setPath(entity.getPath());
+		domain.setSerie(new Serie(entity.getSeriesIndex().intValue(), serieSqliteRepository.getSerieByBook(entity.getId()).orElse(null)));
+		domain.setAuthors(new ArrayList<>());
+		String[] authors = entity.getAuthorSort().split("&");
+		for (String author : authors) {
+			if (author.trim().equals("VV., AA.")) {
+				author = "AA. VV.";
+			}
+			domain.getAuthors().add(author.trim());
+		}
+
+		domain.setPages(pageSqliteRepository.findPagesByBookId(entity.getId()).orElse(0));
+
+		domain.setTags(tagSqliteRepository.getTagsByBookId(entity.getId()));
+		domain.setComment(commentSqliteRepository.findTextByBookId(entity.getId()).orElse(null));
+		domain.setLanguages(languageSqliteRepository.getLanguageByBookId(entity.getId()));
+
+		return domain;
 	}
 
 }

@@ -54,7 +54,7 @@ public class BaseMetadataUseCaseImpl {
 	protected BookRepository bookRepository;
 
 	@Resource
-	private TagRepository tagRepository;
+	protected TagRepository tagRepository;
 
 	@Resource
 	protected AuthorRepository authorRepository;
@@ -109,90 +109,90 @@ public class BaseMetadataUseCaseImpl {
 
 	private long lastExecution;
 
-	private void fillAuthors(String id, Book book) {
-
-		boolean updateBook = false;
-
-		// Authors
-		if (!CollectionUtils.isEmpty(book.getAuthors())) {
-
-			List<Author> authors = calibreRepository.findAuthorsByBook(id);
-
-			if (!CollectionUtils.isEmpty(authors)) {
-
-				for (Author author : authors) {
-
-					if (author.getName().equals("VV., AA.") || author.getSort().equals("VV., AA.")) {
-						author.setName("AA. VV.");
-						author.setSort("AA. VV.");
-					}
-
-					if (!book.getAuthors().contains(author.getSort())) {
-
-						String[] tokens = author.getSort().replace(",", "").split(" ");
-						boolean _contains = false;
-						for (String a : book.getAuthors()) {
-							boolean contains = true;
-							for (String t : tokens) {
-								if (!a.contains(t)) {
-									contains = false;
-									break;
-								}
-							}
-							if (contains) {
-								_contains = true;
-
-								if (!a.equals(author.getSort())) {
-									author.setSort(a);
-									updateBook = true;
-								}
-							}
-						}
-
-						if (!_contains) {
-							book.getAuthors().add(author.getSort());
-							updateBook = true;
-						}
-
-					}
-
-					Author domainAuthor = new Author();
-					domainAuthor.setName(author.getName());
-					domainAuthor.setSort(author.getSort());
-					domainAuthor.setNumBooks(new NumBooks());
-					for (String lang : book.getLanguages()) {
-						domainAuthor.getNumBooks().getLanguages().put(lang, 1);
-					}
-
-					//save author
-					AuthorMongoEntity authorMongoEntity = authorMongoMapper.domain2Entity(domainAuthor);
-					authorRepository.findByName(author.getName()).ifPresent(entity -> {
-						authorMongoEntity.setId(entity.getId());
-						authorMongoEntity.getNumBooks().setTotal(entity.getNumBooks().getTotal() + 1);
-						entity.getNumBooks().getLanguages().keySet().forEach(key -> {
-							if (authorMongoEntity.getNumBooks().getLanguages().get(key) != null) {
-								authorMongoEntity.getNumBooks().getLanguages().put(key,
-										authorMongoEntity.getNumBooks().getLanguages().get(key) + entity.getNumBooks().getLanguages()
-												.get(key));
-							}
-							else {
-								authorMongoEntity.getNumBooks().getLanguages().put(key, entity.getNumBooks().getLanguages().get(key));
-							}
-						});
-					});
-					authorRepository.save(authorMongoEntity);
-				}
-
-				if (updateBook == true) {
-					String bookId = bookRepository.findByPath(book.getPath()).get().getId();
-					book.setId(bookId);
-					bookRepository.save(bookMongoMapper.domain2Entity(book));
-				}
-			}
-
-		}
-
-	}
+//	private void fillAuthors(String id, Book book) {
+//
+//		boolean updateBook = false;
+//
+//		// Authors
+//		if (!CollectionUtils.isEmpty(book.getAuthors())) {
+//
+//			List<Author> authors = calibreRepository.findAuthorsByBook(id);
+//
+//			if (!CollectionUtils.isEmpty(authors)) {
+//
+//				for (Author author : authors) {
+//
+//					if (author.getName().equals("VV., AA.") || author.getSort().equals("VV., AA.")) {
+//						author.setName("AA. VV.");
+//						author.setSort("AA. VV.");
+//					}
+//
+//					if (!book.getAuthors().contains(author.getSort())) {
+//
+//						String[] tokens = author.getSort().replace(",", "").split(" ");
+//						boolean _contains = false;
+//						for (String a : book.getAuthors()) {
+//							boolean contains = true;
+//							for (String t : tokens) {
+//								if (!a.contains(t)) {
+//									contains = false;
+//									break;
+//								}
+//							}
+//							if (contains) {
+//								_contains = true;
+//
+//								if (!a.equals(author.getSort())) {
+//									author.setSort(a);
+//									updateBook = true;
+//								}
+//							}
+//						}
+//
+//						if (!_contains) {
+//							book.getAuthors().add(author.getSort());
+//							updateBook = true;
+//						}
+//
+//					}
+//
+//					Author domainAuthor = new Author();
+//					domainAuthor.setName(author.getName());
+//					domainAuthor.setSort(author.getSort());
+//					domainAuthor.setNumBooks(new NumBooks());
+//					for (String lang : book.getLanguages()) {
+//						domainAuthor.getNumBooks().getLanguages().put(lang, 1);
+//					}
+//
+//					//save author
+//					AuthorMongoEntity authorMongoEntity = authorMongoMapper.domain2Entity(domainAuthor);
+//					authorRepository.findByName(author.getName()).ifPresent(entity -> {
+//						authorMongoEntity.setId(entity.getId());
+//						authorMongoEntity.getNumBooks().setTotal(entity.getNumBooks().getTotal() + 1);
+//						entity.getNumBooks().getLanguages().keySet().forEach(key -> {
+//							if (authorMongoEntity.getNumBooks().getLanguages().get(key) != null) {
+//								authorMongoEntity.getNumBooks().getLanguages().put(key,
+//										authorMongoEntity.getNumBooks().getLanguages().get(key) + entity.getNumBooks().getLanguages()
+//												.get(key));
+//							}
+//							else {
+//								authorMongoEntity.getNumBooks().getLanguages().put(key, entity.getNumBooks().getLanguages().get(key));
+//							}
+//						});
+//					});
+//					authorRepository.save(authorMongoEntity);
+//				}
+//
+//				if (updateBook == true) {
+//					String bookId = bookRepository.findByPath(book.getPath()).get().getId();
+//					book.setId(bookId);
+//					bookRepository.save(bookMongoMapper.domain2Entity(book));
+//				}
+//			}
+//
+//		}
+//
+//	}
 
 	protected void fillMetadataAuthors(String lang, boolean override) {
 
@@ -552,79 +552,79 @@ public class BaseMetadataUseCaseImpl {
 
 	protected void initialLoad(String lang) {
 
-		metadataSingleton.setMessage("indexing_books");
+//		metadataSingleton.setMessage("indexing_books");
+//
+//		tagRepository.deleteAll();
+//		authorRepository.deleteAll();
+//		bookRepository.deleteAll();
 
-		tagRepository.deleteAll();
-		authorRepository.deleteAll();
-		bookRepository.deleteAll();
+//		Long numBooks = calibreRepository.count(null);
+//		metadataSingleton.setTotal(metadataSingleton.getTotal() + numBooks);
 
-		Long numBooks = calibreRepository.count(null);
-		metadataSingleton.setTotal(metadataSingleton.getTotal() + numBooks);
+//		int page = 0;
+//		int size = BATCH_SIZE;
 
-		int page = 0;
-		int size = BATCH_SIZE;
+//		while (page * size < numBooks) {
 
-		while (page * size < numBooks) {
+//			if (!metadataSingleton.isRunning()) {
+//				break;
+//			}
 
-			if (!metadataSingleton.isRunning()) {
-				break;
-			}
+//			List<Book> books = calibreRepository.findAll(null, page, size, "id", "asc");
 
-			List<Book> books = calibreRepository.findAll(null, page, size, "id", "asc");
+//			for (Book book : books) {
+//				if (!metadataSingleton.isRunning()) {
+//					break;
+//				}
 
-			for (Book book : books) {
-				if (!metadataSingleton.isRunning()) {
-					break;
-				}
+//				metadataSingleton.setCurrent(metadataSingleton.getCurrent() + 1);
 
-				metadataSingleton.setCurrent(metadataSingleton.getCurrent() + 1);
+//				try {
+//					String id = book.getId();
+//					String image = utilComponent.getBase64Cover(book.getPath(), true);
+//					book.setImage(image);
+//					book.setId(null);
+//
+//					//Save tags
+//					book.getTags().forEach(tag -> {
+//						Optional<TagMongoEntity> optTagEntity = tagRepository.findByName(tag);
+//						if (optTagEntity.isEmpty()) {
+//							tagRepository.save(new TagMongoEntity(tag, book.getLanguages()));
+//						}
+//						else {
+//							TagMongoEntity tagEntity = optTagEntity.get();
+//							book.getLanguages().forEach(language -> {
+//								if (tagEntity.getNumBooks().getLanguages().get(language) != null) {
+//									tagEntity.getNumBooks().getLanguages()
+//											.put(language, tagEntity.getNumBooks().getLanguages().get(language) + 1);
+//								}
+//								else {
+//									tagEntity.getNumBooks().getLanguages().put(language, 1);
+//								}
+//							});
+//							tagEntity.getNumBooks().setTotal(tagEntity.getNumBooks().getTotal() + 1);
+//							tagRepository.save(tagEntity);
+//						}
+//					});
+//
+//					bookRepository.save(bookMongoMapper.domain2Entity(book));
+//
+//					fillAuthors(id, book);
+//
+//				}
+//				catch (Exception e) {
+//					e.printStackTrace();
+//				}
 
-				try {
-					String id = book.getId();
-					String image = utilComponent.getBase64Cover(book.getPath(), true);
-					book.setImage(image);
-					book.setId(null);
+//				log.debug("Indexed {}/{} books", metadataSingleton.getCurrent(), numBooks);
 
-					//Save tags
-					book.getTags().forEach(tag -> {
-						Optional<TagMongoEntity> optTagEntity = tagRepository.findByName(tag);
-						if (optTagEntity.isEmpty()) {
-							tagRepository.save(new TagMongoEntity(tag, book.getLanguages()));
-						}
-						else {
-							TagMongoEntity tagEntity = optTagEntity.get();
-							book.getLanguages().forEach(language -> {
-								if (tagEntity.getNumBooks().getLanguages().get(language) != null) {
-									tagEntity.getNumBooks().getLanguages()
-											.put(language, tagEntity.getNumBooks().getLanguages().get(language) + 1);
-								}
-								else {
-									tagEntity.getNumBooks().getLanguages().put(language, 1);
-								}
-							});
-							tagEntity.getNumBooks().setTotal(tagEntity.getNumBooks().getTotal() + 1);
-							tagRepository.save(tagEntity);
-						}
-					});
+//			}
 
-					bookRepository.save(bookMongoMapper.domain2Entity(book));
-
-					fillAuthors(id, book);
-
-				}
-				catch (Exception e) {
-					e.printStackTrace();
-				}
-
-				log.debug("Indexed {}/{} books", metadataSingleton.getCurrent(), numBooks);
-
-			}
-
-			log.info("Indexed {}/{} books", metadataSingleton.getCurrent(), numBooks);
-
-			page++;
-
-		}
+//			log.info("Indexed {}/{} books", metadataSingleton.getCurrent(), numBooks);
+//
+//			page++;
+//
+//		}
 
 //		fillMetadataBooks(true);
 //		fillMetadataAuthors(lang, true);

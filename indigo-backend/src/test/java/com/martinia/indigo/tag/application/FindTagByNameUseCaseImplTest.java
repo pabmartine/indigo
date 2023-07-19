@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import javax.annotation.Resource;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -39,7 +41,7 @@ public class FindTagByNameUseCaseImplTest extends BaseIndigoTest {
 		tag.setId("1");
 		tag.setName(tagName);
 
-		when(tagRepository.findByName(tagName)).thenReturn(Optional.of(tagEntity));
+		when(tagRepository.findByName(tagName)).thenReturn(List.of(tagEntity));
 		when(tagMongoMapper.entity2Domain(tagEntity)).thenReturn(tag);
 
 		// When
@@ -54,7 +56,7 @@ public class FindTagByNameUseCaseImplTest extends BaseIndigoTest {
 		// Given
 		String tagName = "Non-existing Tag";
 
-		when(tagRepository.findByName(tagName)).thenReturn(Optional.empty());
+		when(tagRepository.findByName(tagName)).thenReturn(Collections.emptyList());
 
 		// When
 		Optional<Tag> result = findTagByNameUseCase.findByName(tagName);

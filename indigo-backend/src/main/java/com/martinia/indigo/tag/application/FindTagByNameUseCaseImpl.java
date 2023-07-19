@@ -20,7 +20,7 @@ public class FindTagByNameUseCaseImpl implements FindTagByNameUseCase {
 
 	@Override
 	public Optional<Tag> findByName(final String name) {
-		return tagRepository.findByName(name).map(tag -> Optional.of(tagMongoMapper.entity2Domain(tag))).orElse(Optional.empty());
+		return tagRepository.findByName(name).stream().findFirst().map(tag -> Optional.of(tagMongoMapper.entity2Domain(tag))).orElse(Optional.empty());
 	}
 
 }

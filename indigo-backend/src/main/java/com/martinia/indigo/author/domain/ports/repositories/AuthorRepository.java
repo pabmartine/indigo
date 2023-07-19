@@ -5,13 +5,14 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface AuthorRepository extends MongoRepository<AuthorMongoEntity, String>, CustomAuthorRepository {
 
 	@Query("{ 'name' : ?0 }")
-	Optional<AuthorMongoEntity> findByName(String name);
+	List<AuthorMongoEntity> findByName(String name);
 
 	@Query("{ 'sort' : ?0 }")
 	Optional<AuthorMongoEntity> findBySort(String sort);
