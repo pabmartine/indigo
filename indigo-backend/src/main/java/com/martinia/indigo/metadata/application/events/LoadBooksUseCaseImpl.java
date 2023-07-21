@@ -5,7 +5,7 @@ import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import com.martinia.indigo.common.singletons.MetadataSingleton;
 import com.martinia.indigo.metadata.domain.ports.commands.LoadBookCommand;
-import com.martinia.indigo.metadata.domain.ports.usecases.events.InitialLoadStartedEventUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.events.LoadBooksUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,9 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class InitialLoadStartedEventUseCaseImpl implements InitialLoadStartedEventUseCase {
+public class LoadBooksUseCaseImpl implements LoadBooksUseCase {
+
+	private static final int BATCH_SIZE = 100;
 
 	@Resource
 	private CalibreRepository calibreRepository;
@@ -26,11 +28,12 @@ public class InitialLoadStartedEventUseCaseImpl implements InitialLoadStartedEve
 	@Resource
 	protected CommandBus commandBus;
 
-	private final int BATCH_SIZE = 100;
 
 	@Override
 	@Transactional
 	public void start() {
+
+		log.info("Loading books ...");
 
 		final Long numBooks = calibreRepository.count(null);
 

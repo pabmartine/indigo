@@ -1,6 +1,6 @@
 package com.martinia.indigo.metadata.domain.ports.usecases.commands;
 
-public interface StartInitialLoadCommandUseCase {
+public interface StartInitialLoadUseCase {
 
 	void start();
 }

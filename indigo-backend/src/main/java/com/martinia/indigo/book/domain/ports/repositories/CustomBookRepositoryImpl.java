@@ -8,6 +8,7 @@ import com.mongodb.MongoClientSettings;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.BsonNull;
 import org.bson.Document;
@@ -33,11 +34,13 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Filters.in;
 
 @Repository
+@Slf4j
 public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 	@Resource
@@ -206,35 +209,45 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 	@Override
 	public List<BookMongoEntity> getRecommendationsByBook(BookMongoEntity book) {
 
-		Query query = new Query();
+		try {
+			Query query = new Query();
 
-		List<Criteria> criterias = new ArrayList<>();
+			List<Criteria> criterias = new ArrayList<>();
 
-		criterias.add(Criteria.where("id").ne(book.getId()));
+			criterias.add(Criteria.where("id").ne(book.getId()));
 
-		criterias.add(Criteria.where("tags").all(book.getTags()));
+			criterias.add(Criteria.where("tags").all(book.getTags()));
 
-		Calendar cIni = Calendar.getInstance();
-		cIni.setTime(book.getPubDate());
-		cIni.add(Calendar.YEAR, -5);
+			Optional.ofNullable(book.getPubDate()).ifPresent(pubDate -> {
+				Calendar cIni = Calendar.getInstance();
+				cIni.setTime(pubDate);
+				cIni.add(Calendar.YEAR, -5);
 
-		criterias.add(Criteria.where("pubDate").gte(cIni.getTime()));
+				criterias.add(Criteria.where("pubDate").gte(cIni.getTime()));
 
-		Calendar cEnd = Calendar.getInstance();
-		cEnd.setTime(book.getPubDate());
-		cEnd.set(Calendar.HOUR_OF_DAY, 23);
-		cEnd.set(Calendar.MINUTE, 59);
-		cEnd.add(Calendar.YEAR, 5);
+				Calendar cEnd = Calendar.getInstance();
+				cEnd.setTime(book.getPubDate());
+				cEnd.set(Calendar.HOUR_OF_DAY, 23);
+				cEnd.set(Calendar.MINUTE, 59);
+				cEnd.add(Calendar.YEAR, 5);
 
-		criterias.add(Criteria.where("pubDate").lte(cEnd.getTime()));
+				criterias.add(Criteria.where("pubDate").lte(cEnd.getTime()));
 
-		criterias.add(Criteria.where("pages").gte(book.getPages() - ((book.getPages() * 25) / 100)));
+			});
 
-		criterias.add(Criteria.where("pages").lte(book.getPages() + ((book.getPages() * 25) / 100)));
+			criterias.add(Criteria.where("pages").gte(book.getPages() - ((book.getPages() * 25) / 100)));
 
-		query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
+			criterias.add(Criteria.where("pages").lte(book.getPages() + ((book.getPages() * 25) / 100)));
 
-		return mongoTemplate.find(query, BookMongoEntity.class);
+			query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
+
+			return mongoTemplate.find(query, BookMongoEntity.class);
+		}
+		catch (Exception e) {
+			log.error(e.getMessage());
+			return Collections.emptyList();
+		}
+
 	}
 
 	@Override

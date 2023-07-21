@@ -7,7 +7,7 @@ import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
 import com.martinia.indigo.common.bus.event.domain.ports.EventBus;
 import com.martinia.indigo.common.util.UtilComponent;
 import com.martinia.indigo.metadata.domain.ports.events.BookLoadedEvent;
-import com.martinia.indigo.metadata.domain.ports.usecases.commands.LoadBookCommandUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.commands.LoadBookUseCase;
 import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
 import com.martinia.indigo.tag.infrastructure.mongo.entities.TagMongoEntity;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-public class LoadBookCommandUseCaseImpl implements LoadBookCommandUseCase {
+public class LoadBookUseCaseImpl implements LoadBookUseCase {
 
 	@Resource
 	private UtilComponent utilComponent;
@@ -71,6 +71,8 @@ public class LoadBookCommandUseCaseImpl implements LoadBookCommandUseCase {
 		});
 
 		bookRepository.save(bookMongoMapper.domain2Entity(book));
+
+		log.info("Book '{}' saved to database", book.getTitle());
 
 		eventBus.publish(BookLoadedEvent.builder().bookId(bookId).build());
 

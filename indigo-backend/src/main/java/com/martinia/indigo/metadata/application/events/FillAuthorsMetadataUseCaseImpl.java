@@ -9,7 +9,7 @@ import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
 import com.martinia.indigo.common.model.NumBooks;
-import com.martinia.indigo.metadata.domain.ports.usecases.events.BookLoadedEventUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.events.FillAuthorsMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -20,7 +20,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class BookLoadedEventUseCaseImpl implements BookLoadedEventUseCase {
+public class FillAuthorsMetadataUseCaseImpl implements FillAuthorsMetadataUseCase {
 
 	@Resource
 	private CalibreRepository calibreRepository;
@@ -124,6 +124,8 @@ public class BookLoadedEventUseCaseImpl implements BookLoadedEventUseCase {
 					bookRepository.save(bookMongoMapper.domain2Entity(book));
 				}
 			}
+
+			log.info("Authors '{}' for book '{}' saved to database", book.getAuthors(), book.getTitle());
 
 		}
 

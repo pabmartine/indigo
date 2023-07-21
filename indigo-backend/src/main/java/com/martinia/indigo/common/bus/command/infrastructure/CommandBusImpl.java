@@ -4,6 +4,7 @@ import com.martinia.indigo.common.bus.command.domain.model.Command;
 import com.martinia.indigo.common.bus.command.domain.model.CommandHandler;
 import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
@@ -24,8 +25,12 @@ public class CommandBusImpl implements CommandBus {
 
 	private Map<Class, CommandHandler> handlers;
 
-	public CommandBusImpl(List<CommandHandler> commandHandlerImplementations) {
+	public CommandBusImpl() {
 		this.handlers = new HashMap<>();
+	}
+
+	@Autowired
+	public void setCommandHandlerImplementations(List<CommandHandler> commandHandlerImplementations) {
 		commandHandlerImplementations.forEach(commandHandler -> {
 			Class<?> commandClass = null;
 			try {

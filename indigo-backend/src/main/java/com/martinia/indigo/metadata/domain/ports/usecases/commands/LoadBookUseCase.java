@@ -1,6 +1,6 @@
 package com.martinia.indigo.metadata.domain.ports.usecases.commands;
 
-public interface LoadBookCommandUseCase {
+public interface LoadBookUseCase {
 
 	void load(String bookId);
 }

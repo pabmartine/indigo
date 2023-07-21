@@ -12,7 +12,7 @@ public abstract class EventBusListener<T> {
 
 	@EventListener
 	protected void listener(T t) throws Exception {
-		if (t instanceof Event) {log.debug("Received {} event", t.getClass().getName());}
+//		if (t instanceof Event) {log.debug("Received {} event", t.getClass().getName());}
 		this.handle(t);
 	}
 }

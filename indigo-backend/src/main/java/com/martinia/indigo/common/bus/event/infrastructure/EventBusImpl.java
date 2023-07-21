@@ -18,7 +18,7 @@ public class EventBusImpl implements EventBus {
 	private ApplicationEventPublisher applicationEventPublisher;
 
 	public void publish(Event event) {
-		log.debug("Published {} event", event.getClass().getName());
+//		log.debug("Published {} event", event.getClass().getName());
 		applicationEventPublisher.publishEvent(event);
 	}
 }

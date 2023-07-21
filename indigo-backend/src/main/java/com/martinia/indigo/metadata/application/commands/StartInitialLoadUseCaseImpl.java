@@ -5,7 +5,7 @@ import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.common.bus.event.domain.ports.EventBus;
 import com.martinia.indigo.common.singletons.MetadataSingleton;
 import com.martinia.indigo.metadata.domain.ports.events.InitialLoadStartedEvent;
-import com.martinia.indigo.metadata.domain.ports.usecases.commands.StartInitialLoadCommandUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.commands.StartInitialLoadUseCase;
 import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ import javax.transaction.Transactional;
 
 @Slf4j
 @Service
-public class StartInitialLoadCommandUseCaseImpl implements StartInitialLoadCommandUseCase {
+public class StartInitialLoadUseCaseImpl implements StartInitialLoadUseCase {
 
 	@Resource
 	protected MetadataSingleton metadataSingleton;
@@ -35,12 +35,14 @@ public class StartInitialLoadCommandUseCaseImpl implements StartInitialLoadComma
 	@Override
 	@Transactional
 	public void start() {
-
+		log.info("Deleting database...");
 		metadataSingleton.setMessage("indexing_books");
 
 		tagRepository.deleteAll();
 		authorRepository.deleteAll();
 		bookRepository.deleteAll();
+
+		log.info("Database deleted");
 
 		eventBus.publish(InitialLoadStartedEvent.builder().build());
 

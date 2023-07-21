@@ -269,35 +269,35 @@ export class SettingsComponent implements OnInit {
   }
 
   isBooksFull() {
-    return this.type === 'full' && this.entity === 'books';
+    return this.type === 'FULL' && this.entity === 'BOOKS';
   }
 
   isBooksPartial() {
-    return this.type === 'partial' && this.entity === 'books';
+    return this.type === 'PARTIAL' && this.entity === 'BOOKS';
   }
 
   isAuthorsFull() {
-    return this.type === 'full' && this.entity === 'authors';
+    return this.type === 'FULL' && this.entity === 'AUTHORS';
   }
 
   isAuthorsPartial() {
-    return this.type === 'partial' && this.entity === 'authors';
+    return this.type === 'PARTIAL' && this.entity === 'AUTHORS';
   }
 
   isReviewsFull() {
-    return this.type === 'full' && this.entity === 'reviews';
+    return this.type === 'FULL' && this.entity === 'REVIEWS';
   }
 
   isReviewsPartial() {
-    return this.type === 'partial' && this.entity === 'reviews';
+    return this.type === 'PARTIAL' && this.entity === 'REVIEWS';
   }
 
   isAllFull() {
-    return this.type === 'full' && this.entity === 'all';
+    return this.type === 'FULL' && this.entity === 'LOAD';
   }
 
   isAllPartial() {
-    return this.type === 'partial' && this.entity === 'all';
+    return this.type === 'PARTIAL' && this.entity === 'LOAD';
   }
 
 
@@ -305,14 +305,14 @@ export class SettingsComponent implements OnInit {
   doExecuteMetadata(type: string, entity: string) {
 
     if (
-      type === 'full' && entity === 'reviews' && this.isReviewsFull() ||
-      type === 'partial' && entity === 'reviews' && this.isReviewsPartial() ||
-      type === 'full' && entity === 'authors' && this.isAuthorsFull() ||
-      type === 'partial' && entity === 'authors' && this.isAuthorsPartial() ||
-      type === 'full' && entity === 'books' && this.isBooksFull() ||
-      type === 'partial' && entity === 'books' && this.isBooksPartial() ||
-      type === 'full' && entity === 'all' && this.isAllFull() ||
-      type === 'partial' && entity === 'all' && this.isAllPartial()
+      type === 'FULL' && entity === 'REVIEWS' && this.isReviewsFull() ||
+      type === 'PARTIAL' && entity === 'REVIEWS' && this.isReviewsPartial() ||
+      type === 'FULL' && entity === 'AUTHORS' && this.isAuthorsFull() ||
+      type === 'PARTIAL' && entity === 'AUTHORS' && this.isAuthorsPartial() ||
+      type === 'FULL' && entity === 'BOOKS' && this.isBooksFull() ||
+      type === 'PARTIAL' && entity === 'BOOKS' && this.isBooksPartial() ||
+      type === 'FULL' && entity === 'LOAD' && this.isAllFull() ||
+      type === 'PARTIAL' && entity === 'LOAD' && this.isAllPartial()
     ) {
       this.metadataService.stop().subscribe(
         data => {

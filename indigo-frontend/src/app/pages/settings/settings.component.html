@@ -90,7 +90,7 @@
                                 <div class="metadata-box">
                                     <span class="metadata-icon pi pi-bookmark"></span>
                                     <div class="metadata-title">Biblioteca</div>
-                                    <div class="metadata-subtitle">Actualizar toda la bilioteca</div>
+                                    <div class="metadata-subtitle">Cargar libros en la biblioteca</div>
                                     <div class="metadata-subinfo p-grid">
                                         <div class="p-col-8 p-md-10">
                                             <div class="progress">
@@ -102,7 +102,7 @@
                                             <span *ngIf="!isAllFull()">0%</span>
                                         </div>
                                         <div class="p-col-2 p-md-1">
-                                            <a href="javascript:;" (click)="doExecuteMetadata('full', 'all')">
+                                            <a href="javascript:;" (click)="doExecuteMetadata('FULL', 'LOAD')">
                                                 <span class="metadata-action-icon pi"
                                                 [ngClass]="{ 'pi-pause': isAllFull(), 'pi-play': !isAllFull()  }"></span>
                                             </a>
@@ -114,7 +114,7 @@
                                 <div class="metadata-box">
                                     <span class="metadata-icon pi pi-bookmark"></span>
                                     <div class="metadata-title">Biblioteca</div>
-                                    <div class="metadata-subtitle">Actualizar biblioteca sin datos</div>
+                                    <div class="metadata-subtitle">Cargar libros nuevos en la biblioteca</div>
                                     <div class="metadata-subinfo p-grid">
                                         <div class="p-col-8 p-md-10">
                                             <div class="progress">
@@ -126,7 +126,7 @@
                                             <span *ngIf="!isAllPartial()">0%</span>
                                         </div>
                                         <div class="p-col-2 p-md-1">
-                                            <a href="javascript:;" (click)="doExecuteMetadata('partial', 'all')">
+                                            <a href="javascript:;" (click)="doExecuteMetadata('PARTIAL', 'LOAD')">
                                                 <span class="metadata-action-icon pi"
                                                     [ngClass]="{ 'pi-pause': isAllPartial(), 'pi-play': !isAllPartial()  }"></span>
                                             </a>
@@ -138,7 +138,7 @@
                                 <div class="metadata-box">
                                     <span class="metadata-icon pi pi-book"></span>
                                     <div class="metadata-title">Libros</div>
-                                    <div class="metadata-subtitle">Actualizar todos los libros</div>
+                                    <div class="metadata-subtitle">Actualizar metadatos de todos los libros</div>
                                     <div class="metadata-subinfo p-grid">
                                         <div class="p-col-8 p-md-10">
                                             <div class="progress">
@@ -150,7 +150,7 @@
                                             <span *ngIf="!isBooksFull()">0%</span>
                                         </div>
                                         <div class="p-col-2 p-md-1">
-                                            <a href="javascript:;" (click)="doExecuteMetadata('full', 'books')">
+                                            <a href="javascript:;" (click)="doExecuteMetadata('FULL', 'BOOKS')">
                                                 <span class="metadata-action-icon pi"
                                                     [ngClass]="{ 'pi-pause': isBooksFull(), 'pi-play': !isBooksFull()  }"></span>
                                             </a>
@@ -162,7 +162,7 @@
                                 <div class="metadata-box">
                                     <span class="metadata-icon pi pi-book"></span>
                                     <div class="metadata-title">Libros</div>
-                                    <div class="metadata-subtitle">Actualizar libros sin datos</div>
+                                    <div class="metadata-subtitle">Actualizar libros sin metadatos</div>
                                     <div class="metadata-subinfo p-grid">
                                         <div class="p-col-8 p-md-10">
                                             <div class="progress">
@@ -174,7 +174,7 @@
                                             <span *ngIf="!isBooksPartial()">0%</span>
                                         </div>
                                         <div class="p-col-2 p-md-1">
-                                            <a href="javascript:;" (click)="doExecuteMetadata('partial', 'books')">
+                                            <a href="javascript:;" (click)="doExecuteMetadata('PARTIAL', 'BOOKS')">
                                                 <span class="metadata-action-icon pi"
                                                     [ngClass]="{ 'pi-pause': isBooksPartial(), 'pi-play': !isBooksPartial()  }"></span>
                                             </a>
@@ -186,7 +186,7 @@
                                 <div class="metadata-box">
                                     <span class="metadata-icon pi pi-user-edit"></span>
                                     <div class="metadata-title">Autores</div>
-                                    <div class="metadata-subtitle">Actualizar todos los autores</div>
+                                    <div class="metadata-subtitle">Actualizar metadatos de todos los autores</div>
                                     <div class="metadata-subinfo p-grid">
                                         <div class="p-col-8 p-md-10">
                                             <div class="progress">
@@ -198,7 +198,7 @@
                                             <span *ngIf="!isAuthorsFull()">0%</span>
                                         </div>
                                         <div class="p-col-2 p-md-1">
-                                            <a href="javascript:;" (click)="doExecuteMetadata('full', 'authors')">
+                                            <a href="javascript:;" (click)="doExecuteMetadata('FULL', 'AUTHORS')">
                                                 <span class="metadata-action-icon pi"
                                                     [ngClass]="{ 'pi-pause': isAuthorsFull(), 'pi-play': !isAuthorsFull()  }"></span>
                                             </a>
@@ -210,7 +210,7 @@
                                 <div class="metadata-box">
                                     <span class="metadata-icon pi pi-user-edit"></span>
                                     <div class="metadata-title">Autores</div>
-                                    <div class="metadata-subtitle">Actualizar autores sin datos</div>
+                                    <div class="metadata-subtitle">Actualizar autores sin metadatos</div>
                                     <div class="metadata-subinfo p-grid">
                                         <div class="p-col-8 p-md-10">
                                             <div class="progress">
@@ -222,7 +222,7 @@
                                             <span *ngIf="!isAuthorsPartial()">0%</span>
                                         </div>
                                         <div class="p-col-2 p-md-1">
-                                            <a href="javascript:;" (click)="doExecuteMetadata('partial', 'authors')">
+                                            <a href="javascript:;" (click)="doExecuteMetadata('PARTIAL', 'AUTHORS')">
                                                 <span class="metadata-action-icon pi"
                                                     [ngClass]="{ 'pi-pause': isAuthorsPartial(), 'pi-play': !isAuthorsPartial()  }"></span>
                                             </a>
@@ -246,7 +246,7 @@
                                             <span *ngIf="!isReviewsFull()">0%</span>
                                         </div>
                                         <div class="p-col-2 p-md-1">
-                                            <a href="javascript:;" (click)="doExecuteMetadata('full', 'reviews')">
+                                            <a href="javascript:;" (click)="doExecuteMetadata('FULL', 'REVIEWS')">
                                                 <span class="metadata-action-icon pi"
                                                     [ngClass]="{ 'pi-pause': isReviewsFull(), 'pi-play': !isReviewsFull()  }"></span>
                                             </a>
@@ -270,7 +270,7 @@
                                             <span *ngIf="!isReviewsPartial()">0%</span>
                                         </div>
                                         <div class="p-col-2 p-md-1">
-                                            <a href="javascript:;" (click)="doExecuteMetadata('partial', 'reviews')">
+                                            <a href="javascript:;" (click)="doExecuteMetadata('PARTIAL', 'REVIEWS')">
                                                 <span class="metadata-action-icon pi"
                                                     [ngClass]="{ 'pi-pause': isReviewsPartial(), 'pi-play': !isReviewsPartial()  }"></span>
                                             </a>
