@@ -68,7 +68,8 @@
                 <a href="javascript:;" (click)="openAuthor(book.authors[0])">{{book.authors[0]}}</a></span>
         </div>
         <div *ngIf="book.rating">
-          <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+          <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false" style="display: inline-block;" ></p-rating>
+          <i class="pi pi-comments" style="padding-left: 10px; color: burlywood" *ngIf="book.reviews"></i>
         </div>
       </div>
     </div>
