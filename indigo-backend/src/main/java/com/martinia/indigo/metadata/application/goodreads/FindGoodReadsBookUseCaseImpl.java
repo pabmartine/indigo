@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @ConditionalOnProperty(name = "flags.goodreads", havingValue = "true")
+@Transactional
 public class FindGoodReadsBookUseCaseImpl implements FindGoodReadsBookUseCase {
 
 	@Value("${metadata.goodreads.book}")

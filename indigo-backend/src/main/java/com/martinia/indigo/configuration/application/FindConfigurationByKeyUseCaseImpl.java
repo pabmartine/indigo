@@ -7,9 +7,11 @@ import com.martinia.indigo.configuration.infrastructure.mongo.mappers.Configurat
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class FindConfigurationByKeyUseCaseImpl implements FindConfigurationByKeyUseCase {
 
 	@Resource

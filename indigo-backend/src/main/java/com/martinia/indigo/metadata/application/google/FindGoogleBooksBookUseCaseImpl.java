@@ -12,6 +12,7 @@ import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -22,6 +23,7 @@ import java.util.Objects;
 @Slf4j
 @Service
 @ConditionalOnProperty(name = "flags.google", havingValue = "true")
+@Transactional
 public class FindGoogleBooksBookUseCaseImpl implements FindGoogleBooksBookUseCase {
 
 	@Value("${metadata.google.url}")

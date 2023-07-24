@@ -17,6 +17,7 @@ import java.util.List;
 
 @Slf4j
 @Service
+@Transactional
 public class StartFillReviewsMetadataUseCaseImpl implements StartFillReviewsMetadataUseCase {
 
 	private static final int BATCH_SIZE = 100;
@@ -66,8 +67,6 @@ public class StartFillReviewsMetadataUseCaseImpl implements StartFillReviewsMeta
 
 					commandBus.executeAndWait(
 							FindReviewMetadataCommand.builder().bookId(book.getId()).override(override).lang(lang).build());
-
-					bookRepository.save(book);
 
 					log.debug("Obtained {}/{} books reviews", metadataSingleton.getCurrent(), numBooks);
 				}

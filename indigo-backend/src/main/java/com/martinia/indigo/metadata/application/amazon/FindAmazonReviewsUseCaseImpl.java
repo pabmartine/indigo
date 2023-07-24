@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.net.InetAddress;
 import java.text.Normalizer;
 import java.text.SimpleDateFormat;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 @ConditionalOnProperty(name = "flags.amazon", havingValue = "true")
+@Transactional
 public class FindAmazonReviewsUseCaseImpl implements FindAmazonReviewsUseCase {
 
 	private static SimpleDateFormat SDF = new SimpleDateFormat("d MMMM yyyy");

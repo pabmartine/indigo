@@ -8,9 +8,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
+@Transactional
 public class FindAllNotificationsUseCaseImpl implements FindAllNotificationsUseCase {
 
 	@Resource

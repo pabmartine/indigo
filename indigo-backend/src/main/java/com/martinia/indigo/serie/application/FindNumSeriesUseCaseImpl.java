@@ -5,9 +5,11 @@ import com.martinia.indigo.serie.domain.ports.usecases.FindNumSeriesUseCase;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
+@Transactional
 public class FindNumSeriesUseCaseImpl implements FindNumSeriesUseCase {
 
 	@Resource

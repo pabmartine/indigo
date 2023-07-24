@@ -20,6 +20,7 @@ import java.util.List;
 
 @Slf4j
 @Service
+@Transactional
 public class StartFillAuthorsMetadataUseCaseImpl implements StartFillAuthorsMetadataUseCase {
 
 	private static final int BATCH_SIZE = 100;

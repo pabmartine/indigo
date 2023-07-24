@@ -10,12 +10,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @Service
+@Transactional
 public class FindSimilarBooksMetadataUseCaseImpl implements FindSimilarBooksMetadataUseCase {
 
 	@Resource

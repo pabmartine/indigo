@@ -13,12 +13,14 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.text.Normalizer;
 import java.util.Arrays;
 
 @Slf4j
 @Service
 @ConditionalOnProperty(name = "flags.goodreads", havingValue = "true")
+@Transactional
 public class FindGoodReadsAuthorUseCaseImpl implements FindGoodReadsAuthorUseCase {
 
 	@Value("${metadata.goodreads.author}")

@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.Optional;
 
 @Slf4j
 @Service
+@Transactional
 public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase {
 
 	@Resource

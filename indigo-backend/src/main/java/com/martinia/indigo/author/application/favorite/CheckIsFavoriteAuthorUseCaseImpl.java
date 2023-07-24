@@ -5,8 +5,10 @@ import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 
 @Service
+@Transactional
 public class CheckIsFavoriteAuthorUseCaseImpl implements CheckIsFavoriteAuthorUseCase {
 
 	@Resource

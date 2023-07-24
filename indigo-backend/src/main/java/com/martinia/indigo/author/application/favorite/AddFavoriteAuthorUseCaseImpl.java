@@ -6,8 +6,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 
 @Service
+@Transactional
 public class AddFavoriteAuthorUseCaseImpl implements AddFavoriteAuthorUseCase {
 
 	@Resource

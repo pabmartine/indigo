@@ -10,12 +10,14 @@ import org.springframework.stereotype.Service;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import javax.transaction.Transactional;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Optional;
 
 @Service
 @Slf4j
+@Transactional
 public class SendMailUseCaseImpl extends BaseMailUseCaseImpl implements SendMailUseCase {
 
 	@Override

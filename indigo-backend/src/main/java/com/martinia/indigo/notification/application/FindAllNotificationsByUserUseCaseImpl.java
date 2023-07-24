@@ -8,9 +8,11 @@ import com.martinia.indigo.notification.infrastructure.mongo.mappers.Notificatio
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
+@Transactional
 public class FindAllNotificationsByUserUseCaseImpl implements FindAllNotificationsByUserUseCase {
 
 	@Resource

@@ -8,11 +8,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
 @Service
+@Transactional
 public class FindBookRecommendationsUseCaseImpl implements FindBookRecommendationsUseCase {
 
 	@Resource

@@ -15,6 +15,7 @@ import javax.transaction.Transactional;
 
 @Slf4j
 @Service
+@Transactional
 public class StartInitialLoadUseCaseImpl implements StartInitialLoadUseCase {
 
 	@Resource

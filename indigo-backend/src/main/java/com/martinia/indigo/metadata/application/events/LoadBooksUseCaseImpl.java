@@ -15,6 +15,7 @@ import java.util.List;
 
 @Slf4j
 @Service
+@Transactional
 public class LoadBooksUseCaseImpl implements LoadBooksUseCase {
 
 	private static final int BATCH_SIZE = 100;
@@ -30,7 +31,6 @@ public class LoadBooksUseCaseImpl implements LoadBooksUseCase {
 
 
 	@Override
-	@Transactional
 	public void start() {
 
 		log.info("Loading books ...");

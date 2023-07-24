@@ -6,8 +6,10 @@ import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 
 @Service
+@Transactional
 public class DeleteFavoriteAuthorUseCaseImpl implements DeleteFavoriteAuthorUseCase {
 
 	@Resource

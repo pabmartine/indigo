@@ -6,8 +6,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 
 @Service
+@Transactional
 public class DeleteUserUseCaseImpl implements DeleteUserUseCase {
 
 	@Resource

@@ -5,10 +5,12 @@ import com.martinia.indigo.serie.domain.ports.usecases.FindNumBooksBySerieUseCas
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 
 @Service
+@Transactional
 public class FindNumBooksBySerieUseCaseImpl implements FindNumBooksBySerieUseCase {
 
 	@Resource

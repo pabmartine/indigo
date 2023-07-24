@@ -9,12 +9,14 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 @Service
 @ConditionalOnProperty(name = "flags.libretranslate", havingValue="true")
+@Transactional
 public class DetectLibreTranslateUseCaseImpl implements DetectLibreTranslateUseCase {
 
 	@Resource

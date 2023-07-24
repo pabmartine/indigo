@@ -5,8 +5,10 @@ import com.martinia.indigo.tag.domain.ports.usecases.SetTagImageUseCase;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 
 @Service
+@Transactional
 public class SetTagUseCaseImpl implements SetTagImageUseCase {
 
 	@Resource

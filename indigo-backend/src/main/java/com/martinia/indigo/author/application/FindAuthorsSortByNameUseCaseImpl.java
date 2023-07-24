@@ -7,9 +7,11 @@ import com.martinia.indigo.author.infrastructure.mongo.mappers.AuthorMongoMapper
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class FindAuthorsSortByNameUseCaseImpl implements FindAuthorsSortByNameUseCase {
 
 	@Resource

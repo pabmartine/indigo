@@ -7,11 +7,13 @@ import com.martinia.indigo.tag.domain.ports.usecases.MergeTagUseCase;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
 @Service
+@Transactional
 public class MergeTagUseCaseImpl implements MergeTagUseCase {
 
 	@Resource

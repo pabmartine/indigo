@@ -6,8 +6,10 @@ import com.martinia.indigo.notification.domain.ports.usecases.MarkAsReadNotifica
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 
 @Service
+@Transactional
 public class MarkAsReadNotificationUseCaseImpl implements MarkAsReadNotificationUseCase {
 
 	@Resource
