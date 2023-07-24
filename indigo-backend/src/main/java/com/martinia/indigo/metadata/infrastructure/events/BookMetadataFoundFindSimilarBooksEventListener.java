@@ -1,7 +1,7 @@
 package com.martinia.indigo.metadata.infrastructure.events;
 
 import com.martinia.indigo.common.bus.event.domain.model.EventBusListener;
-import com.martinia.indigo.metadata.domain.ports.events.BookMetadataFoundEvent;
+import com.martinia.indigo.metadata.domain.model.events.BookMetadataFoundEvent;
 import com.martinia.indigo.metadata.domain.ports.usecases.events.FindSimilarBooksMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

@@ -4,7 +4,7 @@ import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
 import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
-import com.martinia.indigo.metadata.domain.ports.commands.FindBookMetadataCommand;
+import com.martinia.indigo.metadata.domain.model.commands.FindBookMetadataCommand;
 import com.martinia.indigo.metadata.domain.ports.usecases.RefreshBookMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

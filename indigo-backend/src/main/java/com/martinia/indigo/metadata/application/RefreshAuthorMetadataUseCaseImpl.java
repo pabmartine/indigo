@@ -4,7 +4,7 @@ import com.martinia.indigo.author.domain.model.Author;
 import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
 import com.martinia.indigo.author.infrastructure.mongo.mappers.AuthorMongoMapper;
 import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
-import com.martinia.indigo.metadata.domain.ports.commands.FindAuthorMetadataCommand;
+import com.martinia.indigo.metadata.domain.model.commands.FindAuthorMetadataCommand;
 import com.martinia.indigo.metadata.domain.ports.usecases.RefreshAuthorMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

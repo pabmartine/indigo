@@ -4,7 +4,7 @@ import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import com.martinia.indigo.common.singletons.MetadataSingleton;
-import com.martinia.indigo.metadata.domain.ports.commands.FindBookMetadataCommand;
+import com.martinia.indigo.metadata.domain.model.commands.FindBookMetadataCommand;
 import com.martinia.indigo.metadata.domain.ports.usecases.commands.StartFillBooksMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -66,6 +66,8 @@ public class StartFillBooksMetadataUseCaseImpl implements StartFillBooksMetadata
 					commandBus.executeAndWait(
 							FindBookMetadataCommand.builder().bookId(book.getId()).override(override).lastExecution(lastExecution).build());
 					lastExecution = System.currentTimeMillis();
+
+					metadataSingleton.increase();
 
 					log.debug("Obtained {}/{} books metadata", metadataSingleton.getCurrent(), numBooks);
 				}

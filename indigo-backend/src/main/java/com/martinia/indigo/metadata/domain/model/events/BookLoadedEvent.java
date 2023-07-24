@@ -1,4 +1,4 @@
-package com.martinia.indigo.metadata.domain.ports.events;
+package com.martinia.indigo.metadata.domain.model.events;
 
 import com.martinia.indigo.common.bus.event.domain.model.Event;
 import lombok.Builder;

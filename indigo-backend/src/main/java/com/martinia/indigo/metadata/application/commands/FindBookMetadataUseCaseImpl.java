@@ -7,7 +7,7 @@ import com.martinia.indigo.configuration.domain.ports.repositories.Configuration
 import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
 import com.martinia.indigo.metadata.domain.ports.adapters.goodreads.FindGoodReadsBookPort;
 import com.martinia.indigo.metadata.domain.ports.adapters.google.FindGoogleBooksBookPort;
-import com.martinia.indigo.metadata.domain.ports.events.BookMetadataFoundEvent;
+import com.martinia.indigo.metadata.domain.model.events.BookMetadataFoundEvent;
 import com.martinia.indigo.metadata.domain.ports.usecases.commands.FindBookMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

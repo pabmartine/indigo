@@ -1,4 +1,4 @@
-package com.martinia.indigo.metadata.domain.ports.commands;
+package com.martinia.indigo.metadata.domain.model.commands;
 
 import com.martinia.indigo.common.bus.command.domain.model.Command;
 import lombok.Builder;

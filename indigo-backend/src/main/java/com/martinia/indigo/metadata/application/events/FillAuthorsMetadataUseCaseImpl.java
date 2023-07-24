@@ -9,6 +9,7 @@ import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
 import com.martinia.indigo.common.model.NumBooks;
+import com.martinia.indigo.common.singletons.MetadataSingleton;
 import com.martinia.indigo.metadata.domain.ports.usecases.events.FillAuthorsMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,9 @@ public class FillAuthorsMetadataUseCaseImpl implements FillAuthorsMetadataUseCas
 
 	@Resource
 	private BookMongoMapper bookMongoMapper;
+
+	@Resource
+	protected MetadataSingleton metadataSingleton;
 
 	@Override
 	@Transactional
@@ -129,6 +133,8 @@ public class FillAuthorsMetadataUseCaseImpl implements FillAuthorsMetadataUseCas
 			log.info("Authors '{}' for book '{}' saved to database", book.getAuthors(), book.getTitle());
 
 		}
+
+		metadataSingleton.increase();
 
 	}
 

@@ -30,4 +30,12 @@ public class MetadataSingleton {
 		this.message = null;
 	}
 
+	public void increase() {
+		if (running) {
+			this.current++;
+			if (this.current == this.total) {
+				stop();
+			}
+		}
+	}
 }

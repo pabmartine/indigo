@@ -5,9 +5,8 @@ import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntit
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import com.martinia.indigo.common.singletons.MetadataSingleton;
-import com.martinia.indigo.metadata.domain.ports.commands.FindAuthorMetadataCommand;
+import com.martinia.indigo.metadata.domain.model.commands.FindAuthorMetadataCommand;
 import com.martinia.indigo.metadata.domain.ports.usecases.commands.StartFillAuthorsMetadataUseCase;
-import com.martinia.indigo.metadata.domain.ports.usecases.commands.StartFillBooksMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -80,6 +79,8 @@ public class StartFillAuthorsMetadataUseCaseImpl implements StartFillAuthorsMeta
 							.build());
 
 					lastExecution = System.currentTimeMillis();
+
+					metadataSingleton.increase();
 
 					log.debug("Obtained {}/{} authors metadata", metadataSingleton.getCurrent(), numAuthors);
 

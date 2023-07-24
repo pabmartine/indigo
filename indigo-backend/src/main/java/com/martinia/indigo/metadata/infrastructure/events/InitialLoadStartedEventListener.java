@@ -1,7 +1,7 @@
 package com.martinia.indigo.metadata.infrastructure.events;
 
 import com.martinia.indigo.common.bus.event.domain.model.EventBusListener;
-import com.martinia.indigo.metadata.domain.ports.events.InitialLoadStartedEvent;
+import com.martinia.indigo.metadata.domain.model.events.InitialLoadStartedEvent;
 import com.martinia.indigo.metadata.domain.ports.usecases.events.LoadBooksUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

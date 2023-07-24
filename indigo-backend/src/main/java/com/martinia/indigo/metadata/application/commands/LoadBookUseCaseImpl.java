@@ -6,7 +6,7 @@ import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
 import com.martinia.indigo.common.bus.event.domain.ports.EventBus;
 import com.martinia.indigo.common.util.UtilComponent;
-import com.martinia.indigo.metadata.domain.ports.events.BookLoadedEvent;
+import com.martinia.indigo.metadata.domain.model.events.BookLoadedEvent;
 import com.martinia.indigo.metadata.domain.ports.usecases.commands.LoadBookUseCase;
 import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
 import com.martinia.indigo.tag.infrastructure.mongo.entities.TagMongoEntity;

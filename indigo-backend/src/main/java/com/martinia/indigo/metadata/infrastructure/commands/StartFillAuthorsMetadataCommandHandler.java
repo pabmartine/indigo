@@ -1,7 +1,7 @@
 package com.martinia.indigo.metadata.infrastructure.commands;
 
 import com.martinia.indigo.common.bus.command.domain.model.CommandHandler;
-import com.martinia.indigo.metadata.domain.ports.commands.StartFillAuthorsMetadataCommand;
+import com.martinia.indigo.metadata.domain.model.commands.StartFillAuthorsMetadataCommand;
 import com.martinia.indigo.metadata.domain.ports.usecases.commands.StartFillAuthorsMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
