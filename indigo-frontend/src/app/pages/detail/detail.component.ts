@@ -385,9 +385,11 @@ export class DetailComponent implements OnInit {
   refreshBook() {
     this.messageService.clear();
     this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.refresh.process'), closable: false, life: 5000 });
-    this.metadataService.findBook(this.selected.path).subscribe(
+    this.metadataService.findBook(this.selected.path, "es").subscribe(
       data => {
         console.log("refreshed data: " + data)
+
+        this.selected = data; //--> emit event to parent with new data and substitute it in book list
 
         if (data.image) {
           let objectURL = 'data:image/jpeg;base64,' + data.image;

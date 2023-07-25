@@ -39,7 +39,7 @@ public class RefreshBookMetadataControllerTest extends BaseIndigoTest {
 		BookDto bookDto = new BookDto();
 		bookDto.setTitle("Example Book");
 
-		Mockito.when(mockUseCase.findBookMetadata(book)).thenReturn(bookOptional);
+		Mockito.when(mockUseCase.findBookMetadata(book, "es")).thenReturn(bookOptional);
 		Mockito.when(mockMapper.domain2Dto(_book)).thenReturn(bookDto);
 
 		// When
@@ -48,7 +48,7 @@ public class RefreshBookMetadataControllerTest extends BaseIndigoTest {
 				.andExpect(MockMvcResultMatchers.jsonPath("$.title").value("Example Book"));
 
 		// Then
-		Mockito.verify(mockUseCase).findBookMetadata(book);
+		Mockito.verify(mockUseCase).findBookMetadata(book, "es");
 		Mockito.verify(mockMapper).domain2Dto(_book);
 	}
 }

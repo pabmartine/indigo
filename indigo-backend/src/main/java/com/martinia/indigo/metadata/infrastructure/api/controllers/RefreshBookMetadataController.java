@@ -24,8 +24,8 @@ public class RefreshBookMetadataController {
 	protected BookDtoMapper mapper;
 
 	@GetMapping(value = "/book", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<BookDto> refreshBook(@RequestParam String book) {
-		BookDto bookDto = useCase.findBookMetadata(book).map(_book -> mapper.domain2Dto(_book)).orElse(null);
+	public ResponseEntity<BookDto> refreshBook(@RequestParam String book, @RequestParam String lang) {
+		BookDto bookDto = useCase.findBookMetadata(book, lang).map(_book -> mapper.domain2Dto(_book)).orElse(null);
 		return new ResponseEntity<>(bookDto, HttpStatus.OK);
 	}
 

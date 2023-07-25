@@ -88,7 +88,7 @@ public class RefreshBookMetadataUseCaseImplTest extends BaseIndigoTest {
 		Mockito.when(mockBookRepository.findByPath(path)).thenReturn(Optional.of(book));
 
 		// When
-		Optional<Book> result = refreshBookMetadataUseCase.findBookMetadata(path);
+		Optional<Book> result = refreshBookMetadataUseCase.findBookMetadata(path, "es");
 
 		// Then
 		Assertions.assertTrue(result.isPresent());
@@ -105,7 +105,7 @@ public class RefreshBookMetadataUseCaseImplTest extends BaseIndigoTest {
 		Mockito.when(mockBookRepository.findByPath(path)).thenReturn(Optional.empty());
 
 		// When
-		Optional<Book> result = refreshBookMetadataUseCase.findBookMetadata(path);
+		Optional<Book> result = refreshBookMetadataUseCase.findBookMetadata(path, "es");
 
 		// Then
 		Assertions.assertTrue(result.isEmpty());
@@ -125,7 +125,7 @@ public class RefreshBookMetadataUseCaseImplTest extends BaseIndigoTest {
 		Mockito.when(mockConfigurationRepository.findByKey("goodreads.key")).thenReturn(Optional.empty());
 
 		// When
-		Optional<Book> result = refreshBookMetadataUseCase.findBookMetadata(path);
+		Optional<Book> result = refreshBookMetadataUseCase.findBookMetadata(path, "es");
 
 		// Then
 		Assertions.assertTrue(result.isPresent());

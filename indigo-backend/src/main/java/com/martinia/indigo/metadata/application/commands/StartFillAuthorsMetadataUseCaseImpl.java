@@ -80,8 +80,6 @@ public class StartFillAuthorsMetadataUseCaseImpl implements StartFillAuthorsMeta
 
 					lastExecution = System.currentTimeMillis();
 
-					metadataSingleton.increase();
-
 					log.debug("Obtained {}/{} authors metadata", metadataSingleton.getCurrent(), numAuthors);
 
 				}

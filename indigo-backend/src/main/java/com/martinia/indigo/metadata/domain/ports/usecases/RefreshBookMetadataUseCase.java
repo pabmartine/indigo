@@ -6,5 +6,5 @@ import java.util.Optional;
 
 public interface RefreshBookMetadataUseCase {
 
-	Optional<Book> findBookMetadata(String book);
+	Optional<Book> findBookMetadata(String book, String lang);
 }
