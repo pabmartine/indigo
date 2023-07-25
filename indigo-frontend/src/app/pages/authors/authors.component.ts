@@ -258,6 +258,13 @@ export class AuthorsComponent implements OnInit {
 
   }
 
+  refreshAuthor(author: Author) {
+    console.log(author);
+    const index = this.authors.findIndex((b) => b.id === author.id);
+    if (index !== -1) {
+      this.authors[index] = author;
+    } 
+  }
 
   closeBookDetails() {
     this.showDetail = false;

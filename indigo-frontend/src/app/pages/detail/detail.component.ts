@@ -27,6 +27,7 @@ import { MailService } from 'src/app/services/mail.service';
 export class DetailComponent implements OnInit {
 
   @Output() eventAuthor: EventEmitter<String> = new EventEmitter<String>();
+  @Output() eventBook: EventEmitter<Book> = new EventEmitter<Book>();
 
   serie: Book[] = [];
   similar: Book[] = [];
@@ -389,12 +390,15 @@ export class DetailComponent implements OnInit {
       data => {
         console.log("refreshed data: " + data)
 
-        this.selected = data; //--> emit event to parent with new data and substitute it in book list
+        this.selected = data;
 
         if (data.image) {
           let objectURL = 'data:image/jpeg;base64,' + data.image;
           this.selected.image = objectURL;
         }
+        
+        this.eventBook.emit(this.selected);
+
         this.messageService.clear();
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.refresh.result.ok'), closable: false, life: 5000 });
       },

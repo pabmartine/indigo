@@ -81,7 +81,7 @@
 
 <div class="book">
   <p-dialog [(visible)]="showDetail" [modal]="true" [draggable]="false" [resizable]="false" [transitionOptions]="'0ms'">
-    <app-detail (eventClose)="closeDetails()" (eventOpen)="openDetails()" (eventAuthor)="openAuthor($event)"></app-detail>
+    <app-detail (eventClose)="closeDetails()" (eventOpen)="openDetails()" (eventAuthor)="openAuthor($event)"  (eventBook)="refreshBook($event)"></app-detail>
   </p-dialog>
   <p-dialog [(visible)]="showAuthorDetail" [modal]="true" [draggable]="false" [resizable]="false" [transitionOptions]="'0ms'">
     <app-author (eventClose)="closeAuthorDetails()" (eventOpen)="openAuthorDetails()" (eventBook)="openBook($event)"></app-author>

@@ -21,6 +21,8 @@ export class AuthorComponent implements OnInit {
   @Output() eventClose: EventEmitter<void> = new EventEmitter<void>();
   @Output() eventOpen: EventEmitter<void> = new EventEmitter<void>();
   @Output() eventBook: EventEmitter<Book> = new EventEmitter<Book>();
+  @Output() eventAuthor: EventEmitter<Author> = new EventEmitter<Author>();
+
 
   selected: Author;
   favoriteAuthor: boolean;
@@ -79,12 +81,21 @@ export class AuthorComponent implements OnInit {
     this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.authors.refresh.process'), closable: false, life: 5000 });
     this.metadataService.findAuthor("es", this.selected.sort).subscribe(
       data => {
+
         this.selected = data;
 
-        if (data.image) {
+        console.log(data.image);
+
+        if (data.image && !data.image.startsWith('http')) {
           let objectURL = 'data:image/jpeg;base64,' + data.image;
           this.selected.image = objectURL;
         }
+        if (data.image && data.image.startsWith('http')) {
+          this.selected.image = "./assets/images/avatar3.jpg";
+        }
+
+        this.eventAuthor.emit(this.selected);
+
         this.messageService.clear();
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.authors.refresh.result.ok'), closable: false, life: 5000 });
       },

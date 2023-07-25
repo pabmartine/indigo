@@ -297,10 +297,14 @@ export class BooksComponent implements OnInit {
         console.log(error);
       }
     );
-
-
   }
 
+  refreshBook(book: Book) {
+    const index = this.books.findIndex((b) => b.id === book.id);
+    if (index !== -1) {
+      this.books[index] = book;
+    } 
+  }
 
   private doSearch() {
     this.reset();
