@@ -35,9 +35,6 @@ class DataInitializerConfig {
 	@Value("${data.initializer.user.admin.password}")
 	private String password;
 
-	@Value("${data.initializer.metadata.pull}")
-	private String pull;
-
 	@Value("${data.initializer.books.recommendations}")
 	private String recommendations;
 
@@ -50,11 +47,6 @@ class DataInitializerConfig {
 			UserMongoEntity user = UserMongoEntity.builder().username(username).password(password).role(RolesEnum.ADMIN.name())
 					.language(Locale.ENGLISH.getLanguage()).languageBooks(Arrays.asList("spa", "eng")).build();
 			userRepository.save(user);
-		}
-
-		log.info("Initializating config...");
-		if (configurationRepository.findByKey("metadata.pull").isEmpty()) {
-			configurationRepository.save(ConfigurationMongoEntity.builder().key("metadata.pull").value(pull).build());
 		}
 
 		if (configurationRepository.findByKey("books.recommendations").isEmpty()) {

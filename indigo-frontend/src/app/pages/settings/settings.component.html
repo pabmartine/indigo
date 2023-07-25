@@ -54,6 +54,9 @@
                 <p-panel header="{{'locale.settings.panel.global.title' | translate}}" [toggleable]="true"
                     [collapsed]="true">
                     <div class="p-grid p-fluid">
+
+                        <div class="p-col-12"></div>
+                        
                         <div class="p-col-12 p-md-4">
                             {{'locale.settings.panel.global.recommendations' | translate}}</div>
                         <div class="p-col p-md-8">
@@ -70,14 +73,9 @@
                 <p-panel header="{{'locale.settings.panel.metadata.title' | translate}}" [toggleable]="true"
                     [collapsed]="true">
                     <div class="p-grid p-fluid">
-                        <div class="p-col-12 p-md-4">{{'locale.settings.panel.metadata.pull' | translate}}
-                        </div>
-                        <div class="p-col-12 p-md-8">
-                            <p-inputNumber [(ngModel)]="metadataPull" mode="decimal" [showButtons]="true" [min]="1"
-                                [max]="5">
-                            </p-inputNumber>
-                        </div>
 
+                        <div class="p-col-12"></div>
+                       
                         <div class="p-col-12 p-md-4">
                             {{'locale.settings.panel.metadata.goodreadskey' | translate}}
                         </div>
@@ -289,6 +287,8 @@
                 <p-panel header="{{'locale.settings.panel.smtp.title' | translate}}" [toggleable]="true"
                     [collapsed]="true">
                     <div class="p-grid p-fluid">
+
+                        <div class="p-col-12"></div>
 
                         <div class="p-col-12 p-md-4">{{'locale.settings.panel.smtp.provider' | translate}}
                         </div>

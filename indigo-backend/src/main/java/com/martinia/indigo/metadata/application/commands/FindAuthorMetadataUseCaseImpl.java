@@ -13,6 +13,7 @@ import com.martinia.indigo.metadata.domain.ports.adapters.wikipedia.FindWikipedi
 import com.martinia.indigo.metadata.domain.ports.usecases.commands.FindAuthorMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -45,16 +46,15 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 	@Resource
 	private UtilComponent utilComponent;
 
+	@Value("${metadata.goodreads.pull}")
+	private Long pullTime;
+
 	@Override
 	public void find(final String authorId, final boolean override, final long lastExecution, final String lang) {
 
 		authorRepository.findById(authorId).ifPresent(author -> {
 
 			if (override || refreshAuthorMetadata(author)) {
-
-				final Long pullTime = configurationRepository.findByKey("metadata.pull")
-						.map(configuration -> Long.parseLong(configuration.getValue()))
-						.orElse(null);
 
 				final String goodreads = configurationRepository.findByKey("goodreads.key")
 						.map(ConfigurationMongoEntity::getValue)

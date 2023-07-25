@@ -137,17 +137,6 @@ export class SettingsComponent implements OnInit {
   }
 
   getMetadata() {
-    this.configService.get("metadata.pull").subscribe(
-      data => {
-        if (data)
-          this.metadataPull = Number(data.value) / 1000;
-      },
-      error => {
-        console.log(error);
-      }
-    );
-
-
     this.configService.get("goodreads.key").subscribe(
       data => {
         if (data)
@@ -244,7 +233,6 @@ export class SettingsComponent implements OnInit {
 
     let configs: Config[] = [];
     configs.push(new Config("goodreads.key", this.goodReadsKey));
-    configs.push(new Config("metadata.pull", String(this.metadataPull * 1000)));
     configs.push(new Config("smtp.provider", this.smtpProvider));
     configs.push(new Config("smtp.host", this.smtpHost));
     configs.push(new Config("smtp.port", this.smtpPort));

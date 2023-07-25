@@ -11,6 +11,7 @@ import com.martinia.indigo.metadata.domain.model.events.BookMetadataFoundEvent;
 import com.martinia.indigo.metadata.domain.ports.usecases.commands.FindBookMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -40,6 +41,9 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 	@Resource
 	private EventBus eventBus;
 
+	@Value("${metadata.goodreads.pull}")
+	private Long pullTime;
+
 	@Override
 	public void find(final String bookId, final boolean override, final long lastExecution) {
 
@@ -47,10 +51,6 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 
 
 			if (override || refreshBookMetadata(book)) {
-
-				final Long pullTime = configurationRepository.findByKey("metadata.pull")
-						.map(configuration -> Long.parseLong(configuration.getValue()))
-						.orElse(null);
 
 				final String goodreads = configurationRepository.findByKey("goodreads.key")
 						.map(ConfigurationMongoEntity::getValue)

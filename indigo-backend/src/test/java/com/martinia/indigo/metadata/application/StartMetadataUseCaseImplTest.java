@@ -40,8 +40,6 @@ public class StartMetadataUseCaseImplTest extends BaseIndigoTest {
 
 		when(configurationRepository.findByKey("goodreads.key")).thenReturn(
 				Optional.ofNullable(ConfigurationMongoEntity.builder().key("goodreads.key").value("123456").build()));
-		when(configurationRepository.findByKey("metadata.pull")).thenReturn(
-				Optional.ofNullable(ConfigurationMongoEntity.builder().key("metadata.pull").value("3600").build()));
 		when(metadataSingleton.isRunning()).thenReturn(false);
 
 		// When

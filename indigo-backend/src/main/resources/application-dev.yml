@@ -10,8 +10,6 @@ data:
   initializer:
     books:
       recommendations: 20
-    metadata:
-      pull: 1000
     user:
       admin:
         password: $2a$10$U47NDeBbqVmBHQsYXh8HI.IpxGiopQ0cWgXTkwU/AwFmGRf5l9lfq
@@ -70,6 +68,7 @@ flags:
 
 metadata:
   goodreads:
+    pull: 1000
     url: https://www.goodreads.com
     reviews: ${metadata.goodreads.url}/search?q=$title+$author&search_type=books
     author: ${metadata.goodreads.url}/search.xml?q=$subject&key=$key
