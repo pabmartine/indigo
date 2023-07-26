@@ -6,6 +6,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.annotation.Resource;
+import java.time.Duration;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestCommandTest extends BaseIndigoTest {
 
@@ -30,6 +33,16 @@ public class TestCommandTest extends BaseIndigoTest {
 		String result = commandBus.executeAndWait(TestCommand.builder().id(input).build());
 		//Then
 		Assertions.assertEquals(result, input);
+	}
+
+	@Test
+	public void testCommandException() throws Exception {
+		//Given
+		String input = "Hello world";
+		//When
+
+		assertThrows(RuntimeException.class, () -> commandBus.executeAndWait(TestCommand.builder().id(input).exception(true).build()));
+
 	}
 
 }

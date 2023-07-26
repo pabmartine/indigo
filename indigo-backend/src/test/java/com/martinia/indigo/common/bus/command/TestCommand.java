@@ -8,4 +8,6 @@ import lombok.Data;
 @Builder
 public class TestCommand extends Command<String> {
 	private String id;
+
+	boolean exception;
 }

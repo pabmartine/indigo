@@ -10,6 +10,8 @@ public class TestCommandHandler implements CommandHandler<TestCommand, String> {
 
 	@Override
 	public String handle(final TestCommand command) throws Exception {
+		if (command.isException())
+			throw new RuntimeException();
 		return command.getId();
 	}
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import javax.persistence.Id;
 
 import com.martinia.indigo.common.infrastructure.mongo.entities.NumBooksMongo;
+import lombok.Builder;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
@@ -17,6 +18,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Document(collection = "tags")
 public class TagMongoEntity implements Serializable {
 
