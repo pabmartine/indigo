@@ -1,16 +1,19 @@
 package com.martinia.indigo;
 
-import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
-import com.martinia.indigo.common.bus.event.domain.ports.EventBus;
+import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
+import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
+import com.martinia.indigo.book.domain.ports.repositories.ViewRepository;
 import com.martinia.indigo.config.BeanDefinitionConfigTest;
+import com.martinia.indigo.config.PersistenceConfigTest;
+import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
+import com.martinia.indigo.notification.domain.ports.repositories.NotificationRepository;
+import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
+import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Import;
 
@@ -30,24 +33,36 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-//@ActiveProfiles("test")
-@Import({ BeanDefinitionConfigTest.class })
+@Import({ BeanDefinitionConfigTest.class, PersistenceConfigTest.class })
 public class BaseIndigoTest {
-
-	//	@MockBean
-	//	private DataSource dataSource;
 
 	@Resource
 	private ApplicationEventPublisher applicationEventPublisher;
 
-//	@SpyBean
-//	protected EventBus eventBus;
-//
-//	@SpyBean
-//	protected CommandBus commandBus;
+	@Resource
+	private ConfigurationRepository configurationRepository;
+
+	@Resource
+	private BookRepository bookRepository;
+
+	@Resource
+	private AuthorRepository authorRepository;
+
+	@Resource
+	private NotificationRepository notificationRepository;
+
+	@Resource
+	private TagRepository tagRepository;
+
+	@Resource
+	private UserRepository userRepository;
+
+	@Resource
+	private ViewRepository viewRepository;
 
 	@AfterEach
 	public void baseAfterEach() {
+		deleteCollections();
 		clearInvocations(applicationEventPublisher);
 		reset(applicationEventPublisher);
 	}
@@ -64,4 +79,13 @@ public class BaseIndigoTest {
 				.isEqualTo(expectedObject);
 	}
 
+	private void deleteCollections(){
+		configurationRepository.deleteAll();
+		bookRepository.deleteAll();
+		authorRepository.deleteAll();
+		notificationRepository.deleteAll();
+		tagRepository.deleteAll();
+		userRepository.deleteAll();
+		viewRepository.deleteAll();
+	}
 }

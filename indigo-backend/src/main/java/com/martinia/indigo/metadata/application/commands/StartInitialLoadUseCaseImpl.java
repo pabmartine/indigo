@@ -35,17 +35,19 @@ public class StartInitialLoadUseCaseImpl implements StartInitialLoadUseCase {
 
 	@Override
 	@Transactional
-	public void start() {
-		log.info("Deleting database...");
+	public void start(boolean override) {
+
 		metadataSingleton.setMessage("indexing_books");
+		if (override) {
+			log.info("Deleting database...");
 
-		tagRepository.deleteAll();
-		authorRepository.deleteAll();
-		bookRepository.deleteAll();
+			tagRepository.deleteAll();
+			authorRepository.deleteAll();
+			bookRepository.deleteAll();
 
-		log.info("Database deleted");
-
-		eventBus.publish(InitialLoadStartedEvent.builder().build());
+			log.info("Database deleted");
+		}
+		eventBus.publish(InitialLoadStartedEvent.builder().override(override).build());
 
 	}
 

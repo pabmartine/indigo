@@ -1,7 +1,7 @@
 package com.martinia.indigo.metadata.application;
 
 import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
-import com.martinia.indigo.metadata.application.common.BaseMetadataUseCaseImpl;
+import com.martinia.indigo.common.singletons.MetadataSingleton;
 import com.martinia.indigo.metadata.domain.model.MetadataProcessEnum;
 import com.martinia.indigo.metadata.domain.model.MetadataProcessType;
 import com.martinia.indigo.metadata.domain.model.commands.StartFillAuthorsMetadataCommand;
@@ -18,10 +18,13 @@ import javax.transaction.Transactional;
 @Slf4j
 @Service
 @Transactional
-public class StartMetadataUseCaseImpl extends BaseMetadataUseCaseImpl implements StartMetadataUseCase {
+public class StartMetadataUseCaseImpl implements StartMetadataUseCase {
 
 	@Resource
 	private CommandBus commandBus;
+
+	@Resource
+	private MetadataSingleton metadataSingleton;
 
 	//	@Async
 	@Override
@@ -29,13 +32,13 @@ public class StartMetadataUseCaseImpl extends BaseMetadataUseCaseImpl implements
 		log.info("Starting async process");
 
 		if (metadataSingleton.isRunning()) {
-			stop();
+			metadataSingleton.stop();
 		}
 		metadataSingleton.start(type, entity);
 
 		if (type.equals(MetadataProcessType.FULL.name())) {
 			if (entity.equals(MetadataProcessEnum.LOAD.name())) {
-				commandBus.execute(StartInitialLoadCommand.builder().build());
+				commandBus.execute(StartInitialLoadCommand.builder().override(true).build());
 			}
 			if (entity.equals(MetadataProcessEnum.BOOKS.name())) {
 				commandBus.execute(StartFillBooksMetadataCommand.builder().override(true).build());
@@ -52,7 +55,7 @@ public class StartMetadataUseCaseImpl extends BaseMetadataUseCaseImpl implements
 
 		if (type.equals(MetadataProcessType.PARTIAL.name())) {
 			if (entity.equals(MetadataProcessEnum.LOAD.name())) {
-				noFilledMetadata(lang);
+				commandBus.execute(StartInitialLoadCommand.builder().override(false).build());
 			}
 			if (entity.equals(MetadataProcessEnum.BOOKS.name())) {
 				commandBus.execute(StartFillBooksMetadataCommand.builder().override(false).build());

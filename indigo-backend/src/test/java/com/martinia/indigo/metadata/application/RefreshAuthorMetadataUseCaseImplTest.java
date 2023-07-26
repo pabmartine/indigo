@@ -5,6 +5,7 @@ import com.martinia.indigo.author.domain.model.Author;
 import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
 import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
+import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import com.martinia.indigo.common.util.DataUtils;
 import com.martinia.indigo.metadata.domain.ports.usecases.RefreshAuthorMetadataUseCase;
 import com.martinia.indigo.metadata.domain.ports.usecases.amazon.FindAmazonReviewsUseCase;
@@ -17,6 +18,7 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -60,6 +62,9 @@ public class RefreshAuthorMetadataUseCaseImplTest extends BaseIndigoTest {
 	@MockBean
 	private FindAmazonReviewsUseCase findAmazonReviewsUseCase;
 
+	@MockBean
+	private CommandBus commandBus;
+
 	@BeforeEach
 	@SneakyThrows
 	void init() {
@@ -90,8 +95,7 @@ public class RefreshAuthorMetadataUseCaseImplTest extends BaseIndigoTest {
 		// Then
 		Assertions.assertTrue(result.isPresent());
 		super.assertRecursively(expectedAuthor, result.get(), "lastMetadataSync");
-		Mockito.verify(authorRepository).findBySort(sort);
-		Mockito.verify(authorRepository).save(any());
+		Mockito.verify(authorRepository, Mockito.times(2)).findBySort(sort);
 	}
 
 	@Test

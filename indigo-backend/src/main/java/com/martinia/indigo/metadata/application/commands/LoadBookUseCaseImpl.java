@@ -5,6 +5,7 @@ import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
 import com.martinia.indigo.common.bus.event.domain.ports.EventBus;
+import com.martinia.indigo.common.singletons.MetadataSingleton;
 import com.martinia.indigo.common.util.UtilComponent;
 import com.martinia.indigo.metadata.domain.model.events.BookLoadedEvent;
 import com.martinia.indigo.metadata.domain.ports.usecases.commands.LoadBookUseCase;
@@ -38,44 +39,52 @@ public class LoadBookUseCaseImpl implements LoadBookUseCase {
 	private BookMongoMapper bookMongoMapper;
 
 	@Resource
+	protected MetadataSingleton metadataSingleton;
+
+	@Resource
 	protected EventBus eventBus;
 
 	@Override
 	@Transactional
-	public void load(final String bookId) {
+	public void load(final String bookId, final boolean override) {
 
 		final Book book = calibreRepository.findBookById(bookId);
 
-		final String image = utilComponent.getBase64Cover(book.getPath(), true);
-		book.setImage(image);
-		book.setId(null);
+		if (override || bookRepository.findByPath(book.getPath()).isEmpty()) {
 
-		//Save tags
-		book.getTags().forEach(tag -> {
-			final Optional<TagMongoEntity> optTagEntity = tagRepository.findByName(tag).stream().findFirst();
-			if (optTagEntity.isEmpty()) {
-				tagRepository.save(new TagMongoEntity(tag, book.getLanguages()));
-			}
-			else {
-				final TagMongoEntity tagEntity = optTagEntity.get();
-				book.getLanguages().forEach(language -> {
-					if (tagEntity.getNumBooks().getLanguages().get(language) != null) {
-						tagEntity.getNumBooks().getLanguages().put(language, tagEntity.getNumBooks().getLanguages().get(language) + 1);
-					}
-					else {
-						tagEntity.getNumBooks().getLanguages().put(language, 1);
-					}
-				});
-				tagEntity.getNumBooks().setTotal(tagEntity.getNumBooks().getTotal() + 1);
-				tagRepository.save(tagEntity);
-			}
-		});
+			final String image = utilComponent.getBase64Cover(book.getPath(), true);
+			book.setImage(image);
+			book.setId(null);
 
-		bookRepository.save(bookMongoMapper.domain2Entity(book));
+			//Save tags
+			book.getTags().forEach(tag -> {
+				final Optional<TagMongoEntity> optTagEntity = tagRepository.findByName(tag).stream().findFirst();
+				if (optTagEntity.isEmpty()) {
+					tagRepository.save(new TagMongoEntity(tag, book.getLanguages()));
+				}
+				else {
+					final TagMongoEntity tagEntity = optTagEntity.get();
+					book.getLanguages().forEach(language -> {
+						if (tagEntity.getNumBooks().getLanguages().get(language) != null) {
+							tagEntity.getNumBooks().getLanguages().put(language, tagEntity.getNumBooks().getLanguages().get(language) + 1);
+						}
+						else {
+							tagEntity.getNumBooks().getLanguages().put(language, 1);
+						}
+					});
+					tagEntity.getNumBooks().setTotal(tagEntity.getNumBooks().getTotal() + 1);
+					tagRepository.save(tagEntity);
+				}
+			});
 
-		log.info("Book '{}' saved to database", book.getTitle());
+			bookRepository.save(bookMongoMapper.domain2Entity(book));
 
-		eventBus.publish(BookLoadedEvent.builder().bookId(bookId).build());
+			log.info("Book '{}' saved to database", book.getTitle());
+
+			eventBus.publish(BookLoadedEvent.builder().bookId(bookId).build());
+		}
+
+		metadataSingleton.increase();
 
 	}
 

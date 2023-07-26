@@ -17,7 +17,7 @@ public class LoadBookCommandHandler implements CommandHandler<LoadBookCommand, V
 
 	@Override
 	public Void handle(final LoadBookCommand command) throws Exception {
-		loadBookUseCase.load(command.getBookId());
+		loadBookUseCase.load(command.getBookId(), command.isOverride());
 		return null;
 	}
 }

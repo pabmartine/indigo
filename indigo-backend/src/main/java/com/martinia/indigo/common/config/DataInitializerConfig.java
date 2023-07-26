@@ -8,7 +8,6 @@ import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.datasource.init.ScriptException;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +19,7 @@ import java.util.Locale;
 
 @Slf4j
 @Component
-//@Profile("!test")
+		//@Profile("!test")
 class DataInitializerConfig {
 
 	@Resource
@@ -41,11 +40,14 @@ class DataInitializerConfig {
 	@PostConstruct
 	private void init() throws ScriptException, SQLException {
 
-		// Insert admin user
-		log.info("Initializating users...");
 		if (userRepository.findByUsername(username).isEmpty()) {
-			UserMongoEntity user = UserMongoEntity.builder().username(username).password(password).role(RolesEnum.ADMIN.name())
-					.language(Locale.ENGLISH.getLanguage()).languageBooks(Arrays.asList("spa", "eng")).build();
+			UserMongoEntity user = UserMongoEntity.builder()
+					.username(username)
+					.password(password)
+					.role(RolesEnum.ADMIN.name())
+					.language(Locale.ENGLISH.getLanguage())
+					.languageBooks(Arrays.asList("spa", "eng"))
+					.build();
 			userRepository.save(user);
 		}
 

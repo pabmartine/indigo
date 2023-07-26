@@ -30,13 +30,10 @@ server:
 spring:
     data:
         mongodb:
-            authentication-database: admin
             auto-index-creation: true
             database: indigo
-            host: 192.168.1.40
-            password: 5N27A-Bjac{=wt_3
-            port: 27017
-            username: indigo
+            host: localhost
+            port: ${mongodb.container.port}
     datasource:
         driver-class-name: org.sqlite.JDBC
         initialSize: 1
@@ -70,6 +67,7 @@ flags:
 
 metadata:
     goodreads:
+        pull: 1000
         url: https://www.goodreads.com
         reviews: ${metadata.goodreads.url}/search?q=$title+$author&search_type=books
         author: ${metadata.goodreads.url}/search.xml?q=$subject&key=$key

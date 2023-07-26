@@ -6,4 +6,6 @@ import lombok.Data;
 
 @Data
 @Builder
-public class StartInitialLoadCommand extends Command<Void> {}
+public class StartInitialLoadCommand extends Command<Void> {
+	private boolean override;
+}

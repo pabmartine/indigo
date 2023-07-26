@@ -17,6 +17,6 @@ public class InitialLoadStartedEventListener extends EventBusListener<InitialLoa
 
 	@Override
 	public void handle(final InitialLoadStartedEvent event) {
-		loadBooksUseCase.start();
+		loadBooksUseCase.start(event.isOverride());
 	}
 }

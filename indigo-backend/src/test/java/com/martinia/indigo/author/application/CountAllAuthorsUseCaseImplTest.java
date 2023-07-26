@@ -20,6 +20,8 @@ class CountAllAuthorsUseCaseImplTest extends BaseIndigoTest {
 	@MockBean
 	private AuthorRepository authorRepository;
 
+
+
 	@Test
 	void givenLanguages_whenCountAuthors_thenReturnCount() {
 		// Given

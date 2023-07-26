@@ -8,4 +8,6 @@ import lombok.Data;
 @Builder
 public class LoadBookCommand extends Command<Void> {
 	private String bookId;
+
+	private boolean override;
 }

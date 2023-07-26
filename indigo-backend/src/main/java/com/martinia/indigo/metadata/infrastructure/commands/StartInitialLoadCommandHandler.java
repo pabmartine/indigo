@@ -18,7 +18,7 @@ public class StartInitialLoadCommandHandler implements CommandHandler<StartIniti
 	@Override
 	public Void handle(final StartInitialLoadCommand command) {
 
-		startInitialLoadUseCase.start();
+		startInitialLoadUseCase.start(command.isOverride());
 
 		return null;
 	}

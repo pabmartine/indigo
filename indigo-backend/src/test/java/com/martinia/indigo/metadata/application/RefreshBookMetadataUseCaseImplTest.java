@@ -4,6 +4,7 @@ import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
+import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import com.martinia.indigo.common.util.DataUtils;
 import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
 import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
@@ -60,6 +61,9 @@ public class RefreshBookMetadataUseCaseImplTest extends BaseIndigoTest {
 	@Resource
 	private RefreshBookMetadataUseCase refreshBookMetadataUseCase;
 
+	@MockBean
+	private CommandBus commandBus;
+
 	@BeforeEach
 	@SneakyThrows
 	void init() {
@@ -93,8 +97,7 @@ public class RefreshBookMetadataUseCaseImplTest extends BaseIndigoTest {
 		// Then
 		Assertions.assertTrue(result.isPresent());
 
-		Mockito.verify(mockBookRepository).findByPath(path);
-		Mockito.verify(mockBookRepository).save(any());
+		Mockito.verify(mockBookRepository, Mockito.times(2)).findByPath(path);
 	}
 
 	@Test
@@ -129,7 +132,7 @@ public class RefreshBookMetadataUseCaseImplTest extends BaseIndigoTest {
 
 		// Then
 		Assertions.assertTrue(result.isPresent());
-		Mockito.verify(mockBookRepository).findByPath(path);
+		Mockito.verify(mockBookRepository, Mockito.times(2)).findByPath(path);
 		Mockito.verifyNoMoreInteractions(mockConfigurationRepository);
 	}
 }

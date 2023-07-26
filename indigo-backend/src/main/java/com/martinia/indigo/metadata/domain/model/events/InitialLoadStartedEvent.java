@@ -7,5 +7,6 @@ import lombok.Data;
 @Data
 @Builder
 public class InitialLoadStartedEvent implements Event {
+	private boolean override;
 
 }

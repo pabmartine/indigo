@@ -31,7 +31,7 @@ public class LoadBooksUseCaseImpl implements LoadBooksUseCase {
 
 
 	@Override
-	public void start() {
+	public void start(boolean override) {
 
 		log.info("Loading books ...");
 
@@ -51,7 +51,7 @@ public class LoadBooksUseCaseImpl implements LoadBooksUseCase {
 					break;
 				}
 
-				commandBus.execute(LoadBookCommand.builder().bookId(book.getId()).build());
+				commandBus.execute(LoadBookCommand.builder().bookId(book.getId()).override(override).build());
 
 				log.debug("Indexed {}/{} books", metadataSingleton.getCurrent(), numBooks);
 
