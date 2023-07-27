@@ -828,7 +828,8 @@ body a {
 .book #viewEpub span,
 .book #downloadEpub span,
 .book #closeView span,
-.book #closeBook span {
+.book #closeBook span,
+.book #optionsBook span {
 	font-size: 24px;
 }
 
@@ -837,7 +838,7 @@ body a {
 	width: 100%;
 }
 
-.book .book-title-button {
+.book .book-title-button, .p-speeddial-button {
 	background-color: transparent !important;
 	border: 1px solid transparent !important;
 	font-size: 24px !important;
@@ -848,6 +849,39 @@ body a {
 	transition: color 0.3s !important;
 	box-shadow: none !important;
 	width: 1.8em !important;
+}
+
+.p-speeddial-button {
+	background-color: transparent !important;
+	border: 1px solid transparent !important;
+	font-size: 24px !important;
+	padding-bottom: -18px;
+	bottom: 5px;
+	float: right;
+	color: #698ebf !important;
+	transition: color 0.3s !important;
+	box-shadow: none !important;
+	width: 1.8em !important;
+}
+
+.p-speeddial-action {
+    background-color: #698ebf !important;
+    border: 1px solid #698ebf!important;
+    padding-bottom: -18px;
+    bottom: 7px;
+    float: right;
+    color: #fff!important;
+    transition: color .3s!important;
+    box-shadow: none!important;
+    font-size: 12px!important;
+    width: 2.5rem;
+    height: 2.5rem;
+    opacity: 90%;
+}
+
+
+.p-speeddial-action span{
+	font-size: 20px !important;
 }
 
 .book .book-title-button-favorite {
@@ -862,6 +896,7 @@ body a {
 	box-shadow: none !important;
 	width: 1.843em !important;
 }
+
 
 .book .book-detail-image {
 	object-fit: cover;

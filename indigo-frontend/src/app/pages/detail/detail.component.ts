@@ -3,7 +3,7 @@ import { Component, ElementRef, EventEmitter, HostListener, OnInit, Output, View
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { saveAs } from 'file-saver';
-import { MessageService } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { Dialog } from 'primeng/dialog';
 import { Book } from 'src/app/domain/book';
 import { Notif } from 'src/app/domain/notif';
@@ -60,6 +60,8 @@ export class DetailComponent implements OnInit {
   public rendition;
   public displayed;
 
+  items: MenuItem[];
+
   user = JSON.parse(sessionStorage.user);
 
   @ViewChild('viewer') viewer: ElementRef;
@@ -87,6 +89,26 @@ export class DetailComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.items = [
+      {
+        id: 'deleteBook',
+        label: this.translate.instant('locale.buttons.delete'),
+        icon: 'pi pi-trash',
+        command: () => this.deleteBook()
+      },
+      {
+        id: 'editBook',
+        label: this.translate.instant('locale.buttons.edit'),
+        icon: 'pi pi-pencil',
+        command: () => this.editBook()
+      },
+      {
+        id: 'refreshBook',
+        label: this.translate.instant('locale.buttons.refresh'),
+        icon: 'pi pi-refresh',
+        command: () => this.refreshBook()
+      }
+    ];
   }
 
   getImage(path: string) {
