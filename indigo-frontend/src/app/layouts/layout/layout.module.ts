@@ -27,6 +27,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessagesModule } from 'primeng/messages';
 import { MessageModule } from 'primeng/message';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 import { InputMaskModule } from 'primeng/inputmask';
 import { CheckboxModule } from 'primeng/checkbox';
 import { AccordionModule } from 'primeng/accordion';
@@ -86,6 +87,7 @@ import { AuthorComponent } from 'src/app/pages/author/author.component';
     MessagesModule,
     MessageModule,
     InputTextModule,
+    InputTextareaModule,
     InputMaskModule,
     CheckboxModule,
     AccordionModule,

@@ -31,7 +31,8 @@
 			"kindle": {
 				"ok": "Le livre <strong> {{livre}} </strong> a été correctement envoyé au <strong> {{user}} </strong> kindle",
 				"error": "Une erreur s'est produite lors de l'envoi du livre <strong> {{book}} </strong> au Kindle de <strong> {{user}} </strong>"
-			}
+			},
+			"function_not_available" : "Cette fonction n'est pas disponible pour le moment"
 		},
 		"books": {
 			"title": "Livres",

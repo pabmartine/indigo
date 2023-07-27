@@ -61,6 +61,7 @@ export class DetailComponent implements OnInit {
   public displayed;
 
   items: MenuItem[];
+  editDialog: boolean = false;
 
   user = JSON.parse(sessionStorage.user);
 
@@ -481,9 +482,14 @@ export class DetailComponent implements OnInit {
   }
 
   editBook() {
-    console.log(this.selected.id);
+    this.editDialog = true;
+    //this.close();
   }
 
+  saveBook(){
+    this.messageService.clear();
+        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.messages.function_not_available'), closable: false, life: 5000 });
+  }
 
   checkOverflowRecommendations() {
     let row = document.getElementById('inlineRecommendations');

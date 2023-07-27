@@ -836,6 +836,7 @@ body a {
 .book .book-title-buttons {
 	text-align: right;
 	width: 100%;
+	position: relative;
 }
 
 .book .book-title-button, .p-speeddial-button {
