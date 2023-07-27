@@ -103,4 +103,9 @@ export class BookService {
   getImage(path: string): Observable<any> {
     return this.http.get(this.endpoint + "/image?path=" + path);
   }
+
+  deleteBook(id: string): Observable<any> {
+    console.log(id);
+    return this.http.delete(this.endpoint + "/delete?id=" + id);
+  }
 }

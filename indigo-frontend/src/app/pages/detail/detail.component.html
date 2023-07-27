@@ -9,6 +9,12 @@
           <button id="closeBook" type="button" pButton (click)="close()" icon="pi pi-times"
             title="{{'locale.buttons.close' | translate}}" class="book-title-button"></button>
 
+          <button id="deleteBook" type="button" pButton (click)="deleteBook()" icon="pi pi-trash"
+            title="{{'locale.buttons.delete' | translate}}" class="book-title-button" *ngIf="isAdmin()"></button>
+
+          <button id="editBook" type="button" pButton (click)="editBook()" icon="pi pi-pencil"
+            title="{{'locale.buttons.edit' | translate}}" class="book-title-button" *ngIf="isAdmin()"></button>
+
           <button id="refreshBook" type="button" pButton (click)="refreshBook();" icon="pi pi-refresh"
             title="{{'locale.buttons.refresh' | translate}}" class="book-title-button" *ngIf="isAdmin()"></button>
 
@@ -101,7 +107,13 @@
             <button id="closeBook" type="button" pButton (click)="close()" icon="pi pi-times"
               title="{{'locale.buttons.close' | translate}}" class="book-title-button"></button>
 
-            <button id="refreshBookSmall" type="button" pButton (click)="refreshBook();" icon="pi pi-refresh"
+            <button id="deleteBook" type="button" pButton (click)="deleteBook()" icon="pi pi-trash"
+              title="{{'locale.buttons.delete' | translate}}" class="book-title-button" *ngIf="isAdmin()"></button>
+  
+            <button id="editBook" type="button" pButton (click)="editBook()" icon="pi pi-pencil"
+              title="{{'locale.buttons.edit' | translate}}" class="book-title-button" *ngIf="isAdmin()"></button>
+
+            <button id="refreshBook" type="button" pButton (click)="refreshBook();" icon="pi pi-refresh"
               title="{{'locale.buttons.refresh' | translate}}" class="book-title-button" *ngIf="isAdmin()"></button>
 
             <button id="downloadEpub" type="button" pButton (click)="downloadEpub();" icon="pi pi-download"
@@ -110,14 +122,14 @@
             <button id="viewEpub" type="button" pButton (click)="viewEpub();" icon="pi pi-eye"
               title="{{'locale.buttons.view' | translate}}" class="book-title-button"></button>
 
-            <button id="send2KindleSmall" type="button" pButton (click)="sendToKindle();" icon="pi pi-share-alt"
+            <button id="send2Kindle" type="button" pButton (click)="sendToKindle();" icon="pi pi-share-alt"
               title="{{'locale.buttons.send' | translate}}" class="book-title-button" *ngIf="kindle"></button>
 
-            <button id="deleteFavoriteBookSmall" type="button" pButton (click)="deleteFavoriteBook();"
+            <button id="deleteFavoriteBook" type="button" pButton (click)="deleteFavoriteBook();"
               icon="pi pi-heart" title="{{'locale.buttons.favorite.delete' | translate}}"
               class="book-title-button-favorite" *ngIf="favoriteBook"></button>
 
-            <button id="addFavoriteBookSmall" type="button" pButton (click)="addFavoriteBook();" icon="pi pi-heart"
+            <button id="addFavoriteBook" type="button" pButton (click)="addFavoriteBook();" icon="pi pi-heart"
               title="{{'locale.buttons.favorite.add' | translate}}" class="book-title-button"
               *ngIf="!favoriteBook"></button>
 

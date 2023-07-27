@@ -42,6 +42,10 @@
 				"title": "Détails du livre",
 				"pubdate": "Date de publication:",
 				"pages": "pages",
+				"delete" : {
+                    "ok" : "Le livre a été retiré de la bibliothèque",
+                    "error" : "Le livre n'a pas pu être retiré de la bibliothèque"
+                },
 				"kindle": {
 					"todo": "Le livre sera envoyé sur votre appareil",
 					"ok": "Le livre a été envoyé sur votre appareil et apparaîtra dans quelques minutes",
@@ -400,6 +404,8 @@
 			"view": "Voir le livre",
 			"download": "Télécharger le livre",
             "refresh": "Actualiser les métadonnées",
+			"delete": "Supprimer",
+            "edit": "Modifier",
 			"favorite": {
 				"add": "Ajouter aux favoris",
 				"delete": "Supprimer des favoris"

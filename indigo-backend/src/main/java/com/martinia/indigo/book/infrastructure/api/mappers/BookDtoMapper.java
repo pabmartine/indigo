@@ -18,6 +18,8 @@ public interface BookDtoMapper {
 	})
 	BookDto domain2Dto(Book domain);
 
+	Book dto2domain(BookDto dto);
+
 	List<BookDto> domains2Dtos(List<Book> domains);
 
 }

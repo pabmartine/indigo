@@ -28,6 +28,7 @@ export class DetailComponent implements OnInit {
 
   @Output() eventAuthor: EventEmitter<String> = new EventEmitter<String>();
   @Output() eventBook: EventEmitter<Book> = new EventEmitter<Book>();
+  @Output() deleteBookEvent: EventEmitter<String> = new EventEmitter<String>();
 
   serie: Book[] = [];
   similar: Book[] = [];
@@ -434,7 +435,6 @@ export class DetailComponent implements OnInit {
 
   close() {
     this.eventClose.emit();
-    //this.router.navigate(["books"]);
   }
 
   @Output() eventOpen: EventEmitter<void> = new EventEmitter<void>();
@@ -442,6 +442,26 @@ export class DetailComponent implements OnInit {
   open() {
     this.eventOpen.emit();
   }
+
+  deleteBook() {
+    this.bookService.deleteBook(this.selected.id).subscribe(
+      data => {
+        this.deleteBookEvent.emit(this.selected.id);
+        this.messageService.clear();
+        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.delete.ok'), closable: false, life: 5000 });
+      },
+      error => {
+        console.log(error);
+        this.messageService.clear();
+        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.delete.error'), closable: false, life: 5000 });
+      }
+    );
+  }
+
+  editBook() {
+    console.log(this.selected.id);
+  }
+
 
   checkOverflowRecommendations() {
     let row = document.getElementById('inlineRecommendations');

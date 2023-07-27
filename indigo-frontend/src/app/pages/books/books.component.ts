@@ -306,6 +306,14 @@ export class BooksComponent implements OnInit {
     } 
   }
 
+  deleteBook(bookId: string) {
+    const index = this.books.findIndex((b) => b.id === bookId);
+    if (index !== -1) {
+      this.books.splice(index,1);
+      this.count();
+    } 
+  }
+
   private doSearch() {
     this.reset();
     //this.searchAuthorInfo();

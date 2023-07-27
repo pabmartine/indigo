@@ -42,6 +42,10 @@
 				"title": "Book details",
 				"pubdate": "Publication date:",
 				"pages": "pages",
+				"delete": {
+                    "ok": "The book has been removed from the library",
+                    "error": "The book could not be removed from the library"
+                },
 				"kindle": {
 					"todo": "The book will be sent to your device",
 					"ok": "The book has been sent to your device and will appear in a few minutes",
@@ -400,6 +404,8 @@
 			"view": "See book",
 			"download": "Download book",
             "refresh": "Refresh metadata",
+			"delete": "Delete",
+            "edit": "Edit",
 			"favorite": {
 				"add": "Add to favorites",
 				"delete": "Remove from favorites"
