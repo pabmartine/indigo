@@ -53,7 +53,7 @@ public class FindSimilarBooksMetadataUseCaseImpl implements FindSimilarBooksMeta
 							.replace("(", "")
 							.replace(")", "")
 							.replace("[", "")
-							.replace("]", ""));
+							.replace("]", "").trim());
 
 					List<BookMongoEntity> books = bookRepository.findAll(search, 0, Integer.MAX_VALUE, "_id", "asc");
 					if (!CollectionUtils.isEmpty(books)) {

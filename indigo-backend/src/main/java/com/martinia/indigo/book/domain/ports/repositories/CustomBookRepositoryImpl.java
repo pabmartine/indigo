@@ -196,9 +196,6 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 			if (!CollectionUtils.isEmpty(search.getLanguages())) {
 				criterias.add(Criteria.where("languages").in(search.getLanguages()));
 			}
-			else {
-				criterias.add(Criteria.where("languages").in(Arrays.asList("none")));
-			}
 			query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
 		}
 
