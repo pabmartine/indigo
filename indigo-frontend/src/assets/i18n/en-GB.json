@@ -47,6 +47,10 @@
                     "ok": "The book has been removed from the library",
                     "error": "The book could not be removed from the library"
                 },
+				"edit": {
+                    "ok": "The book has been edited",
+                    "error": "The book could not be edited"
+                },
 				"kindle": {
 					"todo": "The book will be sent to your device",
 					"ok": "The book has been sent to your device and will appear in a few minutes",

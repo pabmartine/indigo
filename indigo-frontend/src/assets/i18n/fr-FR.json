@@ -47,6 +47,10 @@
                     "ok" : "Le livre a été retiré de la bibliothèque",
                     "error" : "Le livre n'a pas pu être retiré de la bibliothèque"
                 },
+				"edit" : {
+                    "ok" : "Le livre a été édité",
+                    "error" : "Le livre n'a pas pu être édité"
+                },
 				"kindle": {
 					"todo": "Le livre sera envoyé sur votre appareil",
 					"ok": "Le livre a été envoyé sur votre appareil et apparaîtra dans quelques minutes",

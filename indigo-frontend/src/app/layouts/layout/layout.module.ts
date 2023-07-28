@@ -42,6 +42,7 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import {SpeedDialModule} from 'primeng/speeddial';
 import {DividerModule} from 'primeng/divider';
+import { ChipsModule } from 'primeng/chips';
 
 
 //translate
@@ -101,7 +102,8 @@ import { AuthorComponent } from 'src/app/pages/author/author.component';
     AutoCompleteModule,
     OverlayPanelModule,
     SpeedDialModule,
-    DividerModule
+    DividerModule,
+    ChipsModule
     // AngularEpubViewerModule
   ],
   exports: [

@@ -432,42 +432,63 @@
       </p-card>
     </p-dialog>
 
-    <p-dialog #editDetail [style]="{width: '500px'}" [(visible)]="editDialog" [modal]="true" [baseZIndex]="10000"
+    <p-dialog #editDetail [style]="{width: '1024px'}" [(visible)]="editDialog" [modal]="true" [baseZIndex]="10000"
       [draggable]="false" [closable]="true" [resizable]="false" [focusOnShow]="false">
       <p-card>
-        <div class="content-header p-grid">
-          <div class="p-col-11">
 
-          </div>
-          <div class="p-col-1 view-title-buttons">
+        <div class="content-header p-grid">
+          <div class="book-title-buttons">
             <button id="closeView" type="button" pButton (click)="editDialog = false" icon="pi pi-times"
               title="{{'locale.buttons.close' | translate}}" class="book-title-button"></button>
           </div>
         </div>
-        <div class="p-grid p-fluid">
 
-          <div class="p-col-12 p-md-4">Título</div>
-          <div class="p-col p-md-8">
-            <input type="text" pInputText autocomplete="off" />
+        <div class="content-body p-grid p-fluid">
+          <div class="p-col-12 p-md-2">Título</div>
+          <div class="p-col p-md-10">
+            <input type="text" pInputText autocomplete="off" [(ngModel)]="editedBook.title" />
           </div>
 
-          <div class="p-col-12 p-md-4">Conenido</div>
-          <div class="p-col p-md-8">
-            <textarea rows="5" cols="30" pInputTextarea [autoResize]="true"></textarea>
+          <div class="p-col-12 p-md-2">Autor</div>
+          <div class="p-col p-md-10">
+            <p-chips [(ngModel)]="editedBook.authors" disabled="true"></p-chips>
           </div>
 
-          <div class="p-col-12 p-md-4">Páginas</div>
-          <div class="p-col p-md-8">
-            <p-inputNumber mode="decimal" [showButtons]="true" [min]="0" [max]="5000">
+          <div class="p-col-12 p-md-2">Sinopsis</div>
+          <div class="p-col p-md-10">
+            <textarea rows="5" cols="30" pInputTextarea [autoResize]="true" [(ngModel)]="editedBook.comment"></textarea>
+          </div>
+
+
+          <div class="p-col-12 p-md-2">Género</div>
+          <div class="p-col p-md-10">
+            <p-chips [(ngModel)]="editedBook.tags" disabled="true"></p-chips>
+          </div>
+
+
+          <div class="p-col-12 p-md-2">Publicado</div>
+          <div class="p-col p-md-10">
+            <input type="text" pInputText autocomplete="off" [(ngModel)]="editedBook.pubDate" />
+          </div>
+
+          <div class="p-col-12 p-md-2">Idioma</div>
+          <div class="p-col p-md-10">
+            <p-chips [(ngModel)]="editedBook.languages"></p-chips>
+          </div>
+
+          <div class="p-col-12 p-md-2">Páginas</div>
+          <div class="p-col p-md-10">
+            <p-inputNumber mode="decimal" [showButtons]="true" [min]="0" [max]="5000" [(ngModel)]="editedBook.pages">
             </p-inputNumber>
           </div>
-
         </div>
-        <div class="p-grid p-col-12 page-buttons">
+
+        <div class="p-col-12 page-buttons">
           <button type="button" pButton label="{{'locale.buttons.save' | translate}}" class="page-button"
             (click)="saveBook()">
           </button>
         </div>
+
       </p-card>
     </p-dialog>
   </p-card>

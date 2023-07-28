@@ -105,7 +105,11 @@ export class BookService {
   }
 
   deleteBook(id: string): Observable<any> {
-    console.log(id);
     return this.http.delete(this.endpoint + "/delete?id=" + id);
+  }
+
+  editBook(book: Book): Observable<any> {
+    console.log(book);
+    return this.http.put(this.endpoint + "/edit", book);
   }
 }

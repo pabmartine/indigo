@@ -62,6 +62,7 @@ export class DetailComponent implements OnInit {
 
   items: MenuItem[];
   editDialog: boolean = false;
+  editedBook: Book;
 
   user = JSON.parse(sessionStorage.user);
 
@@ -187,6 +188,7 @@ export class DetailComponent implements OnInit {
     this.close();
 
     this.selected = book;
+    this.editedBook = new Book();
     this.kindle = false;
     this.favoriteBook = false;
     this.serie.length = 0;
@@ -482,13 +484,24 @@ export class DetailComponent implements OnInit {
   }
 
   editBook() {
+    this.editedBook = this.selected;
     this.editDialog = true;
     //this.close();
   }
 
   saveBook(){
-    this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.messages.function_not_available'), closable: false, life: 5000 });
+    this.bookService.editBook(this.editedBook).subscribe(
+      data => {
+        this.eventBook.emit(this.editedBook);
+        this.messageService.clear();
+        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.edit.ok'), closable: false, life: 5000 });
+      },
+      error => {
+        console.log(error);
+        this.messageService.clear();
+        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.edit.error'), closable: false, life: 5000 });
+      }
+    );
   }
 
   checkOverflowRecommendations() {

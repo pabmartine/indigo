@@ -18,6 +18,10 @@ public interface BookDtoMapper {
 	})
 	BookDto domain2Dto(Book domain);
 
+	@Mappings({
+			@Mapping(target = "pubDate", dateFormat = "dd/MM/yyyy"),
+			@Mapping(target = "lastModified", dateFormat = "dd/MM/yyyy")
+	})
 	Book dto2domain(BookDto dto);
 
 	List<BookDto> domains2Dtos(List<Book> domains);

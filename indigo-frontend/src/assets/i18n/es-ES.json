@@ -47,6 +47,10 @@
                     "ok": "El libro se ha quitado de la biblioteca",
                     "error": "El libro no se ha podido quitar de la biblioteca"
                 },
+                "edit": {
+                    "ok": "El libro se ha editado",
+                    "error": "El libro no se ha podido editar"
+                },
                 "kindle": {
                     "todo": "El libro se enviará a su dispositivo",
                     "ok": "El libro se ha enviado a su dispositivo y aparecerá en unos minutos",

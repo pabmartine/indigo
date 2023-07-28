@@ -1504,3 +1504,8 @@ body a {
 	padding: 0.9rem;
 	color: #6c757d;
 }
+
+.p-chips .p-chips-multiple-container .p-chips-token {
+    margin-top: 0.2rem;
+    margin-bottom: 0.2rem;
+}
