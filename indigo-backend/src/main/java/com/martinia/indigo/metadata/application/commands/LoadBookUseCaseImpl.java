@@ -84,8 +84,6 @@ public class LoadBookUseCaseImpl implements LoadBookUseCase {
 			eventBus.publish(BookLoadedEvent.builder().bookId(bookId).build());
 		}
 
-		metadataSingleton.increase();
-
 	}
 
 }

@@ -53,6 +53,8 @@ public class LoadBooksUseCaseImpl implements LoadBooksUseCase {
 
 				commandBus.execute(LoadBookCommand.builder().bookId(book.getId()).override(override).build());
 
+				metadataSingleton.increase();
+
 				log.debug("Indexed {}/{} books", metadataSingleton.getCurrent(), numBooks);
 
 			}
