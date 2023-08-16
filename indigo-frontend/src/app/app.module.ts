@@ -53,15 +53,41 @@ export class MyMissingTranslationHandler implements MissingTranslationHandler {
   }
 }
 
+export function mapLanguageCode(languageCode: string): string {
+  if (languageCode === 'es') {
+    return 'es-ES';
+  } else if (languageCode === 'en') {
+    return 'en-GB';
+  } else if (languageCode === 'FR') {
+    return 'fr-FR';
+  }
+  // Si no hay coincidencia, devuelve el código original
+  return languageCode;
+}
+
 export function appInitializerFactory(translateService: TranslateService, injector: Injector): () => Promise<any> {
-  // tslint:disable-next-line:no-any
   return () => new Promise<any>((resolve: any) => {
+    // Obtener la promesa que indica cuándo se ha inicializado la ubicación
     const locationInitialized = injector.get(LOCATION_INITIALIZED, Promise.resolve(null));
+    
+    // Esperar hasta que la ubicación se haya inicializado
     locationInitialized.then(() => {
-      translateService.use(localStorage.getItem("language") || window.navigator.language) // here u can change language loaded before reander enything
+
+      // Obtener el lenguaje del navegador del usuario
+      const browserLanguage = window.navigator.language;
+
+      // Mapear el código de lenguaje utilizando la función
+      const mappedLanguage = mapLanguageCode(browserLanguage);
+
+      // Usar el idioma almacenado en el almacenamiento local o el idioma mapeado,
+      // y suscribirse al resultado
+      translateService.use(localStorage.getItem("language") || mappedLanguage)
         .pipe(take(1))
-        .subscribe(() => { },
-          err => console.error(err), () => resolve(null));
+        .subscribe(
+          () => {}, // No se necesita hacer nada en caso de éxito
+          err => console.error(err), // Manejar el error en caso de que ocurra
+          () => resolve(null) // Resolver la promesa una vez que la operación esté completa
+        );
     });
   });
 }
