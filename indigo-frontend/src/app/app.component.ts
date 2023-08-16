@@ -24,13 +24,9 @@ export class AppComponent {
     if (sessionStorage.user) {
       const user = JSON.parse(sessionStorage.user);
       translate.use(user.language);
-      console.log("a");
-      console.log(user.language);
     } else {
       const browserLang = translate.getBrowserLang();
       translate.use(browserLang.match(/en-GB|fr-FR|es-ES/) ? browserLang : 'en-GB');
-      console.log("b");
-      console.log(browserLang.match(/en-GB|fr-FR|es-ES/) ? browserLang : 'en-GB');
     }
    
     

@@ -153,11 +153,20 @@ export class AuthorComponent implements OnInit {
 
   checkOverflowBooks() {
     let row = document.getElementById('inlineBooks');
-    this.showExpandBooks = this.isOverFlowed(row);
+    if (row) {
+      this.showExpandBooks = this.isOverFlowed(row);
+    }
   }
-
+  
   isOverFlowed(element) {
-    return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
+    console.log(element.scrollHeight);
+    console.log(element.clientHeight);
+    console.log(element.scrollWidth);
+    console.log(element.clientWidth);
+    if (element) {
+      return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
+    }
+    return false;
   }
 
   @HostListener('window:resize', ['$event'])

@@ -529,7 +529,12 @@ export class DetailComponent implements OnInit {
   }
 
   isOverFlowed(element) {
-    return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
+    console.log(element.scrollWidth);
+    console.log(element.clientWidth);
+    if (element) {
+      return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
+    }
+    return false;
   }
 
   @HostListener('window:resize', ['$event'])
