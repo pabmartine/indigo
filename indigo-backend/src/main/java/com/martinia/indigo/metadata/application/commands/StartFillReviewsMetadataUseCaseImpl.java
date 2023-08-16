@@ -63,8 +63,6 @@ public class StartFillReviewsMetadataUseCaseImpl implements StartFillReviewsMeta
 						break;
 					}
 
-					metadataSingleton.setCurrent(metadataSingleton.getCurrent() + 1);
-
 					commandBus.executeAndWait(
 							FindReviewMetadataCommand.builder().bookId(book.getId()).override(override).lang(lang).build());
 

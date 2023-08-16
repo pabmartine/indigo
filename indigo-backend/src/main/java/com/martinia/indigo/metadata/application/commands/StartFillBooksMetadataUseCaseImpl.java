@@ -61,8 +61,6 @@ public class StartFillBooksMetadataUseCaseImpl implements StartFillBooksMetadata
 						break;
 					}
 
-					metadataSingleton.setCurrent(metadataSingleton.getCurrent() + 1);
-
 					commandBus.executeAndWait(
 							FindBookMetadataCommand.builder().bookId(book.getId()).override(override).lastExecution(lastExecution).build());
 					lastExecution = System.currentTimeMillis();

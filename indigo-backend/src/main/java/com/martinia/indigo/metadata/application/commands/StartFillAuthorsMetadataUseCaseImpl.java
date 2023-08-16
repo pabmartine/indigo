@@ -69,8 +69,6 @@ public class StartFillAuthorsMetadataUseCaseImpl implements StartFillAuthorsMeta
 						break;
 					}
 
-					metadataSingleton.setCurrent(metadataSingleton.getCurrent() + 1);
-
 					commandBus.executeAndWait(FindAuthorMetadataCommand.builder()
 							.authorId(author.getId())
 							.lang(lang)
@@ -79,6 +77,8 @@ public class StartFillAuthorsMetadataUseCaseImpl implements StartFillAuthorsMeta
 							.build());
 
 					lastExecution = System.currentTimeMillis();
+
+					metadataSingleton.increase();
 
 					log.debug("Obtained {}/{} authors metadata", metadataSingleton.getCurrent(), numAuthors);
 
