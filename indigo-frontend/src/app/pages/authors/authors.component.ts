@@ -239,10 +239,8 @@ export class AuthorsComponent implements OnInit {
 
   openAuthor(sort: string) {
     this.showBookDetail = false;
-    console.log(sort)
     this.authorService.getByName(sort).subscribe(
       data => {
-        console.log(data);
         if (data)
           if (data.image) {
             let objectURL = 'data:image/jpeg;base64,' + data.image;
@@ -259,7 +257,6 @@ export class AuthorsComponent implements OnInit {
   }
 
   refreshAuthor(author: Author) {
-    console.log(author);
     const index = this.authors.findIndex((b) => b.id === author.id);
     if (index !== -1) {
       this.authors[index] = author;

@@ -414,8 +414,6 @@ export class DetailComponent implements OnInit {
     this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.refresh.process'), closable: false, life: 5000 });
     this.metadataService.findBook(this.selected.path, "es").subscribe(
       data => {
-        console.log("refreshed data: " + data)
-
         this.selected = data;
 
         if (data.image) {
@@ -490,7 +488,6 @@ export class DetailComponent implements OnInit {
   }
 
   saveBook(){
-    console.log(this.editBook);
     this.bookService.editBook(this.editedBook).subscribe(
       data => {
         this.eventBook.emit(this.editedBook);
@@ -530,8 +527,6 @@ export class DetailComponent implements OnInit {
   }
 
   isOverFlowed(element) {
-    console.log(element.scrollWidth);
-    console.log(element.clientWidth);
     if (element) {
       return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
     }

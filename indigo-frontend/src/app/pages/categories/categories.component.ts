@@ -128,9 +128,6 @@ export class CategoriesComponent implements OnInit {
     this.sortedTags = Object.assign([], this.tags);
     this.sortedTags.sort((a, b) => (a.name > b.name) ? 1 : -1);
     this.rename = true;
-
-    console.log(this.sourceTag.name);
-
   }
 
   showMerge() {

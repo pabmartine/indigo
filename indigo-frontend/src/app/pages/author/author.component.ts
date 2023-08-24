@@ -84,8 +84,6 @@ export class AuthorComponent implements OnInit {
 
         this.selected = data;
 
-        console.log(data.image);
-
         if (data.image && !data.image.startsWith('http')) {
           let objectURL = 'data:image/jpeg;base64,' + data.image;
           this.selected.image = objectURL;
@@ -159,10 +157,6 @@ export class AuthorComponent implements OnInit {
   }
   
   isOverFlowed(element) {
-    console.log(element.scrollHeight);
-    console.log(element.clientHeight);
-    console.log(element.scrollWidth);
-    console.log(element.clientWidth);
     if (element) {
       return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
     }
