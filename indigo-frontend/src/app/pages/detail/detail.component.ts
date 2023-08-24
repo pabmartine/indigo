@@ -490,6 +490,7 @@ export class DetailComponent implements OnInit {
   }
 
   saveBook(){
+    console.log(this.editBook);
     this.bookService.editBook(this.editedBook).subscribe(
       data => {
         this.eventBook.emit(this.editedBook);

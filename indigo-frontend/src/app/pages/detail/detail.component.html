@@ -436,6 +436,8 @@
       [draggable]="false" [closable]="true" [resizable]="false" [focusOnShow]="false">
       <p-card>
 
+        
+
         <div class="content-header p-grid">
           <div class="book-title-buttons">
             <button id="closeView" type="button" pButton (click)="editDialog = false" icon="pi pi-times"
@@ -444,42 +446,50 @@
         </div>
 
         <div class="content-body p-grid p-fluid">
-          <div class="p-col-12 p-md-2">Título</div>
+
+          <div class="p-col-12 p-md-2">{{'locale.books.detail.edit.title' | translate}}</div>
           <div class="p-col p-md-10">
             <input type="text" pInputText autocomplete="off" [(ngModel)]="editedBook.title" />
           </div>
 
-          <div class="p-col-12 p-md-2">Autor</div>
+          <div class="p-col-12 p-md-2">{{'locale.books.detail.edit.author' | translate}}</div>
           <div class="p-col p-md-10">
             <p-chips [(ngModel)]="editedBook.authors" disabled="true"></p-chips>
           </div>
 
-          <div class="p-col-12 p-md-2">Sinopsis</div>
+          <div class="p-col-12 p-md-2">{{'locale.books.detail.edit.plot' | translate}}</div>
           <div class="p-col p-md-10">
             <textarea rows="5" cols="30" pInputTextarea [autoResize]="true" [(ngModel)]="editedBook.comment"></textarea>
           </div>
 
 
-          <div class="p-col-12 p-md-2">Género</div>
+          <div class="p-col-12 p-md-2">{{'locale.books.detail.edit.gender' | translate}}</div>
           <div class="p-col p-md-10">
             <p-chips [(ngModel)]="editedBook.tags" disabled="true"></p-chips>
           </div>
 
 
-          <div class="p-col-12 p-md-2">Publicado</div>
+          <div class="p-col-12 p-md-2">{{'locale.books.detail.edit.pubdate' | translate}}</div>
           <div class="p-col p-md-10">
-            <input type="text" pInputText autocomplete="off" [(ngModel)]="editedBook.pubDate" />
+            <p-inputMask [(ngModel)]="editedBook.pubDate" mask="99/99/9999" placeholder="99/99/9999" slotChar="dd/mm/yyyy"></p-inputMask>
+
           </div>
 
-          <div class="p-col-12 p-md-2">Idioma</div>
+          <div class="p-col-12 p-md-2">{{'locale.books.detail.edit.language' | translate}}</div>
           <div class="p-col p-md-10">
-            <p-chips [(ngModel)]="editedBook.languages"></p-chips>
+            <p-chips [(ngModel)]="editedBook.languages" disabled="true"></p-chips>
           </div>
 
-          <div class="p-col-12 p-md-2">Páginas</div>
+          <div class="p-col-12 p-md-2">{{'locale.books.detail.edit.pages' | translate}}</div>
           <div class="p-col p-md-10">
             <p-inputNumber mode="decimal" [showButtons]="true" [min]="0" [max]="5000" [(ngModel)]="editedBook.pages">
             </p-inputNumber>
+          </div>
+
+          <div class="p-col-12 p-md-2">{{'locale.books.detail.edit.rating' | translate}}</div>
+          <div class="p-col p-md-10">
+            <p-rating class="metadata-value" [(ngModel)]="editedBook.rating" stars="5"
+            [cancel]="false"></p-rating>
           </div>
         </div>
 

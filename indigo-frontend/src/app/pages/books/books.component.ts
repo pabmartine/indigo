@@ -228,6 +228,11 @@ export class BooksComponent implements OnInit {
         data.forEach((book) => {
           let objectURL = 'data:image/jpeg;base64,' + book.image;
           book.image = objectURL;
+
+          if (book.rating){
+            book.rating = Math.round(book.rating);
+          }
+
         });
         Array.prototype.push.apply(this.books, data);
         this.page++;

@@ -48,6 +48,14 @@
                     "error": "The book could not be removed from the library"
                 },
 				"edit": {
+					"title": "Title",
+                    "author": "Author",
+                    "plot": "Plot",
+                    "gender": "Gender",
+                    "pubdate": "Published",
+                    "language": "Language",
+                    "pages": "Pages",
+					"rating": "Rating",
                     "ok": "The book has been edited",
                     "error": "The book could not be edited"
                 },

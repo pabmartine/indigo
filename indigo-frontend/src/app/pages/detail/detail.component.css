@@ -222,3 +222,7 @@
     display: block !important;
     overflow: auto !important;
 }
+
+.edit-detail .p-field {
+    margin-bottom: 0px !important;
+}

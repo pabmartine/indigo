@@ -48,6 +48,14 @@
                     "error": "El libro no se ha podido quitar de la biblioteca"
                 },
                 "edit": {
+                    "title": "Título",
+                    "author": "Autor",
+                    "plot": "Argumento",
+                    "gender": "Genero",
+                    "pubdate": "Publicado",
+                    "language": "Idioma",
+                    "pages": "Páginas",
+                    "rating": "Valoración",
                     "ok": "El libro se ha editado",
                     "error": "El libro no se ha podido editar"
                 },
