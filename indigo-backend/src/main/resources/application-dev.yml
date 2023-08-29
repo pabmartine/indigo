@@ -64,7 +64,7 @@ flags:
   goodreads: true
   wikipedia: true
   google: true
-  libretranslate: false
+  libretranslate: true
 
 metadata:
   goodreads:
