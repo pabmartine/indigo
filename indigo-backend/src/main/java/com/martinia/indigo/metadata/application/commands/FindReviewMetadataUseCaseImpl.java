@@ -46,6 +46,7 @@ public class FindReviewMetadataUseCaseImpl implements FindReviewMetadataUseCase 
 		bookRepository.findById(bookId).ifPresent(book -> {
 
 			if (override || refreshReviewMetadata(book.getReviews())) {
+				log.debug("Obtaining reviews");
 				List<ReviewDto> reviews = findGoodReadsReviewsPort.map(gr -> gr.getReviews(lang, book.getTitle(), book.getAuthors()))
 						.orElse(Collections.EMPTY_LIST);
 
