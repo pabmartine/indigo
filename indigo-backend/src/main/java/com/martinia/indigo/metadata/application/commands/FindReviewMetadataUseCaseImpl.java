@@ -52,15 +52,16 @@ public class FindReviewMetadataUseCaseImpl implements FindReviewMetadataUseCase 
 					reviews = findAmazonReviewsPort.map(amazon -> amazon.getReviews(book.getTitle(), book.getAuthors()))
 							.orElse(Collections.EMPTY_LIST);
 				}
-				if (!CollectionUtils.isEmpty(reviews)) {
-					book.setReviews(reviewMongoMapper.domains2Entities(reviewDtoMapper.dtos2domains(reviews)));
 
-					if (book.getRating()==0){
-						book.setRating(book.getReviews().stream().map(ReviewMongo::getRating).reduce(0, Integer::sum)/book.getReviews().size());
-					}
+				book.setReviews(reviewMongoMapper.domains2Entities(reviewDtoMapper.dtos2domains(reviews)));
 
-					bookRepository.save(book);
+				if (book.getRating() == 0) {
+					book.setRating(
+							book.getReviews().stream().map(ReviewMongo::getRating).reduce(0, Integer::sum) / book.getReviews().size());
 				}
+
+				bookRepository.save(book);
+
 			}
 		});
 	}

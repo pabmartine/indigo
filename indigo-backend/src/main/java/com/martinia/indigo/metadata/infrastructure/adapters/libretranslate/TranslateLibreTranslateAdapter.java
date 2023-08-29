@@ -18,8 +18,7 @@ public class TranslateLibreTranslateAdapter implements TranslateLibreTranslatePo
 
 	@Override
 	public String translate(final String text, final String target) {
-		final String comment = useCase.translate(text, target);
-		log.debug("Comment {} translated to {} as {}", text, target, comment);
-		return comment;
+		log.debug("Comment translated to {} ",  target);
+		return useCase.translate(text, target);
 	}
 }
