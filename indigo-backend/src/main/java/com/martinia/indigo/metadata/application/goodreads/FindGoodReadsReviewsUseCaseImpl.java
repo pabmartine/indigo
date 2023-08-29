@@ -165,6 +165,7 @@ public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseC
 			}
 		});
 
+		log.debug("Number of reviews: {}, foreign: {}", reviews.size(), foreignComments.size());
 		if (reviews.size() < 10 && !CollectionUtils.isEmpty(foreignComments)) {
 			for (Review review : foreignComments) {
 				review.setComment(translateLibreTranslatePort.map(libreTranslate -> libreTranslate.translate(review.getComment(), lang))
