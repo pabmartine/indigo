@@ -55,7 +55,7 @@ public class FindReviewMetadataUseCaseImpl implements FindReviewMetadataUseCase 
 
 				book.setReviews(reviewMongoMapper.domains2Entities(reviewDtoMapper.dtos2domains(reviews)));
 
-				if (book.getRating() == 0) {
+				if (book.getRating() == 0 && !CollectionUtils.isEmpty(reviews)) {
 					book.setRating(
 							book.getReviews().stream().map(ReviewMongo::getRating).reduce(0, Integer::sum) / book.getReviews().size());
 				}
