@@ -48,16 +48,21 @@ public class FindReviewMetadataUseCaseImpl implements FindReviewMetadataUseCase 
 			if (override || refreshReviewMetadata(book.getReviews())) {
 				List<ReviewDto> reviews = findGoodReadsReviewsPort.map(gr -> gr.getReviews(lang, book.getTitle(), book.getAuthors()))
 						.orElse(Collections.EMPTY_LIST);
+
 				if (CollectionUtils.isEmpty(reviews)) {
 					reviews = findAmazonReviewsPort.map(amazon -> amazon.getReviews(book.getTitle(), book.getAuthors()))
 							.orElse(Collections.EMPTY_LIST);
 				}
 
-				book.setReviews(reviewMongoMapper.domains2Entities(reviewDtoMapper.dtos2domains(reviews)));
-
-				if (book.getRating() == 0 && !CollectionUtils.isEmpty(reviews)) {
-					book.setRating(
-							book.getReviews().stream().map(ReviewMongo::getRating).reduce(0, Integer::sum) / book.getReviews().size());
+				if (CollectionUtils.isEmpty(reviews)) {
+					book.setReviews(null);
+				}
+				else {
+					book.setReviews(reviewMongoMapper.domains2Entities(reviewDtoMapper.dtos2domains(reviews)));
+					if (book.getRating() == 0) {
+						book.setRating(
+								book.getReviews().stream().map(ReviewMongo::getRating).reduce(0, Integer::sum) / book.getReviews().size());
+					}
 				}
 
 				bookRepository.save(book);
