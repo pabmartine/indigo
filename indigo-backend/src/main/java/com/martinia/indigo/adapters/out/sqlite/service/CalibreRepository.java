@@ -12,6 +12,8 @@ public interface CalibreRepository {
 
 	Book findBookById(String bookId);
 
+	Book findBookByPath(String path);
+
 	List<Book> findAll(Search search, int page, int size, String sort, String order);
 
 	List<Author> findAuthorsByBook(String book);

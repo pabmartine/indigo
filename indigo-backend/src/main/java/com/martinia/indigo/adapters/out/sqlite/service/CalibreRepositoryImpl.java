@@ -44,6 +44,13 @@ public class CalibreRepositoryImpl implements CalibreRepository {
 	}
 
 	@Override
+	public Book findBookByPath(final String path) {
+		return bookSqliteRepository.findByPath(path)
+				.map(entity -> bookSqliteMapper.entity2Domain(entity))
+				.orElse(null);
+	}
+
+	@Override
 	public List<Book> findAll(Search search, int page, int size, String sort, String order) {
 		List<BookSqliteEntity> entities = bookSqliteRepository.findAll(
 				PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(order), sort))).getContent();

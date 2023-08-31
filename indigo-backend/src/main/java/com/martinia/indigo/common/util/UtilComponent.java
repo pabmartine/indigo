@@ -1,5 +1,8 @@
 package com.martinia.indigo.common.util;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifIFD0Directory;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.lang3.StringUtils;
@@ -10,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -62,7 +66,7 @@ public class UtilComponent {
 
 										BufferedImage originalImage = ImageIO.read(is);
 
-										image = getScaledImage(originalImage);
+										image = getScaledImage(originalImage,0);
 
 									}
 								}
@@ -104,7 +108,7 @@ public class UtilComponent {
 				File coverFile = new File(coverPath);
 				BufferedImage originalImage = ImageIO.read(coverFile);
 				if (scale) {
-					image = getScaledImage(originalImage);
+					image = getScaledImage(originalImage,0);
 				}
 				else {
 					image = getOriginalImage(originalImage);
@@ -131,14 +135,45 @@ public class UtilComponent {
 					HttpURLConnection connection = (HttpURLConnection) new URL(image).openConnection();
 					connection.setRequestProperty("User-Agent", "Mozilla/5.0");
 
-					BufferedImage originalImage = ImageIO.read(connection.getInputStream());
+					try (InputStream inputStream = connection.getInputStream()) {
+						ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+						byte[] buffer = new byte[4096];
+						int bytesRead;
+						while ((bytesRead = inputStream.read(buffer)) != -1) {
+							byteArrayOutputStream.write(buffer, 0, bytesRead);
+						}
+						byte[] imageBytes = byteArrayOutputStream.toByteArray();
 
-					image = getScaledImage(originalImage);
+						// Cerrar la conexión después de obtener los bytes
+						connection.disconnect();
 
-				}
-				catch (Exception e) {
+						Metadata metadata = ImageMetadataReader.readMetadata(new ByteArrayInputStream(imageBytes));
+
+						ExifIFD0Directory exifIFD0 = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+						int orientation = exifIFD0.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+						String rotate = String.valueOf(0);
+						switch (orientation) {
+						case 1:
+							rotate = String.valueOf(0);
+							break;
+						case 6:
+							rotate = String.valueOf(90);
+							break;
+						case 3:
+							rotate = String.valueOf(180);
+							break;
+						case 8:
+							rotate = String.valueOf(270);
+							break;
+						}
+
+						BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(imageBytes));
+						image = getScaledImage(originalImage, Double.valueOf(rotate));
+					}
+				} catch (Exception e) {
 					log.error(image + " --> " + e.getMessage());
 				}
+
 			}
 		}
 
@@ -146,7 +181,7 @@ public class UtilComponent {
 
 	}
 
-	private static String getScaledImage(BufferedImage originalImage) throws IOException {
+	private static String getScaledImage(BufferedImage originalImage, double rotate) throws IOException {
 
 		int h = originalImage.getHeight();
 		int w = originalImage.getWidth();
@@ -161,7 +196,7 @@ public class UtilComponent {
 		}
 
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		Thumbnails.of(originalImage).size(w, h).outputFormat("jpg").toOutputStream(outputStream);
+		Thumbnails.of(originalImage).size(w, h).outputFormat("jpg").rotate(rotate).toOutputStream(outputStream);
 
 		return Base64.getEncoder().encodeToString(outputStream.toByteArray());
 	}
