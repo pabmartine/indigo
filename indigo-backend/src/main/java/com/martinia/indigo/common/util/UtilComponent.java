@@ -2,6 +2,7 @@ package com.martinia.indigo.common.util;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.metadata.Metadata;
+import com.drew.metadata.MetadataException;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
@@ -23,6 +24,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Enumeration;
+import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -66,7 +68,7 @@ public class UtilComponent {
 
 										BufferedImage originalImage = ImageIO.read(is);
 
-										image = getScaledImage(originalImage,0);
+										image = getScaledImage(originalImage, 0);
 
 									}
 								}
@@ -108,7 +110,7 @@ public class UtilComponent {
 				File coverFile = new File(coverPath);
 				BufferedImage originalImage = ImageIO.read(coverFile);
 				if (scale) {
-					image = getScaledImage(originalImage,0);
+					image = getScaledImage(originalImage, 0);
 				}
 				else {
 					image = getOriginalImage(originalImage);
@@ -149,28 +151,38 @@ public class UtilComponent {
 
 						Metadata metadata = ImageMetadataReader.readMetadata(new ByteArrayInputStream(imageBytes));
 
-						ExifIFD0Directory exifIFD0 = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
-						int orientation = exifIFD0.getInt(ExifIFD0Directory.TAG_ORIENTATION);
 						String rotate = String.valueOf(0);
-						switch (orientation) {
-						case 1:
-							rotate = String.valueOf(0);
-							break;
-						case 6:
-							rotate = String.valueOf(90);
-							break;
-						case 3:
-							rotate = String.valueOf(180);
-							break;
-						case 8:
-							rotate = String.valueOf(270);
-							break;
-						}
 
+						ExifIFD0Directory exifIFD0 = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+						if (exifIFD0 != null) {
+							int orientation = 0;
+							try {
+								orientation = exifIFD0.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+							}
+							catch (MetadataException e) {
+								log.error(e.getMessage());
+							}
+
+							switch (orientation) {
+							case 1:
+								rotate = String.valueOf(0);
+								break;
+							case 6:
+								rotate = String.valueOf(90);
+								break;
+							case 3:
+								rotate = String.valueOf(180);
+								break;
+							case 8:
+								rotate = String.valueOf(270);
+								break;
+							}
+						}
 						BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(imageBytes));
 						image = getScaledImage(originalImage, Double.valueOf(rotate));
 					}
-				} catch (Exception e) {
+				}
+				catch (Exception e) {
 					log.error(image + " --> " + e.getMessage());
 				}
 
