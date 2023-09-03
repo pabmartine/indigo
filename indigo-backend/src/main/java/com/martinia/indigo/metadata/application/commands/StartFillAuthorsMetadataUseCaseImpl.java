@@ -51,7 +51,7 @@ public class StartFillAuthorsMetadataUseCaseImpl implements StartFillAuthorsMeta
 
 		long lastExecution = 0;
 
-		int page = 22;
+		int page = 0;
 		int size = BATCH_SIZE;
 		while (page * size < numAuthors) {
 
