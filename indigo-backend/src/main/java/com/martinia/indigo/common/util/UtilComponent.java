@@ -37,6 +37,8 @@ public class UtilComponent {
 
 	public String getImageFromEpub(String path, String... types) {
 
+		log.debug("Getting base64 image cover in {}", path);
+
 		String image = null;
 		try {
 			if (!libraryPath.endsWith(File.separator)) {
@@ -81,7 +83,7 @@ public class UtilComponent {
 				}
 			}
 		}
-		catch (IOException e) {
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 		return image;
@@ -129,6 +131,8 @@ public class UtilComponent {
 	}
 
 	public String getBase64Url(String image) {
+
+		log.debug("Getting base64 image from {}", image);
 
 		if (StringUtils.isNoneEmpty(image)) {
 			if (!image.equals("https://s.gr-assets.com/assets/nophoto/user/u_200x266-e183445fd1a1b5cc7075bb1cf7043306.png")) {

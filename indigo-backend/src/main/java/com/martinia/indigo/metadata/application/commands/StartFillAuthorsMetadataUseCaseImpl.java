@@ -51,7 +51,7 @@ public class StartFillAuthorsMetadataUseCaseImpl implements StartFillAuthorsMeta
 
 		long lastExecution = 0;
 
-		int page = 0;
+		int page = 22;
 		int size = BATCH_SIZE;
 		while (page * size < numAuthors) {
 
@@ -68,6 +68,8 @@ public class StartFillAuthorsMetadataUseCaseImpl implements StartFillAuthorsMeta
 					if (!metadataSingleton.isRunning()) {
 						break;
 					}
+
+					log.info("Processing author {}", author.getName());
 
 					commandBus.executeAndWait(FindAuthorMetadataCommand.builder()
 							.authorId(author.getId())
