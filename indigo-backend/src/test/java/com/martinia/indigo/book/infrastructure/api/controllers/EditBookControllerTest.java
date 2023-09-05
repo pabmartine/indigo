@@ -9,6 +9,7 @@ import com.martinia.indigo.book.infrastructure.api.model.BookDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -33,6 +34,7 @@ public class EditBookControllerTest extends BaseIndigoTest {
 	private MockMvc mockMvc;
 
 	@Test
+	@WithMockUser
 	public void testEditBook() throws Exception {
 		// Given
 		BookDto bookDto = new BookDto();
@@ -49,7 +51,7 @@ public class EditBookControllerTest extends BaseIndigoTest {
 		doNothing().when(editBookUseCase).edit(any(Book.class));
 
 		// When/Then
-		mockMvc.perform(MockMvcRequestBuilders.get("/api/book/edit")
+		mockMvc.perform(MockMvcRequestBuilders.put("/api/book/edit")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(new ObjectMapper().writeValueAsString(bookDto))).andExpect(MockMvcResultMatchers.status().isOk());
 

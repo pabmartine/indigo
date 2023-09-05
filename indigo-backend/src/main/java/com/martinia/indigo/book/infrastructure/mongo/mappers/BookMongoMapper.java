@@ -14,7 +14,7 @@ public interface BookMongoMapper {
 
 	Book entity2Domain(BookMongoEntity entity);
 
-	List<BookMongoEntity> domain2Entity(List<Book> domains);
+	List<BookMongoEntity> domains2Entities(List<Book> domains);
 
 	List<Book> entities2Domains(List<BookMongoEntity> entities);
 

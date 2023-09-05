@@ -210,7 +210,12 @@
 					"info": "The category {{source}} is going to be mixed in {{target}}. Do you want to continue?"
 				},
 				"image": {
-					"title": "Modify image",
+                    "modify": {
+                        "title": "Modify image"
+                    },
+                    "update": {
+                        "title": "Update image"
+                    },
 					"description": {
 						"source": "Select the source tag",
 						"target": "Enter the url of the new image"

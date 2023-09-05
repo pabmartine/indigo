@@ -13,13 +13,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @SpringBootTest
-public class BookLoadedEventListenerTest extends BaseIndigoTest {
+public class FillAuthorsBookLoadedEventListenerTest extends BaseIndigoTest {
 
 	@MockBean
 	private FillAuthorsMetadataUseCase fillAuthorsMetadataUseCase;
 
 	@Resource
-	private BookLoadedEventListener bookLoadedEventListener;
+	private FillAuthorsBookLoadedEventListener fillAuthorsBookLoadedEventListener;
 
 	@Test
 	public void testHandle() {
@@ -28,7 +28,7 @@ public class BookLoadedEventListenerTest extends BaseIndigoTest {
 		BookLoadedEvent event = BookLoadedEvent.builder().bookId(bookId).build();
 
 		// When
-		bookLoadedEventListener.handle(event);
+		fillAuthorsBookLoadedEventListener.handle(event);
 
 		// Then
 		verify(fillAuthorsMetadataUseCase, times(1)).fillAuthors(bookId);

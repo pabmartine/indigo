@@ -210,7 +210,12 @@
 					"info": "La catégorie {{source}} va être mélangée à {{target}}. Voulez-vous continuer?"
 				},
 				"image": {
-					"title": "Modifier l'image",
+					"modify": {
+                        "title": "Modifier l'image"
+                    },
+                    "update": {
+                        "title": "Rafraîchir l'image"
+                    },
 					"description": {
 						"source": "Sélectionnez la balise source",
 						"target": "Entrez l'url de la nouvelle image"

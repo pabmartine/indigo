@@ -21,9 +21,9 @@
           <!--<span class="subtitle" *ngFor="let author of book.authors">
             <a href="javascript:;" (click)="getBooksByAuthor(author)">{{author}}</a><span
               *ngIf="author != book.authors[book.authors.length-1]"> & </span></span>-->
-          
-              <span class="subtitle">
-              <a href="javascript:;" (click)="openAuthor(book.authors[0])">{{book.authors[0]}}</a></span>
+
+          <span class="subtitle">
+            <a href="javascript:;" (click)="openAuthor(book.authors[0])">{{book.authors[0]}}</a></span>
 
         </div>
         <div *ngIf="book.rating">
@@ -60,15 +60,12 @@
           <span class="title">{{book.title}}</span>
         </div>
         <div>
-          <!--<span class="subtitle" *ngFor="let author of book.authors">
-            <a href="javascript:;" (click)="getBooksByAuthor(author)">{{author}}</a><span
-              *ngIf="author != book.authors[book.authors.length-1]"> & </span></span>-->
-          
-              <span class="subtitle">
-                <a href="javascript:;" (click)="openAuthor(book.authors[0])">{{book.authors[0]}}</a></span>
+          <span class="subtitle">
+            <a href="javascript:;" (click)="openAuthor(book.authors[0])">{{book.authors[0]}}</a></span>
         </div>
         <div *ngIf="book.rating">
-          <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false" style="display: inline-block;" ></p-rating>
+          <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"
+            style="display: inline-block;"></p-rating>
           <i class="pi pi-comments" style="float: right; color: burlywood" *ngIf="book.reviews"></i>
         </div>
       </div>
@@ -81,9 +78,12 @@
 
 <div class="book">
   <p-dialog [(visible)]="showDetail" [modal]="true" [draggable]="false" [resizable]="false" [transitionOptions]="'0ms'">
-    <app-detail (eventClose)="closeDetails()" (eventOpen)="openDetails()" (eventAuthor)="openAuthor($event)" (eventBook)="refreshBook($event)"  (deleteBookEvent)="deleteBook($event)"></app-detail>
+    <app-detail (eventClose)="closeDetails()" (eventOpen)="openDetails()" (eventAuthor)="openAuthor($event)"
+      (eventBook)="refreshBook($event)" (deleteBookEvent)="deleteBook($event)"></app-detail>
   </p-dialog>
-  <p-dialog [(visible)]="showAuthorDetail" [modal]="true" [draggable]="false" [resizable]="false" [transitionOptions]="'0ms'">
-    <app-author (eventClose)="closeAuthorDetails()" (eventOpen)="openAuthorDetails()" (eventBook)="openBook($event)"></app-author>
+  <p-dialog [(visible)]="showAuthorDetail" [modal]="true" [draggable]="false" [resizable]="false"
+    [transitionOptions]="'0ms'">
+    <app-author (eventClose)="closeAuthorDetails()" (eventOpen)="openAuthorDetails()"
+      (eventBook)="openBook($event)"></app-author>
   </p-dialog>
 </div>
