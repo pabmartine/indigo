@@ -11,6 +11,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,16 +30,20 @@ public class FindFavoriteAuthorsUseCaseImpl implements FindFavoriteAuthorsUseCas
 
 	@Override
 	public List<Author> getFavoriteAuthors(String user) {
-		List<String> authors = userRepository.findByUsername(user).get().getFavoriteAuthors();
-		List<Author> ret = new ArrayList<>(authors != null ? authors.size() : 0);
-		if (!CollectionUtils.isEmpty(authors)) {
-			authors.forEach(author -> ret.add(findAuthor(author).get()));
-		}
-		return ret;
+		return userRepository.findByUsername(user).map(userEntity -> {
+			List<String> authors = userEntity.getFavoriteAuthors();
+			List<Author> ret = new ArrayList<>(authors != null ? authors.size() : 0);
+			if (!CollectionUtils.isEmpty(authors)) {
+				authors.forEach(author -> ret.add(findAuthor(author).get()));
+			}
+			return ret;
+		}).orElse(Collections.emptyList());
+
 	}
 
 	private Optional<Author> findAuthor(String sort) {
-		return authorRepository.findBySort(sort).map(author -> Optional.of(authorMongoMapper.entity2Domain(author)))
+		return authorRepository.findBySort(sort)
+				.map(author -> Optional.of(authorMongoMapper.entity2Domain(author)))
 				.orElse(Optional.empty());
 	}
 

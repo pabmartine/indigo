@@ -5,6 +5,7 @@ import java.util.Date;
 
 import javax.persistence.Id;
 
+import lombok.Builder;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.martinia.indigo.common.infrastructure.mongo.entities.NumBooksMongo;
@@ -18,6 +19,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Document(collection = "authors")
 public class AuthorMongoEntity implements Serializable {
 
