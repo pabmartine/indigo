@@ -18,12 +18,11 @@ public class AddFavoriteBookUseCaseImpl implements AddFavoriteBookUseCase {
 
 	@Override
 	public void addFavoriteBook(String user, String book) {
-		UserMongoEntity _user = userRepository.findByUsername(user).get();
-		if (CollectionUtils.isEmpty(_user.getFavoriteBooks()) || !_user.getFavoriteBooks().contains(book)) {
-			_user.getFavoriteBooks().add(book);
-			userRepository.save(_user);
-		}
-
+		userRepository.findByUsername(user).ifPresent(_user -> {
+			if (CollectionUtils.isEmpty(_user.getFavoriteBooks()) || !_user.getFavoriteBooks().contains(book)) {
+				_user.getFavoriteBooks().add(book);
+				userRepository.save(_user);
+			}
+		});
 	}
-
 }

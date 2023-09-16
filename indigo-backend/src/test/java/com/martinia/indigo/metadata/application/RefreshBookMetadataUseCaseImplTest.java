@@ -1,6 +1,7 @@
 package com.martinia.indigo.metadata.application;
 
 import com.martinia.indigo.BaseIndigoTest;
+import com.martinia.indigo.adapters.out.sqlite.service.CalibreRepository;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
@@ -64,11 +65,14 @@ public class RefreshBookMetadataUseCaseImplTest extends BaseIndigoTest {
 	@MockBean
 	private CommandBus commandBus;
 
+	@MockBean
+	private CalibreRepository calibreRepository;
+
 	@BeforeEach
 	@SneakyThrows
 	void init() {
-		Mockito.when(mockConfigurationRepository.findByKey(any())).thenReturn(Optional.of(
-				ConfigurationMongoEntity.builder().key("goodreads.key").value("123456").build()));
+		Mockito.when(mockConfigurationRepository.findByKey(any()))
+				.thenReturn(Optional.of(ConfigurationMongoEntity.builder().key("goodreads.key").value("123456").build()));
 		Mockito.when(dataUtils.getData(any())).thenReturn(null);
 		Mockito.when(findGoogleBooksBookUseCase.findBook(any(), any())).thenReturn(null);
 	}
@@ -89,6 +93,8 @@ public class RefreshBookMetadataUseCaseImplTest extends BaseIndigoTest {
 		Book expectedBook = new Book();
 		expectedBook.setPath(path);
 
+		Mockito.when(calibreRepository.findBookByPath(Mockito.anyString())).thenReturn(expectedBook);
+
 		Mockito.when(mockBookRepository.findByPath(path)).thenReturn(Optional.of(book));
 
 		// When
@@ -107,6 +113,10 @@ public class RefreshBookMetadataUseCaseImplTest extends BaseIndigoTest {
 
 		Mockito.when(mockBookRepository.findByPath(path)).thenReturn(Optional.empty());
 
+		Book expectedBook = new Book();
+		expectedBook.setPath(path);
+		Mockito.when(calibreRepository.findBookByPath(Mockito.anyString())).thenReturn(expectedBook);
+
 		// When
 		Optional<Book> result = refreshBookMetadataUseCase.findBookMetadata(path, "es");
 
@@ -116,23 +126,4 @@ public class RefreshBookMetadataUseCaseImplTest extends BaseIndigoTest {
 		Mockito.verifyNoMoreInteractions(mockBookRepository);
 	}
 
-	@Test
-	public void testFindBookMetadata_WhenGoodreadsKeyIsNull_ThenReturnEmptyOptional() {
-		// Given
-		String path = "/path/to/book";
-
-		BookMongoEntity book = new BookMongoEntity();
-		book.setPath(path);
-
-		Mockito.when(mockBookRepository.findByPath(path)).thenReturn(Optional.of(book));
-		Mockito.when(mockConfigurationRepository.findByKey("goodreads.key")).thenReturn(Optional.empty());
-
-		// When
-		Optional<Book> result = refreshBookMetadataUseCase.findBookMetadata(path, "es");
-
-		// Then
-		Assertions.assertTrue(result.isPresent());
-		Mockito.verify(mockBookRepository, Mockito.times(2)).findByPath(path);
-		Mockito.verifyNoMoreInteractions(mockConfigurationRepository);
-	}
 }

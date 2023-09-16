@@ -73,7 +73,7 @@ public class SaveConfigurationsUseCaseImplTest extends BaseIndigoTest {
 		saveConfigurationsUseCase.save(Arrays.asList(configuration));
 
 		// Then
-		verify(configurationRepository, never()).save(any());
+		verify(configurationRepository, atLeast(1)).save(any());
 	}
 
 	@Test

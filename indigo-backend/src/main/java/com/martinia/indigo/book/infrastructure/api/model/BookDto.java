@@ -2,6 +2,7 @@ package com.martinia.indigo.book.infrastructure.api.model;
 
 import com.martinia.indigo.common.infrastructure.api.model.ReviewDto;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookDto implements Serializable {

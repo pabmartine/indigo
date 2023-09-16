@@ -1,15 +1,15 @@
 package com.martinia.indigo.common.model;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.CollectionUtils;
-
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -30,16 +30,8 @@ public class Search implements Serializable {
 
 	public boolean isEmpty() {
 		boolean ret = false;
-		if (StringUtils.isEmpty(this.path)
-				&& StringUtils.isEmpty(this.title)
-				&& StringUtils.isEmpty(this.author)
-				&& ini == null
-				&& end == null
-				&& min == null
-				&& max == null
-				&& serie == null
-				&& CollectionUtils.isEmpty(selectedTags)
-		) {
+		if (StringUtils.isEmpty(this.path) && StringUtils.isEmpty(this.title) && StringUtils.isEmpty(this.author) && ini == null
+				&& end == null && min == null && max == null && serie == null && CollectionUtils.isEmpty(selectedTags)) {
 			ret = true;
 		}
 		return ret;

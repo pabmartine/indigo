@@ -29,9 +29,6 @@ class FindBooksBySerieControllerTest extends BaseIndigoTest {
 	@MockBean
 	private BookDtoMapper mapper;
 
-	@InjectMocks
-	private FindBooksBySerieController controller;
-
 	@Resource
 	private MockMvc mockMvc;
 
@@ -47,7 +44,8 @@ class FindBooksBySerieControllerTest extends BaseIndigoTest {
 
 		// When
 		mockMvc.perform(MockMvcRequestBuilders.get("/api/book/serie").param("serie", serie).param("languages", "English", "Spanish"))
-				.andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$[0]").exists())
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath("$[0]").exists())
 				.andExpect(MockMvcResultMatchers.jsonPath("$[1]").exists());
 
 		// Then

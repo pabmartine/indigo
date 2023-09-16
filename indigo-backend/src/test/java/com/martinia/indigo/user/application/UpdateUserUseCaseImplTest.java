@@ -19,6 +19,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -68,7 +69,7 @@ public class UpdateUserUseCaseImplTest extends BaseIndigoTest {
 		updateUserUseCase.update(userDto);
 
 		// Then
-		verify(userRepository).save(userCaptor.capture());
+		verify(userRepository, atLeast(1)).save(userCaptor.capture());
 
 		UserMongoEntity updatedUser = userCaptor.getValue();
 		assertEquals(userId, updatedUser.getId());

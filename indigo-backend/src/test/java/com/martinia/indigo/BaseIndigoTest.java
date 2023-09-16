@@ -40,16 +40,16 @@ public class BaseIndigoTest {
 	private ApplicationEventPublisher applicationEventPublisher;
 
 	@Resource
-	private ConfigurationRepository configurationRepository;
+	protected ConfigurationRepository configurationRepository;
 
 	@Resource
-	private BookRepository bookRepository;
+	protected BookRepository bookRepository;
 
 	@Resource
 	protected AuthorRepository authorRepository;
 
 	@Resource
-	private NotificationRepository notificationRepository;
+	protected NotificationRepository notificationRepository;
 
 	@Resource
 	private TagRepository tagRepository;
@@ -58,7 +58,7 @@ public class BaseIndigoTest {
 	protected UserRepository userRepository;
 
 	@Resource
-	private ViewRepository viewRepository;
+	protected ViewRepository viewRepository;
 
 	@AfterEach
 	public void baseAfterEach() {
