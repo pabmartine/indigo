@@ -11,11 +11,22 @@ import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
 import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.test.context.ContextConfiguration;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -33,6 +44,7 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+//@ContextConfiguration(classes = BaseIndigoTest.TestConfig.class)
 @Import({ BeanDefinitionConfigTest.class, PersistenceConfigTest.class })
 public class BaseIndigoTest {
 
@@ -88,4 +100,6 @@ public class BaseIndigoTest {
 		userRepository.deleteAll();
 		viewRepository.deleteAll();
 	}
+
+
 }

@@ -4,6 +4,7 @@ import com.martinia.indigo.configuration.domain.ports.repositories.Configuration
 import com.martinia.indigo.mail.domain.EmailConfiguration;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -17,7 +18,7 @@ public class BaseMailUseCaseImpl {
 	@Resource
 	protected ConfigurationRepository configurationRepository;
 
-	@Resource
+	@Autowired
 	protected JavaMailSender javaMailSender;
 
 	@Value("${book.library.path}")
