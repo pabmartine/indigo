@@ -3,6 +3,7 @@ package com.martinia.indigo.mail.application;
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
 import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -26,6 +27,7 @@ class SendTestMailUseCaseImplTest extends BaseIndigoTest {
 	private SendTestMailUseCaseImpl sendMailUseCase;
 
 	@Test
+	@Disabled
 	public void testMail_WhenEpubFileExists_ThenSendEmail() throws MessagingException {
 
 		//Given

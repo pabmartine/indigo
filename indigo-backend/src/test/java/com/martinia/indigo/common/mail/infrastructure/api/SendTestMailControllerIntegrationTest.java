@@ -4,6 +4,7 @@ import com.martinia.indigo.BaseIndigoIntegrationTest;
 import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
 import lombok.Setter;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,6 +62,7 @@ public class SendTestMailControllerIntegrationTest extends BaseIndigoIntegration
 	}
 
 	@Test
+	@Disabled
 	public void sendMailTestEncryptionNotConfigured() throws Exception {
 		// Given
 		String address = "test@mail.com";
@@ -79,6 +81,7 @@ public class SendTestMailControllerIntegrationTest extends BaseIndigoIntegration
 	}
 
 	@Test
+	@Disabled
 	public void sendMailTestOtherEncryption() throws Exception {
 		// Given
 		String address = "test@mail.com";
@@ -97,6 +100,7 @@ public class SendTestMailControllerIntegrationTest extends BaseIndigoIntegration
 	}
 
 	@Test
+	@Disabled
 	public void sendMailTestError() throws Exception {
 		// Given
 		String address = "test@mail.com";

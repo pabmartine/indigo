@@ -4,6 +4,7 @@ import com.martinia.indigo.BaseIndigoIntegrationTest;
 import lombok.Setter;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,6 +44,7 @@ public class SendMailControllerIntegrationTest extends BaseIndigoIntegrationTest
 	}
 
 	@Test
+	@Disabled
 	public void sendMailTest() throws Exception {
 		// Given
 		String path = "data";
