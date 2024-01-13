@@ -44,21 +44,21 @@
 				"pubdate": "Publication date:",
 				"pages": "pages",
 				"delete": {
-                    "ok": "The book has been removed from the library",
-                    "error": "The book could not be removed from the library"
-                },
+					"ok": "The book has been removed from the library",
+					"error": "The book could not be removed from the library"
+				},
 				"edit": {
 					"title": "Title",
-                    "author": "Author",
-                    "plot": "Plot",
-                    "gender": "Gender",
-                    "pubdate": "Published",
-                    "language": "Language",
-                    "pages": "Pages",
+					"author": "Author",
+					"plot": "Plot",
+					"gender": "Gender",
+					"pubdate": "Published",
+					"language": "Language",
+					"pages": "Pages",
 					"rating": "Rating",
-                    "ok": "The book has been edited",
-                    "error": "The book could not be edited"
-                },
+					"ok": "The book has been edited",
+					"error": "The book could not be edited"
+				},
 				"kindle": {
 					"todo": "The book will be sent to your device",
 					"ok": "The book has been sent to your device and will appear in a few minutes",
@@ -74,24 +74,24 @@
 						"error": "The book could not be removed from favorites"
 					}
 				},
-				"download":{
+				"download": {
 					"error": "The book could not be downloaded"
 				},
-                "metadata": {
-                    "rating": "RATING",
-                    "genre": "GENRE",
-                    "published": "PUBLISHED",
-                    "language": "LANGUAGE",
-                    "pages": "EXTENSION"
-                },
-                "expand":{
-                    "more": "View more",
-                    "less": "View less"
-                }
+				"metadata": {
+					"rating": "RATING",
+					"genre": "GENRE",
+					"published": "PUBLISHED",
+					"language": "LANGUAGE",
+					"pages": "EXTENSION"
+				},
+				"expand": {
+					"more": "View more",
+					"less": "View less"
+				}
 			},
 			"serie": {
-                "title": "From the same series"
-            },
+				"title": "From the same series"
+			},
 			"similar": {
 				"title": "Other similar books"
 			},
@@ -210,12 +210,12 @@
 					"info": "The category {{source}} is going to be mixed in {{target}}. Do you want to continue?"
 				},
 				"image": {
-                    "modify": {
-                        "title": "Modify image"
-                    },
-                    "update": {
-                        "title": "Update image"
-                    },
+					"modify": {
+						"title": "Modify image"
+					},
+					"update": {
+						"title": "Update image"
+					},
 					"description": {
 						"source": "Select the source tag",
 						"target": "Enter the url of the new image"
@@ -257,7 +257,7 @@
 				"password": "Password",
 				"role": "Role",
 				"language": "Interface language",
-				"languages": "Language of books",				
+				"languages": "Language of books",
 				"kindle": "Kindle device email address",
 				"kindle_short": "Kindle",
 				"account": "Account"
@@ -421,9 +421,9 @@
 			"previous": "Previous",
 			"view": "See book",
 			"download": "Download book",
-            "refresh": "Refresh metadata",
+			"refresh": "Refresh metadata",
 			"delete": "Delete",
-            "edit": "Edit",
+			"edit": "Edit",
 			"favorite": {
 				"add": "Add to favorites",
 				"delete": "Remove from favorites"
@@ -433,6 +433,8 @@
 			"es": "Spanish",
 			"en": "English",
 			"fr": "French",
+			"pt": "Portuguese",
+			"de": "German",
 			"eus": "Basque",
 			"glg": "Galician",
 			"ita": "Italian",
