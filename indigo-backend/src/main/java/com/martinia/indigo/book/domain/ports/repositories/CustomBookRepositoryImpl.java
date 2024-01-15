@@ -275,7 +275,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 	@Override
 	public Long getNumSeries(List<String> languages) {
-		Long ret = null;
+		Long ret = 0L;
 		List<Document> list = Arrays.asList(new Document("$match",
 						new Document("serie.name", new Document("$ne", new BsonNull())).append("languages", new Document("$in", languages))),
 				new Document("$project", new Document("serie.name", 1L)),

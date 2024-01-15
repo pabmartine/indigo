@@ -1,4 +1,4 @@
-package com.martinia.indigo.common.configuration.application;
+package com.martinia.indigo.configuration.application;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.configuration.application.SaveConfigurationsUseCaseImpl;
