@@ -1,4 +1,4 @@
-package com.martinia.indigo.tag.infrastructure.api;
+package com.martinia.indigo.tag.infrastructure.api.controllers;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.tag.domain.ports.usecases.SetTagImageUseCase;

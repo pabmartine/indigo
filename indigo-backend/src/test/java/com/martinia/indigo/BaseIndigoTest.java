@@ -57,6 +57,7 @@ public class BaseIndigoTest {
 	@Resource
 	protected BookRepository bookRepository;
 
+
 	@Resource
 	protected AuthorRepository authorRepository;
 
@@ -64,7 +65,7 @@ public class BaseIndigoTest {
 	protected NotificationRepository notificationRepository;
 
 	@Resource
-	private TagRepository tagRepository;
+	protected TagRepository tagRepository;
 
 	@Resource
 	protected UserRepository userRepository;
