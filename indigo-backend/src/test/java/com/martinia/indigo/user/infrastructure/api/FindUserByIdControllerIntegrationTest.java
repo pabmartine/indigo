@@ -3,7 +3,6 @@ package com.martinia.indigo.user.infrastructure.api;
 import com.martinia.indigo.BaseIndigoIntegrationTest;
 import com.martinia.indigo.user.domain.model.RolesEnum;
 import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
-import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -14,36 +13,37 @@ import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.Locale;
 
+import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class FindUserByUsernameControllerTest extends BaseIndigoIntegrationTest {
+public class FindUserByIdControllerIntegrationTest extends BaseIndigoIntegrationTest {
 
 	@Resource
 	private MockMvc mockMvc;
 
 	@Test
-	public void testFindByUsernameNotExist() throws Exception {
+	public void testFindByIdNotExit() throws Exception {
 		// Given
-		String username = "username";
+		String id = "1";
 
 		// When
 		ResultActions result = mockMvc.perform(
-				MockMvcRequestBuilders.get("/api/user/get").param("username", username).contentType(MediaType.APPLICATION_JSON));
+				MockMvcRequestBuilders.get("/api/user/getById").param("id", id).contentType(MediaType.APPLICATION_JSON));
 
 		//Then
-		result.andExpect(status().isOk());
+		result.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
-		Assert.assertEquals("", result.andReturn().getResponse().getContentAsString());
+		assertEquals("", result.andReturn().getResponse().getContentAsString());
 	}
 
 	@Test
-	public void testFindByUsernameOK() throws Exception {
+	public void testFindByIdOK() throws Exception {
 		// Given
 		UserMongoEntity entity = UserMongoEntity.builder()
 				.id("1")
-				.username("test")
+				.username("admin")
 				.password("padmin")
 				.role(RolesEnum.ADMIN.name())
 				.language(Locale.ENGLISH.getLanguage())
@@ -52,9 +52,8 @@ public class FindUserByUsernameControllerTest extends BaseIndigoIntegrationTest 
 		userRepository.save(entity);
 
 		// When
-		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/api/user/get")
-				.param("username", entity.getUsername())
-				.contentType(MediaType.APPLICATION_JSON));
+		ResultActions result = mockMvc.perform(
+				MockMvcRequestBuilders.get("/api/user/getById").param("id", entity.getId()).contentType(MediaType.APPLICATION_JSON));
 
 		//Then
 		result.andExpect(status().isOk())
@@ -65,5 +64,4 @@ public class FindUserByUsernameControllerTest extends BaseIndigoIntegrationTest 
 				.andExpect(jsonPath("$.role").value(entity.getRole()))
 				.andExpect(jsonPath("$.language").value(entity.getLanguage()));
 	}
-
 }
