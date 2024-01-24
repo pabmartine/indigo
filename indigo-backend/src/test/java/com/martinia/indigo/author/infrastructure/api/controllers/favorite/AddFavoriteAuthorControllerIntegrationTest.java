@@ -18,9 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AddFavoriteAuthorControllerIntegrationTest extends BaseIndigoIntegrationTest {
 
-	@Resource
-	private MockMvc mockMvc;
-
 	private UserMongoEntity userMongoEntity;
 
 	@BeforeEach

@@ -1,26 +1,22 @@
 package com.martinia.indigo.book.infrastructure.api.sent;
 
+import com.martinia.indigo.BaseIndigoIntegrationTest;
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.notification.infrastructure.mongo.entities.NotificationMongoEntity;
 import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.is;
 
-class FindSentBooksControllerIntegrationTest extends BaseIndigoTest {
-
-	@Resource
-	private MockMvc mockMvc;
+class FindSentBooksControllerIntegrationTest extends BaseIndigoIntegrationTest {
 
 	private UserMongoEntity userMongoEntity;
 

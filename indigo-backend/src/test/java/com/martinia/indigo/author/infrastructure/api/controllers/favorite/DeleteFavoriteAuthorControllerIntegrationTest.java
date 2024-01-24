@@ -1,36 +1,22 @@
 package com.martinia.indigo.author.infrastructure.api.controllers.favorite;
 
 import com.martinia.indigo.BaseIndigoIntegrationTest;
-import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.author.domain.ports.usecases.favorite.DeleteFavoriteAuthorUseCase;
-import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
-import com.martinia.indigo.common.infrastructure.mongo.entities.NumBooksMongo;
 import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DeleteFavoriteAuthorControllerIntegrationTest extends BaseIndigoIntegrationTest {
-
-
-
-	@Resource
-	private MockMvc mockMvc;
 
 	private UserMongoEntity userMongoEntity;
 
@@ -49,9 +35,10 @@ public class DeleteFavoriteAuthorControllerIntegrationTest extends BaseIndigoInt
 	public void deleteFavoriteAuthor() throws Exception {
 		// Given
 
-
 		// When
-		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.delete("/api/author/favorite").param("author", userMongoEntity.getFavoriteAuthors().get(0)).param("user", userMongoEntity.getUsername())
+		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.delete("/api/author/favorite")
+				.param("author", userMongoEntity.getFavoriteAuthors().get(0))
+				.param("user", userMongoEntity.getUsername())
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
 
 		// Then
@@ -66,9 +53,10 @@ public class DeleteFavoriteAuthorControllerIntegrationTest extends BaseIndigoInt
 	public void deleteFavoriteAuthorNonExistingAuthor() throws Exception {
 		// Given
 
-
 		// When
-		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.delete("/api/author/favorite").param("author", "unknown").param("user", userMongoEntity.getUsername())
+		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.delete("/api/author/favorite")
+				.param("author", "unknown")
+				.param("user", userMongoEntity.getUsername())
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
 
 		// Then
@@ -84,9 +72,10 @@ public class DeleteFavoriteAuthorControllerIntegrationTest extends BaseIndigoInt
 	public void deleteFavoriteAuthorNonExistingUser() throws Exception {
 		// Given
 
-
 		// When
-		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.delete("/api/author/favorite").param("author", userMongoEntity.getFavoriteAuthors().get(0)).param("user", "unknown")
+		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.delete("/api/author/favorite")
+				.param("author", userMongoEntity.getFavoriteAuthors().get(0))
+				.param("user", "unknown")
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
 
 		// Then

@@ -1,34 +1,18 @@
 package com.martinia.indigo.book.infrastructure.api.recommendation;
 
 import com.martinia.indigo.BaseIndigoIntegrationTest;
-import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.book.domain.ports.usecases.recommendation.FindBookRecommendationsByBookUseCase;
-import com.martinia.indigo.book.infrastructure.api.mappers.BookDtoMapper;
-import com.martinia.indigo.book.infrastructure.api.model.BookDto;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
 import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import javax.annotation.Resource;
 import java.util.Arrays;
-import java.util.List;
-
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 class FindBookRecommendationsByBookControllerIntegrationTest extends BaseIndigoIntegrationTest {
-
-	@Resource
-	private MockMvc mockMvc;
 
 	private UserMongoEntity userMongoEntity;
 

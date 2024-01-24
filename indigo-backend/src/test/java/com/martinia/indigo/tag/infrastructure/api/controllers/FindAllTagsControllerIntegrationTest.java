@@ -26,8 +26,6 @@ public class FindAllTagsControllerIntegrationTest extends BaseIndigoIntegrationT
 	public static final String IMAGE_2 = "image2";
 	public static final int TWO = 2;
 	public static final int ONE = 1;
-	@Resource
-	private MockMvc mockMvc;
 
 	@Test
 	public void findAllTagsEmpty() throws Exception {

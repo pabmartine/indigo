@@ -6,11 +6,9 @@ import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.Locale;
 
@@ -19,9 +17,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class FindUserByUsernameControllerTest extends BaseIndigoIntegrationTest {
-
-	@Resource
-	private MockMvc mockMvc;
 
 	@Test
 	public void testFindByUsernameNotExist() throws Exception {

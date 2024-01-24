@@ -9,10 +9,8 @@ import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,8 +27,7 @@ class UpdateImageTagControllerIntegrationTest extends BaseIndigoIntegrationTest 
 	public static final String NAME_1 = "name1";
 	public static final String IMAGE_1 = "image1";
 	public static final int ONE = 1;
-	@Resource
-	private MockMvc mockMvc;
+
 	@MockBean
 	private CommandBus commandBus;
 

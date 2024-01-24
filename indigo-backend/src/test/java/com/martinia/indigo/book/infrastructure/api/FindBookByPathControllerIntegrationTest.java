@@ -1,26 +1,23 @@
 package com.martinia.indigo.book.infrastructure.api;
 
+import com.martinia.indigo.BaseIndigoIntegrationTest;
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import lombok.SneakyThrows;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
-class FindBookByPathControllerIntegrationTest extends BaseIndigoTest {
-	@Resource
-	private MockMvc mockMvc;
+class FindBookByPathControllerIntegrationTest extends BaseIndigoIntegrationTest {
 
 	private BookMongoEntity bookMongoEntity;
 

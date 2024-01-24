@@ -5,14 +5,12 @@ import com.martinia.indigo.book.infrastructure.api.model.BookDto;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.shaded.com.fasterxml.jackson.core.type.TypeReference;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
-import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -20,9 +18,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 class FindSimilarBooksControllerIntegrationTest extends BaseIndigoIntegrationTest {
-
-	@Resource
-	private MockMvc mockMvc;
 
 	private BookMongoEntity bookMongoEntity;
 
@@ -67,8 +62,9 @@ class FindSimilarBooksControllerIntegrationTest extends BaseIndigoIntegrationTes
 		// Given
 
 		// When
-		final ResultActions result = mockMvc.perform(
-				MockMvcRequestBuilders.get("/api/book/similar").param("similar", "00dce11b1520b348ff4b96ae").param("languages", "spa", "eng"));
+		final ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/api/book/similar")
+				.param("similar", "00dce11b1520b348ff4b96ae")
+				.param("languages", "spa", "eng"));
 
 		// Then
 		result.andExpect(MockMvcResultMatchers.status().isOk());

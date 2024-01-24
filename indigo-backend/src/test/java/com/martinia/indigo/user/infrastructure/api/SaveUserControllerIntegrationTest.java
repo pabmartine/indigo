@@ -3,10 +3,8 @@ package com.martinia.indigo.user.infrastructure.api;
 import com.martinia.indigo.BaseIndigoIntegrationTest;
 import com.martinia.indigo.user.domain.model.User;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -14,9 +12,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import static org.junit.Assert.assertTrue;
 
 public class SaveUserControllerIntegrationTest extends BaseIndigoIntegrationTest {
-
-	@Autowired
-	private MockMvc mockMvc;
 
 	@Test
 	@WithMockUser

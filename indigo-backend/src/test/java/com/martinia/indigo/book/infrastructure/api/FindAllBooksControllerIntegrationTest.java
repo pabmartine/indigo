@@ -10,13 +10,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.shaded.com.fasterxml.jackson.core.type.TypeReference;
 
-import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
@@ -24,9 +22,6 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 class FindAllBooksControllerIntegrationTest extends BaseIndigoIntegrationTest {
-
-	@Resource
-	private MockMvc mockMvc;
 
 	private BookMongoEntity bookMongoEntity;
 

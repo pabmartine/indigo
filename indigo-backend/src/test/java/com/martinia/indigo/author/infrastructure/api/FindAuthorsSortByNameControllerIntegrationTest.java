@@ -23,9 +23,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class FindAuthorsSortByNameControllerIntegrationTest extends BaseIndigoIntegrationTest {
 
-	@Resource
-	private MockMvc mockMvc;
-
 	private AuthorMongoEntity authorMongoEntity;
 
 	@BeforeEach

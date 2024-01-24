@@ -1,5 +1,7 @@
 package com.martinia.indigo;
 
+import com.martinia.indigo.adapters.out.sqlite.repository.BookSqliteRepository;
+import com.martinia.indigo.adapters.out.sqlite.service.CalibreRepository;
 import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.domain.ports.repositories.ViewRepository;
@@ -56,6 +58,9 @@ public class BaseIndigoTest {
 
 	@Resource
 	protected BookRepository bookRepository;
+
+	@Resource
+	protected BookSqliteRepository bookSqliteRepository;
 
 
 	@Resource

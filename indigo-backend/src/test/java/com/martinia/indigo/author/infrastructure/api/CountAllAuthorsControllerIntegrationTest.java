@@ -23,9 +23,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class CountAllAuthorsControllerIntegrationTest extends BaseIndigoIntegrationTest {
 
-	@Resource
-	private MockMvc mockMvc;
-
 	private AuthorMongoEntity authorMongoEntity;
 
 	private AuthorMongoEntity authorMongoEntity2;
@@ -64,17 +61,14 @@ public class CountAllAuthorsControllerIntegrationTest extends BaseIndigoIntegrat
 
 		//Given
 
-
 		//When
-		ResultActions result = mockMvc.perform(
-						MockMvcRequestBuilders.get("/api/author/count")
-								.param("languages", "eng", "spa")
-								.param("page", "0")
-								.param("size", "10")
-								.param("sort", "name")
-								.param("order", "asc")
-								.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(MockMvcResultMatchers.status().isOk());
+		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/api/author/count")
+				.param("languages", "eng", "spa")
+				.param("page", "0")
+				.param("size", "10")
+				.param("sort", "name")
+				.param("order", "asc")
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
 
 		//Then
 		assertEquals("2", result.andReturn().getResponse().getContentAsString());
@@ -87,17 +81,14 @@ public class CountAllAuthorsControllerIntegrationTest extends BaseIndigoIntegrat
 
 		//Given
 
-
 		//When
-		ResultActions result = mockMvc.perform(
-						MockMvcRequestBuilders.get("/api/author/count")
-								.param("languages", "eng", "spa")
-								.param("page", "0")
-								.param("size", "1")
-								.param("sort", "name")
-								.param("order", "asc")
-								.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(MockMvcResultMatchers.status().isOk());
+		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/api/author/count")
+				.param("languages", "eng", "spa")
+				.param("page", "0")
+				.param("size", "1")
+				.param("sort", "name")
+				.param("order", "asc")
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
 
 		//Then
 		assertEquals("2", result.andReturn().getResponse().getContentAsString());
@@ -109,17 +100,14 @@ public class CountAllAuthorsControllerIntegrationTest extends BaseIndigoIntegrat
 
 		//Given
 
-
 		//When
-		ResultActions result = mockMvc.perform(
-						MockMvcRequestBuilders.get("/api/author/count")
-								.param("languages", "eng", "spa")
-								.param("page", "0")
-								.param("size", "10")
-								.param("sort", "name")
-								.param("order", "asc")
-								.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(MockMvcResultMatchers.status().isOk());
+		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/api/author/count")
+				.param("languages", "eng", "spa")
+				.param("page", "0")
+				.param("size", "10")
+				.param("sort", "name")
+				.param("order", "asc")
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
 
 		//Then
 		assertEquals("2", result.andReturn().getResponse().getContentAsString());
@@ -132,17 +120,14 @@ public class CountAllAuthorsControllerIntegrationTest extends BaseIndigoIntegrat
 
 		//Given
 
-
 		//When
-		ResultActions result = mockMvc.perform(
-						MockMvcRequestBuilders.get("/api/author/count")
-								.param("languages", "eng")
-								.param("page", "0")
-								.param("size", "10")
-								.param("sort", "name")
-								.param("order", "asc")
-								.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(MockMvcResultMatchers.status().isOk());
+		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/api/author/count")
+				.param("languages", "eng")
+				.param("page", "0")
+				.param("size", "10")
+				.param("sort", "name")
+				.param("order", "asc")
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
 
 		//Then
 		assertEquals("2", result.andReturn().getResponse().getContentAsString());
@@ -155,17 +140,14 @@ public class CountAllAuthorsControllerIntegrationTest extends BaseIndigoIntegrat
 
 		//Given
 
-
 		//When
-		ResultActions result = mockMvc.perform(
-						MockMvcRequestBuilders.get("/api/author/count")
-								.param("languages", "fra")
-								.param("page", "0")
-								.param("size", "10")
-								.param("sort", "name")
-								.param("order", "asc")
-								.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(MockMvcResultMatchers.status().isOk());
+		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/api/author/count")
+				.param("languages", "fra")
+				.param("page", "0")
+				.param("size", "10")
+				.param("sort", "name")
+				.param("order", "asc")
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
 
 		//Then
 		assertEquals("0", result.andReturn().getResponse().getContentAsString());

@@ -19,9 +19,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class FindAllUsersControllerIntegrationTest extends BaseIndigoIntegrationTest {
 
-	@Resource
-	private MockMvc mockMvc;
-
 	@Test
 	void testFindAllEmpty() throws Exception {
 		// Given

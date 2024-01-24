@@ -5,7 +5,6 @@ import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.configuration.domain.model.Configuration;
 import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -13,6 +12,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 
 public class SaveConfigurationsControllerIntegrationTest extends BaseIndigoTest {
 
-	@Autowired
+	@Resource
 	private MockMvc mockMvc;
 
 	@Test

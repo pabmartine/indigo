@@ -24,9 +24,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class FindAllAuthorsControllerIntegrationTest extends BaseIndigoIntegrationTest {
 
-	@Resource
-	private MockMvc mockMvc;
-
 	private AuthorMongoEntity authorMongoEntity;
 
 	private AuthorMongoEntity authorMongoEntity2;
@@ -65,17 +62,14 @@ public class FindAllAuthorsControllerIntegrationTest extends BaseIndigoIntegrati
 
 		//Given
 
-
 		//When
-		ResultActions result = mockMvc.perform(
-						MockMvcRequestBuilders.get("/api/author/all")
-								.param("languages", "eng", "spa")
-								.param("page", "0")
-								.param("size", "10")
-								.param("sort", "name")
-								.param("order", "asc")
-								.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(MockMvcResultMatchers.status().isOk());
+		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/api/author/all")
+				.param("languages", "eng", "spa")
+				.param("page", "0")
+				.param("size", "10")
+				.param("sort", "name")
+				.param("order", "asc")
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
 
 		//Then
 		result.andExpect(jsonPath("$.[0].name", Matchers.is(authorMongoEntity.getName())));
@@ -93,17 +87,14 @@ public class FindAllAuthorsControllerIntegrationTest extends BaseIndigoIntegrati
 
 		//Given
 
-
 		//When
-		ResultActions result = mockMvc.perform(
-						MockMvcRequestBuilders.get("/api/author/all")
-								.param("languages", "eng", "spa")
-								.param("page", "0")
-								.param("size", "1")
-								.param("sort", "name")
-								.param("order", "asc")
-								.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(MockMvcResultMatchers.status().isOk());
+		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/api/author/all")
+				.param("languages", "eng", "spa")
+				.param("page", "0")
+				.param("size", "1")
+				.param("sort", "name")
+				.param("order", "asc")
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
 
 		//Then
 		result.andExpect(jsonPath("$.[0].name", Matchers.is(authorMongoEntity.getName())));
@@ -117,17 +108,14 @@ public class FindAllAuthorsControllerIntegrationTest extends BaseIndigoIntegrati
 
 		//Given
 
-
 		//When
-		ResultActions result = mockMvc.perform(
-						MockMvcRequestBuilders.get("/api/author/all")
-								.param("languages", "eng", "spa")
-								.param("page", "0")
-								.param("size", "10")
-								.param("sort", "name")
-								.param("order", "asc")
-								.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(MockMvcResultMatchers.status().isOk());
+		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/api/author/all")
+				.param("languages", "eng", "spa")
+				.param("page", "0")
+				.param("size", "10")
+				.param("sort", "name")
+				.param("order", "asc")
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
 
 		//Then
 		result.andExpect(jsonPath("$.[0].name", Matchers.is(authorMongoEntity.getName())));
@@ -141,17 +129,14 @@ public class FindAllAuthorsControllerIntegrationTest extends BaseIndigoIntegrati
 
 		//Given
 
-
 		//When
-		ResultActions result = mockMvc.perform(
-						MockMvcRequestBuilders.get("/api/author/all")
-								.param("languages", "eng")
-								.param("page", "0")
-								.param("size", "10")
-								.param("sort", "name")
-								.param("order", "asc")
-								.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(MockMvcResultMatchers.status().isOk());
+		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/api/author/all")
+				.param("languages", "eng")
+				.param("page", "0")
+				.param("size", "10")
+				.param("sort", "name")
+				.param("order", "asc")
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
 
 		//Then
 		result.andExpect(jsonPath("$.[0].name", Matchers.is(authorMongoEntity.getName())));
@@ -169,17 +154,14 @@ public class FindAllAuthorsControllerIntegrationTest extends BaseIndigoIntegrati
 
 		//Given
 
-
 		//When
-		ResultActions result = mockMvc.perform(
-						MockMvcRequestBuilders.get("/api/author/all")
-								.param("languages", "fra")
-								.param("page", "0")
-								.param("size", "10")
-								.param("sort", "name")
-								.param("order", "asc")
-								.contentType(MediaType.APPLICATION_JSON))
-				.andExpect(MockMvcResultMatchers.status().isOk());
+		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/api/author/all")
+				.param("languages", "fra")
+				.param("page", "0")
+				.param("size", "10")
+				.param("sort", "name")
+				.param("order", "asc")
+				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
 
 		//Then
 		assertEquals("[]", result.andReturn().getResponse().getContentAsString());

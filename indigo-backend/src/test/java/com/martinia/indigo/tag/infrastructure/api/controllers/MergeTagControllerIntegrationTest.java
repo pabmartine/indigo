@@ -8,29 +8,20 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class MergeTagControllerIntegrationTest extends BaseIndigoIntegrationTest {
-
-	@Resource
-	private MockMvc mockMvc;
 
 	public static final String ID_1 = "id1";
 	public static final String NAME_1 = "name1";
@@ -43,14 +34,12 @@ public class MergeTagControllerIntegrationTest extends BaseIndigoIntegrationTest
 	public static final String UNKNOWN = "UNKNOWN";
 
 	@BeforeEach
-	public void init(){
+	public void init() {
 		insertTag();
 		insertOtherTag();
 		insertBookWithTag();
 		insertBookWithOtherTag();
 	}
-
-
 
 	@Test
 	public void mergeTagNoSource() throws Exception {

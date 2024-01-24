@@ -3,21 +3,16 @@ package com.martinia.indigo.book.infrastructure.api.language;
 import com.martinia.indigo.BaseIndigoIntegrationTest;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 
 class FindBookLanguagesControllerIntegrationTest extends BaseIndigoIntegrationTest {
-
-	@Resource
-	private MockMvc mockMvc;
 
 	@Test
 	void testGetBookLanguages() throws Exception {

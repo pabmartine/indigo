@@ -6,19 +6,14 @@ import com.martinia.indigo.notification.infrastructure.mongo.entities.Notificati
 import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.UUID;
 
 class CountBookRecommendationsByUserControllerIntegrationTest extends BaseIndigoIntegrationTest {
-
-	@Resource
-	private MockMvc mockMvc;
 
 	private UserMongoEntity userMongoEntity;
 

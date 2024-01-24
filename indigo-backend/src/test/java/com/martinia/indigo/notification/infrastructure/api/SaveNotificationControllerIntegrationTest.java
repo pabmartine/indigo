@@ -8,19 +8,13 @@ import com.martinia.indigo.notification.infrastructure.mongo.entities.Notificati
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-
-import javax.annotation.Resource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class SaveNotificationControllerIntegrationTest extends BaseIndigoIntegrationTest {
-
-	@Resource
-	private MockMvc mockMvc;
 
 	@Test
 	@WithMockUser
@@ -42,7 +36,6 @@ public class SaveNotificationControllerIntegrationTest extends BaseIndigoIntegra
 		assertEquals(notificationDto.getUser(), notificationMongoEntity.getUser());
 		assertEquals(notificationDto.getType().name(), notificationMongoEntity.getType());
 	}
-
 
 	private static String mapAsJsonString(Object obj) throws Exception {
 		ObjectMapper objectMapper = new ObjectMapper();
