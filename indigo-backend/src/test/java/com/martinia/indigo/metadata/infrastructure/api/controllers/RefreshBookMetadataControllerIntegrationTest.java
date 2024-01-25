@@ -37,9 +37,6 @@ public class RefreshBookMetadataControllerIntegrationTest extends BaseIndigoInte
 	@MockBean
 	private CommandBus commandBus;
 
-	@MockBean
-	private BookSqliteRepository bookSqliteRepository;
-
 	@Test
 	public void refreshBookMetadataBookNotFound() throws Exception {
 		// Given

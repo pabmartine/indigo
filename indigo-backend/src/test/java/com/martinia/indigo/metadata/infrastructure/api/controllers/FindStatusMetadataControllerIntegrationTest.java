@@ -21,10 +21,6 @@ import java.util.Map;
 public class FindStatusMetadataControllerIntegrationTest extends BaseIndigoIntegrationTest
 {
 
-	@Resource
-	private MetadataSingleton metadataSingleton;
-
-
 	@Test
 	@WithMockUser
 	public void findStatus() throws Exception {
