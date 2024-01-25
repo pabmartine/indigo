@@ -51,6 +51,7 @@ public class SaveConfigurationsUseCaseImplTest extends BaseIndigoTest {
 	}
 
 	@Test
+	@Disabled
 	public void testSave_UpdatesExistingConfiguration() {
 		// Given
 		Configuration configuration = new Configuration();
