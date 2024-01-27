@@ -2,8 +2,11 @@ package com.martinia.indigo;
 
 import com.martinia.indigo.adapters.out.sqlite.repository.AuthorSqliteRepository;
 import com.martinia.indigo.adapters.out.sqlite.repository.BookSqliteRepository;
+import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import com.martinia.indigo.common.bus.event.domain.ports.EventBus;
 import com.martinia.indigo.common.singletons.MetadataSingleton;
+import com.martinia.indigo.metadata.domain.ports.adapters.goodreads.FindGoodReadsAuthorPort;
+import com.martinia.indigo.metadata.domain.ports.adapters.wikipedia.FindWikipediaAuthorPort;
 import com.martinia.indigo.metadata.infrastructure.events.BookMetadataFoundFindBookRecommendationsEventListener;
 import com.martinia.indigo.metadata.infrastructure.events.BookMetadataFoundFindSimilarBooksEventListener;
 import com.martinia.indigo.metadata.infrastructure.events.FillAuthorsBookLoadedEventListener;
@@ -22,6 +25,9 @@ public class BaseIndigoIntegrationTest extends BaseIndigoTest {
 	protected EventBus eventBus;
 
 	@Resource
+	protected CommandBus commandBus;
+
+	@Resource
 	protected MetadataSingleton metadataSingleton;
 
 	@SpyBean
@@ -32,6 +38,12 @@ public class BaseIndigoIntegrationTest extends BaseIndigoTest {
 
 	@SpyBean
 	protected FillAuthorsBookLoadedEventListener fillAuthorsBookLoadedEventListener;
+
+	@SpyBean
+	protected FindWikipediaAuthorPort findWikipediaAuthorPort;
+
+	@SpyBean
+	protected FindGoodReadsAuthorPort findGoodReadsAuthorPort;
 
 	@MockBean
 	protected BookSqliteRepository bookSqliteRepository;

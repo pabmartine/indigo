@@ -212,6 +212,8 @@ export class BooksComponent implements OnInit {
         } else {
           this.title = this.translate.instant('locale.books.title') + " (" + this.total + ")";
         }
+
+        this.getAll();
       },
       error => {
         console.log(error);
@@ -333,7 +335,7 @@ export class BooksComponent implements OnInit {
     this.adv_search.languages = this.user.languageBooks;
 
     this.count();
-    this.getAll();
+    //this.getAll();
 
     this.searched = true;
 

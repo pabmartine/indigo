@@ -1,6 +1,6 @@
 book:
     library:
-        path: /home/pablo/Escritorio/EPL
+        path: /tmp
 
 logging.level:
     root: INFO

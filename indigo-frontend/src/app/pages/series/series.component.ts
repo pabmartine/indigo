@@ -68,7 +68,7 @@ export class SeriesComponent implements OnInit {
 
     this.reset();
     this.count();
-    this.getAll();
+    //this.getAll();
   }
 
   onChange(event) {
@@ -117,6 +117,8 @@ export class SeriesComponent implements OnInit {
         this.total = data;
         this.lastPage = this.total / this.size;
         this.title = this.translate.instant('locale.series.title') + " (" + this.total + ")";
+
+        this.getAll();
       },
       error => {
         console.log(error);
