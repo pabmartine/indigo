@@ -4,12 +4,14 @@ import com.martinia.indigo.BaseIndigoIntegrationTest;
 import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.book.infrastructure.mongo.entities.SerieMongo;
+import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import com.martinia.indigo.common.infrastructure.mongo.entities.NumBooksMongo;
 import com.martinia.indigo.metadata.domain.model.commands.FindAuthorMetadataCommand;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -23,6 +25,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FindAuthorMetadataCommandHandlerIntegrationTest extends BaseIndigoIntegrationTest {
+
+	@Resource
+	private CommandBus commandBus;
+
 	private AuthorMongoEntity authorMongoEntity;
 	@BeforeEach
 	void init(){
