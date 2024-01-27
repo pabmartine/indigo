@@ -1,4 +1,4 @@
 - Delete unnecessary code, such as comments, etc.
 - Unify view of recommendations and books?
 - Improve performance of the recommendation algorithm
-- Add process to obtain book comments in metadata
+- Improve 'for you': take into account both book downloads and visualisations --> when a book is opened, note it in a new table. There will be a weight associated with the download and another with the viewing and both will be used to search for recommendations.
