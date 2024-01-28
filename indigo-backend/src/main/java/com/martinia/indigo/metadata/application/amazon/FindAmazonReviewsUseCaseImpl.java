@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.net.InetAddress;
 import java.text.Normalizer;
@@ -39,6 +40,9 @@ public class FindAmazonReviewsUseCaseImpl implements FindAmazonReviewsUseCase {
 
 	@Value("${metadata.amazon.reviews}")
 	private String endpointReviews;
+
+	@Resource
+	private WebClient webClient;
 
 	@Override
 	public List<Review> getReviews(String title, List<String> authors) {
@@ -130,10 +134,6 @@ public class FindAmazonReviewsUseCaseImpl implements FindAmazonReviewsUseCase {
 	private List<Review> getReviews(String asin, int numPage) throws Exception {
 
 		List<Review> reviews = new ArrayList<>();
-
-		WebClient webClient = new WebClient();
-		webClient.getOptions().setCssEnabled(false);
-		webClient.getOptions().setJavaScriptEnabled(false);
 
 		String url = endpointReviews.replace("$asin", asin).replace("$numPage", String.valueOf(numPage));
 		HtmlPage page = webClient.getPage(url);

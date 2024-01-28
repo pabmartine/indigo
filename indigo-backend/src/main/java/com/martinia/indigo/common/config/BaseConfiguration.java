@@ -1,5 +1,6 @@
 package com.martinia.indigo.common.config;
 
+import com.gargoylesoftware.htmlunit.WebClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -16,5 +17,13 @@ public class BaseConfiguration {
 	@Bean
 	public JavaMailSender javaMailSender() {
 		return new JavaMailSenderImpl();
+	}
+
+	@Bean
+	public WebClient webClient() {
+		WebClient webClient = new WebClient();
+		webClient.getOptions().setCssEnabled(false);
+		webClient.getOptions().setJavaScriptEnabled(false);
+		return webClient;
 	}
 }

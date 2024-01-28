@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -23,6 +24,9 @@ public class FindImageTagMetadataUseCaseImpl implements FindImageTagMetadataUseC
 
 	@Value("${metadata.unsplash.url}")
 	private String endpoint;
+
+	@Resource
+	private WebClient webClient;
 
 	@Override
 	public String find(final String term) {
@@ -40,9 +44,6 @@ public class FindImageTagMetadataUseCaseImpl implements FindImageTagMetadataUseC
 
 		try {
 
-			WebClient webClient = new WebClient();
-			webClient.getOptions().setCssEnabled(false);
-			webClient.getOptions().setJavaScriptEnabled(false);
 			String tokenized_term = normalize(term);
 
 			String url = endpoint.replace("$term", tokenized_term);

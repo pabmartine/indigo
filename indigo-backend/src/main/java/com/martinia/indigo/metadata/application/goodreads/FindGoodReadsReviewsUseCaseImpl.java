@@ -43,6 +43,9 @@ public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseC
 	private String endpoint;
 
 	@Resource
+	private WebClient webClient;
+
+	@Resource
 	private Optional<DetectLibreTranslatePort> detectLibreTranslatePort;
 
 	@Resource
@@ -67,10 +70,6 @@ public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseC
 	private String getPath(String title, String author) throws Exception {
 
 		AtomicReference<String> path = new AtomicReference<>();
-
-		WebClient webClient = new WebClient();
-		webClient.getOptions().setCssEnabled(false);
-		webClient.getOptions().setJavaScriptEnabled(false);
 
 		String tokenized_title = normalize(title);
 		String tokenized_author = normalize(author);
@@ -125,10 +124,6 @@ public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseC
 	private List<Review> getReviews(String lang, String url, int numPage) throws Exception {
 
 		List<Review> reviews = new ArrayList<>();
-
-		WebClient webClient = new WebClient();
-		webClient.getOptions().setCssEnabled(false);
-		webClient.getOptions().setJavaScriptEnabled(false);
 
 		HtmlPage page = webClient.getPage(endpoint.substring(0, endpoint.indexOf(".com") + 4) + url);
 

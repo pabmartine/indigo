@@ -10,8 +10,10 @@ import com.martinia.indigo.adapters.out.sqlite.repository.TagSqliteRepository;
 import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import com.martinia.indigo.common.bus.event.domain.ports.EventBus;
 import com.martinia.indigo.common.singletons.MetadataSingleton;
+import com.martinia.indigo.metadata.domain.ports.adapters.amazon.FindAmazonReviewsPort;
 import com.martinia.indigo.metadata.domain.ports.adapters.goodreads.FindGoodReadsAuthorPort;
 import com.martinia.indigo.metadata.domain.ports.adapters.goodreads.FindGoodReadsBookPort;
+import com.martinia.indigo.metadata.domain.ports.adapters.goodreads.FindGoodReadsReviewsPort;
 import com.martinia.indigo.metadata.domain.ports.adapters.google.FindGoogleBooksBookPort;
 import com.martinia.indigo.metadata.domain.ports.adapters.wikipedia.FindWikipediaAuthorPort;
 import com.martinia.indigo.metadata.infrastructure.events.BookMetadataFoundFindBookRecommendationsEventListener;
@@ -57,6 +59,12 @@ public class BaseIndigoIntegrationTest extends BaseIndigoTest {
 
 	@SpyBean
 	protected FindGoogleBooksBookPort findGoogleBooksBookPort;
+
+	@SpyBean
+	protected FindGoodReadsReviewsPort findGoodReadsReviewsPort;
+
+	@SpyBean
+	protected FindAmazonReviewsPort findAmazonReviewsPort;
 
 	@MockBean
 	protected BookSqliteRepository bookSqliteRepository;
