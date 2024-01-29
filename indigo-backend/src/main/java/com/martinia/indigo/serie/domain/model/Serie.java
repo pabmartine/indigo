@@ -13,8 +13,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Serie implements Serializable {
 
-	private static final long serialVersionUID = -4035270018216666984L;
-	
 	private String id;
 	private String name;
 	private int numBooks;

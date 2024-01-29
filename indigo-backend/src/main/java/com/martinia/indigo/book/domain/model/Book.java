@@ -20,8 +20,6 @@ import lombok.Setter;
 @Builder
 public class Book implements Serializable {
 
-	private static final long serialVersionUID = 7913092341598911896L;
-
 	private String id;
 	private String title;
 	private String path;

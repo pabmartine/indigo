@@ -87,4 +87,5 @@ public class BaseIndigoIntegrationTest extends BaseIndigoTest {
 	@MockBean
 	protected LanguageSqliteRepository languageSqliteRepository;
 
+
 }

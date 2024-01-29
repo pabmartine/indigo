@@ -1,23 +1,19 @@
 package com.martinia.indigo.metadata.infrastructure.events;
 
 import com.martinia.indigo.BaseIndigoIntegrationTest;
-import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.adapters.out.sqlite.entities.AuthorSqliteEntity;
 import com.martinia.indigo.adapters.out.sqlite.entities.BookSqliteEntity;
-import com.martinia.indigo.adapters.out.sqlite.repository.AuthorSqliteRepository;
-import com.martinia.indigo.adapters.out.sqlite.repository.BookSqliteRepository;
+import com.martinia.indigo.author.domain.model.Author;
 import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
+import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.book.infrastructure.mongo.entities.SerieMongo;
 import com.martinia.indigo.common.infrastructure.mongo.entities.NumBooksMongo;
 import com.martinia.indigo.metadata.domain.model.events.BookLoadedEvent;
-import com.martinia.indigo.metadata.domain.ports.usecases.events.FillAuthorsMetadataUseCase;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-
-import javax.annotation.Resource;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -28,8 +24,8 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 public class FillAuthorsBookLoadedEventListenerIntegrationTest extends BaseIndigoIntegrationTest {
@@ -193,7 +189,7 @@ public class FillAuthorsBookLoadedEventListenerIntegrationTest extends BaseIndig
 				.path("path")
 				.languages(List.of("es"))
 				.similar(Arrays.asList("similar"))
-				.authors(Arrays.asList("author"))
+				.authors(Arrays.asList("author", "AA. VV." ))
 				.serie(SerieMongo.builder().index(1).name("Serie1").build())
 				.pages(100)
 				.tags(Arrays.asList("tag"))
