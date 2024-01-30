@@ -75,17 +75,12 @@ public class FindAmazonReviewsUseCaseImpl implements FindAmazonReviewsUseCase {
 
 		AtomicReference<String> asin = new AtomicReference<>();
 
-		WebClient webClient = new WebClient(BrowserVersion.CHROME);
-		webClient.getOptions().setCssEnabled(false);
-		webClient.getOptions().setJavaScriptEnabled(false);
-
 		String tokenized_title = normalize(title);
 		String tokenized_author = normalize(author);
 
 		HtmlPage page = webClient.getPage(endpointAsin.replace("$title", tokenized_title).replace("$author", tokenized_author));
 
 		page.getByXPath("//div[@data-component-type='s-search-result']").stream().forEach(item -> {
-			HtmlDivision htmlDivision = (HtmlDivision) item;
 			try {
 				String compareAsin = ((HtmlDivision) page.getByXPath("//div[@data-component-type='s-search-result']").get(0)).getAttribute(
 						"data-asin");

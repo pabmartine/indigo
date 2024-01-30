@@ -42,6 +42,7 @@ public class StartFillAuthorsMetadataCommandHandlerIntegrationTest extends BaseI
 	@BeforeEach
 	void init() {
 		insertBook();
+		metadataSingleton.stop();
 	}
 
 	@Test

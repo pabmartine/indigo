@@ -19,9 +19,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 
 class FindImageTagMetadataCommandHandlerIntegrationTest extends BaseIndigoIntegrationTest {
 
-	@MockBean
-	private WebClient webClient;
-
 	@Test
 	@SneakyThrows
 	public void testHandle() {

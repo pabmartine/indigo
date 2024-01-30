@@ -1,15 +1,25 @@
 package com.martinia.indigo.metadata.infrastructure.adapters.amazon;
 
+import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.gargoylesoftware.htmlunit.html.HtmlDivision;
+import com.gargoylesoftware.htmlunit.html.HtmlImage;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.martinia.indigo.BaseIndigoIntegrationTest;
 import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.book.infrastructure.mongo.entities.SerieMongo;
+import com.martinia.indigo.common.infrastructure.api.model.ReviewDto;
 import com.martinia.indigo.common.infrastructure.mongo.entities.NumBooksMongo;
 import com.martinia.indigo.metadata.domain.model.commands.FindAuthorMetadataCommand;
+import com.martinia.indigo.metadata.domain.ports.adapters.amazon.FindAmazonReviewsPort;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -21,177 +31,90 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 class FindAmazonReviewsAdapterIntegrationTest extends BaseIndigoIntegrationTest {
 
-	private AuthorMongoEntity authorMongoEntity;
+	public static final String COMMENT = "comment";
+	public static final String DATE = "5 enero 2014";
+	public static final String RATING = "5";
+	public static final String NAME = "name";
+	public static final String TITLE = "compareAsin";
+	@Resource
+	private FindAmazonReviewsPort findAmazonReviewsPort;
+
 
 	@BeforeEach
-	void init() {
-		insertAuthor();
-		insertBook();
+	@SneakyThrows
+	public void init() {
+
+
+		HtmlPage page = Mockito.mock(HtmlPage.class);
+		HtmlDivision htmlDivision = Mockito.mock(HtmlDivision.class);
+		Mockito.when(htmlDivision.getAttribute(anyString())).thenReturn(TITLE);
+		final DomNode child1 = Mockito.mock(DomNode.class);
+		final DomNode child2 = Mockito.mock(DomNode.class);
+		final DomNode child3 = Mockito.mock(DomNode.class);
+		final DomNode child4 = Mockito.mock(DomNode.class);
+		final DomNode child5 = Mockito.mock(DomNode.class);
+		final DomNode child6 = Mockito.mock(DomNode.class);
+		final DomNode child7 = Mockito.mock(DomNode.class);
+		final DomNode child8 = Mockito.mock(DomNode.class);
+		final DomNode child9 = Mockito.mock(DomNode.class);
+		final DomNode child10 = Mockito.mock(DomNode.class);
+		final DomNode child11 = Mockito.mock(DomNode.class);
+		final DomNode child12 = Mockito.mock(DomNode.class);
+		final DomNode child13 = Mockito.mock(DomNode.class);
+		Mockito.when(child1.getFirstChild()).thenReturn(child2);
+		Mockito.when(child2.getFirstChild()).thenReturn(child3);
+		Mockito.when(child3.getFirstChild()).thenReturn(child4);
+		Mockito.when(child3.getNextSibling()).thenReturn(child4);
+		Mockito.when(child4.getFirstChild()).thenReturn(child5);
+		Mockito.when(child4.getNextSibling()).thenReturn(child7);
+		Mockito.when(child5.getFirstChild()).thenReturn(child6);
+		Mockito.when(child6.getNextSibling()).thenReturn(child7);
+		Mockito.when(child6.asText()).thenReturn(RATING);
+		Mockito.when(child5.getNextSibling()).thenReturn(child8);
+		Mockito.when(child7.getFirstChild()).thenReturn(child8);
+		Mockito.when(child7.getNextSibling()).thenReturn(child8);
+		Mockito.when(child8.getFirstChild()).thenReturn(child9);
+		Mockito.when(child8.asText()).thenReturn(DATE);
+		Mockito.when(child8.getNextSibling()).thenReturn(child9);
+		Mockito.when(child9.asText()).thenReturn(NAME);
+		Mockito.when(child9.getFirstChild()).thenReturn(child10);
+		Mockito.when(child10.getFirstChild()).thenReturn(child11);
+		Mockito.when(child10.getNextSibling()).thenReturn(child11);
+		Mockito.when(child11.getFirstChild()).thenReturn(child12);
+		Mockito.when(child11.getNextSibling()).thenReturn(child12);
+		Mockito.when(child12.asText()).thenReturn(TITLE);
+		Mockito.when(child12.getFirstChild()).thenReturn(child13);
+		Mockito.when(child13.asText()).thenReturn(COMMENT);
+		Mockito.when(htmlDivision.getFirstChild()).thenReturn(child1);
+		List list = new ArrayList<>();
+		list.add(htmlDivision);
+		Mockito.when(page.getByXPath(anyString())).thenReturn(list);
+		Mockito.when(webClient.getPage(Mockito.anyString())).thenReturn(page);
 	}
 
 	@Test
-	void findAmazonReviewsAuthorNotFound() {
+	@SneakyThrows
+	void findAmazonReviews() {
 		//Given
-		FindAuthorMetadataCommand command = FindAuthorMetadataCommand.builder()
-				.authorId("authorId")
-				.override(true)
-				.lastExecution(System.currentTimeMillis())
-				.lang("lang")
-				.build();
-		//When
-		commandBus.executeAndWait(command);
-		//Then
-		assertTrue(authorRepository.findById(command.getAuthorId()).isEmpty());
-	}
-
-	@Test
-	void findAmazonReviewsOverrideFalseAndNotRefresh() {
-		//Given
-		FindAuthorMetadataCommand command = FindAuthorMetadataCommand.builder()
-				.authorId("id")
-				.override(false)
-				.lastExecution(System.currentTimeMillis())
-				.lang("lang")
-				.build();
-
-		insertAuthor();
-		//When
-		commandBus.executeAndWait(command);
-		//Then
-		assertFalse(authorRepository.findById(command.getAuthorId()).isEmpty());
-	}
-
-	@Test
-	void findAmazonReviewsNotFound() {
-		//Given
-		FindAuthorMetadataCommand command = FindAuthorMetadataCommand.builder()
-				.authorId("id")
-				.override(true)
-				.lastExecution(System.currentTimeMillis())
-				.lang("lang")
-				.build();
-
-		insertAuthor();
-
-		Mockito.doReturn(null).when(findWikipediaAuthorPort).findAuthor(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt());
-		Mockito.doReturn(null).when(findGoodReadsAuthorPort).findAuthor(Mockito.anyString(), Mockito.anyString());
+		final String title = "title <compareAsin>";
+		final List<String> authors = List.of("author");
 
 		//When
-		commandBus.executeAndWait(command);
+		List<ReviewDto> reviewDtos = findAmazonReviewsPort.getReviews(title, authors);
+
 		//Then
-		Optional<AuthorMongoEntity> optEntity = authorRepository.findById(command.getAuthorId());
-		assertTrue(optEntity.isPresent());
-		AuthorMongoEntity entity = optEntity.get();
-		assertEquals(authorMongoEntity.getId(), entity.getId());
-		assertEquals(authorMongoEntity.getName(), entity.getName());
-		assertEquals(authorMongoEntity.getSort(), entity.getSort());
-		assertNull(entity.getDescription());
-		assertNull(entity.getProvider());
-		assertNull(entity.getImage());
-		assertTrue(authorMongoEntity.getLastMetadataSync().before(entity.getLastMetadataSync()));
+		assertEquals(1, reviewDtos.size());
+		assertEquals(NAME, reviewDtos.get(0).getName());
+		assertEquals(TITLE, reviewDtos.get(0).getTitle());
+		assertEquals(RATING, String.valueOf(reviewDtos.get(0).getRating()));
+		assertEquals(new SimpleDateFormat("d MMMM yyyy").parse(DATE).toString(), reviewDtos.get(0).getDate().toString());
+		assertEquals(COMMENT, reviewDtos.get(0).getComment());
+
 	}
 
-	@Test
-	void findAmazonReviewsWikipediaFound() {
-		//Given
-		FindAuthorMetadataCommand command = FindAuthorMetadataCommand.builder()
-				.authorId("id")
-				.override(true)
-				.lastExecution(System.currentTimeMillis())
-				.lang("lang")
-				.build();
-
-		insertAuthor();
-
-		String[] wikipedia = new String[3];
-		wikipedia[0] = "new description";
-		wikipedia[1] = "new image";
-		wikipedia[2] = "new provider";
-		Mockito.doReturn(wikipedia).when(findWikipediaAuthorPort).findAuthor(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt());
-		Mockito.doReturn(null).when(findGoodReadsAuthorPort).findAuthor(Mockito.anyString(), Mockito.anyString());
-
-		//When
-		commandBus.executeAndWait(command);
-		//Then
-		Optional<AuthorMongoEntity> optEntity = authorRepository.findById(command.getAuthorId());
-		assertTrue(optEntity.isPresent());
-		AuthorMongoEntity entity = optEntity.get();
-		assertEquals(authorMongoEntity.getId(), entity.getId());
-		assertEquals(authorMongoEntity.getName(), entity.getName());
-		assertEquals(authorMongoEntity.getSort(), entity.getSort());
-		assertEquals(wikipedia[0], entity.getDescription());
-		assertEquals(wikipedia[2], entity.getProvider());
-		assertEquals(wikipedia[1], entity.getImage());
-		assertTrue(authorMongoEntity.getLastMetadataSync().before(entity.getLastMetadataSync()));
-	}
-
-	@Test
-	void findAmazonReviewsGoodreadsFound() {
-		//Given
-		FindAuthorMetadataCommand command = FindAuthorMetadataCommand.builder()
-				.authorId("id")
-				.override(true)
-				.lastExecution(System.currentTimeMillis())
-				.lang("lang")
-				.build();
-
-		insertAuthor();
-
-		String[] goodReads = new String[3];
-		goodReads[0] = "new description";
-		goodReads[1] = "new image";
-		goodReads[2] = "new provider";
-
-		Mockito.doReturn(null).when(findWikipediaAuthorPort).findAuthor(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt());
-		Mockito.doReturn(goodReads).when(findGoodReadsAuthorPort).findAuthor(Mockito.anyString(), Mockito.anyString());
-
-		//When
-		commandBus.executeAndWait(command);
-		//Then
-		Optional<AuthorMongoEntity> optEntity = authorRepository.findById(command.getAuthorId());
-		assertTrue(optEntity.isPresent());
-		AuthorMongoEntity entity = optEntity.get();
-		assertEquals(authorMongoEntity.getId(), entity.getId());
-		assertEquals(authorMongoEntity.getName(), entity.getName());
-		assertEquals(authorMongoEntity.getSort(), entity.getSort());
-		//		assertEquals(goodReads[0], entity.getDescription());
-		//		assertEquals(goodReads[2], entity.getProvider());
-		//		assertEquals(goodReads[1], entity.getImage());
-		assertTrue(authorMongoEntity.getLastMetadataSync().before(entity.getLastMetadataSync()));
-	}
-
-	private void insertAuthor() {
-		final Map<String, Integer> map = new HashMap<>();
-		map.put("es", 1);
-		authorMongoEntity = AuthorMongoEntity.builder()
-				.id("id")
-				.name("AA. VV.")
-				.sort("AA. VV.")
-				.numBooks(NumBooksMongo.builder().total(1).languages(map).build())
-				.image("::image::")
-				.description("::description::")
-				.provider("::provider::")
-				.lastMetadataSync(new Date())
-				.build();
-		authorRepository.save(authorMongoEntity);
-	}
-
-	private void insertBook() {
-		BookMongoEntity bookMongoEntity = BookMongoEntity.builder()
-				.id("id")
-				.title("title")
-				.path("path")
-				.languages(List.of("es"))
-				.similar(Arrays.asList("similar"))
-				.authors(Arrays.asList("AA. VV."))
-				.serie(SerieMongo.builder().index(1).name("Serie1").build())
-				.pages(100)
-				.tags(Arrays.asList("tag"))
-				.image("::image::")
-				.build();
-		bookRepository.save(bookMongoEntity);
-	}
 }
