@@ -195,7 +195,7 @@ public class BookMongoMapperImplTest {
 		books.add(book2);
 
 		// Act
-		List<BookMongoEntity> bookMongoEntities = bookMongoMapper.domain2Entity(books);
+		List<BookMongoEntity> bookMongoEntities = bookMongoMapper.domains2Entities(books);
 
 		// Assert
 		Assertions.assertEquals(books.size(), bookMongoEntities.size());

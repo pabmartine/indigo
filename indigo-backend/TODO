@@ -1,4 +1,7 @@
 - Delete unnecessary code, such as comments, etc.
 - Unify view of recommendations and books?
 - Improve performance of the recommendation algorithm
-- Add process to obtain book comments in metadata
+- Improve 'for you': take into account both book downloads and visualisations --> when a book is opened, note it in a new table. There will be a weight associated with the download and another with the viewing and both will be used to search for recommendations.
+- Remove the Calibre dependency. Uploads will be direct by selecting an ePub file or from a compressed file containing multiple ePub files. Another option is to have an upload folder where files to be uploaded can be placed.
+- In an author's detail, their books do not have the reviews icon.
+- In the detail of a book, suggestions, likes, etc. do not have the reviews icon.

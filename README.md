@@ -8,17 +8,17 @@ Indigo is a web application for the management of the Calibre book library focus
 [Calibre](https://calibre-ebook.com) is a great tool, but it lacks a web interface that allows you to consult your library from anywhere. Looking for software that would allow me to do this, I came across [Calibre-Web](https://github.com/janeczku/calibre-web/) from [janeczku](https://github.com/janeczku/), a magnificent tool that I recommend everyone to try it. Calibre-Web, was at first, more than enough for the aim of being able to consult my library from anywhere, but, little by little I realized that it did not fit my personal needs 100%, so using it as an example, I decided to build my own version from scratch.
 
 # Technologies
-Indigo is made up of two independent modules, the front module coded in Angular 10 using PrimeNG and the back module in Java 8 with Spring Boot.
+Indigo is made up of two independent modules, the front module coded in Angular 13 using PrimeNG and the back module in Java 17 with Spring Boot.
 
 # Main Features
 - Fast, clean and clear interface
 - Multiple users
 - Advanced search
 - Biography of authors
-- Ratings
-- Similar books recommendations
-- Selection of favorite books and authors
-- Sending books to Kindle devices
+- Ratings & Reviews
+- Books recommendations
+- Favorite books and authors
+- Sending books to devices
 - User event notification
 
 # How to install

@@ -76,7 +76,7 @@ export class AuthorsComponent implements OnInit {
 
     this.reset();
     this.count();
-    this.getAll();
+//    this.getAll();
     this.getFavorites();
   }
 
@@ -127,6 +127,8 @@ export class AuthorsComponent implements OnInit {
         this.total = data;
         this.lastPage = this.total / this.size;
         this.title = this.translate.instant('locale.authors.title') + " (" + this.total + ")";
+
+        this.getAll();
       },
       error => {
         console.log(error);

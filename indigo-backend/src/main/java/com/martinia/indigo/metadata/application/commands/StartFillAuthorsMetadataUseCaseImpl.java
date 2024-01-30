@@ -69,6 +69,8 @@ public class StartFillAuthorsMetadataUseCaseImpl implements StartFillAuthorsMeta
 						break;
 					}
 
+					log.info("Processing author {}", author.getName());
+
 					commandBus.executeAndWait(FindAuthorMetadataCommand.builder()
 							.authorId(author.getId())
 							.lang(lang)

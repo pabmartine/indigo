@@ -1,117 +1,64 @@
 package com.martinia.indigo.user.infrastructure.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.user.infrastructure.api.controllers.FindUserByUsernameController;
-import com.martinia.indigo.user.infrastructure.api.model.UserDto;
-import com.martinia.indigo.user.infrastructure.api.mappers.UserDtoMapper;
-import com.martinia.indigo.user.domain.model.User;
-import com.martinia.indigo.user.domain.ports.usecases.FindUserByUsernameUseCase;
-import org.junit.jupiter.api.BeforeEach;
+import com.martinia.indigo.BaseIndigoIntegrationTest;
+import com.martinia.indigo.user.domain.model.RolesEnum;
+import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.lang.reflect.Field;
-import java.util.Optional;
+import java.util.Arrays;
+import java.util.Locale;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class FindUserByUsernameControllerTest extends BaseIndigoTest {
+public class FindUserByUsernameControllerTest extends BaseIndigoIntegrationTest {
 
-	private MockMvc mockMvc;
+	@Test
+	public void testFindByUsernameNotExist() throws Exception {
+		// Given
+		String username = "username";
 
-	@Mock
-	private FindUserByUsernameUseCase findUserByUsernameUseCase;
+		// When
+		ResultActions result = mockMvc.perform(
+				MockMvcRequestBuilders.get("/api/user/get").param("username", username).contentType(MediaType.APPLICATION_JSON));
 
-	@Mock
-	private UserDtoMapper userDtoMapper;
+		//Then
+		result.andExpect(status().isOk());
 
-	@InjectMocks
-	private FindUserByUsernameController findUserByUsernameController;
-
-	private UserDto userDto;
-	private User user;
-
-	@BeforeEach
-	public void setUp() {
-		MockitoAnnotations.initMocks(this);
-		mockMvc = MockMvcBuilders.standaloneSetup(findUserByUsernameController).build();
-
-		userDto = new UserDto();
-		userDto.setId("1");
-		userDto.setUsername("testUser");
-		userDto.setPassword("password");
-		userDto.setRole("user");
-		userDto.setLanguage("English");
-
-		user = new User();
-		user.setId("1");
-		user.setUsername("testUser");
-		user.setPassword("password");
-		user.setRole("user");
-		user.setLanguage("English");
+		Assert.assertEquals("", result.andReturn().getResponse().getContentAsString());
 	}
 
 	@Test
-	public void testGetUserByUsername() throws Exception {
-		String username = "testUser";
-		when(findUserByUsernameUseCase.findByUsername(username)).thenReturn(Optional.of(user));
-		when(userDtoMapper.domain2Dto(user)).thenReturn(userDto);
+	public void testFindByUsernameOK() throws Exception {
+		// Given
+		UserMongoEntity entity = UserMongoEntity.builder()
+				.id("1")
+				.username("test")
+				.password("padmin")
+				.role(RolesEnum.ADMIN.name())
+				.language(Locale.ENGLISH.getLanguage())
+				.languageBooks(Arrays.asList("spa", "eng"))
+				.build();
+		userRepository.save(entity);
 
-		MvcResult result = mockMvc.perform(get("/api/user/get").param("username", username).accept(MediaType.APPLICATION_JSON))
-				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+		// When
+		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/api/user/get")
+				.param("username", entity.getUsername())
+				.contentType(MediaType.APPLICATION_JSON));
 
-		String responseContent = result.getResponse().getContentAsString();
-		UserDto responseDto = new ObjectMapper().readValue(responseContent, UserDto.class);
-
-		assertContentEquals(userDto, responseDto);
+		//Then
+		result.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("$.id").value(entity.getId()))
+				.andExpect(jsonPath("$.username").value(entity.getUsername()))
+				.andExpect(jsonPath("$.kindle").value(entity.getKindle()))
+				.andExpect(jsonPath("$.role").value(entity.getRole()))
+				.andExpect(jsonPath("$.language").value(entity.getLanguage()));
 	}
 
-	@Test
-	public void testGetUserByUsername_UserNotFound() throws Exception {
-		String username = "nonExistentUser";
-		when(findUserByUsernameUseCase.findByUsername(username)).thenReturn(Optional.empty());
-
-		mockMvc.perform(get("/api/user/get").param("username", username).accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-				.andExpect(content().string(""));
-	}
-
-	public static void assertContentEquals(Object expected, Object actual, String... excludedFields) throws IllegalAccessException {
-		Class<?> clazz = expected.getClass();
-		Field[] fields = clazz.getDeclaredFields();
-
-		for (Field field : fields) {
-			field.setAccessible(true);
-			String fieldName = field.getName();
-			boolean isExcluded = false;
-
-			if (excludedFields != null) {
-				for (String excludedField : excludedFields) {
-					if (fieldName.equals(excludedField)) {
-						isExcluded = true;
-						break;
-					}
-				}
-			}
-
-			if (isExcluded) {
-				continue; // Saltar atributo excluido
-			}
-
-			Object expectedValue = field.get(expected);
-			Object actualValue = field.get(actual);
-
-			assertEquals(expectedValue, actualValue);
-		}
-	}
 }

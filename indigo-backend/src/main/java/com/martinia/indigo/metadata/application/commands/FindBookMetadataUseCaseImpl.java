@@ -36,7 +36,7 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 	private Optional<FindGoodReadsBookPort> findGoodReadsBookPort;
 
 	@Resource
-	private Optional<FindGoogleBooksBookPort> googleBooksComponent;
+	private Optional<FindGoogleBooksBookPort> findGoogleBooksBookPort;
 
 	@Resource
 	private EventBus eventBus;
@@ -82,7 +82,7 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 
 				}
 				else {
-					bookData = googleBooksComponent.map(gr -> gr.findBook(book.getTitle(), book.getAuthors())).orElse(null);
+					bookData = findGoogleBooksBookPort.map(gr -> gr.findBook(book.getTitle(), book.getAuthors())).orElse(null);
 
 					if (bookData != null) {
 						book.setRating(Float.valueOf(bookData[0]));

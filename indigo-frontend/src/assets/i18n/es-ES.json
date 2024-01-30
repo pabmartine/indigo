@@ -74,9 +74,9 @@
                         "error": "El libro no se ha podido quitar de favoritos"
                     }
                 },
-				"download":{
-					"error": "No se ha podido descargar el libro"
-				},
+                "download": {
+                    "error": "No se ha podido descargar el libro"
+                },
                 "metadata": {
                     "rating": "VALORACIÓN",
                     "genre": "GENERO",
@@ -84,7 +84,7 @@
                     "language": "IDIOMA",
                     "pages": "EXTENSIÓN"
                 },
-                "expand":{
+                "expand": {
                     "more": "Ver más",
                     "less": "Ver menos"
                 }
@@ -210,7 +210,12 @@
                     "info": "La categoría {{source}} va a ser mezclada en {{target}}. ¿Desea continuar?"
                 },
                 "image": {
-                    "title": "Modificar imagen",
+                    "modify": {
+                        "title": "Modificar imagen"
+                    },
+                    "update": {
+                        "title": "Actualizar imagen"
+                    },
                     "description": {
                         "source": "Seleccione la etiqueta de origen",
                         "target": "Introduzca la url de la nueva imagen"
@@ -252,7 +257,7 @@
                 "password": "Contraseña",
                 "role": "Rol",
                 "language": "Idioma de la interfaz",
-                "languages": "Idioma de los libros", 
+                "languages": "Idioma de los libros",
                 "kindle": "Dirección email del dispositivo Kindle",
                 "kindle_short": "Kindle",
                 "account": "Cuenta"
@@ -297,10 +302,10 @@
                         "partial": "Actualizar los metadatos de autores para libros nuevos",
                         "full": "Actualizar los metadatos de autores para toda la biblioteca. Sobreescribir existentes."
                     },
-                    "indexing_books":"Indexando biblioteca (1/5) ...",
-                    "filling_recommendations":"Generando recomendaciones (3/5) ...",
-                    "obtaining_metadata_books":"Obteniendo metadatos de libros (4/5) ...",
-                    "obtaining_metadata_authors":"Obteniendo metadatos de autores (5/5) ...",
+                    "indexing_books": "Indexando biblioteca (1/5) ...",
+                    "filling_recommendations": "Generando recomendaciones (3/5) ...",
+                    "obtaining_metadata_books": "Obteniendo metadatos de libros (4/5) ...",
+                    "obtaining_metadata_authors": "Obteniendo metadatos de autores (5/5) ...",
                     "filling_authors": "Rellenando autores (2/5) ..."
                 },
                 "smtp": {
@@ -428,17 +433,19 @@
             "es": "Español",
             "en": "Inglés",
             "fr": "Francés",
+            "pt": "Portugués",
+            "de": "Alemán",
             "eus": "Euskera",
-			"glg": "Gallego",
-			"ita": "Italiano",
-			"swe": "Sueco",
-			"spa": "Español",
-			"cat": "Catalán",
-			"deu": "Alemán",
-			"por": "Portugues",
-			"eng": "Inglés",
-			"epo": "Esperanto",
-			"fra": "Francés"
+            "glg": "Gallego",
+            "ita": "Italiano",
+            "swe": "Sueco",
+            "spa": "Español",
+            "cat": "Catalán",
+            "deu": "Alemán",
+            "por": "Portugues",
+            "eng": "Inglés",
+            "epo": "Esperanto",
+            "fra": "Francés"
         },
         "session": {
             "title": "Sesión caducada",

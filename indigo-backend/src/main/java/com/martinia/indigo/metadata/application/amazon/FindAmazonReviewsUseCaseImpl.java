@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.net.InetAddress;
 import java.text.Normalizer;
@@ -40,13 +41,16 @@ public class FindAmazonReviewsUseCaseImpl implements FindAmazonReviewsUseCase {
 	@Value("${metadata.amazon.reviews}")
 	private String endpointReviews;
 
+	@Resource
+	private WebClient webClient;
+
 	@Override
 	public List<Review> getReviews(String title, List<String> authors) {
 
 		try {
 			InetAddress localhost = InetAddress.getLocalHost();
 			if (!localhost.getHostAddress().equals("127.0.1.1")) {
-				log.error("Tryed to obtain reviews from Amazon from a docker container.");
+				log.error("Tried to obtain reviews from Amazon from a docker container.");
 				return null;
 			}
 		}
@@ -71,17 +75,12 @@ public class FindAmazonReviewsUseCaseImpl implements FindAmazonReviewsUseCase {
 
 		AtomicReference<String> asin = new AtomicReference<>();
 
-		WebClient webClient = new WebClient(BrowserVersion.CHROME);
-		webClient.getOptions().setCssEnabled(false);
-		webClient.getOptions().setJavaScriptEnabled(false);
-
 		String tokenized_title = normalize(title);
 		String tokenized_author = normalize(author);
 
 		HtmlPage page = webClient.getPage(endpointAsin.replace("$title", tokenized_title).replace("$author", tokenized_author));
 
 		page.getByXPath("//div[@data-component-type='s-search-result']").stream().forEach(item -> {
-			HtmlDivision htmlDivision = (HtmlDivision) item;
 			try {
 				String compareAsin = ((HtmlDivision) page.getByXPath("//div[@data-component-type='s-search-result']").get(0)).getAttribute(
 						"data-asin");
@@ -130,10 +129,6 @@ public class FindAmazonReviewsUseCaseImpl implements FindAmazonReviewsUseCase {
 	private List<Review> getReviews(String asin, int numPage) throws Exception {
 
 		List<Review> reviews = new ArrayList<>();
-
-		WebClient webClient = new WebClient();
-		webClient.getOptions().setCssEnabled(false);
-		webClient.getOptions().setJavaScriptEnabled(false);
 
 		String url = endpointReviews.replace("$asin", asin).replace("$numPage", String.valueOf(numPage));
 		HtmlPage page = webClient.getPage(url);

@@ -1,3 +1,4 @@
+
 package com.martinia.indigo.common.error.infrastructure;
 
 import com.martinia.indigo.common.error.infrastructure.model.ErrorMessageDto;

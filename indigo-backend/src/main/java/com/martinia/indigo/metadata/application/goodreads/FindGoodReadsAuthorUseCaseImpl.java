@@ -21,6 +21,7 @@ import java.util.Arrays;
 @Service
 @ConditionalOnProperty(name = "flags.goodreads", havingValue = "true")
 @Transactional
+//TODO: Revisar esta clase, creo que la implementación no es correcta según la respuesta que obtiene.
 public class FindGoodReadsAuthorUseCaseImpl implements FindGoodReadsAuthorUseCase {
 
 	@Value("${metadata.goodreads.author}")

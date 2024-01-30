@@ -16,8 +16,6 @@ import lombok.Setter;
 @Builder
 public class Notification implements Serializable {
 
-	private static final long serialVersionUID = -1130735886474712847L;
-	
 	private String id;
 	private String type;
 	private String user;

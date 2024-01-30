@@ -15,8 +15,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Tag implements Serializable {
 
-	private static final long serialVersionUID = 3821856920529740875L;
-
 	private String id;
 	private String name;
 	private String image;

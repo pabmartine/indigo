@@ -1,13 +1,11 @@
 package com.martinia.indigo.book.infrastructure.api.similar;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.book.infrastructure.api.controllers.similar.FindSimilarBooksController;
-import com.martinia.indigo.book.infrastructure.api.model.BookDto;
-import com.martinia.indigo.book.infrastructure.api.mappers.BookDtoMapper;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.ports.usecases.similar.FindSimilarBooksUseCase;
+import com.martinia.indigo.book.infrastructure.api.mappers.BookDtoMapper;
+import com.martinia.indigo.book.infrastructure.api.model.BookDto;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -29,9 +27,6 @@ class FindSimilarBooksControllerTest extends BaseIndigoTest {
 	@MockBean
 	private BookDtoMapper mapper;
 
-	@InjectMocks
-	private FindSimilarBooksController controller;
-
 	@Resource
 	private MockMvc mockMvc;
 
@@ -46,9 +41,12 @@ class FindSimilarBooksControllerTest extends BaseIndigoTest {
 		when(mapper.domains2Dtos(books)).thenReturn(bookDtos);
 
 		// When
-		mockMvc.perform(MockMvcRequestBuilders.get("/api/book/similar").param("similar", "similar1", "similar2")
-						.param("languages", "English", "Spanish")).andExpect(MockMvcResultMatchers.status().isOk())
-				.andExpect(MockMvcResultMatchers.jsonPath("$[0]").exists()).andExpect(MockMvcResultMatchers.jsonPath("$[1]").exists());
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/book/similar")
+						.param("similar", "similar1", "similar2")
+						.param("languages", "English", "Spanish"))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath("$[0]").exists())
+				.andExpect(MockMvcResultMatchers.jsonPath("$[1]").exists());
 
 		// Then
 		verify(useCase, times(1)).getSimilar(similarBooks, languages);

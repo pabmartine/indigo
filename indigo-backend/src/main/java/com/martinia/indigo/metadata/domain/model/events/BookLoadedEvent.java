@@ -10,4 +10,6 @@ public class BookLoadedEvent implements Event {
 
 	private String bookId;
 
+	private String tagId;
+
 }

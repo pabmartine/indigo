@@ -64,7 +64,7 @@ flags:
   goodreads: true
   wikipedia: true
   google: true
-  libretranslate: false
+  libretranslate: true
 
 metadata:
   goodreads:
@@ -87,3 +87,5 @@ metadata:
     url: https://$lang.wikipedia.org
     author: ${metadata.wikipedia.url}/w/api.php?action=query&format=json&list=search&utf8=1&origin=*&srsearch=$subject
     author-info: ${metadata.wikipedia.url}/w/api.php?format=json&action=query&prop=extracts|pageimages&exintro&explaintext&generator=search&gsrlimit=1&redirects=1&piprop=original&gsrsearch=$subject
+  unsplash:
+    url: https://unsplash.com/es/s/fotos/$term

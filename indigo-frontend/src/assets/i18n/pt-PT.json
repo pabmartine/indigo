@@ -1,0 +1,455 @@
+{
+  "locale": {
+    "header": {
+      "title": "INDIGO",
+      "user": "Usuário",
+      "messages": "Mensagens",
+      "search": "Introduza título ou autor para pesquisar",
+      "menu": {
+        "profile": "Perfil",
+        "logout": "Sair"
+      }
+    },
+    "footer": {
+      "title": "Indigo",
+      "subtitle": "Interface web gratuita para a biblioteca de livros eletrônicos Calibre"
+    },
+    "sidebar": {
+      "menu": {
+        "books": "Livros",
+        "recommendations": "Para si",
+        "authors": "Autores",
+        "tags": "Categorias",
+        "series": "Séries",
+        "search": "Pesquisa avançada",
+        "settings": "Configurações",
+        "notifications": "Notificações"
+      }
+    },
+    "messages": {
+      "none": "Não há mensagens pendentes",
+      "kindle": {
+        "ok": "O livro <strong>{{book}}</strong> foi enviado corretamente para o kindle de <strong>{{user}}</strong>",
+        "error": "Ocorreu um erro no envio do livro <strong>{{book}}</strong> para o kindle de <strong>{{user}}</strong>"
+      },
+      "function_not_available": "Esta função não está disponível no momento"
+    },
+    "books": {
+      "title": "Livros",
+      "title_of": "Livros de ",
+      "title_published": "Livros publicados ",
+      "search_results": "Resultados da pesquisa: ",
+      "detail": {
+        "title": "Detalhes do livro",
+        "pubdate": "Data de publicação:",
+        "pages": "páginas",
+        "delete": {
+          "ok": "O livro foi removido da biblioteca",
+          "error": "Não foi possível remover o livro da biblioteca"
+        },
+        "edit": {
+          "title": "Título",
+          "author": "Autor",
+          "plot": "Enredo",
+          "gender": "Gênero",
+          "pubdate": "Publicado",
+          "language": "Idioma",
+          "pages": "Páginas",
+          "rating": "Avaliação",
+          "ok": "O livro foi editado",
+          "error": "Não foi possível editar o livro"
+        },
+        "kindle": {
+          "todo": "O livro será enviado ao seu dispositivo",
+          "ok": "O livro foi enviado ao seu dispositivo e aparecerá em alguns minutos",
+          "error": "Não foi possível enviar o livro"
+        },
+        "favorite": {
+          "add": {
+            "ok": "O livro foi adicionado aos favoritos",
+            "error": "Não foi possível adicionar o livro aos favoritos"
+          },
+          "delete": {
+            "ok": "O livro foi removido dos favoritos",
+            "error": "Não foi possível remover o livro dos favoritos"
+          }
+        },
+        "download": {
+          "error": "Não foi possível baixar o livro"
+        },
+        "metadata": {
+          "rating": "AVALIAÇÃO",
+          "genre": "GÊNERO",
+          "published": "PUBLICADO",
+          "language": "IDIOMA",
+          "pages": "EXTENSÃO"
+        },
+        "expand": {
+          "more": "Ver mais",
+          "less": "Ver menos"
+        }
+      },
+      "serie": {
+        "title": "Da mesma série"
+      },
+      "similar": {
+        "title": "Outros livros semelhantes"
+      },
+      "recommendations": {
+        "title": "Pode gostar",
+        "title2": "Selecionados para si"
+      },
+      "favorites": {
+        "title": "Favoritos"
+      },
+      "refresh": {
+        "process": "Atualizando dados",
+        "result": {
+          "ok": "Dados atualizados corretamente",
+          "error": "Não foi possível obter os dados"
+        }
+      },
+      "order_by": {
+        "id": {
+          "asc": "Adicionados mais antigos",
+          "desc": "Adicionados recentemente"
+        },
+        "pubdate": {
+          "asc": "Primeiros livros publicados",
+          "desc": "Últimos livros publicados"
+        },
+        "title": {
+          "asc": "Título ascendente",
+          "desc": "Título descendente"
+        },
+        "rating": {
+          "asc": "Pior avaliados",
+          "desc": "Melhor avaliados"
+        },
+        "count": {
+          "desc": "Mais recomendados",
+          "asc": "Menos recomendados"
+        }
+      },
+      "error": {
+        "data": "Não foi possível obter os dados",
+        "tags": "Não foi possível recuperar as categorias",
+        "serie": "Não foi possível recuperar a série",
+        "pages": "Não foi possível recuperar as páginas",
+        "comment": "Não foi possível recuperar a descrição",
+        "cover": "Não foi possível recuperar a imagem"
+      }
+    },
+    "authors": {
+      "title": "Autores",
+      "order_by": {
+        "total": {
+          "asc": "Autores com menos livros",
+          "desc": "Autores com mais livros"
+        },
+        "sort": {
+          "asc": "Autores por nome ascendente",
+          "desc": "Autores por nome descendente"
+        }
+      },
+      "favorites": {
+        "title": "Favoritos",
+        "add": {
+          "ok": "O autor foi adicionado aos favoritos",
+          "error": "Não foi possível adicionar o autor aos favoritos"
+        },
+        "delete": {
+          "ok": "O autor foi removido dos favoritos",
+          "error": "Não foi possível remover o autor dos favoritos"
+        }
+      },
+      "refresh": {
+        "process": "Atualizando dados",
+        "result": {
+          "ok": "Dados atualizados corretamente",
+          "error": "Não foi possível obter os dados"
+        }
+      },
+      "total": "livros na biblioteca",
+      "error": {
+        "data": "Não foi possível obter os dados"
+      }
+    },
+    "tags": {
+      "title": "Categorias",
+      "order_by": {
+        "total": {
+          "asc": "Categorias com menos livros",
+          "desc": "Categorias com mais livros"
+        },
+        "name": {
+          "asc": "Categorias por nome ascendente",
+          "desc": "Categorias por nome descendente"
+        }
+      },
+      "actions": {
+        "settings": {
+          "title": "Opções"
+        },
+        "rename": {
+          "title": "Renomear",
+          "description": {
+            "source": "Selecione a etiqueta a renomear",
+            "target": "Introduza o novo nome"
+          },
+          "error": "Já existe uma categoria com o novo nome introduzido",
+          "info": "A categoria {{source}} será renomeada para {{target}}. Deseja continuar?"
+        },
+        "merge": {
+          "title": "Misturar",
+          "description": {
+            "source": "Selecione a etiqueta de origem",
+            "target": "Selecione a etiqueta de destino"
+          },
+          "error": "As categorias selecionadas devem ser diferentes",
+          "info": "A categoria {{source}} será misturada em {{target}}. Deseja continuar?"
+        },
+        "image": {
+          "modify": {
+            "title": "Modificar imagem"
+          },
+          "update": {
+            "title": "Atualizar imagem"
+          },
+          "description": {
+            "source": "Selecione a etiqueta de origem",
+            "target": "Introduza a URL da nova imagem"
+          },
+          "error": "A imagem introduzida não é correta",
+          "info": "A imagem introduzida está correta. Deseja continuar?"
+        }
+      },
+      "total": "livros na biblioteca",
+      "error": {
+        "data": "Não foi possível obter os dados",
+        "merge": "Não foi possível realizar a operação",
+        "rename": "Não foi possível realizar a operação",
+        "image": "Não foi possível realizar a operação"
+      }
+    },
+    "series": {
+      "title": "Séries",
+      "order_by": {
+        "total": {
+          "asc": "Séries com menos livros",
+          "desc": "Séries com mais livros"
+        },
+        "sort": {
+          "asc": "Séries por nome ascendente",
+          "desc": "Séries por nome descendente"
+        }
+      },
+      "total": "livros na biblioteca",
+      "error": {
+        "data": "Não foi possível obter os dados"
+      }
+    },
+    "profile": {
+      "title": "Perfil de {{username}}",
+      "account": {
+        "title": "Conta",
+        "username": "Usuário",
+        "password": "Senha",
+        "role": "Função",
+        "language": "Idioma da interface",
+        "languages": "Idioma dos livros",
+        "kindle": "Endereço de email do dispositivo Kindle",
+        "kindle_short": "Kindle",
+        "account": "Conta"
+      },
+      "permissions": {
+        "title": "Permissões",
+        "show_random_books": "Mostrar livros aleatórios"
+      },
+      "books": {
+        "title": "Minhas leituras"
+      },
+      "error": {
+        "get": "Não foi possível recuperar o perfil",
+        "update": "Não foi possível atualizar o perfil",
+        "save": "Não foi possível salvar o perfil",
+        "name": "Já existe um usuário com esse nome"
+      },
+      "ok": {
+        "update": "Perfil atualizado com sucesso"
+      }
+    },
+    "settings": {
+      "title": "Configuração",
+      "panel": {
+        "users": {
+          "title": "Usuários"
+        },
+        "global": {
+          "title": "Geral",
+          "recommendations": "Número máximo de leituras recomendadas por livro",
+          "recommendations2": "Número máximo de leituras recomendadas por usuário"
+        },
+        "metadata": {
+          "title": "Metadados",
+          "pull": "Fazer um pedido a cada (segundos)",
+          "goodreadskey": "Chave de desenvolvedor do GoodReads",
+          "all": {
+            "partial": "Atualizar todos os metadados (avaliações, comentários, biografia do autor, etc.) para livros novos",
+            "full": "Atualizar todos os metadados (avaliações, comentários, biografia do autor, etc.) para toda a biblioteca. Sobrescrever existentes."
+          },
+          "authors": {
+            "partial": "Atualizar os metadados de autores para livros novos",
+            "full": "Atualizar os metadados de autores para toda a biblioteca. Sobrescrever existentes."
+          },
+          "indexing_books": "Indexando biblioteca (1/5) ...",
+          "filling_recommendations": "Gerando recomendações (3/5) ...",
+          "obtaining_metadata_books": "Obtendo metadados dos livros (4/5) ...",
+          "obtaining_metadata_authors": "Obtendo metadados dos autores (5/5) ...",
+          "filling_authors": "Preenchendo autores (2/5) ..."
+        },
+        "smtp": {
+          "title": "Servidor de correio",
+          "host": "Servidor",
+          "port": "Porta",
+          "encryption": "Encriptação",
+          "provider": "Fornecedor",
+          "username": "Usuário",
+          "password": "Senha",
+          "test": "Verificar configuração do servidor",
+          "status": {
+            "unknown": "Desconhecido",
+            "ok": "Validado",
+            "error": "Erro"
+          },
+          "providers": {
+            "gmail": "Gmail",
+            "outlook": "Outlook",
+            "other": "Outro"
+          }
+        }
+      }
+    },
+    "actions": {
+      "save": {
+        "ok": "Configuração guardada corretamente",
+        "error": "Não foi possível guardar a configuração"
+      },
+      "start": {
+        "error": "Não foi possível iniciar o serviço"
+      },
+      "stop": {
+        "error": "Não foi possível parar o serviço"
+      },
+      "delete": {
+        "error": "Não foi possível apagar o usuário"
+      }
+    },
+    "login": {
+      "title": "Entrada no sistema",
+      "username": "Usuário",
+      "password": "Senha",
+      "rememberme": "Lembrar-me",
+      "username.required": "O usuário é obrigatório",
+      "password.required": "A senha é obrigatória",
+      "userpass.wrong": "Usuário e/ou senha incorretos",
+      "error": "Ocorreu um erro no acesso"
+    },
+    "search": {
+      "title": "Pesquisa Avançada",
+      "field": {
+        "title": "Título",
+        "author": "Autor",
+        "serie": "Série",
+        "date": {
+          "ini": "Data de publicação posterior a",
+          "end": "Data de publicação anterior a"
+        },
+        "pages": {
+          "min": "Número de páginas maior que",
+          "max": "Número de páginas menor que"
+        },
+        "tags": "Categorias"
+      },
+      "searching": "Pesquisando..."
+    },
+    "notifications": {
+      "title": "Notificações",
+      "id": "Id",
+      "user": "Usuário",
+      "book": "Livro",
+      "type": "Tipo",
+      "status": "Estado",
+      "sendDate": "Data",
+      "readUser": "Lido por usuário",
+      "readAdmin": "Lido por administrador",
+      "error": "Erro",
+      "search": "Procurar por ",
+      "select": "Selecionar um ",
+      "actions": {
+        "get": {
+          "error": "Não foi possível obter as notificações"
+        },
+        "delete": {
+          "error": "Não foi possível apagar a notificação"
+        }
+      },
+      "read": {
+        "true": "Sim",
+        "false": "Não"
+      },
+      "statuses": {
+        "SEND": "Enviado",
+        "NOT_SEND": "Não enviado"
+      },
+      "types": {
+        "KINDLE": "Kindle"
+      }
+    },
+    "buttons": {
+      "login": "Entrar",
+      "logout": "Sair",
+      "accept": "Aceitar",
+      "cancel": "Cancelar",
+      "close": "Fechar",
+      "save": "Guardar",
+      "send": "Enviar para o Kindle",
+      "new": "Novo",
+      "add": "Adicionar",
+      "search": "Procurar",
+      "next": "Seguinte",
+      "previous": "Anterior",
+      "view": "Ver livro",
+      "download": "Descarregar livro",
+      "refresh": "Atualizar metadados",
+      "delete": "Apagar",
+      "edit": "Editar",
+      "favorite": {
+        "add": "Adicionar aos favoritos",
+        "delete": "Remover dos favoritos"
+      }
+    },
+    "languages": {
+      "es": "Espanhol",
+      "en": "Inglês",
+      "fr": "Francês",
+      "pt": "Português",
+      "de": "Alemão",
+      "eus": "Basco",
+      "glg": "Galego",
+      "ita": "Italiano",
+      "swe": "Sueco",
+      "spa": "Espanhol",
+      "cat": "Catalão",
+      "deu": "Alemão",
+      "por": "Português",
+      "eng": "Inglês",
+      "epo": "Esperanto",
+      "fra": "Francês"
+    },
+    "session": {
+      "title": "Sessão expirada",
+      "description": "A sessão expirou, por favor inicie sessão novamente."
+    }
+  }
+}

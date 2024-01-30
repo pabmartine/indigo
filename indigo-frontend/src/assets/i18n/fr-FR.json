@@ -32,33 +32,33 @@
 				"ok": "Le livre <strong> {{livre}} </strong> a été correctement envoyé au <strong> {{user}} </strong> kindle",
 				"error": "Une erreur s'est produite lors de l'envoi du livre <strong> {{book}} </strong> au Kindle de <strong> {{user}} </strong>"
 			},
-			"function_not_available" : "Cette fonction n'est pas disponible pour le moment"
+			"function_not_available": "Cette fonction n'est pas disponible pour le moment"
 		},
 		"books": {
 			"title": "Livres",
 			"title_of": "Livres de ",
-			"title_published" : "Livres publiés",
+			"title_published": "Livres publiés",
 			"search_results": "Résultats de la recherche: ",
 			"detail": {
 				"title": "Détails du livre",
 				"pubdate": "Date de publication:",
 				"pages": "pages",
-				"delete" : {
-                    "ok" : "Le livre a été retiré de la bibliothèque",
-                    "error" : "Le livre n'a pas pu être retiré de la bibliothèque"
-                },
-				"edit" : {
-					"title" : "Titre",
-                    "author" : "Auteur",
-                    "plot" : "Plot",
-                    "gender" : "Gender",
-                    "pubdate" : "Publié",
-                    "language" : "Langue",
-                    "pages" : "Pages",
+				"delete": {
+					"ok": "Le livre a été retiré de la bibliothèque",
+					"error": "Le livre n'a pas pu être retiré de la bibliothèque"
+				},
+				"edit": {
+					"title": "Titre",
+					"author": "Auteur",
+					"plot": "Plot",
+					"gender": "Gender",
+					"pubdate": "Publié",
+					"language": "Langue",
+					"pages": "Pages",
 					"rating": "Evaluation",
-                    "ok" : "Le livre a été édité",
-                    "error" : "Le livre n'a pas pu être édité"
-                },
+					"ok": "Le livre a été édité",
+					"error": "Le livre n'a pas pu être édité"
+				},
 				"kindle": {
 					"todo": "Le livre sera envoyé sur votre appareil",
 					"ok": "Le livre a été envoyé sur votre appareil et apparaîtra dans quelques minutes",
@@ -74,24 +74,24 @@
 						"error": "Le livre n'a pas pu être supprimé des favoris"
 					}
 				},
-				"download":{
+				"download": {
 					"error": "Le livre n'a pas pu être téléchargé"
 				},
-                "metadata": {
-                    "rating": "RATING",
-                    "genre": "GENRE",
-                    "published": "PUBLIÉ",
-                    "language": "LANGUE",
-                    "pages": "EXTENSION"
-                },
-				"expand":{
-                    "more" : "Afficher plus",
-                    "less" : "Voir moins"
-                }
+				"metadata": {
+					"rating": "RATING",
+					"genre": "GENRE",
+					"published": "PUBLIÉ",
+					"language": "LANGUE",
+					"pages": "EXTENSION"
+				},
+				"expand": {
+					"more": "Afficher plus",
+					"less": "Voir moins"
+				}
 			},
 			"serie": {
-                "title": "De la même série"
-            },
+				"title": "De la même série"
+			},
 			"similar": {
 				"title": "Autres livres similaires"
 			},
@@ -210,7 +210,12 @@
 					"info": "La catégorie {{source}} va être mélangée à {{target}}. Voulez-vous continuer?"
 				},
 				"image": {
-					"title": "Modifier l'image",
+					"modify": {
+						"title": "Modifier l'image"
+					},
+					"update": {
+						"title": "Rafraîchir l'image"
+					},
 					"description": {
 						"source": "Sélectionnez la balise source",
 						"target": "Entrez l'url de la nouvelle image"
@@ -251,7 +256,7 @@
 				"username": "Utilisateur",
 				"password": "Mot de passe",
 				"language": "Langue de l'interface",
-				"languages": "Langue des livres",				
+				"languages": "Langue des livres",
 				"role": "Rôle",
 				"kindle": "Adresse e-mail de l'appareil Kindle",
 				"kindle_short": "Kindle",
@@ -416,9 +421,9 @@
 			"previous": "Précédent",
 			"view": "Voir le livre",
 			"download": "Télécharger le livre",
-            "refresh": "Actualiser les métadonnées",
+			"refresh": "Actualiser les métadonnées",
 			"delete": "Supprimer",
-            "edit": "Modifier",
+			"edit": "Modifier",
 			"favorite": {
 				"add": "Ajouter aux favoris",
 				"delete": "Supprimer des favoris"
@@ -428,6 +433,8 @@
 			"es": "Espagnol",
 			"en": "Anglais",
 			"fr": "Français",
+			"pt": "Portugais",
+			"de": "Allemand",
 			"eus": "Basque",
 			"glg": "Galicien",
 			"ita": "Italien",

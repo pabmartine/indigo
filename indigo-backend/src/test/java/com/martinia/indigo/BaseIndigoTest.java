@@ -1,5 +1,6 @@
 package com.martinia.indigo;
 
+import com.martinia.indigo.adapters.out.sqlite.repository.BookSqliteRepository;
 import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.domain.ports.repositories.ViewRepository;
@@ -33,6 +34,7 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+//@ContextConfiguration(classes = BaseIndigoTest.TestConfig.class)
 @Import({ BeanDefinitionConfigTest.class, PersistenceConfigTest.class })
 public class BaseIndigoTest {
 
@@ -40,25 +42,29 @@ public class BaseIndigoTest {
 	private ApplicationEventPublisher applicationEventPublisher;
 
 	@Resource
-	private ConfigurationRepository configurationRepository;
+	protected ConfigurationRepository configurationRepository;
 
 	@Resource
-	private BookRepository bookRepository;
+	protected BookRepository bookRepository;
 
 	@Resource
-	private AuthorRepository authorRepository;
+	protected BookSqliteRepository bookSqliteRepository;
+
 
 	@Resource
-	private NotificationRepository notificationRepository;
+	protected AuthorRepository authorRepository;
 
 	@Resource
-	private TagRepository tagRepository;
+	protected NotificationRepository notificationRepository;
 
 	@Resource
-	private UserRepository userRepository;
+	protected TagRepository tagRepository;
 
 	@Resource
-	private ViewRepository viewRepository;
+	protected UserRepository userRepository;
+
+	@Resource
+	protected ViewRepository viewRepository;
 
 	@AfterEach
 	public void baseAfterEach() {
@@ -88,4 +94,6 @@ public class BaseIndigoTest {
 		userRepository.deleteAll();
 		viewRepository.deleteAll();
 	}
+
+
 }

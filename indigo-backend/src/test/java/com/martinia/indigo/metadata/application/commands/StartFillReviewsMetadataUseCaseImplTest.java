@@ -89,6 +89,6 @@ public class StartFillReviewsMetadataUseCaseImplTest extends BaseIndigoTest {
 		verify(commandBus, never()).executeAndWait(any(FindReviewMetadataCommand.class));
 	}
 
-	// Otras pruebas para otros casos
+
 
 }
