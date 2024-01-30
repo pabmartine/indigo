@@ -9,6 +9,7 @@ import { Notif } from 'src/app/domain/notif';
 import { Book } from 'src/app/domain/book';
 import { User } from 'src/app/domain/user';
 import { Search } from 'src/app/domain/search';
+import { lastValueFrom } from 'rxjs';
 
 
 @Component({
@@ -70,23 +71,22 @@ export class HeaderComponent implements OnInit {
     return menu;
   }
 
-  getMessages() {
+  async getMessages() {
     const user = JSON.parse(sessionStorage.user);
-    if (this.isAdmin()) {
-      this.notificationService.findAllNotRead().subscribe(
-        data => {
-          this.fillMessages(data, user)
-        },
-        error => {
-          console.log(error);
-        }
-      );
-    } else {
-      this.notificationService.findAllByUser(user.id).subscribe(
-        data => {
-          this.fillMessages(data, user);
-        }
-      );
+  
+    try {
+      let data;
+  
+      if (this.isAdmin()) {
+        data = await lastValueFrom(this.notificationService.findAllNotRead());
+      } else {
+        data = await lastValueFrom(this.notificationService.findAllByUser(user.id));
+      }
+  
+      this.fillMessages(data, user);
+  
+    } catch (error) {
+      console.log(error);
     }
   }
 

@@ -8,6 +8,7 @@ import { User } from 'src/app/domain/user';
 import { Book } from 'src/app/domain/book';
 import { Search } from 'src/app/domain/search';
 import { BookService } from 'src/app/services/book.service';
+import { lastValueFrom } from 'rxjs';
 
 
 @Component({
@@ -72,81 +73,81 @@ export class AuthorComponent implements OnInit {
     this.eventOpen.emit();
   }
 
-  openBook(book: Book){
+  openBook(book: Book) {
     this.eventBook.emit(book);
   }
 
-  refreshAuthor() {
-    this.messageService.clear();
-    this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.authors.refresh.process'), closable: false, life: 5000 });
-    this.metadataService.findAuthor("es", this.selected.sort).subscribe(
-      data => {
+  async refreshAuthor() {
+    try {
+      this.messageService.clear();
+      this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.authors.refresh.process'), closable: false, life: 5000 });
 
-        this.selected = data;
+      const data = await lastValueFrom(this.metadataService.findAuthor("es", this.selected.sort));
 
-        if (data.image && !data.image.startsWith('http')) {
-          let objectURL = 'data:image/jpeg;base64,' + data.image;
-          this.selected.image = objectURL;
-        }
-        if (data.image && data.image.startsWith('http')) {
-          this.selected.image = "./assets/images/avatar3.jpg";
-        }
+      this.selected = data;
 
-        this.eventAuthor.emit(this.selected);
-
-        this.messageService.clear();
-        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.authors.refresh.result.ok'), closable: false, life: 5000 });
-      },
-      error => {
-        console.log(error);
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.refresh.result.error'), closable: false, life: 5000 });
+      if (data.image && !data.image.startsWith('http')) {
+        let objectURL = 'data:image/jpeg;base64,' + data.image;
+        this.selected.image = objectURL;
       }
-    );
+      if (data.image && data.image.startsWith('http')) {
+        this.selected.image = "./assets/images/avatar3.jpg";
+      }
+
+      this.eventAuthor.emit(this.selected);
+
+      this.messageService.clear();
+      this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.authors.refresh.result.ok'), closable: false, life: 5000 });
+
+    } catch (error) {
+      console.log(error);
+      this.messageService.clear();
+      this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.refresh.result.error'), closable: false, life: 5000 });
+    }
   }
 
-  addFavoriteAuthor() {
-    this.authorService.addFavorite(this.selected.sort, this.user.username).subscribe(
-      data => {
+  async addFavoriteAuthor() {
+    try {
+      const data = await lastValueFrom(this.authorService.addFavorite(this.selected.sort, this.user.username));
+
+      this.favoriteAuthor = true;
+      this.messageService.clear();
+      this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.authors.favorites.add.ok'), closable: false, life: 5000 });
+
+    } catch (error) {
+      console.log(error);
+      this.messageService.clear();
+      this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.favorites.add.error'), closable: false, life: 5000 });
+    }
+  }
+
+
+  async deleteFavoriteAuthor() {
+    try {
+      const data = await lastValueFrom(this.authorService.deleteFavorite(this.selected.sort, this.user.username));
+
+      this.favoriteAuthor = false;
+      this.messageService.clear();
+      this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.authors.favorites.delete.ok'), closable: false, life: 5000 });
+
+    } catch (error) {
+      console.log(error);
+      this.messageService.clear();
+      this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.favorites.delete.error'), closable: false, life: 5000 });
+    }
+  }
+
+  async getFavoriteAuthor() {
+    try {
+      const data = await lastValueFrom(this.authorService.getFavorite(this.selected.sort, this.user.username));
+
+      if (data) {
         this.favoriteAuthor = true;
-        this.messageService.clear();
-        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.authors.favorites.add.ok'), closable: false, life: 5000 });
-      },
-      error => {
-        console.log(error);
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.favorites.add.error'), closable: false, life: 5000 });
       }
-    );
-  }
 
-
-  deleteFavoriteAuthor() {
-    this.authorService.deleteFavorite(this.selected.sort, this.user.username).subscribe(
-      data => {
-        this.favoriteAuthor = false;
-        this.messageService.clear();
-        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.authors.favorites.delete.ok'), closable: false, life: 5000 });
-      },
-      error => {
-        console.log(error);
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.favorites.delete.error'), closable: false, life: 5000 });
-      }
-    );
-  }
-
-  getFavoriteAuthor() {
-    this.authorService.getFavorite(this.selected.sort, this.user.username).subscribe(
-      data => {
-        if (data) {
-          this.favoriteAuthor = true;
-        }
-      },
-      error => {
-        console.log(error);
-      }
-    );
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   checkOverflowBooks() {
@@ -155,7 +156,7 @@ export class AuthorComponent implements OnInit {
       this.showExpandBooks = this.isOverFlowed(row);
     }
   }
-  
+
   isOverFlowed(element) {
     if (element) {
       return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
@@ -181,45 +182,42 @@ export class AuthorComponent implements OnInit {
 
   }
 
-  count() {
-    this.bookService.count(this.adv_search).subscribe(
-      data => {
-        this.total = data;
-        let author = this.adv_search.author;
-        this.title = this.translate.instant('locale.books.title_published') + "  (" + this.total + ")";
+  async count() {
+    try {
+      const data = await lastValueFrom(this.bookService.count(this.adv_search));
 
-        this.getAll();
-        
-      },
-      error => {
-        console.log(error);
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.error.data'), closable: false, life: 5000 });
-      }
-    );
+      this.total = data;
+      let author = this.adv_search.author;
+      this.title = this.translate.instant('locale.books.title_published') + "  (" + this.total + ")";
+
+      this.getAll();
+
+    } catch (error) {
+      console.log(error);
+      this.messageService.clear();
+      this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.error.data'), closable: false, life: 5000 });
+    }
   }
 
-  getAll() {
-    this.bookService.getAll(this.adv_search, 0, this.total, "pubDate", "desc").subscribe(
-      data => {
+  async getAll() {
+    try {
+      const data = await lastValueFrom(this.bookService.getAll(this.adv_search, 0, this.total, "pubDate", "desc"));
 
-        data.forEach((book) => {
-          let objectURL = 'data:image/jpeg;base64,' + book.image;
-          book.image = objectURL;
-        });
+      data.forEach((book) => {
+        let objectURL = 'data:image/jpeg;base64,' + book.image;
+        book.image = objectURL;
+      });
 
-        Array.prototype.push.apply(this.books, data);
-       
-        setTimeout(() => {
-          this.checkOverflowBooks();
-        }, 200)
-      },
-      error => {
-        console.log(error);
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.error.data'), closable: false, life: 5000 });
-      }
-    );
+      Array.prototype.push.apply(this.books, data);
+
+      setTimeout(() => {
+        this.checkOverflowBooks();
+      }, 200);
+
+    } catch (error) {
+      console.log(error);
+      this.messageService.clear();
+      this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.error.data'), closable: false, life: 5000 });
+    }
   }
-
 }

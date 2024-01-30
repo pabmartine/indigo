@@ -7,6 +7,7 @@ import { MenuItem } from 'primeng/api/menuitem';
 import { MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 import { Search } from 'src/app/domain/search';
+import { lastValueFrom } from 'rxjs';
 
 
 @Component({
@@ -98,25 +99,24 @@ export class CategoriesComponent implements OnInit {
     this.getAll();
   }
 
-  getAll() {
-    this.tagService.getAll(this.user.languageBooks, this.sort, this.order).subscribe(
-      data => {
-        this.tags = data;
-        this.title = this.translate.instant('locale.tags.title') + " (" + this.tags.length + ")";      
+  async getAll() {
+    try {
+      const data = await lastValueFrom(this.tagService.getAll(this.user.languageBooks, this.sort, this.order));
 
-      },
-      error => {
-        console.log(error);
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.tags.error.data'), closable: false, life: 5000 });
-      }
-    );
+      this.tags = data;
+      this.title = this.translate.instant('locale.tags.title') + " (" + this.tags.length + ")";
+
+    } catch (error) {
+      console.log(error);
+      this.messageService.clear();
+      this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.tags.error.data'), closable: false, life: 5000 });
+    }
   }
 
   getBooksByTag(tag: Tag) {
     this.reset();
-    
-    let search:Search = new Search();
+
+    let search: Search = new Search();
     search.selectedTags = [];
     search.selectedTags.push(tag.name);
     this.router.navigate(["books"], { queryParams: { adv_search: JSON.stringify(search) } });
@@ -148,20 +148,19 @@ export class CategoriesComponent implements OnInit {
     this.image = true;
   }
 
-  updateImage() {
-    this.messageService.clear();
-    
-    this.tagService.updateImage(this.sourceTag.id).subscribe(
-      data => {
-        this.sourceTag.image = data.image;
-      },
-      error => {
-        console.log(error);
-        this.messageService.clear();
-        this.messageService.add({ key: "rename", severity: 'error', detail: this.translate.instant('locale.tags.error.image'), closable: false, life: 5000 });
-      }
-    );
-    
+  async updateImage() {
+    try {
+      this.messageService.clear();
+
+      const data = await lastValueFrom(this.tagService.updateImage(this.sourceTag.id));
+
+      this.sourceTag.image = data.image;
+
+    } catch (error) {
+      console.log(error);
+      this.messageService.clear();
+      this.messageService.add({ key: "rename", severity: 'error', detail: this.translate.instant('locale.tags.error.image'), closable: false, life: 5000 });
+    }
   }
 
   validateRename(event) {
@@ -208,61 +207,64 @@ export class CategoriesComponent implements OnInit {
 
   }
 
-  doRename() {
+  async doRename() {
+    try {
+      this.messageService.clear();
 
-    this.tagService.rename(this.sourceTag.id, this.newTag).subscribe(
-      data => {
-        this.reset();
-        this.getAll();
-      },
-      error => {
-        console.log(error);
-        this.messageService.clear();
-        this.messageService.add({ key: "rename", severity: 'error', detail: this.translate.instant('locale.tags.error.rename'), closable: false, life: 5000 });
-      }
-    );
+      await lastValueFrom(this.tagService.rename(this.sourceTag.id, this.newTag));
+
+      this.reset();
+      this.getAll();
+
+    } catch (error) {
+      console.log(error);
+      this.messageService.clear();
+      this.messageService.add({ key: "rename", severity: 'error', detail: this.translate.instant('locale.tags.error.rename'), closable: false, life: 5000 });
+    }
 
     this.tags.length = 0;
     this.newTag = null;
   }
 
-  doMerge() {
+  async doMerge() {
+    try {
+      this.messageService.clear();
 
-    this.tagService.merge(this.sourceTag.id, this.targetTag.id).subscribe(
-      data => {
-        this.reset();
-        this.getAll();
-      },
-      error => {
-        console.log(error);
-        this.messageService.clear();
-        this.messageService.add({ key: "merge", severity: 'error', detail: this.translate.instant('locale.tags.error.merge'), closable: false, life: 5000 });
-      }
-    );
+      await lastValueFrom(this.tagService.merge(this.sourceTag.id, this.targetTag.id));
+
+      this.reset();
+      this.getAll();
+
+    } catch (error) {
+      console.log(error);
+      this.messageService.clear();
+      this.messageService.add({ key: "merge", severity: 'error', detail: this.translate.instant('locale.tags.error.merge'), closable: false, life: 5000 });
+    }
 
     this.tags.length = 0;
     this.targetTag = null;
   }
 
-  doImage() {
+  async doImage() {
+    try {
+      this.messageService.clear();
 
-    this.tagService.saveImage(this.sourceTag.id, this.background_image).subscribe(
-      data => {
-        this.reset();
-        this.getAll();
-      },
-      error => {
-        console.log(error);
-        this.messageService.clear();
-        this.messageService.add({ key: "image", severity: 'error', detail: this.translate.instant('locale.tags.error.image'), closable: false, life: 5000 });
-      }
-    );
+      await lastValueFrom(this.tagService.saveImage(this.sourceTag.id, this.background_image));
+
+      this.reset();
+      this.getAll();
+
+    } catch (error) {
+      console.log(error);
+      this.messageService.clear();
+      this.messageService.add({ key: "image", severity: 'error', detail: this.translate.instant('locale.tags.error.image'), closable: false, life: 5000 });
+    }
 
     this.tags.length = 0;
     this.background_image = null;
   }
 
-   private reset() {
+  private reset() {
     this.tags.length = 0;
     this.total = 0;
 
