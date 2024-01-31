@@ -141,6 +141,18 @@ body a {
     white-space: nowrap;
 }
 
+.subtitle-author {
+	font-weight: inherit;
+	font-size: 14px;
+	color: #6c757d;
+	margin-bottom: .1em;
+	display: inline-block;
+	width: 100%;
+	text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
 .p-menu {
 	border: none !important;
 }
