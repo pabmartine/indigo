@@ -90,31 +90,35 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  fillMessages(data: Notif[], user: User) {
+  async fillMessages(data: Notif[], user: User) {
     this.messages = data;
-    this.messages.forEach((message) => {
-      this.bookService.getBookByPath(message.book).subscribe(data => {
-        const book: Book = data;
+  
+    for (const message of this.messages) {
+      try {
+        const book: Book = await lastValueFrom(this.bookService.getBookByPath(message.book));
+  
         let username: string;
         if (user.username == message.user) {
           username = user.username;
-          if (message.error)
+          if (message.error) {
             message.message = this.translate.instant('locale.messages.kindle.error', { book: book.title, user: username });
-          else
+          } else {
             message.message = this.translate.instant('locale.messages.kindle.ok', { book: book.title, user: username });
+          }
         } else {
-          this.userService.get(message.user).subscribe(
-            data => {
-              const user: User = data;
-              if (message.error)
-                message.message = this.translate.instant('locale.messages.kindle.error', { book: book.title, user: user.username });
-              else (message.error)
-              message.message = this.translate.instant('locale.messages.kindle.ok', { book: book.title, user: user.username });
-            });
+          const userData: User = await lastValueFrom(this.userService.get(message.user));
+          if (message.error) {
+            message.message = this.translate.instant('locale.messages.kindle.error', { book: book.title, user: userData.username });
+          } else {
+            message.message = this.translate.instant('locale.messages.kindle.ok', { book: book.title, user: userData.username });
+          }
         }
-      });
-    });
+      } catch (error) {
+        console.log(error);
+      }
+    }
   }
+  
 
   doSearch() {
 
@@ -159,13 +163,15 @@ export class HeaderComponent implements OnInit {
     return JSON.parse(sessionStorage.user).role == 'ADMIN';
   }
 
-  markMessageAsRead(id: string) {
-    const user = JSON.parse(sessionStorage.user);
-    this.notificationService.read(id, user.id).subscribe(
-      data => {
-        this.messages = this.messages.filter(obj => obj.id !== id);
-      }
-    );
+  async markMessageAsRead(id: string) {
+    try {
+      const user = JSON.parse(sessionStorage.user);
+      await lastValueFrom(this.notificationService.read(id, user.id));
+      this.messages = this.messages.filter(obj => obj.id !== id);
+    } catch (error) {
+      console.log(error);
+    }
   }
+  
 
 }

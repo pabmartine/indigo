@@ -9,6 +9,7 @@ import { ConfigService } from 'src/app/services/config.service';
 import { MetadataService } from 'src/app/services/metadata.service';
 import { UserService } from 'src/app/services/user.service';
 import { MailService } from 'src/app/services/mail.service';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-settings',
@@ -89,171 +90,134 @@ export class SettingsComponent implements OnInit {
     console.log(changes)
   }
 
-  getDataStatus() {
-    this.metadataService.getDataStatus().subscribe(
-      data => {
-        this.type = data.type;
-        this.entity = data.entity;
+  async getDataStatus() {
+    try {
+      const data = await lastValueFrom(this.metadataService.getDataStatus());
 
-        this.current = data.current;
-        this.total = data.total;
-        this.message = data.message;
-        if (this.message) {
-          this.message = this.translate.instant('locale.settings.panel.metadata.' + this.message);
-        }
+      this.type = data.type;
+      this.entity = data.entity;
 
-        if (this.total != 0)
-          this.progressBar = Math.round((this.current * 100) / this.total);
-      },
-      error => {
-        console.log(error);
+      this.current = data.current;
+      this.total = data.total;
+      this.message = data.message;
+
+      if (this.message) {
+        this.message = this.translate.instant('locale.settings.panel.metadata.' + this.message);
       }
-    );
+
+      if (this.total !== 0) {
+        this.progressBar = Math.round((this.current * 100) / this.total);
+      }
+
+    } catch (error) {
+      console.log(error);
+    }
   }
 
-  getUsers() {
-    this.userService.getAll().subscribe(
-      data => {
-        if (data)
-          this.userList = data;
-      },
-      error => {
-        console.log(error);
+
+  async getUsers() {
+    try {
+      const data = await lastValueFrom(this.userService.getAll());
+
+      if (data) {
+        this.userList = data;
       }
-    );
+
+    } catch (error) {
+      console.log(error);
+    }
   }
 
-  getGlobal() {
-    this.configService.get("books.recommendations").subscribe(
-      data => {
-        if (data)
-          this.booksRecommendations = Number(data.value);
-      },
-      error => {
-        console.log(error);
-      }
-    );
 
+  async getGlobal() {
+    try {
+      const data = await lastValueFrom(this.configService.get("books.recommendations"));
+
+      if (data) {
+        this.booksRecommendations = Number(data.value);
+      }
+
+    } catch (error) {
+      console.log(error);
+    }
   }
 
-  getMetadata() {
-    this.configService.get("goodreads.key").subscribe(
-      data => {
-        if (data)
-          this.goodReadsKey = data.value;
-      },
-      error => {
-        console.log(error);
+
+  async getMetadata() {
+    try {
+      const data = await lastValueFrom(this.configService.get("goodreads.key"));
+      if (data) {
+        this.goodReadsKey = data.value;
       }
-    );
+    } catch (error) {
+      console.error(error);
+    }
   }
 
-  getSmtp(init: boolean) {
-
-    if (init)
-      this.configService.get("smtp.provider").subscribe(
-        data => {
-          if (data)
-            this.smtpProvider = data.value;
-          else this.smtpProvider = 'other';
-        },
-        error => {
-          console.log(error);
-        }
-      );
-
-    this.configService.get("smtp.host").subscribe(
-      data => {
-        if (data)
-          this.smtpHost = data.value;
-        else this.smtpHost = '';
-      },
-      error => {
-        console.log(error);
+  async getSmtp(init: boolean) {
+    try {
+      if (init) {
+        const providerData = await lastValueFrom(this.configService.get("smtp.provider"));
+        this.smtpProvider = providerData?.value || 'other';
       }
-    );
 
-    this.configService.get("smtp.port").subscribe(
-      data => {
-        if (data)
-          this.smtpPort = data.value;
-        else this.smtpPort = '';
-      },
-      error => {
-        console.log(error);
-      }
-    );
+      const hostData = await lastValueFrom(this.configService.get("smtp.host"));
+      this.smtpHost = hostData?.value || '';
 
-    this.configService.get("smtp.encryption").subscribe(
-      data => {
-        if (data)
-          this.smtpEncryption = data.value;
-        else this.smtpEncryption = '';
-      },
-      error => {
-        console.log(error);
-      }
-    );
+      const portData = await lastValueFrom(this.configService.get("smtp.port"));
+      this.smtpPort = portData?.value || '';
 
-    this.configService.get("smtp.username").subscribe(
-      data => {
-        if (data)
-          this.smtpUsername = data.value;
-        else this.smtpUsername = '';
-      },
-      error => {
-        console.log(error);
-      }
-    );
+      const encryptionData = await lastValueFrom(this.configService.get("smtp.encryption"));
+      this.smtpEncryption = encryptionData?.value || '';
 
-    this.configService.get("smtp.password").subscribe(
-      data => {
-        if (data)
-          this.smtpPassword = data.value;
-        else this.smtpPassword = '';
-      },
-      error => {
-        console.log(error);
-      }
-    );
+      const usernameData = await lastValueFrom(this.configService.get("smtp.username"));
+      this.smtpUsername = usernameData?.value || '';
 
-    this.configService.get("smtp.status").subscribe(
-      data => {
-        if (!data) this.smtpStatus = "unknown";
-        else this.smtpStatus = data.value;
-      },
-      error => {
-        console.log(error);
-      }
-    );
+      const passwordData = await lastValueFrom(this.configService.get("smtp.password"));
+      this.smtpPassword = passwordData?.value || '';
 
+      const statusData = await lastValueFrom(this.configService.get("smtp.status"));
+      this.smtpStatus = statusData?.value || 'unknown';
+
+    } catch (error) {
+      console.error(error);
+    }
   }
 
-  save() {
+  async save() {
+    try {
+      const configs: Config[] = [
+        new Config("goodreads.key", this.goodReadsKey),
+        new Config("smtp.provider", this.smtpProvider),
+        new Config("smtp.host", this.smtpHost),
+        new Config("smtp.port", this.smtpPort),
+        new Config("smtp.encryption", this.smtpEncryption),
+        new Config("smtp.username", this.smtpUsername),
+        new Config("smtp.password", this.smtpPassword),
+        new Config("books.recommendations", String(this.booksRecommendations))
+      ];
 
-    let configs: Config[] = [];
-    configs.push(new Config("goodreads.key", this.goodReadsKey));
-    configs.push(new Config("smtp.provider", this.smtpProvider));
-    configs.push(new Config("smtp.host", this.smtpHost));
-    configs.push(new Config("smtp.port", this.smtpPort));
-    configs.push(new Config("smtp.encryption", this.smtpEncryption));
-    configs.push(new Config("smtp.username", this.smtpUsername));
-    configs.push(new Config("smtp.password", this.smtpPassword));
-    configs.push(new Config("books.recommendations", String(this.booksRecommendations)));
+      await lastValueFrom(this.configService.save(configs));
 
+      this.messageService.add({
+        severity: 'success',
+        detail: this.translate.instant('locale.settings.actions.save.ok'),
+        closable: false,
+        life: 5000
+      });
 
-    this.configService.save(configs).subscribe(
-      data => {
-        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.settings.actions.save.ok'), closable: false, life: 5000 });
-        this.getData();
-      },
-      error => {
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.save.error'), closable: false, life: 5000 });
-        this.getData();
-      }
-    );
+      await this.getData(); // Si getData() devuelve un observable, usa await lastValueFrom(this.getData());
 
+    } catch (error) {
+      this.messageService.add({
+        severity: 'error',
+        detail: this.translate.instant('locale.settings.actions.save.error'),
+        closable: false,
+        life: 5000
+      });
 
+      await this.getData(); // Si getData() devuelve un observable, usa await lastValueFrom(this.getData());
+    }
   }
 
   isBooksFull() {
@@ -290,66 +254,50 @@ export class SettingsComponent implements OnInit {
 
 
 
-  doExecuteMetadata(type: string, entity: string) {
+  async doExecuteMetadata(type: string, entity: string) {
+    try {
+      if (
+        (type === 'FULL' && entity === 'REVIEWS' && this.isReviewsFull()) ||
+        (type === 'PARTIAL' && entity === 'REVIEWS' && this.isReviewsPartial()) ||
+        (type === 'FULL' && entity === 'AUTHORS' && this.isAuthorsFull()) ||
+        (type === 'PARTIAL' && entity === 'AUTHORS' && this.isAuthorsPartial()) ||
+        (type === 'FULL' && entity === 'BOOKS' && this.isBooksFull()) ||
+        (type === 'PARTIAL' && entity === 'BOOKS' && this.isBooksPartial()) ||
+        (type === 'FULL' && entity === 'LOAD' && this.isAllFull()) ||
+        (type === 'PARTIAL' && entity === 'LOAD' && this.isAllPartial())
+      ) {
+        await lastValueFrom(this.metadataService.stop());
+        this.type = null;
+        this.entity = null;
+      } else {
+        await lastValueFrom(this.metadataService.stop());
 
-    if (
-      type === 'FULL' && entity === 'REVIEWS' && this.isReviewsFull() ||
-      type === 'PARTIAL' && entity === 'REVIEWS' && this.isReviewsPartial() ||
-      type === 'FULL' && entity === 'AUTHORS' && this.isAuthorsFull() ||
-      type === 'PARTIAL' && entity === 'AUTHORS' && this.isAuthorsPartial() ||
-      type === 'FULL' && entity === 'BOOKS' && this.isBooksFull() ||
-      type === 'PARTIAL' && entity === 'BOOKS' && this.isBooksPartial() ||
-      type === 'FULL' && entity === 'LOAD' && this.isAllFull() ||
-      type === 'PARTIAL' && entity === 'LOAD' && this.isAllPartial()
-    ) {
-      this.metadataService.stop().subscribe(
-        data => {
-          this.type = null;
-          this.entity = null;
-        },
-        error => {
-          console.log(error);
-          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.stop.error'), closable: false, life: 5000 });
-        });
+        await lastValueFrom(this.metadataService.start("es", type, entity));
+        console.log("Arrancado servicio data");
+      }
+    } catch (error) {
+      console.log(error);
+      const errorMessageKey = error?.error?.message || 'locale.settings.actions.error';
+      this.messageService.add({ severity: 'error', detail: this.translate.instant(errorMessageKey), closable: false, life: 5000 });
     }
-    else
-      this.metadataService.stop().subscribe(
-        data => {
-          this.metadataService.start("es", type, entity).subscribe(
-            data => {
-              console.log("Arrancado servicio data");
-            },
-            error => {
-              console.log(error);
-              this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.start.error'), closable: false, life: 5000 });
-            }
-          );
-        },
-        error => {
-          console.log(error);
-          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.stop.error'), closable: false, life: 5000 });
-        }
-      );
   }
 
-
-
-  doSendTestMail() {
+  async doSendTestMail() {
     this.isSendTestMail = true;
 
-    const user = JSON.parse(sessionStorage.user);
-    this.mailService.sendTestMail(user.kindle).subscribe(
-      data => {
-        this.getSmtp(true);
-        this.isSendTestMail = false;
-      },
-      error => {
-        console.log(error);
-        this.isSendTestMail = false;
-      }
-    );
+    try {
+      const user = JSON.parse(sessionStorage.user);
+      await lastValueFrom(this.mailService.sendTestMail(user.kindle));
 
+      // Refresh SMTP configuration after sending the test mail
+      this.getSmtp(true);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      this.isSendTestMail = false;
+    }
   }
+
 
   newUser() {
     this.router.navigate(["profile"], { queryParams: { type: "new" } });
@@ -360,18 +308,21 @@ export class SettingsComponent implements OnInit {
   }
 
 
-  deleteUser(id: string) {
-    this.userService.delete(id).subscribe(
-      data => {
-        this.getUsers();
-
-      },
-      error => {
-        console.log(error);
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.delete.error'), closable: false, life: 5000 });
-      }
-    );
+  async deleteUser(id: string) {
+    try {
+      await lastValueFrom(this.userService.delete(id));
+      this.getUsers();
+    } catch (error) {
+      console.log(error);
+      this.messageService.add({
+        severity: 'error',
+        detail: this.translate.instant('locale.settings.actions.delete.error'),
+        closable: false,
+        life: 5000
+      });
+    }
   }
+
 
   onChange(event) {
     switch (event.value) {

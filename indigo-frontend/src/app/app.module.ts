@@ -39,7 +39,7 @@ import { TranslateModule, TranslateLoader, MissingTranslationHandler, MissingTra
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { HttpClient } from '@angular/common/http';
 
-import { take } from 'rxjs';
+import { lastValueFrom, take } from 'rxjs';
 
 
 // AoT requires an exported function for factories
@@ -71,7 +71,7 @@ export function appInitializerFactory(translateService: TranslateService, inject
     const locationInitialized = injector.get(LOCATION_INITIALIZED, Promise.resolve(null));
     
     // Esperar hasta que la ubicación se haya inicializado
-    locationInitialized.then(() => {
+    locationInitialized.then(async () => {
 
       // Obtener el lenguaje del navegador del usuario
       const browserLanguage = window.navigator.language;
@@ -81,13 +81,12 @@ export function appInitializerFactory(translateService: TranslateService, inject
 
       // Usar el idioma almacenado en el almacenamiento local o el idioma mapeado,
       // y suscribirse al resultado
-      translateService.use(localStorage.getItem("language") || mappedLanguage)
-        .pipe(take(1))
-        .subscribe(
-          () => {}, // No se necesita hacer nada en caso de éxito
-          err => console.error(err), // Manejar el error en caso de que ocurra
-          () => resolve(null) // Resolver la promesa una vez que la operación esté completa
-        );
+      await lastValueFrom(
+        translateService.use(localStorage.getItem("language") || mappedLanguage)
+          .pipe(take(1))
+      );
+      
+      resolve(null); // Resolver la promesa una vez que la operación esté completa
     });
   });
 }

@@ -9,6 +9,7 @@ import { BookService } from 'src/app/services/book.service';
 import { DetailComponent } from '../detail/detail.component';
 import { AuthorComponent } from '../author/author.component';
 import { Author } from 'src/app/domain/author';
+import { lastValueFrom } from 'rxjs';
 
 
 
@@ -151,44 +152,43 @@ export class RecommendationsComponent implements OnInit {
     document.documentElement.scrollTop = 0; // Other
   }
 
-  count() {
-    const user = JSON.parse(sessionStorage.user);
+  async count() {
+    try {
+      const user = JSON.parse(sessionStorage.user);
+      const data = await lastValueFrom(this.bookService.countRecommendationsByUser(user.username));
 
-    this.bookService.countRecommendationsByUser(user.username).subscribe(
-      data => {
-        this.total = data;
-        this.lastPage = this.total / this.size;
-        this.title = this.translate.instant('locale.books.recommendations.title2') + " (" + this.total + ")";
-      },
-      error => {
-        console.log(error);
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.error.data'), closable: false, life: 5000 });
-      }
-    );
+      this.total = data;
+      this.lastPage = this.total / this.size;
+      this.title = this.translate.instant('locale.books.recommendations.title2') + " (" + this.total + ")";
+
+    } catch (error) {
+      console.log(error);
+      this.messageService.clear();
+      this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.error.data'), closable: false, life: 5000 });
+    }
   }
 
-  getAll() {
-    const user = JSON.parse(sessionStorage.user);
-    this.bookService.getRecommendationsByUser(user.username, this.page, this.size, this.sort, this.order).subscribe(
-      data => {
 
-        data.forEach((book) => {
-          let objectURL = 'data:image/jpeg;base64,' + book.image;
-          book.image = objectURL;
-        });
+  async getAll() {
+    try {
+      const user = JSON.parse(sessionStorage.user);
+      const data = await lastValueFrom(this.bookService.getRecommendationsByUser(user.username, this.page, this.size, this.sort, this.order));
 
-        Array.prototype.push.apply(this.books, data);
-        this.page++;
+      data.forEach((book) => {
+        let objectURL = 'data:image/jpeg;base64,' + book.image;
+        book.image = objectURL;
+      });
 
-      },
-      error => {
-        console.log(error);
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.error.data'), closable: false, life: 5000 });
-      }
-    );
+      Array.prototype.push.apply(this.books, data);
+      this.page++;
+
+    } catch (error) {
+      console.log(error);
+      this.messageService.clear();
+      this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.error.data'), closable: false, life: 5000 });
+    }
   }
+
 
 
   showDetail: boolean;
@@ -202,10 +202,10 @@ export class RecommendationsComponent implements OnInit {
     this.showDetail = true;
   }
 
-  closeDetails(){
+  closeDetails() {
     this.showDetail = false;
   }
-  openDetails(){
+  openDetails() {
     this.showDetail = true;
   }
 
@@ -227,24 +227,23 @@ export class RecommendationsComponent implements OnInit {
     this.detailComponent.showDetails(book);
   }
 
-  openAuthor(sort: string) {
-    this.showDetail = false;
-    this.authorService.getByName(sort).subscribe(
-      data => {
-        if (data)
-          if (data.image) {
-            let objectURL = 'data:image/jpeg;base64,' + data.image;
-            data.image = objectURL;
-          }
-        this.authorComponent.showDetails(data);
-      },
-      error => {
-        console.log(error);
+  async openAuthor(sort: string) {
+    try {
+      this.showDetail = false;
+      const data = await lastValueFrom(this.authorService.getByName(sort));
+
+      if (data && data.image) {
+        let objectURL = 'data:image/jpeg;base64,' + data.image;
+        data.image = objectURL;
       }
-    );
 
+      this.authorComponent.showDetails(data);
 
+    } catch (error) {
+      console.log(error);
+    }
   }
+
 
 
   private doSearch() {
