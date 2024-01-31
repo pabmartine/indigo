@@ -5,4 +5,3 @@
 - Remove the Calibre dependency. Uploads will be direct by selecting an ePub file or from a compressed file containing multiple ePub files. Another option is to have an upload folder where files to be uploaded can be placed.
 - In an author's detail, their books do not have the reviews icon.
 - In the detail of a book, suggestions, likes, etc. do not have the reviews icon.
-- In Series, get the cover image from the backend during de first call (getAll), and not for each one of the getAll response.

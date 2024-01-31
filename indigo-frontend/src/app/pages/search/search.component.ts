@@ -5,7 +5,6 @@ import { Tag } from 'src/app/domain/tag';
 import { SelectItem } from 'primeng/api';
 import { Search } from 'src/app/domain/search';
 import { Router } from '@angular/router';
-import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-search',
@@ -35,19 +34,16 @@ export class SearchComponent implements OnInit {
     this.router.navigate(["books"], { queryParams: { adv_search: JSON.stringify(this.search) } });
   }
 
-  async getAllTags() {
-    try {
-      this.tags.length = 0;
-      const data = await lastValueFrom(this.tagService.getAll(this.user.languageBooks, "name", "asc"));
+  getAllTags() {
+    this.tags.length = 0;
+    this.tagService.getAll(this.user.languageBooks, "name", "asc").subscribe(
+      data => {
+        data.forEach((tag) => {
+          this.tags.push({ label: tag.name, value: tag.name });
+        });
+      }
+    );
 
-      data.forEach((tag) => {
-        this.tags.push({ label: tag.name, value: tag.name });
-      });
-
-    } catch (error) {
-      console.log(error);
-    }
   }
-
 
 }

@@ -6,7 +6,6 @@ import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 import { Search } from 'src/app/domain/search';
-import { lastValueFrom } from 'rxjs';
 
 
 @Component({
@@ -104,7 +103,7 @@ export class SeriesComponent implements OnInit {
   onScroll() {
     if (this.series.length < this.total) {
       this.getAll();
-    }
+    } 
   }
 
   scrollTop() {
@@ -112,61 +111,59 @@ export class SeriesComponent implements OnInit {
     document.documentElement.scrollTop = 0; // Other
   }
 
-  async count() {
-    try {
-      const data = await lastValueFrom(this.serieService.count(this.user.languageBooks));
+  count() {
+    this.serieService.count(this.user.languageBooks).subscribe(
+      data => {
+        this.total = data;
+        this.lastPage = this.total / this.size;
+        this.title = this.translate.instant('locale.series.title') + " (" + this.total + ")";
 
-      this.total = data;
-      this.lastPage = this.total / this.size;
-      this.title = this.translate.instant('locale.series.title') + " (" + this.total + ")";
-
-      this.getAll();
-
-    } catch (error) {
-      console.log(error);
-      this.messageService.clear();
-      this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.series.error.data'), closable: false, life: 5000 });
-    }
-  }
-
-
-  async getAll() {
-    try {
-      const data = await lastValueFrom(this.serieService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order));
-
-      // Get cover
-      for (const serie of data) {
-        await this.getCover(serie);
+        this.getAll();
+      },
+      error => {
+        console.log(error);
+        this.messageService.clear();
+        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.series.error.data'), closable: false, life: 5000 });
       }
-
-      Array.prototype.push.apply(this.series, data);
-      this.page++;
-
-    } catch (error) {
-      console.log(error);
-      this.messageService.clear();
-      this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.series.error.data'), closable: false, life: 5000 });
-    }
+    );
   }
 
+  getAll() {
+    this.serieService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order).subscribe(
+      data => {
 
-  async getCover(serie: Serie) {
-    try {
-      const data = await lastValueFrom(this.serieService.getCover(serie.name));
+        //Get cover
+        data.forEach((serie) => {
+          this.getCover(serie);
+        });
 
-      let objectURL = 'data:image/jpeg;base64,' + data.image;
-      serie.image = objectURL;
-
-    } catch (error) {
-      console.log(error);
-    }
+        Array.prototype.push.apply(this.series, data);
+        this.page++;
+      },
+      error => {
+        console.log(error);
+        this.messageService.clear();
+        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.series.error.data'), closable: false, life: 5000 });
+      }
+    );
   }
 
+  getCover(serie: Serie) {
+    this.serieService.getCover(serie.name).subscribe(
+      data => {
+        let objectURL = 'data:image/jpeg;base64,' + data.image;
+        serie.image = objectURL;
+      },
+      error => {
+        console.log(error);
+      }
+    );
+  }
 
   getBooksBySerie(serie: string) {
     this.reset();
 
-    let search: Search = new Search();
+    let search:Search = new Search();
     search.serie = serie;
     this.router.navigate(["books"], { queryParams: { adv_search: JSON.stringify(search) } });
   }

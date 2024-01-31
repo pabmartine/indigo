@@ -268,31 +268,34 @@ export class DetailComponent implements OnInit {
     }
   }
 
-  async sendToKindle() {
-    try {
-      const book = this.selected.path;
-      const user = JSON.parse(sessionStorage.user);
+  sendToKindle() {
+    let book = this.selected.path;
+    const user = JSON.parse(sessionStorage.user);
 
-      this.messageService.clear();
-      this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.kindle.todo'), closable: false, life: 5000 });
+    this.messageService.clear();
+    this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.kindle.todo'), closable: false, life: 5000 });
 
-      const data = await lastValueFrom(this.mailService.sendMail(book, user.kindle));
+    this.mailService.sendMail(book, user.kindle).subscribe(
+      data => {
+        this.messageService.clear();
+        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.kindle.ok'), closable: false, life: 5000 });
 
-      this.messageService.clear();
-      this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.kindle.ok'), closable: false, life: 5000 });
+        //Add to notifications table
+        this.addNotification(book, NotificationEnum.KINDLE, StatusEnum.SEND, null);
 
-      // Add to notifications table
-      this.addNotification(book, NotificationEnum.KINDLE, StatusEnum.SEND, null);
-    } catch (error) {
-      console.log(error);
-      this.messageService.clear();
-      this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.kindle.error'), closable: false, life: 5000 });
+      },
+      error => {
+        console.log(error);
+        this.messageService.clear();
+        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.kindle.error'), closable: false, life: 5000 });
 
-      // Add to notifications table
-      this.addNotification(this.selected.path.toString(), NotificationEnum.KINDLE, StatusEnum.NOT_SEND, error.error.message);
-    }
+        //Add to notifications table
+        this.addNotification(book + '', NotificationEnum.KINDLE, StatusEnum.NOT_SEND, error.error.message);
+      }
+    );
+
+
   }
-
 
 
   async getKindle() {
@@ -325,15 +328,14 @@ export class DetailComponent implements OnInit {
   }
 
 
-  async view(id: string) {
-    try {
-      const user = JSON.parse(sessionStorage.user);
-      await lastValueFrom(this.bookService.view(id, user.username));
-    } catch (error) {
-      console.log(error);
-    }
+  view(id: string) {
+    const user = JSON.parse(sessionStorage.user);
+    this.bookService.view(id, user.username).subscribe(
+      error => {
+        console.log(error);
+      }
+    );
   }
-
 
   async addFavoriteBook() {
     const user = JSON.parse(sessionStorage.user);
