@@ -1,13 +1,12 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService, TranslationChangeEvent } from '@ngx-translate/core';
 import { MessageService, SelectItem } from 'primeng/api';
-import { User } from 'src/app/domain/user';
-import { UserService } from 'src/app/services/user.service';
-import { ActivatedRoute, Router } from '@angular/router';
 import { Book } from 'src/app/domain/book';
-import { BookService } from 'src/app/services/book.service';
 import { Search } from 'src/app/domain/search';
-import { MultiSelect } from 'primeng/multiselect';
+import { User } from 'src/app/domain/user';
+import { BookService } from 'src/app/services/book.service';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-profile',
@@ -76,19 +75,19 @@ export class ProfileComponent implements OnInit {
     return valid;
   }
 
-  getUser(username:string){
-    this.userService.get(username).subscribe(
-      data => {
-       this.param = { username: data.username };
-       this.user = data;
-      },
-      error => {
-        console.log(error);
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.profile.error.get'), closable: false, life: 5000 });
+  getUser(username: string): void {
+  this.userService.get(username).subscribe({
+    next: (data) => {
+      this.param = { username: data.username };
+      this.user = data;
+    },
+    error: (error) => {
+      console.log(error);
+      this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.profile.error.get'), closable: false, life: 5000 });
+    }
+  });
+}
 
-      }
-    );
-  }
 
   setLanguages(){
     this.languages = [
@@ -112,19 +111,16 @@ export class ProfileComponent implements OnInit {
     );
   }
 
-  update() {
-
+  update(): void {
     this.setLanguages();
-
     this.messageService.clear();
-    
-    this.userService.update(this.user).subscribe(
-      data => {
-
-        if (JSON.parse(sessionStorage.user).id != this.user.id){
+  
+    this.userService.update(this.user).subscribe({
+      next: (data) => {
+        if (JSON.parse(sessionStorage.user).id !== this.user.id) {
           this.router.navigate(["settings"]);
         } else {
-          if (this.changedLang){
+          if (this.changedLang) {
             let translations: any = (<any>this.translate).translations[this.translate.currentLang];
   
             this.translate.onTranslationChange.emit(<TranslationChangeEvent>{
@@ -132,49 +128,47 @@ export class ProfileComponent implements OnInit {
               lang: this.translate.currentLang
             });
           }
-          //Store user in session        
+  
+          // Store user in session
           sessionStorage.setItem('user', JSON.stringify(this.user));
   
           this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.profile.ok.update'), closable: false, life: 5000 });
         }
-
-       
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.profile.error.update'), closable: false, life: 5000 });
-
       }
-    );
+    });
   }
+  
 
-  save() {
+  save(): void {
     this.messageService.clear();
-
-    this.userService.get(this.user.username).subscribe(
-      data => {
-        if (data){
+  
+    this.userService.get(this.user.username).subscribe({
+      next: (data) => {
+        if (data) {
           this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.profile.error.name'), closable: false, life: 5000 });
         } else {
-          this.userService.save(this.user).subscribe(
-            data => {
+          this.userService.save(this.user).subscribe({
+            next: (data) => {
               this.router.navigate(["settings"]);
             },
-            error => {
+            error: (error) => {
               console.log(error);
               this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.profile.error.save'), closable: false, life: 5000 });
-      
             }
-          );
+          });
         }
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.profile.error.get'), closable: false, life: 5000 });
-
       }
-    );    
+    });
   }
+  
 
   doTranslate(){
     if (this.translate.currentLang != this.user.language) {
@@ -186,23 +180,23 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-   getBooks() {
+  getBooks(): void {
     const user = JSON.parse(sessionStorage.user);
-    this.bookService.getSent(user.username).subscribe(
-      data => {
-
+    this.bookService.getSent(user.username).subscribe({
+      next: (data) => {
         data.forEach((book) => {
           let objectURL = 'data:image/jpeg;base64,' + book.image;
           book.image = objectURL;
         });
-
+  
         Array.prototype.push.apply(this.books, data);
       },
-      error => {
+      error: (error) => {
         console.log(error);
       }
-    );
+    });
   }
+  
 
   searchBookByAuthor(author: string) {
     let search:Search = new Search();

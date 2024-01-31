@@ -98,20 +98,20 @@ export class CategoriesComponent implements OnInit {
     this.getAll();
   }
 
-  getAll() {
-    this.tagService.getAll(this.user.languageBooks, this.sort, this.order).subscribe(
-      data => {
+  getAll(): void {
+    this.tagService.getAll(this.user.languageBooks, this.sort, this.order).subscribe({
+      next: (data) => {
         this.tags = data;
-        this.title = this.translate.instant('locale.tags.title') + " (" + this.tags.length + ")";      
-
+        this.title = this.translate.instant('locale.tags.title') + " (" + this.tags.length + ")";
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.tags.error.data'), closable: false, life: 5000 });
       }
-    );
+    });
   }
+  
 
   getBooksByTag(tag: Tag) {
     this.reset();
@@ -148,21 +148,21 @@ export class CategoriesComponent implements OnInit {
     this.image = true;
   }
 
-  updateImage() {
+  updateImage(): void {
     this.messageService.clear();
-    
-    this.tagService.updateImage(this.sourceTag.id).subscribe(
-      data => {
+  
+    this.tagService.updateImage(this.sourceTag.id).subscribe({
+      next: (data) => {
         this.sourceTag.image = data.image;
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ key: "rename", severity: 'error', detail: this.translate.instant('locale.tags.error.image'), closable: false, life: 5000 });
       }
-    );
-    
+    });
   }
+  
 
   validateRename(event) {
     var found = this.sortedTags.filter(tag => {
@@ -208,59 +208,59 @@ export class CategoriesComponent implements OnInit {
 
   }
 
-  doRename() {
-
-    this.tagService.rename(this.sourceTag.id, this.newTag).subscribe(
-      data => {
+  doRename(): void {
+    this.tagService.rename(this.sourceTag.id, this.newTag).subscribe({
+      next: (data) => {
         this.reset();
         this.getAll();
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ key: "rename", severity: 'error', detail: this.translate.instant('locale.tags.error.rename'), closable: false, life: 5000 });
       }
-    );
-
+    });
+  
     this.tags.length = 0;
     this.newTag = null;
   }
+  
 
-  doMerge() {
-
-    this.tagService.merge(this.sourceTag.id, this.targetTag.id).subscribe(
-      data => {
+  doMerge(): void {
+    this.tagService.merge(this.sourceTag.id, this.targetTag.id).subscribe({
+      next: (data) => {
         this.reset();
         this.getAll();
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ key: "merge", severity: 'error', detail: this.translate.instant('locale.tags.error.merge'), closable: false, life: 5000 });
       }
-    );
-
+    });
+  
     this.tags.length = 0;
     this.targetTag = null;
   }
+  
 
-  doImage() {
-
-    this.tagService.saveImage(this.sourceTag.id, this.background_image).subscribe(
-      data => {
+  doImage(): void {
+    this.tagService.saveImage(this.sourceTag.id, this.background_image).subscribe({
+      next: (data) => {
         this.reset();
         this.getAll();
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ key: "image", severity: 'error', detail: this.translate.instant('locale.tags.error.image'), closable: false, life: 5000 });
       }
-    );
-
+    });
+  
     this.tags.length = 0;
     this.background_image = null;
   }
+  
 
    private reset() {
     this.tags.length = 0;

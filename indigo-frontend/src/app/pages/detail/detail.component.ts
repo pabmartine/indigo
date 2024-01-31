@@ -113,74 +113,79 @@ export class DetailComponent implements OnInit {
     ];
   }
 
-  getImage(path: string) {
+  getImage(path: string): void {
     this.selectedImage = this.selected.image;
-    if (path)
-      this.bookService.getImage(path).subscribe(
-        data => {
+    
+    if (path) {
+      this.bookService.getImage(path).subscribe({
+        next: (data) => {
           if (data) {
             let objectURL = 'data:image/jpeg;base64,' + data.image;
             this.selectedImage = objectURL;
           }
         },
-        error => {
+        error: (error) => {
           console.log(error);
         }
-      );
+      });
+    }
   }
+  
 
-  getSerie(serie: Serie) {
-    if (serie)
-
-      this.bookService.getSerie(serie.name, this.user.languageBooks).subscribe(
-        data => {
+  getSerie(serie: Serie): void {
+    if (serie) {
+      this.bookService.getSerie(serie.name, this.user.languageBooks).subscribe({
+        next: (data) => {
           data.forEach((book) => {
             let objectURL = 'data:image/jpeg;base64,' + book.image;
             book.image = objectURL;
           });
           Array.prototype.push.apply(this.serie, data);
-
         },
-        error => {
+        error: (error) => {
           console.log(error);
         }
-      );
+      });
+    }
   }
+  
 
-  getSimilar(similar: string[]) {
-    if (similar)
-      this.bookService.getSimilar(similar, this.user.languageBooks).subscribe(
-        data => {
+  getSimilar(similar: string[]): void {
+    if (similar) {
+      this.bookService.getSimilar(similar, this.user.languageBooks).subscribe({
+        next: (data) => {
           data.forEach((book) => {
             let objectURL = 'data:image/jpeg;base64,' + book.image;
             book.image = objectURL;
           });
           Array.prototype.push.apply(this.similar, data);
-
         },
-        error => {
+        error: (error) => {
           console.log(error);
         }
-      );
+      });
+    }
   }
+  
 
 
-  getRecommendations(recommendations: string[]) {
-    if (recommendations)
-      this.bookService.getRecommendationsByBook(recommendations, this.user.languageBooks).subscribe(
-        data => {
+  getRecommendations(recommendations: string[]): void {
+    if (recommendations) {
+      this.bookService.getRecommendationsByBook(recommendations, this.user.languageBooks).subscribe({
+        next: (data) => {
           data.forEach((book) => {
             let objectURL = 'data:image/jpeg;base64,' + book.image;
             book.image = objectURL;
           });
           Array.prototype.push.apply(this.recommendations, data);
-
         },
-        error => {
+        error: (error) => {
           console.log(error);
         }
-      );
+      });
+    }
   }
+  
 
 
 
@@ -240,75 +245,79 @@ export class DetailComponent implements OnInit {
   }
 
 
-  addNotification(book: string, type: NotificationEnum, status: StatusEnum, error: string) {
+  addNotification(book: string, type: NotificationEnum, status: StatusEnum, error: string): void {
     const user = JSON.parse(sessionStorage.user);
-
+  
     const notification = new Notif(null, book, user.username, type, status, error, this.datepipe.transform(new Date(), 'dd/MM/yyyy HH:mm:ss'));
-    this.notificationService.save(notification).subscribe(
-      data => {
+  
+    this.notificationService.save(notification).subscribe({
+      next: (data) => {
         console.log(data);
       },
-      error => {
+      error: (error) => {
         console.log(error);
       }
-    );
+    });
   }
+  
 
-  sendToKindle() {
-    let book = this.selected.path;
+  sendToKindle(): void {
+    const book = this.selected.path;
     const user = JSON.parse(sessionStorage.user);
-
+  
     this.messageService.clear();
     this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.kindle.todo'), closable: false, life: 5000 });
-
-    this.mailService.sendMail(book, user.kindle).subscribe(
-      data => {
+  
+    this.mailService.sendMail(book, user.kindle).subscribe({
+      next: (data) => {
         this.messageService.clear();
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.kindle.ok'), closable: false, life: 5000 });
-
-        //Add to notifications table
+  
+        // Add to notifications table
         this.addNotification(book, NotificationEnum.KINDLE, StatusEnum.SEND, null);
-
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.kindle.error'), closable: false, life: 5000 });
-
-        //Add to notifications table
+  
+        // Add to notifications table
         this.addNotification(book + '', NotificationEnum.KINDLE, StatusEnum.NOT_SEND, error.error.message);
       }
-    );
-
-
+    });
   }
+  
 
 
-  getKindle() {
-    this.configService.get("smtp.status").subscribe(
-      data => {
-        if (data.value == 'ok')
+  getKindle(): void {
+    this.configService.get("smtp.status").subscribe({
+      next: (data) => {
+        if (data.value == 'ok') {
           this.kindle = true;
+        }
       },
-      error => {
+      error: (error) => {
         console.log(error);
       }
-    );
+    });
   }
+  
 
-  getFavoriteBook(id: string) {
+  getFavoriteBook(id: string): void {
     const user = JSON.parse(sessionStorage.user);
-    this.bookService.getFavorite(id, user.username).subscribe(
-      data => {
+  
+    this.bookService.getFavorite(id, user.username).subscribe({
+      next: (data) => {
         if (data) {
           this.favoriteBook = true;
         }
       },
-      error => {
+      error: (error) => {
         console.log(error);
       }
-    );
+    });
   }
+  
 
   view(id: string) {
     const user = JSON.parse(sessionStorage.user);
@@ -319,39 +328,43 @@ export class DetailComponent implements OnInit {
     );
   }
 
-  addFavoriteBook() {
+  addFavoriteBook(): void {
     const user = JSON.parse(sessionStorage.user);
-    this.bookService.addFavorite(this.selected.path, user.username).subscribe(
-      data => {
+  
+    this.bookService.addFavorite(this.selected.path, user.username).subscribe({
+      next: (data) => {
         this.favoriteBook = true;
         this.messageService.clear();
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.favorite.add.ok'), closable: false, life: 5000 });
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.favorite.add.error'), closable: false, life: 5000 });
       }
-    );
+    });
   }
+  
 
 
 
-  deleteFavoriteBook() {
+  deleteFavoriteBook(): void {
     const user = JSON.parse(sessionStorage.user);
-    this.bookService.deleteFavorite(this.selected.path, user.username).subscribe(
-      data => {
+  
+    this.bookService.deleteFavorite(this.selected.path, user.username).subscribe({
+      next: (data) => {
         this.favoriteBook = false;
         this.messageService.clear();
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.favorite.delete.ok'), closable: false, life: 5000 });
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.favorite.delete.error'), closable: false, life: 5000 });
       }
-    );
+    });
   }
+  
 
   viewEpub() {
 
@@ -392,47 +405,50 @@ export class DetailComponent implements OnInit {
 */
   }
 
-  downloadEpub() {
-    this.bookService.getEpub(this.selected.path).subscribe(
-      data => {
+  downloadEpub(): void {
+    this.bookService.getEpub(this.selected.path).subscribe({
+      next: (data) => {
         saveAs(data, this.selected.title);
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.download.error'), closable: false, life: 5000 });
       }
-    );
+    });
   }
+  
 
   isAdmin() {
     return JSON.parse(sessionStorage.user).role == 'ADMIN';
   }
 
-  refreshBook() {
+  refreshBook(): void {
     this.messageService.clear();
     this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.refresh.process'), closable: false, life: 5000 });
-    this.metadataService.findBook(this.selected.path, "es").subscribe(
-      data => {
+  
+    this.metadataService.findBook(this.selected.path, "es").subscribe({
+      next: (data) => {
         this.selected = data;
-
+  
         if (data.image) {
           let objectURL = 'data:image/jpeg;base64,' + data.image;
           this.selected.image = objectURL;
         }
-        
+  
         this.eventBook.emit(this.selected);
-
+  
         this.messageService.clear();
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.refresh.result.ok'), closable: false, life: 5000 });
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.refresh.result.error'), closable: false, life: 5000 });
       }
-    );
+    });
   }
+  
 
   showDialogMaximized(dialog: Dialog) {
     dialog.maximize();
@@ -466,20 +482,21 @@ export class DetailComponent implements OnInit {
     this.eventOpen.emit();
   }
 
-  deleteBook() {
-    this.bookService.deleteBook(this.selected.id).subscribe(
-      data => {
+  deleteBook(): void {
+    this.bookService.deleteBook(this.selected.id).subscribe({
+      next: (data) => {
         this.deleteBookEvent.emit(this.selected.id);
         this.messageService.clear();
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.delete.ok'), closable: false, life: 5000 });
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.delete.error'), closable: false, life: 5000 });
       }
-    );
+    });
   }
+  
 
   editBook() {
     this.editedBook = this.selected;
@@ -487,20 +504,21 @@ export class DetailComponent implements OnInit {
     //this.close();
   }
 
-  saveBook(){
-    this.bookService.editBook(this.editedBook).subscribe(
-      data => {
+  saveBook(): void {
+    this.bookService.editBook(this.editedBook).subscribe({
+      next: (data) => {
         this.eventBook.emit(this.editedBook);
         this.messageService.clear();
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.edit.ok'), closable: false, life: 5000 });
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.edit.error'), closable: false, life: 5000 });
       }
-    );
+    });
   }
+  
 
   checkOverflowRecommendations() {
     let row = document.getElementById('inlineRecommendations');

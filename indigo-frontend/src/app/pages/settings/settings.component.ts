@@ -2,13 +2,14 @@ import { Component, OnInit, SimpleChanges } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageService, SelectItem } from 'primeng/api';
+import { forkJoin } from 'rxjs';
 import { Config } from 'src/app/domain/config';
 import { User } from 'src/app/domain/user';
 import { AuthorService } from 'src/app/services/author.service';
 import { ConfigService } from 'src/app/services/config.service';
+import { MailService } from 'src/app/services/mail.service';
 import { MetadataService } from 'src/app/services/metadata.service';
 import { UserService } from 'src/app/services/user.service';
-import { MailService } from 'src/app/services/mail.service';
 
 @Component({
   selector: 'app-settings',
@@ -72,7 +73,7 @@ export class SettingsComponent implements OnInit {
     this.getUsers();
     this.getGlobal();
     this.getMetadata();
-    this.getSmtp(true);
+    this.getSmtp();
   }
 
   ngOnInit(): void {
@@ -89,172 +90,125 @@ export class SettingsComponent implements OnInit {
     console.log(changes)
   }
 
-  getDataStatus() {
-    this.metadataService.getDataStatus().subscribe(
-      data => {
+  getDataStatus(): void {
+    this.metadataService.getDataStatus().subscribe({
+      next: (data) => {
         this.type = data.type;
         this.entity = data.entity;
-
         this.current = data.current;
         this.total = data.total;
         this.message = data.message;
+  
         if (this.message) {
           this.message = this.translate.instant('locale.settings.panel.metadata.' + this.message);
         }
-
-        if (this.total != 0)
+  
+        if (this.total !== 0) {
           this.progressBar = Math.round((this.current * 100) / this.total);
-      },
-      error => {
-        console.log(error);
-      }
-    );
-  }
-
-  getUsers() {
-    this.userService.getAll().subscribe(
-      data => {
-        if (data)
-          this.userList = data;
-      },
-      error => {
-        console.log(error);
-      }
-    );
-  }
-
-  getGlobal() {
-    this.configService.get("books.recommendations").subscribe(
-      data => {
-        if (data)
-          this.booksRecommendations = Number(data.value);
-      },
-      error => {
-        console.log(error);
-      }
-    );
-
-  }
-
-  getMetadata() {
-    this.configService.get("goodreads.key").subscribe(
-      data => {
-        if (data)
-          this.goodReadsKey = data.value;
-      },
-      error => {
-        console.log(error);
-      }
-    );
-  }
-
-  getSmtp(init: boolean) {
-
-    if (init)
-      this.configService.get("smtp.provider").subscribe(
-        data => {
-          if (data)
-            this.smtpProvider = data.value;
-          else this.smtpProvider = 'other';
-        },
-        error => {
-          console.log(error);
         }
-      );
-
-    this.configService.get("smtp.host").subscribe(
-      data => {
-        if (data)
-          this.smtpHost = data.value;
-        else this.smtpHost = '';
       },
-      error => {
+      error: (error) => {
         console.log(error);
       }
-    );
+    });
+  }
+  
 
-    this.configService.get("smtp.port").subscribe(
-      data => {
-        if (data)
-          this.smtpPort = data.value;
-        else this.smtpPort = '';
+  getUsers(): void {
+    this.userService.getAll().subscribe({
+      next: (data) => {
+        if (data) {
+          this.userList = data;
+        }
       },
-      error => {
+      error: (error) => {
         console.log(error);
       }
-    );
+    });
+  }
+  
 
-    this.configService.get("smtp.encryption").subscribe(
-      data => {
-        if (data)
-          this.smtpEncryption = data.value;
-        else this.smtpEncryption = '';
+  getGlobal(): void {
+    this.configService.get("books.recommendations").subscribe({
+      next: (data) => {
+        if (data) {
+          this.booksRecommendations = Number(data.value);
+        }
       },
-      error => {
+      error: (error) => {
         console.log(error);
       }
-    );
+    });
+  }
+  
 
-    this.configService.get("smtp.username").subscribe(
-      data => {
-        if (data)
-          this.smtpUsername = data.value;
-        else this.smtpUsername = '';
+  getMetadata(): void {
+    this.configService.get("goodreads.key").subscribe({
+      next: (data) => {
+        if (data) {
+          this.goodReadsKey = data.value;
+        }
       },
-      error => {
+      error: (error) => {
         console.log(error);
       }
-    );
+    });
+  }
+  
 
-    this.configService.get("smtp.password").subscribe(
-      data => {
-        if (data)
-          this.smtpPassword = data.value;
-        else this.smtpPassword = '';
+  getSmtp(): void {
+    const observables = [
+      this.configService.get("smtp.provider"),
+      this.configService.get("smtp.host"),
+      this.configService.get("smtp.port"),
+      this.configService.get("smtp.encryption"),
+      this.configService.get("smtp.username"),
+      this.configService.get("smtp.password"),
+      this.configService.get("smtp.status")
+    ];
+  
+    forkJoin(observables).subscribe({
+      next: ([provider, host, port, encryption, username, password, status]) => {
+        this.smtpProvider = provider?.value || 'other';
+        this.smtpHost = host?.value || '';
+        this.smtpPort = port?.value || '';
+        this.smtpEncryption = encryption?.value || '';
+        this.smtpUsername = username?.value || '';
+        this.smtpPassword = password?.value || '';
+        this.smtpStatus = status?.value || 'unknown';
       },
-      error => {
+      error: (error) => {
         console.log(error);
       }
-    );
-
-    this.configService.get("smtp.status").subscribe(
-      data => {
-        if (!data) this.smtpStatus = "unknown";
-        else this.smtpStatus = data.value;
-      },
-      error => {
-        console.log(error);
-      }
-    );
-
+    });
+  
   }
 
-  save() {
-
-    let configs: Config[] = [];
-    configs.push(new Config("goodreads.key", this.goodReadsKey));
-    configs.push(new Config("smtp.provider", this.smtpProvider));
-    configs.push(new Config("smtp.host", this.smtpHost));
-    configs.push(new Config("smtp.port", this.smtpPort));
-    configs.push(new Config("smtp.encryption", this.smtpEncryption));
-    configs.push(new Config("smtp.username", this.smtpUsername));
-    configs.push(new Config("smtp.password", this.smtpPassword));
-    configs.push(new Config("books.recommendations", String(this.booksRecommendations)));
-
-
-    this.configService.save(configs).subscribe(
-      data => {
+  save(): void {
+    const configs: Config[] = [
+      new Config("goodreads.key", this.goodReadsKey),
+      new Config("smtp.provider", this.smtpProvider),
+      new Config("smtp.host", this.smtpHost),
+      new Config("smtp.port", this.smtpPort),
+      new Config("smtp.encryption", this.smtpEncryption),
+      new Config("smtp.username", this.smtpUsername),
+      new Config("smtp.password", this.smtpPassword),
+      new Config("books.recommendations", String(this.booksRecommendations))
+    ];
+  
+    this.configService.save(configs).subscribe({
+      next: () => {
+        this.messageService.clear();
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.settings.actions.save.ok'), closable: false, life: 5000 });
-        this.getData();
       },
-      error => {
+      error: (error) => {
+        this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.save.error'), closable: false, life: 5000 });
-        this.getData();
+        console.error(error);
       }
-    );
-
-
+    });
   }
+  
 
   isBooksFull() {
     return this.type === 'FULL' && this.entity === 'BOOKS';
@@ -290,66 +244,75 @@ export class SettingsComponent implements OnInit {
 
 
 
-  doExecuteMetadata(type: string, entity: string) {
-
-    if (
-      type === 'FULL' && entity === 'REVIEWS' && this.isReviewsFull() ||
-      type === 'PARTIAL' && entity === 'REVIEWS' && this.isReviewsPartial() ||
-      type === 'FULL' && entity === 'AUTHORS' && this.isAuthorsFull() ||
-      type === 'PARTIAL' && entity === 'AUTHORS' && this.isAuthorsPartial() ||
-      type === 'FULL' && entity === 'BOOKS' && this.isBooksFull() ||
-      type === 'PARTIAL' && entity === 'BOOKS' && this.isBooksPartial() ||
-      type === 'FULL' && entity === 'LOAD' && this.isAllFull() ||
-      type === 'PARTIAL' && entity === 'LOAD' && this.isAllPartial()
-    ) {
-      this.metadataService.stop().subscribe(
-        data => {
-          this.type = null;
-          this.entity = null;
+  doExecuteMetadata(type: string, entity: string): void {
+    const startMetadataService = () => {
+      this.metadataService.start("es", type, entity).subscribe({
+        next: () => {
+          console.log("Arrancado servicio data");
         },
-        error => {
+        error: (error) => {
           console.log(error);
-          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.stop.error'), closable: false, life: 5000 });
-        });
-    }
-    else
-      this.metadataService.stop().subscribe(
-        data => {
-          this.metadataService.start("es", type, entity).subscribe(
-            data => {
-              console.log("Arrancado servicio data");
-            },
-            error => {
-              console.log(error);
-              this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.start.error'), closable: false, life: 5000 });
-            }
-          );
+          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.start.error'), closable: false, life: 5000 });
+        }
+      });
+    };
+  
+    const stopAndStartMetadataService = () => {
+      this.metadataService.stop().subscribe({
+        next: () => {
+          startMetadataService();
         },
-        error => {
+        error: (error) => {
           console.log(error);
           this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.stop.error'), closable: false, life: 5000 });
         }
-      );
+      });
+    };
+  
+    if (
+      (type === 'FULL' && entity === 'REVIEWS' && this.isReviewsFull()) ||
+      (type === 'PARTIAL' && entity === 'REVIEWS' && this.isReviewsPartial()) ||
+      (type === 'FULL' && entity === 'AUTHORS' && this.isAuthorsFull()) ||
+      (type === 'PARTIAL' && entity === 'AUTHORS' && this.isAuthorsPartial()) ||
+      (type === 'FULL' && entity === 'BOOKS' && this.isBooksFull()) ||
+      (type === 'PARTIAL' && entity === 'BOOKS' && this.isBooksPartial()) ||
+      (type === 'FULL' && entity === 'LOAD' && this.isAllFull()) ||
+      (type === 'PARTIAL' && entity === 'LOAD' && this.isAllPartial())
+    ) {
+      this.metadataService.stop().subscribe({
+        next: () => {
+          this.type = null;
+          this.entity = null;
+        },
+        error: (error) => {
+          console.log(error);
+          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.stop.error'), closable: false, life: 5000 });
+        }
+      });
+    } else {
+      stopAndStartMetadataService();
+    }
   }
+  
 
 
 
   doSendTestMail() {
     this.isSendTestMail = true;
-
+  
     const user = JSON.parse(sessionStorage.user);
-    this.mailService.sendTestMail(user.kindle).subscribe(
-      data => {
-        this.getSmtp(true);
+    this.mailService.sendTestMail(user.kindle).subscribe({
+      next: (data) => {
+        this.getSmtp();
         this.isSendTestMail = false;
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.isSendTestMail = false;
       }
-    );
-
+    });
   }
+  
 
   newUser() {
     this.router.navigate(["profile"], { queryParams: { type: "new" } });
@@ -361,17 +324,17 @@ export class SettingsComponent implements OnInit {
 
 
   deleteUser(id: string) {
-    this.userService.delete(id).subscribe(
-      data => {
+    this.userService.delete(id).subscribe({
+      next: (data) => {
         this.getUsers();
-
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.delete.error'), closable: false, life: 5000 });
       }
-    );
+    });
   }
+  
 
   onChange(event) {
     switch (event.value) {
@@ -388,7 +351,7 @@ export class SettingsComponent implements OnInit {
         break;
       }
       default: {
-        this.getSmtp(false);
+        this.getSmtp();
         break;
       }
     }

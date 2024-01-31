@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { TagService } from 'src/app/services/tag.service';
-import { Tag } from 'src/app/domain/tag';
 import { SelectItem } from 'primeng/api';
 import { Search } from 'src/app/domain/search';
-import { Router } from '@angular/router';
+import { Tag } from 'src/app/domain/tag';
+import { TagService } from 'src/app/services/tag.service';
 
 @Component({
   selector: 'app-search',

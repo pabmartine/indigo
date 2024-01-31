@@ -8,7 +8,7 @@ import { Author } from 'src/app/domain/author';
 import { Book } from 'src/app/domain/book';
 import { Search } from 'src/app/domain/search';
 import { BookService } from 'src/app/services/book.service';
-import {DetailComponent} from 'src/app/pages/detail/detail.component';
+import { DetailComponent } from 'src/app/pages/detail/detail.component';
 import { AuthorComponent } from '../author/author.component';
 import { AuthorService } from 'src/app/services/author.service';
 
@@ -30,7 +30,7 @@ export class BooksComponent implements OnInit {
   authorInfo: Author;
   title: string;
   private adv_search: Search;
-  
+
   total: number;
 
   private page: number;
@@ -189,13 +189,12 @@ export class BooksComponent implements OnInit {
     document.documentElement.scrollTop = 0; // Other
   }
 
-  count() {
-    this.bookService.count(this.adv_search).subscribe(
-      data => {
+  count(): void {
+    this.bookService.count(this.adv_search).subscribe({
+      next: (data) => {
         this.total = data;
         this.lastPage = this.total / this.size;
 
-        //modifico aquí el título para que coja correctamente el valor del total
         if (this.isGlobalSearch(this.adv_search)) {
           this.title = this.translate.instant('locale.books.search_results') + this.adv_search.path + "  (" + this.total + ")";
         } else if (this.isAuthorSearch(this.adv_search)) {
@@ -207,68 +206,64 @@ export class BooksComponent implements OnInit {
           this.title = this.translate.instant('locale.books.title_of') + this.adv_search.selectedTags.join(', ') + "  (" + this.total + ")";
         } else if (this.isSerieSearch(this.adv_search)) {
           this.title = this.translate.instant('locale.books.title_of') + this.adv_search.serie + "  (" + this.total + ")";
-          // } else if (this.adv_search) {
-          //   this.title = this.translate.instant('locale.books.search_results').slice(0, -2) + " (" + this.total + ")";
         } else {
           this.title = this.translate.instant('locale.books.title') + " (" + this.total + ")";
         }
 
         this.getAll();
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.error.data'), closable: false, life: 5000 });
       }
-    );
+    });
   }
 
-  getAll() {
-    this.bookService.getAll(this.adv_search, this.page, this.size, this.sort, this.order).subscribe(
-      data => {
 
+  getAll(): void {
+    this.bookService.getAll(this.adv_search, this.page, this.size, this.sort, this.order).subscribe({
+      next: (data) => {
         data.forEach((book) => {
           let objectURL = 'data:image/jpeg;base64,' + book.image;
           book.image = objectURL;
 
-          if (book.rating){
+          if (book.rating) {
             book.rating = Math.round(book.rating);
           }
-
         });
+
         Array.prototype.push.apply(this.books, data);
         this.page++;
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.error.data'), closable: false, life: 5000 });
       }
-    );
+    });
   }
 
 
-
- 
   showDetail: boolean;
 
   showDetails(book: Book) {
     //save current data in session
     //sessionStorage.setItem("position", document.documentElement.scrollTop.toString());
     //this.router.navigate(["detail"], { queryParams: { book: JSON.stringify(book) }, skipLocationChange: true });
-    
+
     this.detailComponent.showDetails(book);
     this.showDetail = true;
   }
 
-  closeDetails(){
+  closeDetails() {
     this.showDetail = false;
   }
-  openDetails(){
+  openDetails() {
     this.showDetail = true;
   }
 
-  
+
 
   showAuthorDetail: boolean;
 
@@ -289,36 +284,36 @@ export class BooksComponent implements OnInit {
     this.detailComponent.showDetails(book);
   }
 
-  openAuthor(sort: string) {
+  openAuthor(sort: string): void {
     this.showDetail = false;
-    this.authorService.getByName(sort).subscribe(
-      data => {
-        if (data)
-          if (data.image) {
-            let objectURL = 'data:image/jpeg;base64,' + data.image;
-            data.image = objectURL;
-          }
+    this.authorService.getByName(sort).subscribe({
+      next: (data) => {
+        if (data && data.image) {
+          let objectURL = 'data:image/jpeg;base64,' + data.image;
+          data.image = objectURL;
+        }
         this.authorComponent.showDetails(data);
       },
-      error => {
+      error: (error) => {
         console.log(error);
       }
-    );
+    });
   }
+  
 
   refreshBook(book: Book) {
     const index = this.books.findIndex((b) => b.id === book.id);
     if (index !== -1) {
       this.books[index] = book;
-    } 
+    }
   }
 
   deleteBook(bookId: string) {
     const index = this.books.findIndex((b) => b.id === bookId);
     if (index !== -1) {
-      this.books.splice(index,1);
+      this.books.splice(index, 1);
       this.count();
-    } 
+    }
   }
 
   private doSearch() {
@@ -340,63 +335,65 @@ export class BooksComponent implements OnInit {
     this.searched = true;
 
   }
-/*
-  private searchAuthorInfo() {
-    if (this.isAuthorSearch(this.adv_search)) {
-      this.authorService.getByName(this.adv_search.author).subscribe(
-        data => {
-          if (data) {
-            this.authorInfo = data;
-            if (this.authorInfo.image) {
-              let objectURL = 'data:image/jpeg;base64,' + data.image;
-              this.authorInfo.image = objectURL;
+  /*
+    private searchAuthorInfo() {
+      if (this.isAuthorSearch(this.adv_search)) {
+        this.authorService.getByName(this.adv_search.author).subscribe(
+          data => {
+            if (data) {
+              this.authorInfo = data;
+              if (this.authorInfo.image) {
+                let objectURL = 'data:image/jpeg;base64,' + data.image;
+                this.authorInfo.image = objectURL;
+              }
+              this.getFavoriteAuthor();
             }
-            this.getFavoriteAuthor();
+          },
+          error => {
+            console.log(error);
           }
+        );
+  
+  
+      }
+    }
+  */
+
+
+
+    getFavoritesBooks(): void {
+      this.bookService.getFavorites(this.user.username).subscribe({
+        next: (data) => {
+          this.favorites.length = 0;
+          
+          data.forEach((book) => {
+            let objectURL = 'data:image/jpeg;base64,' + book.image;
+            book.image = objectURL;
+          });
+    
+          Array.prototype.push.apply(this.favorites, data);
         },
-        error => {
+        error: (error) => {
           console.log(error);
         }
-      );
-
-
+      });
     }
-  }
-*/
+    
 
 
-
-  getFavoritesBooks() {
-    this.bookService.getFavorites(this.user.username).subscribe(
-      data => {
-        this.favorites.length = 0
-        data.forEach((book) => {
-          let objectURL = 'data:image/jpeg;base64,' + book.image;
-          book.image = objectURL;
-        });
-
-        Array.prototype.push.apply(this.favorites, data);
-      },
-      error => {
-        console.log(error);
-      }
-    );
-  }
-
-  
-/*
-  getBooksByAuthor(author: string) {
-    this.adv_search = new Search();
-    this.adv_search.author = author;
-    this.doSearch();
-  }
-*/
+  /*
+    getBooksByAuthor(author: string) {
+      this.adv_search = new Search();
+      this.adv_search.author = author;
+      this.doSearch();
+    }
+  */
 
   isAdmin() {
     return JSON.parse(sessionStorage.user).role == 'ADMIN';
   }
 
-  
+
 
   private reset() {
     this.total = 0;

@@ -1,14 +1,14 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { MenuItem } from 'primeng/api/menuitem';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslationChangeEvent, TranslateService } from '@ngx-translate/core';
-import { NotificationService } from 'src/app/services/notification.service';
-import { BookService } from 'src/app/services/book.service';
-import { UserService } from 'src/app/services/user.service';
-import { Notif } from 'src/app/domain/notif';
+import { TranslateService, TranslationChangeEvent } from '@ngx-translate/core';
+import { MenuItem } from 'primeng/api/menuitem';
 import { Book } from 'src/app/domain/book';
-import { User } from 'src/app/domain/user';
+import { Notif } from 'src/app/domain/notif';
 import { Search } from 'src/app/domain/search';
+import { User } from 'src/app/domain/user';
+import { BookService } from 'src/app/services/book.service';
+import { NotificationService } from 'src/app/services/notification.service';
+import { UserService } from 'src/app/services/user.service';
 
 
 @Component({
@@ -72,23 +72,28 @@ export class HeaderComponent implements OnInit {
 
   getMessages() {
     const user = JSON.parse(sessionStorage.user);
+  
+    const successCallback = (data) => {
+      this.fillMessages(data, user);
+    };
+  
+    const errorCallback = (error) => {
+      console.log(error);
+    };
+  
     if (this.isAdmin()) {
-      this.notificationService.findAllNotRead().subscribe(
-        data => {
-          this.fillMessages(data, user)
-        },
-        error => {
-          console.log(error);
-        }
-      );
+      this.notificationService.findAllNotRead().subscribe({
+        next: successCallback,
+        error: errorCallback
+      });
     } else {
-      this.notificationService.findAllByUser(user.id).subscribe(
-        data => {
-          this.fillMessages(data, user);
-        }
-      );
+      this.notificationService.findAllByUser(user.id).subscribe({
+        next: successCallback,
+        error: errorCallback
+      });
     }
   }
+  
 
   fillMessages(data: Notif[], user: User) {
     this.messages = data;

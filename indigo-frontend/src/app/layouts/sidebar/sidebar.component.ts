@@ -1,7 +1,7 @@
-import { Component, OnInit, Input} from '@angular/core';
-import { MenuItem } from 'primeng/api/menuitem';
-import { TranslateService, TranslationChangeEvent } from '@ngx-translate/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslateService, TranslationChangeEvent } from '@ngx-translate/core';
+import { MenuItem } from 'primeng/api/menuitem';
 
 @Component({
   selector: 'app-sidebar',

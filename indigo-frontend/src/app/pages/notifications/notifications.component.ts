@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
-import { NotificationService } from 'src/app/services/notification.service';
 import { Notif } from 'src/app/domain/notif';
-import { UserService } from 'src/app/services/user.service';
-import { BookService } from 'src/app/services/book.service';
-import { Book } from 'src/app/domain/book';
 import { NotificationEnum } from 'src/app/enums/notification.enum.';
 import { StatusEnum } from 'src/app/enums/status.enum';
+import { BookService } from 'src/app/services/book.service';
+import { NotificationService } from 'src/app/services/notification.service';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-notifications',
@@ -23,7 +22,7 @@ export class NotificationsComponent implements OnInit {
   users: any[] = [];
   statuses: any[];
   read: any[];
-  cover:string;
+  cover: string;
 
 
   constructor(private messageService: MessageService,
@@ -37,7 +36,7 @@ export class NotificationsComponent implements OnInit {
     this.getNotifications();
 
     this.types = [
-      { label: this.translate.instant('locale.notifications.types.KINDLE'), value:  NotificationEnum[NotificationEnum.KINDLE] }
+      { label: this.translate.instant('locale.notifications.types.KINDLE'), value: NotificationEnum[NotificationEnum.KINDLE] }
     ]
 
     this.statuses = [
@@ -53,23 +52,24 @@ export class NotificationsComponent implements OnInit {
     this.getUsers();
   }
 
-  getUsers() {
+  getUsers(): void {
     this.users.length = 0;
-    this.userService.getAll().subscribe(
-      data => {
-       data.forEach((user) => {
-        this.users.push({ label: user.username, value: user.username });
+    this.userService.getAll().subscribe({
+      next: (data) => {
+        data.forEach((user) => {
+          this.users.push({ label: user.username, value: user.username });
         });
       },
-      error => {
+      error: (error) => {
         console.log(error);
       }
-    );
+    });
   }
 
-  getNotifications() {
-    this.notificationService.findAll().subscribe(
-      data => {
+
+  getNotifications(): void {
+    this.notificationService.findAll().subscribe({
+      next: (data) => {
         if (data) {
           this.notifications = data;
           this.notifications.forEach((notif) => {
@@ -77,40 +77,42 @@ export class NotificationsComponent implements OnInit {
           });
         }
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.notifications.actions.get.error'), closable: false, life: 5000 });
       }
-    );
+    });
   }
 
-  getBook(notif: Notif) {
-    this.bookService.getBookByPath(notif.book).subscribe(
-      data => {
+
+  getBook(notif: Notif): void {
+    this.bookService.getBookByPath(notif.book).subscribe({
+      next: (data) => {
         if (data) {
           notif.title = data.title;
           let objectURL = 'data:image/jpeg;base64,' + data.image;
           notif.image = objectURL;
         }
       },
-      error => {
+      error: (error) => {
         console.log(error);
       }
-    );
+    });
   }
 
-  deleteNotification(id: string) {
-    this.notificationService.delete(id).subscribe(
-      data => {
-        this.getNotifications();
 
+  deleteNotification(id: string): void {
+    this.notificationService.delete(id).subscribe({
+      next: (data) => {
+        this.getNotifications();
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.notifications.actions.delete.error'), closable: false, life: 5000 });
       }
-    );
+    });
   }
+
 
 }
 

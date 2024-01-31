@@ -38,66 +38,55 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  login(user) {
-
+  login(user): void {
     if (this.validate(user)) {
-
-      if (this.rememberMe){
-          localStorage.setItem('username', this.user.username);
-          localStorage.setItem('password', this.user.password);
-          localStorage.setItem('rememberMe', this.rememberMe.toString());
+      if (this.rememberMe) {
+        localStorage.setItem('username', this.user.username);
+        localStorage.setItem('password', this.user.password);
+        localStorage.setItem('rememberMe', this.rememberMe.toString());
       }
-
-      this.loginService.login(user).subscribe(response => {
-
-        if (response != null && response.headers.get("Authorization") != null) {
-
-
-          this.userService.get(this.user.username).subscribe(
-            data => {
-              user = data;
-
-              //Asign token
-              user.token = response.headers.get("Authorization").slice(7);
-
-              //Store user in session
-              sessionStorage.setItem('user', JSON.stringify(user));
-
-              //change language accord to user preferences
-              this.translate.use(user.language);
-
-              this.router.navigate(["books"]);
-            },
-            error => {
-              this.error = "locale.login.error";
-            }
-          );
-
-
-        } else {
-          this.error = "locale.login.error";
-        }
-      },
-        error => {
+  
+      console.log("1");
+      this.loginService.login(user).subscribe({
+        next: (response) => {
+          if (response != null && response.headers.get("Authorization") != null) {
+            this.userService.get(this.user.username).subscribe({
+              next: (data) => {
+                user = data;
+                user.token = response.headers.get("Authorization").slice(7);
+                sessionStorage.setItem('user', JSON.stringify(user));
+                this.translate.use(user.language);
+                this.router.navigate(["books"]);
+              },
+              error: () => {
+                this.error = "locale.login.error";
+              }
+            });
+          } else {
+            this.error = "locale.login.error";
+          }
+        },
+        error: (error) => {
           console.log(error);
           if (error.status === 401 || error.status === 403) {
             this.error = "locale.login.userpass.wrong";
           } else {
             this.error = error;
           }
-        }).add(() => {
-          //Called when operation is complete (both success and error)
+        },
+        complete: () => {
+          // Called when operation is complete (both success and error)
           if (this.error != null) {
             this.translate.get(this.error).subscribe((text: string) => {
               this.messageService.add({ severity: 'error', detail: text });
             });
             this.changeDetectorRef.detectChanges();
           }
-     });
-
+        }
+      });
     }
-
   }
+  
 
 
   validate(user: User): boolean {

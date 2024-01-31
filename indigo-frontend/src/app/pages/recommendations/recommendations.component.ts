@@ -2,13 +2,13 @@ import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageService, SelectItem } from 'primeng/api';
+import { Author } from 'src/app/domain/author';
 import { Book } from 'src/app/domain/book';
 import { Search } from 'src/app/domain/search';
 import { AuthorService } from 'src/app/services/author.service';
 import { BookService } from 'src/app/services/book.service';
-import { DetailComponent } from '../detail/detail.component';
 import { AuthorComponent } from '../author/author.component';
-import { Author } from 'src/app/domain/author';
+import { DetailComponent } from '../detail/detail.component';
 
 
 
@@ -151,44 +151,44 @@ export class RecommendationsComponent implements OnInit {
     document.documentElement.scrollTop = 0; // Other
   }
 
-  count() {
+  count(): void {
     const user = JSON.parse(sessionStorage.user);
-
-    this.bookService.countRecommendationsByUser(user.username).subscribe(
-      data => {
+  
+    this.bookService.countRecommendationsByUser(user.username).subscribe({
+      next: (data) => {
         this.total = data;
         this.lastPage = this.total / this.size;
         this.title = this.translate.instant('locale.books.recommendations.title2') + " (" + this.total + ")";
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.error.data'), closable: false, life: 5000 });
       }
-    );
+    });
   }
+  
 
-  getAll() {
+  getAll(): void {
     const user = JSON.parse(sessionStorage.user);
-    this.bookService.getRecommendationsByUser(user.username, this.page, this.size, this.sort, this.order).subscribe(
-      data => {
-
+    this.bookService.getRecommendationsByUser(user.username, this.page, this.size, this.sort, this.order).subscribe({
+      next: (data) => {
         data.forEach((book) => {
           let objectURL = 'data:image/jpeg;base64,' + book.image;
           book.image = objectURL;
         });
-
+  
         Array.prototype.push.apply(this.books, data);
         this.page++;
-
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.error.data'), closable: false, life: 5000 });
       }
-    );
+    });
   }
+  
 
 
   showDetail: boolean;
@@ -227,24 +227,22 @@ export class RecommendationsComponent implements OnInit {
     this.detailComponent.showDetails(book);
   }
 
-  openAuthor(sort: string) {
+  openAuthor(sort: string): void {
     this.showDetail = false;
-    this.authorService.getByName(sort).subscribe(
-      data => {
-        if (data)
-          if (data.image) {
-            let objectURL = 'data:image/jpeg;base64,' + data.image;
-            data.image = objectURL;
-          }
+    this.authorService.getByName(sort).subscribe({
+      next: (data) => {
+        if (data && data.image) {
+          let objectURL = 'data:image/jpeg;base64,' + data.image;
+          data.image = objectURL;
+        }
         this.authorComponent.showDetails(data);
       },
-      error => {
+      error: (error) => {
         console.log(error);
       }
-    );
-
-
+    });
   }
+  
 
 
   private doSearch() {

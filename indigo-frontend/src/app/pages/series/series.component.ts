@@ -1,11 +1,11 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
+import { MessageService } from 'primeng/api';
 import { SelectItem } from 'primeng/api/selectitem';
+import { Search } from 'src/app/domain/search';
 import { Serie } from 'src/app/domain/serie';
 import { SerieService } from 'src/app/services/serie.service';
-import { Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
-import { TranslateService } from '@ngx-translate/core';
-import { Search } from 'src/app/domain/search';
 
 
 @Component({
@@ -103,7 +103,7 @@ export class SeriesComponent implements OnInit {
   onScroll() {
     if (this.series.length < this.total) {
       this.getAll();
-    } 
+    }
   }
 
   scrollTop() {
@@ -111,28 +111,27 @@ export class SeriesComponent implements OnInit {
     document.documentElement.scrollTop = 0; // Other
   }
 
-  count() {
-    this.serieService.count(this.user.languageBooks).subscribe(
-      data => {
+  count(): void {
+    this.serieService.count(this.user.languageBooks).subscribe({
+      next: (data) => {
         this.total = data;
         this.lastPage = this.total / this.size;
         this.title = this.translate.instant('locale.series.title') + " (" + this.total + ")";
-
         this.getAll();
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.series.error.data'), closable: false, life: 5000 });
       }
-    );
+    });
   }
 
-  getAll() {
-    this.serieService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order).subscribe(
-      data => {
 
-        //Get cover
+  getAll(): void {
+    this.serieService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order).subscribe({
+      next: (data) => {
+        // Get cover
         data.forEach((serie) => {
           this.getCover(serie);
         });
@@ -140,30 +139,32 @@ export class SeriesComponent implements OnInit {
         Array.prototype.push.apply(this.series, data);
         this.page++;
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.series.error.data'), closable: false, life: 5000 });
       }
-    );
+    });
   }
 
-  getCover(serie: Serie) {
-    this.serieService.getCover(serie.name).subscribe(
-      data => {
+
+  getCover(serie: Serie): void {
+    this.serieService.getCover(serie.name).subscribe({
+      next: (data) => {
         let objectURL = 'data:image/jpeg;base64,' + data.image;
         serie.image = objectURL;
       },
-      error => {
+      error: (error) => {
         console.log(error);
       }
-    );
+    });
   }
+
 
   getBooksBySerie(serie: string) {
     this.reset();
 
-    let search:Search = new Search();
+    let search: Search = new Search();
     search.serie = serie;
     this.router.navigate(["books"], { queryParams: { adv_search: JSON.stringify(search) } });
   }

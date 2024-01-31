@@ -76,14 +76,14 @@ export class AuthorComponent implements OnInit {
     this.eventBook.emit(book);
   }
 
-  refreshAuthor() {
+  refreshAuthor(): void {
     this.messageService.clear();
     this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.authors.refresh.process'), closable: false, life: 5000 });
-    this.metadataService.findAuthor("es", this.selected.sort).subscribe(
-      data => {
-
+  
+    this.metadataService.findAuthor("es", this.selected.sort).subscribe({
+      next: (data) => {
         this.selected = data;
-
+  
         if (data.image && !data.image.startsWith('http')) {
           let objectURL = 'data:image/jpeg;base64,' + data.image;
           this.selected.image = objectURL;
@@ -91,63 +91,67 @@ export class AuthorComponent implements OnInit {
         if (data.image && data.image.startsWith('http')) {
           this.selected.image = "./assets/images/avatar3.jpg";
         }
-
+  
         this.eventAuthor.emit(this.selected);
-
+  
         this.messageService.clear();
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.authors.refresh.result.ok'), closable: false, life: 5000 });
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.refresh.result.error'), closable: false, life: 5000 });
       }
-    );
+    });
   }
+  
 
-  addFavoriteAuthor() {
-    this.authorService.addFavorite(this.selected.sort, this.user.username).subscribe(
-      data => {
+  addFavoriteAuthor(): void {
+    this.authorService.addFavorite(this.selected.sort, this.user.username).subscribe({
+      next: (data) => {
         this.favoriteAuthor = true;
         this.messageService.clear();
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.authors.favorites.add.ok'), closable: false, life: 5000 });
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.favorites.add.error'), closable: false, life: 5000 });
       }
-    );
+    });
   }
+  
 
 
-  deleteFavoriteAuthor() {
-    this.authorService.deleteFavorite(this.selected.sort, this.user.username).subscribe(
-      data => {
+  deleteFavoriteAuthor(): void {
+    this.authorService.deleteFavorite(this.selected.sort, this.user.username).subscribe({
+      next: (data) => {
         this.favoriteAuthor = false;
         this.messageService.clear();
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.authors.favorites.delete.ok'), closable: false, life: 5000 });
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.favorites.delete.error'), closable: false, life: 5000 });
       }
-    );
+    });
   }
+  
 
-  getFavoriteAuthor() {
-    this.authorService.getFavorite(this.selected.sort, this.user.username).subscribe(
-      data => {
+  getFavoriteAuthor(): void {
+    this.authorService.getFavorite(this.selected.sort, this.user.username).subscribe({
+      next: (data) => {
         if (data) {
           this.favoriteAuthor = true;
         }
       },
-      error => {
+      error: (error) => {
         console.log(error);
       }
-    );
+    });
   }
+  
 
   checkOverflowBooks() {
     let row = document.getElementById('inlineBooks');
@@ -181,45 +185,44 @@ export class AuthorComponent implements OnInit {
 
   }
 
-  count() {
-    this.bookService.count(this.adv_search).subscribe(
-      data => {
+  count(): void {
+    this.bookService.count(this.adv_search).subscribe({
+      next: (data) => {
         this.total = data;
         let author = this.adv_search.author;
         this.title = this.translate.instant('locale.books.title_published') + "  (" + this.total + ")";
-
         this.getAll();
-        
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.error.data'), closable: false, life: 5000 });
       }
-    );
+    });
   }
+  
 
-  getAll() {
-    this.bookService.getAll(this.adv_search, 0, this.total, "pubDate", "desc").subscribe(
-      data => {
-
+  getAll(): void {
+    this.bookService.getAll(this.adv_search, 0, this.total, "pubDate", "desc").subscribe({
+      next: (data) => {
         data.forEach((book) => {
           let objectURL = 'data:image/jpeg;base64,' + book.image;
           book.image = objectURL;
         });
-
+  
         Array.prototype.push.apply(this.books, data);
-       
+  
         setTimeout(() => {
           this.checkOverflowBooks();
-        }, 200)
+        }, 200);
       },
-      error => {
+      error: (error) => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.error.data'), closable: false, life: 5000 });
       }
-    );
+    });
   }
+  
 
 }

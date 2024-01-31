@@ -82,12 +82,20 @@ export function appInitializerFactory(translateService: TranslateService, inject
       // Usar el idioma almacenado en el almacenamiento local o el idioma mapeado,
       // y suscribirse al resultado
       translateService.use(localStorage.getItem("language") || mappedLanguage)
-        .pipe(take(1))
-        .subscribe(
-          () => {}, // No se necesita hacer nada en caso de éxito
-          err => console.error(err), // Manejar el error en caso de que ocurra
-          () => resolve(null) // Resolver la promesa una vez que la operación esté completa
-        );
+      .pipe(take(1))
+      .subscribe({
+        next: () => {
+          // No se necesita hacer nada en caso de éxito
+        },
+        error: (err) => {
+          console.error(err); // Manejar el error en caso de que ocurra
+          resolve(null); // Resolver la promesa en caso de error
+        },
+        complete: () => {
+          resolve(null); // Resolver la promesa una vez que la operación esté completa
+        }
+      });
+    
     });
   });
 }
