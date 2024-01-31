@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
 import { SelectItem } from 'primeng/api/selectitem';
-import { lastValueFrom } from 'rxjs';
 import { Author } from 'src/app/domain/author';
 import { Book } from 'src/app/domain/book';
 import { Search } from 'src/app/domain/search';
@@ -122,44 +121,45 @@ export class AuthorsComponent implements OnInit {
     document.documentElement.scrollTop = 0; // Other
   }
 
-  async count() {
-    try {
-      const data = await lastValueFrom(this.authorService.count(this.user.languageBooks));
-  
-      this.total = data;
-      this.lastPage = this.total / this.size;
-      this.title = this.translate.instant('locale.authors.title') + " (" + this.total + ")";
-  
-      this.getAll();
-  
-    } catch (error) {
-      console.log(error);
-      this.messageService.clear();
-      this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.error.data'), closable: false, life: 5000 });
-    }
+  count() {
+    this.authorService.count(this.user.languageBooks).subscribe(
+      data => {
+        this.total = data;
+        this.lastPage = this.total / this.size;
+        this.title = this.translate.instant('locale.authors.title') + " (" + this.total + ")";
+
+        this.getAll();
+      },
+      error => {
+        console.log(error);
+        this.messageService.clear();
+        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.error.data'), closable: false, life: 5000 });
+      }
+    );
   }
 
-  async getAll() {
-    try {
-      const data = await lastValueFrom(this.authorService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order));
-  
-      data.forEach(author => {
-        if (author.image) {
-          let objectURL = 'data:image/jpeg;base64,' + author.image;
-          author.image = objectURL;
-        }
-      });
-  
-      Array.prototype.push.apply(this.authors, data);
-      this.changeDetectorRef.detectChanges();
-  
-      this.page++;
-  
-    } catch (error) {
-      console.log(error);
-      this.messageService.clear();
-      this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.error.data'), closable: false, life: 5000 });
-    }
+  getAll() {
+    this.authorService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order).subscribe(
+      data => {
+
+        data.forEach(author => {
+          if (author.image) {
+            let objectURL = 'data:image/jpeg;base64,' + author.image;
+            author.image = objectURL;
+          }
+        });
+
+        Array.prototype.push.apply(this.authors, data);
+        this.changeDetectorRef.detectChanges();
+
+        this.page++;
+      },
+      error => {
+        console.log(error);
+        this.messageService.clear();
+        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.error.data'), closable: false, life: 5000 });
+      }
+    );
   }
 
 
@@ -174,22 +174,23 @@ export class AuthorsComponent implements OnInit {
 
 
 
-  async getFavorites() {
-    try {
-      const user = JSON.parse(sessionStorage.user);
-      const data = await lastValueFrom(this.authorService.getFavorites(user.username));
-  
-      data.forEach((author) => {
-        let objectURL = 'data:image/jpeg;base64,' + author.image;
-        author.image = objectURL;
-      });
-  
-      Array.prototype.push.apply(this.favorites, data);
-      this.page++;
-  
-    } catch (error) {
-      console.log(error);
-    }
+  getFavorites() {
+    const user = JSON.parse(sessionStorage.user);
+    this.authorService.getFavorites(user.username).subscribe(
+      data => {
+
+        data.forEach((author) => {
+          let objectURL = 'data:image/jpeg;base64,' + author.image;
+          author.image = objectURL;
+        });
+
+        Array.prototype.push.apply(this.favorites, data);
+        this.page++;
+      },
+      error => {
+        console.log(error);
+      }
+    );
   }
 
 
@@ -238,21 +239,23 @@ export class AuthorsComponent implements OnInit {
     this.detailComponent.showDetails(book);
   }
 
-  async openAuthor(sort: string) {
-    try {
-      this.showBookDetail = false;
-      const data = await lastValueFrom(this.authorService.getByName(sort));
-  
-      if (data && data.image) {
-        let objectURL = 'data:image/jpeg;base64,' + data.image;
-        data.image = objectURL;
+  openAuthor(sort: string) {
+    this.showBookDetail = false;
+    this.authorService.getByName(sort).subscribe(
+      data => {
+        if (data)
+          if (data.image) {
+            let objectURL = 'data:image/jpeg;base64,' + data.image;
+            data.image = objectURL;
+          }
+        this.authorComponent.showDetails(data);
+      },
+      error => {
+        console.log(error);
       }
-  
-      this.authorComponent.showDetails(data);
-  
-    } catch (error) {
-      console.log(error);
-    }
+    );
+
+
   }
 
   refreshAuthor(author: Author) {
