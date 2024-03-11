@@ -1,11 +1,14 @@
-import { Component, OnInit, HostListener, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
+import { MessageService } from 'primeng/api';
 import { SelectItem } from 'primeng/api/selectitem';
 import { Author } from 'src/app/domain/author';
-import { AuthorService } from 'src/app/services/author.service';
-import { Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
-import { TranslateService } from '@ngx-translate/core';
+import { Book } from 'src/app/domain/book';
 import { Search } from 'src/app/domain/search';
+import { AuthorComponent } from 'src/app/pages/author/author.component';
+import { DetailComponent } from 'src/app/pages/detail/detail.component';
+import { AuthorService } from 'src/app/services/author.service';
 
 
 @Component({
@@ -15,6 +18,9 @@ import { Search } from 'src/app/domain/search';
   providers: [MessageService]
 })
 export class AuthorsComponent implements OnInit {
+
+  @ViewChild(AuthorComponent) authorComponent: AuthorComponent;
+  @ViewChild(DetailComponent) detailComponent: DetailComponent;
 
   authors: Author[] = [];
   favorites: Author[] = [];
@@ -40,7 +46,8 @@ export class AuthorsComponent implements OnInit {
   user = JSON.parse(sessionStorage.user);
 
 
-  constructor(private authorService: AuthorService,
+  constructor(
+    private authorService: AuthorService,
     private router: Router,
     private messageService: MessageService,
     public translate: TranslateService,
@@ -69,7 +76,7 @@ export class AuthorsComponent implements OnInit {
 
     this.reset();
     this.count();
-    this.getAll();
+//    this.getAll();
     this.getFavorites();
   }
 
@@ -120,6 +127,8 @@ export class AuthorsComponent implements OnInit {
         this.total = data;
         this.lastPage = this.total / this.size;
         this.title = this.translate.instant('locale.authors.title') + " (" + this.total + ")";
+
+        this.getAll();
       },
       error => {
         console.log(error);
@@ -134,15 +143,15 @@ export class AuthorsComponent implements OnInit {
       data => {
 
         data.forEach(author => {
-          if (author.image){
+          if (author.image) {
             let objectURL = 'data:image/jpeg;base64,' + author.image;
             author.image = objectURL;
           }
         });
 
-        Array.prototype.push.apply(this.authors, data); 
+        Array.prototype.push.apply(this.authors, data);
         this.changeDetectorRef.detectChanges();
-        
+
         this.page++;
       },
       error => {
@@ -169,6 +178,11 @@ export class AuthorsComponent implements OnInit {
     const user = JSON.parse(sessionStorage.user);
     this.authorService.getFavorites(user.username).subscribe(
       data => {
+
+        data.forEach((author) => {
+          let objectURL = 'data:image/jpeg;base64,' + author.image;
+          author.image = objectURL;
+        });
 
         Array.prototype.push.apply(this.favorites, data);
         this.page++;
@@ -200,5 +214,63 @@ export class AuthorsComponent implements OnInit {
       this.order = this.selectedSort.slice(index + 1);
     }
 
+  }
+
+
+
+  showDetail: boolean;
+
+  showDetails(author: Author) {
+    this.authorComponent.showDetails(author);
+  }
+
+  closeDetails() {
+    this.showDetail = false;
+  }
+  openDetails() {
+    this.showDetail = true;
+  }
+
+
+  showBookDetail: boolean;
+
+  openBook(book: Book) {
+    this.showDetail = false;
+    this.detailComponent.showDetails(book);
+  }
+
+  openAuthor(sort: string) {
+    this.showBookDetail = false;
+    this.authorService.getByName(sort).subscribe(
+      data => {
+        if (data)
+          if (data.image) {
+            let objectURL = 'data:image/jpeg;base64,' + data.image;
+            data.image = objectURL;
+          }
+        this.authorComponent.showDetails(data);
+      },
+      error => {
+        console.log(error);
+      }
+    );
+
+
+  }
+
+  refreshAuthor(author: Author) {
+    const index = this.authors.findIndex((b) => b.id === author.id);
+    if (index !== -1) {
+      this.authors[index] = author;
+    } 
+  }
+
+  closeBookDetails() {
+    this.showDetail = false;
+    this.showBookDetail = false;
+  }
+  openBookDetails() {
+    this.showDetail = false;
+    this.showBookDetail = true;
   }
 }

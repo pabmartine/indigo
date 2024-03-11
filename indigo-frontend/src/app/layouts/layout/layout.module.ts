@@ -27,6 +27,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessagesModule } from 'primeng/messages';
 import { MessageModule } from 'primeng/message';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 import { InputMaskModule } from 'primeng/inputmask';
 import { CheckboxModule } from 'primeng/checkbox';
 import { AccordionModule } from 'primeng/accordion';
@@ -39,6 +40,9 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { CalendarModule } from 'primeng/calendar';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
+import {SpeedDialModule} from 'primeng/speeddial';
+import {DividerModule} from 'primeng/divider';
+import { ChipsModule } from 'primeng/chips';
 
 
 //translate
@@ -49,6 +53,7 @@ import { InfiniteScrollModule } from 'ngx-infinite-scroll';
 
 //cache
 import { DatePipe } from '@angular/common';
+import { AuthorComponent } from 'src/app/pages/author/author.component';
 
 //epub
 // import { AngularEpubViewerModule } from 'angular-epub-viewer';
@@ -64,7 +69,8 @@ import { DatePipe } from '@angular/common';
     SettingsComponent,
     SearchComponent,
     NotificationsComponent,
-    DetailComponent
+    DetailComponent,
+    AuthorComponent
   ],
   imports: [
     CommonModule,
@@ -82,6 +88,7 @@ import { DatePipe } from '@angular/common';
     MessagesModule,
     MessageModule,
     InputTextModule,
+    InputTextareaModule,
     InputMaskModule,
     CheckboxModule,
     AccordionModule,
@@ -94,6 +101,9 @@ import { DatePipe } from '@angular/common';
     CalendarModule,
     AutoCompleteModule,
     OverlayPanelModule,
+    SpeedDialModule,
+    DividerModule,
+    ChipsModule
     // AngularEpubViewerModule
   ],
   exports: [

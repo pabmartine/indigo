@@ -23,7 +23,7 @@
                     </div>
                     <div class="p-field">
                         <label for="password">{{'locale.profile.account.password' | translate}}</label>
-                        <input id="password" type="password" pInputText [readonly]="readOnly()"
+                        <input id="password" type="password" pInputText [readonly]="isUser()"
                             [(ngModel)]="user.password" />
                     </div>
                     <div class="p-field">

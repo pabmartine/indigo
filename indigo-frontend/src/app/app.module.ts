@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { APP_INITIALIZER, Injector, NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { RouterModule, RouteReuseStrategy } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
@@ -28,20 +28,68 @@ import { MenuModule } from 'primeng/menu';
 import { DialogModule } from 'primeng/dialog';
 import { CheckboxModule } from 'primeng/checkbox';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
-import {CardModule} from 'primeng/card';
+import { CardModule } from 'primeng/card';
 
 
 //auth
 import { JwtModule } from "@auth0/angular-jwt";
 
 //translate
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateModule, TranslateLoader, MissingTranslationHandler, MissingTranslationHandlerParams, TranslateService } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { HttpClient } from '@angular/common/http';
 
+import { take } from 'rxjs';
+
+
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(httpClient: HttpClient) {
-  return new TranslateHttpLoader(httpClient);
+  return new TranslateHttpLoader(httpClient, 'assets/i18n/', '.json');
+}
+
+export class MyMissingTranslationHandler implements MissingTranslationHandler {
+  handle(params: MissingTranslationHandlerParams) {
+    return '';
+  }
+}
+
+export function mapLanguageCode(languageCode: string): string {
+  if (languageCode === 'es') {
+    return 'es-ES';
+  } else if (languageCode === 'en') {
+    return 'en-GB';
+  } else if (languageCode === 'FR') {
+    return 'fr-FR';
+  }
+  // Si no hay coincidencia, devuelve el código original
+  return languageCode;
+}
+
+export function appInitializerFactory(translateService: TranslateService, injector: Injector): () => Promise<any> {
+  return () => new Promise<any>((resolve: any) => {
+    // Obtener la promesa que indica cuándo se ha inicializado la ubicación
+    const locationInitialized = injector.get(LOCATION_INITIALIZED, Promise.resolve(null));
+    
+    // Esperar hasta que la ubicación se haya inicializado
+    locationInitialized.then(() => {
+
+      // Obtener el lenguaje del navegador del usuario
+      const browserLanguage = window.navigator.language;
+
+      // Mapear el código de lenguaje utilizando la función
+      const mappedLanguage = mapLanguageCode(browserLanguage);
+
+      // Usar el idioma almacenado en el almacenamiento local o el idioma mapeado,
+      // y suscribirse al resultado
+      translateService.use(localStorage.getItem("language") || mappedLanguage)
+        .pipe(take(1))
+        .subscribe(
+          () => {}, // No se necesita hacer nada en caso de éxito
+          err => console.error(err), // Manejar el error en caso de que ocurra
+          () => resolve(null) // Resolver la promesa una vez que la operación esté completa
+        );
+    });
+  });
 }
 
 //Loaginbar
@@ -52,6 +100,8 @@ import { LoadingBarModule } from '@ngx-loading-bar/core';
 //Cache
 import { CustomReuseStrategy } from './utils/cache.routes';
 import { environment } from 'src/environments/environment';
+import { LOCATION_INITIALIZED } from '@angular/common';
+import { AuthorComponent } from './pages/author/author.component';
 
 @NgModule({
   declarations: [
@@ -91,7 +141,9 @@ import { environment } from 'src/environments/environment';
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,
         deps: [HttpClient]
-      }
+      },
+      missingTranslationHandler: { provide: MissingTranslationHandler, useClass: MyMissingTranslationHandler },
+      useDefaultLang: false
     }),
     JwtModule.forRoot({
       config: {
@@ -108,7 +160,15 @@ import { environment } from 'src/environments/environment';
       },
     }),
   ],
-  providers: [{ provide: RouteReuseStrategy, useClass: CustomReuseStrategy }],
+  providers: [
+    { provide: RouteReuseStrategy, useClass: CustomReuseStrategy },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: appInitializerFactory,
+      deps: [TranslateService, Injector],
+      multi: true
+    }
+  ],
   exports: [],
   bootstrap: [AppComponent]
 })

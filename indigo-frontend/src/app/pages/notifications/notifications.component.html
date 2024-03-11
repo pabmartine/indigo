@@ -12,7 +12,7 @@
 
         <div class="content-body p-grid">
             <div class="p-fluid">
-                <p-table #dt [value]="notifications" [responsive]="true" [paginator]="true" [rows]="10"
+                <p-table #dt [value]="notifications" responsiveLayout="stack" [paginator]="true" [rows]="10"
                     [rowsPerPageOptions]="[10,25,50]">
                     <ng-template pTemplate="header">
                         <tr>
@@ -142,7 +142,7 @@
                             </td>
                             <td class="column-overflow" title="{{notif.error}}">{{notif.error}}
                             </td>
-                            <td class="table-buttons">
+                            <td class="table-buttons" style="text-overflow: unset;">
                                 <button pButton type="button" icon="pi pi-trash"
                                     (click)="deleteNotification(notif.id)"></button>
                             </td>

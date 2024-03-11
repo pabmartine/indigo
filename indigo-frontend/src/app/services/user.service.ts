@@ -29,7 +29,7 @@ export class UserService {
   }
 
   public save(user:User):Observable<any> {
-    return this.http.put<User>(this.endpoint + "/save",user);
+    return this.http.post<User>(this.endpoint + "/save",user);
   }
 
   public delete(id:string):Observable<any> {

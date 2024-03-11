@@ -9,6 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,6 +22,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "\"books\"")
 public class BookSqliteEntity implements Serializable {

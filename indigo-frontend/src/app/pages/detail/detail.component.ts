@@ -1,48 +1,68 @@
 import { DatePipe, Location } from '@angular/common';
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import * as epub from 'node_modules/epubjs/dist/epub.js';
-import { MessageService } from 'primeng/api';
+import { saveAs } from 'file-saver';
+import { MenuItem, MessageService } from 'primeng/api';
 import { Dialog } from 'primeng/dialog';
 import { Book } from 'src/app/domain/book';
 import { Notif } from 'src/app/domain/notif';
 import { Search } from 'src/app/domain/search';
+import { Serie } from 'src/app/domain/serie';
 import { NotificationEnum } from 'src/app/enums/notification.enum.';
 import { StatusEnum } from 'src/app/enums/status.enum';
 import { BookService } from 'src/app/services/book.service';
 import { ConfigService } from 'src/app/services/config.service';
 import { MetadataService } from 'src/app/services/metadata.service';
 import { NotificationService } from 'src/app/services/notification.service';
-import { UtilService } from 'src/app/services/util.service';
-import { saveAs } from 'file-saver';
+import { MailService } from 'src/app/services/mail.service';
 
 @Component({
   selector: 'app-detail',
   templateUrl: './detail.component.html',
   styleUrls: ['./detail.component.css'],
-  providers: [MessageService]
+  providers: [MessageService, DatePipe]
 
 })
 export class DetailComponent implements OnInit {
 
+  @Output() eventAuthor: EventEmitter<String> = new EventEmitter<String>();
+  @Output() eventBook: EventEmitter<Book> = new EventEmitter<Book>();
+  @Output() deleteBookEvent: EventEmitter<String> = new EventEmitter<String>();
+
+  serie: Book[] = [];
   similar: Book[] = [];
   recommendations: Book[] = [];
   selected: Book;
+  selectedImage: string;
   title: string;
   kindle: boolean;
   favoriteBook: boolean;
   showEpub: boolean;
 
+  expandRecommendations: boolean;
+  showExpandRecommendations: boolean;
+
+  expandSerie: boolean;
+  showExpandSerie: boolean;
+
+  expandReview: boolean;
+  showExpandReview: boolean;
+
+  expandSimilar: boolean;
+  showExpandSimilar: boolean;
+
   private adv_search: Search;
 
   public chapterList = [];
 
-
-
   public book;
   public rendition;
   public displayed;
+
+  items: MenuItem[];
+  editDialog: boolean = false;
+  editedBook: Book;
 
   user = JSON.parse(sessionStorage.user);
 
@@ -50,7 +70,7 @@ export class DetailComponent implements OnInit {
 
   constructor(
     private bookService: BookService,
-    private utilService: UtilService,
+    private mailService: MailService,
     private configService: ConfigService,
     private router: Router,
     private route: ActivatedRoute,
@@ -71,6 +91,60 @@ export class DetailComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.items = [
+      {
+        id: 'deleteBook',
+        label: this.translate.instant('locale.buttons.delete'),
+        icon: 'pi pi-trash',
+        command: () => this.deleteBook()
+      },
+      {
+        id: 'editBook',
+        label: this.translate.instant('locale.buttons.edit'),
+        icon: 'pi pi-pencil',
+        command: () => this.editBook()
+      },
+      {
+        id: 'refreshBook',
+        label: this.translate.instant('locale.buttons.refresh'),
+        icon: 'pi pi-refresh',
+        command: () => this.refreshBook()
+      }
+    ];
+  }
+
+  getImage(path: string) {
+    this.selectedImage = this.selected.image;
+    if (path)
+      this.bookService.getImage(path).subscribe(
+        data => {
+          if (data) {
+            let objectURL = 'data:image/jpeg;base64,' + data.image;
+            this.selectedImage = objectURL;
+          }
+        },
+        error => {
+          console.log(error);
+        }
+      );
+  }
+
+  getSerie(serie: Serie) {
+    if (serie)
+
+      this.bookService.getSerie(serie.name, this.user.languageBooks).subscribe(
+        data => {
+          data.forEach((book) => {
+            let objectURL = 'data:image/jpeg;base64,' + book.image;
+            book.image = objectURL;
+          });
+          Array.prototype.push.apply(this.serie, data);
+
+        },
+        error => {
+          console.log(error);
+        }
+      );
   }
 
   getSimilar(similar: string[]) {
@@ -89,6 +163,7 @@ export class DetailComponent implements OnInit {
         }
       );
   }
+
 
   getRecommendations(recommendations: string[]) {
     if (recommendations)
@@ -110,23 +185,36 @@ export class DetailComponent implements OnInit {
 
 
   showDetails(book: Book) {
+    this.close();
+
     this.selected = book;
+    this.editedBook = new Book();
     this.kindle = false;
     this.favoriteBook = false;
+    this.serie.length = 0;
     this.similar.length = 0;
     this.recommendations.length = 0;
+    //this.getReviews(book.path);
+    this.getImage(book.path);
+    this.getSerie(book.serie);
     this.getSimilar(book.similar);
     this.getRecommendations(book.recommendations);
     this.getKindle();
     this.getFavoriteBook(book.path);
     this.view(book.path);
+
+    setTimeout(() => {
+      this.open();
+      this.checkOverflowSerie();
+      this.checkOverflowReview();
+      this.checkOverflowSimilar();
+      this.checkOverflowRecommendations();
+    }, 200)
+
   }
 
-  getBooksByAuthor(author: string) {
-    this.selected = null;
-    this.adv_search = new Search();
-    this.adv_search.author = author;
-    this.doSearch();
+  openAuthor(author: string) {
+    this.eventAuthor.emit(author);
   }
 
   getBooksByTag(tag: string) {
@@ -147,6 +235,7 @@ export class DetailComponent implements OnInit {
   }
 
   private doSearch() {
+    this.close();
     this.router.navigate(["books"], { queryParams: { adv_search: JSON.stringify(this.adv_search) } });
   }
 
@@ -172,7 +261,7 @@ export class DetailComponent implements OnInit {
     this.messageService.clear();
     this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.kindle.todo'), closable: false, life: 5000 });
 
-    this.utilService.sendMail(book, user.kindle).subscribe(
+    this.mailService.sendMail(book, user.kindle).subscribe(
       data => {
         this.messageService.clear();
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.kindle.ok'), closable: false, life: 5000 });
@@ -187,7 +276,7 @@ export class DetailComponent implements OnInit {
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.kindle.error'), closable: false, life: 5000 });
 
         //Add to notifications table
-        this.addNotification(book + '', NotificationEnum.KINDLE, StatusEnum.NOT_SEND, error.error);
+        this.addNotification(book + '', NotificationEnum.KINDLE, StatusEnum.NOT_SEND, error.error.message);
       }
     );
 
@@ -196,19 +285,10 @@ export class DetailComponent implements OnInit {
 
 
   getKindle() {
-    this.configService.get("kindlegen.path").subscribe(
+    this.configService.get("smtp.status").subscribe(
       data => {
-        if (data.value) {
-          this.configService.get("smtp.status").subscribe(
-            data => {
-              if (data.value == 'ok')
-                this.kindle = true;
-            },
-            error => {
-              console.log(error);
-            }
-          );
-        }
+        if (data.value == 'ok')
+          this.kindle = true;
       },
       error => {
         console.log(error);
@@ -274,13 +354,15 @@ export class DetailComponent implements OnInit {
   }
 
   viewEpub() {
+
+    /*
     this.showEpub = true;
 
     this.bookService.getEpub(this.selected.path).subscribe(
       data => {
         if (data) {
           var file = new File([data], "name");
-          this.book = new epub(file);
+          this.book = new ePub(file);
 
 
           this.rendition = this.book.renderTo("viewer", { flow: "paginated", method: "continuous", width: "100%", height: "97%" });
@@ -307,12 +389,12 @@ export class DetailComponent implements OnInit {
         console.log(error);
       }
     );
-
+*/
   }
 
   downloadEpub() {
     this.bookService.getEpub(this.selected.path).subscribe(
-      data => { 
+      data => {
         saveAs(data, this.selected.title);
       },
       error => {
@@ -330,14 +412,17 @@ export class DetailComponent implements OnInit {
   refreshBook() {
     this.messageService.clear();
     this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.refresh.process'), closable: false, life: 5000 });
-    this.metadataService.findBook(this.selected.path).subscribe(
+    this.metadataService.findBook(this.selected.path, "es").subscribe(
       data => {
-        this.showDetails(data);
+        this.selected = data;
 
         if (data.image) {
           let objectURL = 'data:image/jpeg;base64,' + data.image;
           this.selected.image = objectURL;
         }
+        
+        this.eventBook.emit(this.selected);
+
         this.messageService.clear();
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.refresh.result.ok'), closable: false, life: 5000 });
       },
@@ -369,8 +454,97 @@ export class DetailComponent implements OnInit {
   }
 
 
+  @Output() eventClose: EventEmitter<void> = new EventEmitter<void>();
+
   close() {
-    this.router.navigate(["books"]);
+    this.eventClose.emit();
+  }
+
+  @Output() eventOpen: EventEmitter<void> = new EventEmitter<void>();
+
+  open() {
+    this.eventOpen.emit();
+  }
+
+  deleteBook() {
+    this.bookService.deleteBook(this.selected.id).subscribe(
+      data => {
+        this.deleteBookEvent.emit(this.selected.id);
+        this.messageService.clear();
+        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.delete.ok'), closable: false, life: 5000 });
+      },
+      error => {
+        console.log(error);
+        this.messageService.clear();
+        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.delete.error'), closable: false, life: 5000 });
+      }
+    );
+  }
+
+  editBook() {
+    this.editedBook = this.selected;
+    this.editDialog = true;
+    //this.close();
+  }
+
+  saveBook(){
+    this.bookService.editBook(this.editedBook).subscribe(
+      data => {
+        this.eventBook.emit(this.editedBook);
+        this.messageService.clear();
+        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.edit.ok'), closable: false, life: 5000 });
+      },
+      error => {
+        console.log(error);
+        this.messageService.clear();
+        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.edit.error'), closable: false, life: 5000 });
+      }
+    );
+  }
+
+  checkOverflowRecommendations() {
+    let row = document.getElementById('inlineRecommendations');
+    if (row)
+      this.showExpandRecommendations = this.isOverFlowed(row);
+  }
+
+  checkOverflowSimilar() {
+    let row = document.getElementById('inlineSimilar');
+    if (row)
+      this.showExpandSimilar = this.isOverFlowed(row);
+  }
+
+  checkOverflowSerie() {
+    let row = document.getElementById('inlineSerie');
+    if (row)
+      this.showExpandSerie = this.isOverFlowed(row);
+  }
+
+  checkOverflowReview() {
+    let row = document.getElementById('inlineReview');
+    if (row)
+      this.showExpandReview = this.isOverFlowed(row);
+  }
+
+  isOverFlowed(element) {
+    if (element) {
+      return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
+    }
+    return false;
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event) {
+    this.checkOverflowRecommendations();
+    this.checkOverflowSimilar();
+    this.checkOverflowSerie();
+    this.checkOverflowReview();
+  }
+
+  toDate(date: string): Date {
+    let d = date.split("/");
+    let dat = new Date(d[2] + '/' + d[1] + '/' + d[0]);
+    return dat;
   }
 
 }

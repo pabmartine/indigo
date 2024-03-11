@@ -1,0 +1,91 @@
+book:
+  library:
+    path: /home/pablo/Escritorio/EPL
+
+logging.level:
+  root: INFO
+  com.martinia.indigo: DEBUG
+
+data:
+  initializer:
+    books:
+      recommendations: 20
+    user:
+      admin:
+        password: $2a$10$U47NDeBbqVmBHQsYXh8HI.IpxGiopQ0cWgXTkwU/AwFmGRf5l9lfq
+        username: admin
+  author:
+    default-image: https://s.gr-assets.com/assets/nophoto/user/u_200x266-e183445fd1a1b5cc7075bb1cf7043306.png
+
+jwt:
+  criptKey: '&8e#tGj$45JSGSma'
+  expiration: 36000000
+
+server:
+  max-http-header-size: 40KB
+  port: 8080
+
+spring:
+  data:
+    mongodb:
+      authentication-database: admin
+      auto-index-creation: true
+      database: indigo
+      host: 192.168.1.40
+      password: 5N27A-Bjac{=wt_3
+      port: 27017
+      username: indigo
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    initialSize: 1
+    jdbcUrl: ${spring.datasource-calibre.url}
+    maxActive: 1
+    maxIdle: 1
+    password: ''
+    url: jdbc:sqlite:/${book.library.path}/metadata.db
+    username: ''
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLiteDialect
+  mail:
+    properties:
+      mail:
+        smtp:
+          auth: true
+          connectiontimeout: 5000
+          starttls:
+            enable: true
+          timeout: 5000
+          writetimeout: 5000
+
+flags:
+  amazon: false
+  goodreads: true
+  wikipedia: true
+  google: true
+  libretranslate: true
+
+metadata:
+  goodreads:
+    pull: 1000
+    url: https://www.goodreads.com
+    reviews: ${metadata.goodreads.url}/search?q=$title+$author&search_type=books
+    author: ${metadata.goodreads.url}/search.xml?q=$subject&key=$key
+    author-info: ${metadata.goodreads.url}/author/show/$id?format=xml&key=$key
+    book: ${metadata.goodreads.url}/book/title.xml?title=$title&key=$key
+    book-authors: ${metadata.goodreads.url}/book/title.xml?title=$title&key=$key&authors=$authors
+  google:
+    url: https://www.googleapis.com/books/v1/volumes?q=intitle:$title
+  libretranslate:
+    url: http://192.168.1.40:6000
+  amazon:
+    url: https://www.amazon.es
+    asin: ${metadata.amazon.url}/s?k=$title+$author&i=stripbooks
+    reviews: ${metadata.amazon.url}/product-reviews/$asin/?showViewpoints=0&sortBy=byRankDescending&pageNumber=$numPage
+  wikipedia:
+    url: https://$lang.wikipedia.org
+    author: ${metadata.wikipedia.url}/w/api.php?action=query&format=json&list=search&utf8=1&origin=*&srsearch=$subject
+    author-info: ${metadata.wikipedia.url}/w/api.php?format=json&action=query&prop=extracts|pageimages&exintro&explaintext&generator=search&gsrlimit=1&redirects=1&piprop=original&gsrsearch=$subject
+  unsplash:
+    url: https://unsplash.com/es/s/fotos/$term

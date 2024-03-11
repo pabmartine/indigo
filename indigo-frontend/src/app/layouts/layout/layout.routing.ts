@@ -13,7 +13,7 @@ import { RecommendationsComponent } from "src/app/pages/recommendations/recommen
 
 export const LayoutRoutes: Routes = [
     { path: "recommendations", component: RecommendationsComponent, canActivate: [AuthGuard]},
-    { path: "books", component: BooksComponent, canActivate: [AuthGuard], data: {reuseRoute: true},}, //cache
+    { path: "books", component: BooksComponent, canActivate: [AuthGuard]},
     { path: "authors", component: AuthorsComponent, canActivate: [AuthGuard]},
     { path: "categories", component: CategoriesComponent, canActivate: [AuthGuard]},
     { path: "series", component: SeriesComponent, canActivate: [AuthGuard]},

@@ -18,7 +18,7 @@
 
 .p-component {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-	font-size: 1rem;
+	font-size: 0.9rem;
 	font-weight: normal
 }
 
@@ -42,11 +42,11 @@
 }
 
 .pi {
-	font-size: 1rem
+	font-size: 0.9rem
 }
 
 .p-link {
-	font-size: 1rem;
+	font-size: 0.9rem;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 	border-radius: 3px
 }
@@ -54,7 +54,7 @@
 .p-link:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-autocomplete .p-autocomplete-loader {
@@ -76,7 +76,7 @@
 .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container:not(.p-disabled).p-focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf;
+	box-shadow: 0 0 0 0.0.9rem #698ebf;
 	border-color: #698ebf
 }
 
@@ -86,7 +86,7 @@
 
 .p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container .p-autocomplete-input-token input {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-	font-size: 1rem;
+	font-size: 0.9rem;
 	color: #495057;
 	padding: 0;
 	margin: 0
@@ -127,7 +127,7 @@ p-autocomplete.ng-dirty.ng-invalid>.p-autocomplete>.p-inputtext {
 
 .p-autocomplete-panel .p-autocomplete-items .p-autocomplete-item {
 	margin: 0;
-	padding: 0.5rem 1rem;
+	padding: 0.5rem 0.9rem;
 	border: 0 none;
 	color: #495057;
 	background: rgba(0, 0, 0, 0);
@@ -205,7 +205,7 @@ p-calendar.ng-dirty.ng-invalid>.p-calendar>.p-inputtext {
 .p-datepicker .p-datepicker-header .p-datepicker-next:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-datepicker .p-datepicker-header .p-datepicker-title {
@@ -219,7 +219,7 @@ p-calendar.ng-dirty.ng-invalid>.p-calendar>.p-inputtext {
 .p-datepicker .p-datepicker-header .p-datepicker-title select:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf;
+	box-shadow: 0 0 0 0.0.9rem #698ebf;
 	border-color: #698ebf
 }
 
@@ -228,7 +228,7 @@ p-calendar.ng-dirty.ng-invalid>.p-calendar>.p-inputtext {
 }
 
 .p-datepicker table {
-	font-size: 1rem;
+	font-size: 0.9rem;
 	margin: 0.5rem 0
 }
 
@@ -261,7 +261,7 @@ p-calendar.ng-dirty.ng-invalid>.p-calendar>.p-inputtext {
 .p-datepicker table td>span:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-datepicker table td.p-datepicker-today>span {
@@ -276,7 +276,7 @@ p-calendar.ng-dirty.ng-invalid>.p-calendar>.p-inputtext {
 }
 
 .p-datepicker .p-datepicker-buttonbar {
-	padding: 1rem 0;
+	padding: 0.9rem 0;
 	border-top: 1px solid #dee2e6
 }
 
@@ -308,7 +308,7 @@ p-calendar.ng-dirty.ng-invalid>.p-calendar>.p-inputtext {
 .p-datepicker .p-timepicker button:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-datepicker .p-timepicker button:last-child {
@@ -366,7 +366,7 @@ p-calendar.ng-dirty.ng-invalid>.p-calendar>.p-inputtext {
 .p-datepicker:not(.p-disabled) table td span:not(.p-highlight):not(.p-disabled):focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-datepicker:not(.p-disabled) .p-monthpicker .p-monthpicker-month:not(.p-highlight):not(.p-disabled):hover {
@@ -376,7 +376,7 @@ p-calendar.ng-dirty.ng-invalid>.p-calendar>.p-inputtext {
 .p-datepicker:not(.p-disabled) .p-monthpicker .p-monthpicker-month:not(.p-highlight):not(.p-disabled):focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 @media screen and (max-width: 769px) {
@@ -414,7 +414,7 @@ p-calendar.ng-dirty.ng-invalid>.p-calendar>.p-inputtext {
 .p-checkbox .p-checkbox-box:not(.p-disabled).p-focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf;
+	box-shadow: 0 0 0 0.0.9rem #698ebf;
 	border-color: #698ebf
 }
 
@@ -473,7 +473,7 @@ p-checkbox.ng-dirty.ng-invalid>.p-checkbox>.p-checkbox-box {
 .p-chips .p-chips-multiple-container:not(.p-disabled).p-focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf;
+	box-shadow: 0 0 0 0.0.9rem #698ebf;
 	border-color: #698ebf
 }
 
@@ -495,7 +495,7 @@ p-checkbox.ng-dirty.ng-invalid>.p-checkbox>.p-checkbox-box {
 
 .p-chips .p-chips-multiple-container .p-chips-input-token input {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-	font-size: 1rem;
+	font-size: 0.9rem;
 	color: #495057;
 	padding: 0;
 	margin: 0
@@ -543,7 +543,7 @@ p-chips.ng-dirty.ng-invalid>.p-chips>.p-inputtext {
 .p-dropdown:not(.p-disabled).p-focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf;
+	box-shadow: 0 0 0 0.0.9rem #698ebf;
 	border-color: #698ebf
 }
 
@@ -587,7 +587,7 @@ p-chips.ng-dirty.ng-invalid>.p-chips>.p-inputtext {
 }
 
 .p-dropdown-panel .p-dropdown-header {
-	padding: 0.5rem 1rem;
+	padding: 0.5rem 0.9rem;
 	border-bottom: 0 none;
 	color: #495057;
 	background: #f8f9fa;
@@ -611,7 +611,7 @@ p-chips.ng-dirty.ng-invalid>.p-chips>.p-inputtext {
 
 .p-dropdown-panel .p-dropdown-items .p-dropdown-item {
 	margin: 0;
-	padding: 0.5rem 1rem;
+	padding: 0.5rem 0.9rem;
 	border: 0 none;
 	color: #495057;
 	background: rgba(0, 0, 0, 0);
@@ -631,7 +631,7 @@ p-chips.ng-dirty.ng-invalid>.p-chips>.p-inputtext {
 
 .p-dropdown-panel .p-dropdown-items .p-dropdown-item-group {
 	margin: 0;
-	padding: 0.75rem 1rem;
+	padding: 0.75rem 0.9rem;
 	color: #495057;
 	background: #fff;
 	font-weight: 600
@@ -714,7 +714,7 @@ p-dropdown.ng-dirty.ng-invalid>.p-dropdown {
 
 .p-editor-container .p-editor-toolbar.ql-snow .ql-picker.ql-expanded .ql-picker-options .ql-picker-item {
 	color: #495057;
-	padding: 0.5rem 1rem;
+	padding: 0.5rem 0.9rem;
 	border-radius: 3px
 }
 
@@ -881,7 +881,7 @@ p-inputnumber.ng-dirty.ng-invalid>.p-inputtext {
 .p-inputswitch.p-focus .p-inputswitch-slider {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-inputswitch:not(.p-disabled):hover .p-inputswitch-slider {
@@ -911,7 +911,7 @@ p-inputswitch.ng-dirty.ng-invalid>.p-inputswitch {
 
 .p-inputtext {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-	font-size: 1rem;
+	font-size: 0.9rem;
 	color: #495057;
 	background: #fff;
 	padding: 0.5rem 0.5rem;
@@ -928,7 +928,7 @@ p-inputswitch.ng-dirty.ng-invalid>.p-inputswitch {
 .p-inputtext:enabled:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf;
+	box-shadow: 0 0 0 0.0.9rem #698ebf;
 	border-color: #698ebf
 }
 
@@ -1018,7 +1018,7 @@ p-inputswitch.ng-dirty.ng-invalid>.p-inputswitch {
 }
 
 .p-listbox .p-listbox-header {
-	padding: 0.5rem 1rem;
+	padding: 0.5rem 0.9rem;
 	border-bottom: 0 none;
 	color: #495057;
 	background: #f8f9fa;
@@ -1046,7 +1046,7 @@ p-inputswitch.ng-dirty.ng-invalid>.p-inputswitch {
 
 .p-listbox .p-listbox-list .p-listbox-item {
 	margin: 0;
-	padding: 0.5rem 1rem;
+	padding: 0.5rem 0.9rem;
 	border: 0 none;
 	color: #495057;
 	transition: box-shadow .2s;
@@ -1096,7 +1096,7 @@ p-listbox.ng-dirty.ng-invalid>.p-listbox {
 .p-multiselect:not(.p-disabled).p-focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf;
+	box-shadow: 0 0 0 0.0.9rem #698ebf;
 	border-color: #698ebf
 }
 
@@ -1131,7 +1131,7 @@ p-listbox.ng-dirty.ng-invalid>.p-listbox {
 }
 
 .p-multiselect-panel .p-multiselect-header {
-	padding: 0.5rem 1rem;
+	padding: 0.5rem 0.9rem;
 	border-bottom: 0 none;
 	color: #495057;
 	background: #f8f9fa;
@@ -1173,7 +1173,7 @@ p-listbox.ng-dirty.ng-invalid>.p-listbox {
 .p-multiselect-panel .p-multiselect-header .p-multiselect-close:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-multiselect-panel .p-multiselect-items {
@@ -1182,7 +1182,7 @@ p-listbox.ng-dirty.ng-invalid>.p-listbox {
 
 .p-multiselect-panel .p-multiselect-items .p-multiselect-item {
 	margin: 0;
-	padding: 0.5rem 1rem;
+	padding: 0.5rem 0.9rem;
 	border: 0 none;
 	color: #495057;
 	background: rgba(0, 0, 0, 0);
@@ -1227,7 +1227,7 @@ p-multiselect.ng-dirty.ng-invalid>.p-multiselect {
 }
 
 .p-password-panel {
-	padding: 1rem;
+	padding: 0.9rem;
 	background: #fff;
 	color: #495057;
 	border: 0 none;
@@ -1261,7 +1261,7 @@ p-multiselect.ng-dirty.ng-invalid>.p-multiselect {
 .p-radiobutton .p-radiobutton-box:not(.p-disabled).p-focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf;
+	box-shadow: 0 0 0 0.0.9rem #698ebf;
 	border-color: #698ebf
 }
 
@@ -1330,7 +1330,7 @@ p-radiobutton.ng-dirty.ng-invalid>.p-radiobutton>.p-radiobutton-box {
 .p-rating .p-rating-icon:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-rating .p-rating-icon:first-child {
@@ -1443,7 +1443,7 @@ p-selectbutton.ng-dirty.ng-invalid>.p-selectbutton>.p-button {
 .p-slider .p-slider-handle:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-slider .p-slider-range {
@@ -1529,8 +1529,8 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	color: #fff;
 	background: #698ebf;
 	border: 1px solid #698ebf;
-	padding: 0.5rem 1rem;
-	font-size: 1rem;
+	padding: 0.5rem 0.9rem;
+	font-size: 0.9rem;
 	transition: background-color .2s, color .2s, border-color .2s, box-shadow .2s;
 	border-radius: 3px
 }
@@ -1600,7 +1600,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-button:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-button .p-button-icon-left {
@@ -1621,9 +1621,9 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 
 .p-button .p-badge {
 	margin-left: .5rem;
-	min-width: 1rem;
-	height: 1rem;
-	line-height: 1rem;
+	min-width: 0.9rem;
+	height: 0.9rem;
+	line-height: 0.9rem;
 	color: #698ebf;
 	background-color: #fff
 }
@@ -1705,7 +1705,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-button.p-button-primary:enabled:focus,
 .p-buttonset.p-button-primary>.p-button:enabled:focus,
 .p-splitbutton.p-button-primary>.p-button:enabled:focus {
-	box-shadow: 0 0 0 0.1rem #b9c0cc
+	box-shadow: 0 0 0 0.0.9rem #b9c0cc
 }
 
 .p-button.p-button-primary:enabled:active,
@@ -1783,7 +1783,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-button.p-button-secondary:enabled:focus,
 .p-buttonset.p-button-secondary>.p-button:enabled:focus,
 .p-splitbutton.p-button-secondary>.p-button:enabled:focus {
-	box-shadow: 0 0 0 0.1rem #b9c0cc
+	box-shadow: 0 0 0 0.0.9rem #b9c0cc
 }
 
 .p-button.p-button-secondary:enabled:active,
@@ -1861,7 +1861,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-button.p-button-info:enabled:focus,
 .p-buttonset.p-button-info>.p-button:enabled:focus,
 .p-splitbutton.p-button-info>.p-button:enabled:focus {
-	box-shadow: 0 0 0 0.1rem #cfe6f2
+	box-shadow: 0 0 0 0.0.9rem #cfe6f2
 }
 
 .p-button.p-button-info:enabled:active,
@@ -1939,7 +1939,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-button.p-button-success:enabled:focus,
 .p-buttonset.p-button-success>.p-button:enabled:focus,
 .p-splitbutton.p-button-success>.p-button:enabled:focus {
-	box-shadow: 0 0 0 0.1rem #dbe8d1
+	box-shadow: 0 0 0 0.0.9rem #dbe8d1
 }
 
 .p-button.p-button-success:enabled:active,
@@ -2017,7 +2017,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-button.p-button-warning:enabled:focus,
 .p-buttonset.p-button-warning>.p-button:enabled:focus,
 .p-splitbutton.p-button-warning>.p-button:enabled:focus {
-	box-shadow: 0 0 0 0.1rem #f6ebcf
+	box-shadow: 0 0 0 0.0.9rem #f6ebcf
 }
 
 .p-button.p-button-warning:enabled:active,
@@ -2095,7 +2095,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-button.p-button-help:enabled:focus,
 .p-buttonset.p-button-help>.p-button:enabled:focus,
 .p-splitbutton.p-button-help>.p-button:enabled:focus {
-	box-shadow: 0 0 0 0.1rem #e3d3e5
+	box-shadow: 0 0 0 0.0.9rem #e3d3e5
 }
 
 .p-button.p-button-help:enabled:active,
@@ -2173,7 +2173,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-button.p-button-danger:enabled:focus,
 .p-buttonset.p-button-danger>.p-button:enabled:focus,
 .p-splitbutton.p-button-danger>.p-button:enabled:focus {
-	box-shadow: 0 0 0 0.1rem #eecbcb
+	box-shadow: 0 0 0 0.0.9rem #eecbcb
 }
 
 .p-button.p-button-danger:enabled:active,
@@ -2250,7 +2250,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 
 .p-button.p-button-link:enabled:focus {
 	background: transparent;
-	box-shadow: 0 0 0 0.1rem #698ebf;
+	box-shadow: 0 0 0 0.0.9rem #698ebf;
 	border-color: transparent
 }
 
@@ -2283,11 +2283,11 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-carousel .p-carousel-content .p-carousel-next:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-carousel .p-carousel-indicators {
-	padding: 1rem
+	padding: 0.9rem
 }
 
 .p-carousel .p-carousel-indicators .p-carousel-indicator {
@@ -2327,7 +2327,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	color: #495057;
 	border: 1px solid #e9ecef;
 	border-width: 1px 0 1px 0;
-	padding: 1rem 1rem;
+	padding: 0.9rem 0.9rem;
 	font-weight: 600
 }
 
@@ -2336,13 +2336,13 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	color: #495057;
 	border: 1px solid #e9ecef;
 	border-width: 0 0 1px 0;
-	padding: 1rem 1rem;
+	padding: 0.9rem 0.9rem;
 	font-weight: 600
 }
 
 .p-datatable .p-datatable-thead>tr>th {
 	text-align: left;
-	padding: 1rem 1rem;
+	padding: 0.9rem 0.9rem;
 	border: 1px solid #e9ecef;
 	border-width: 0 0 1px 0;
 	font-weight: 600;
@@ -2353,7 +2353,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 
 .p-datatable .p-datatable-tfoot>tr>td {
 	text-align: left;
-	padding: 1rem 1rem;
+	padding: 0.9rem 0.9rem;
 	border: 1px solid #e9ecef;
 	border-width: 0 0 1px 0;
 	font-weight: 600;
@@ -2406,10 +2406,13 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-datatable .p-datatable-tbody>tr>td {
-	text-align: left;
+	text-align: center;
 	border: 1px solid #e9ecef;
 	border-width: 0 0 1px 0;
-	padding: 1rem 1rem
+	padding: 0.9rem 0.9rem;
+	text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .p-datatable .p-datatable-tbody>tr>td .p-row-toggler,
@@ -2440,7 +2443,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-datatable .p-datatable-tbody>tr>td .p-row-editor-cancel:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-datatable .p-datatable-tbody>tr>td .p-row-editor-save {
@@ -2578,7 +2581,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	color: #495057;
 	border: 1px solid #e9ecef;
 	border-width: 1px 0 1px 0;
-	padding: 1rem 1rem;
+	padding: 0.9rem 0.9rem;
 	font-weight: 600
 }
 
@@ -2599,7 +2602,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	color: #495057;
 	border: 1px solid #e9ecef;
 	border-width: 0 0 1px 0;
-	padding: 1rem 1rem;
+	padding: 0.9rem 0.9rem;
 	font-weight: 600;
 	border-bottom-left-radius: 3px;
 	border-bottom-right-radius: 3px
@@ -2610,7 +2613,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-dataview .p-dataview-emptymessage {
-	padding: 1rem
+	padding: 0.9rem
 }
 
 .fc .fc-view-container th {
@@ -2648,7 +2651,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	color: #fff;
 	background: #698ebf;
 	border: 1px solid #698ebf;
-	font-size: 1rem;
+	font-size: 0.9rem;
 	transition: background-color .2s, color .2s, border-color .2s, box-shadow .2s;
 	border-radius: 3px;
 	display: flex;
@@ -2664,7 +2667,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .fc .fc-toolbar .fc-button .fc-icon-chevron-left {
 	font-family: 'PrimeIcons' !important;
 	text-indent: 0;
-	font-size: 1rem
+	font-size: 0.9rem
 }
 
 .fc .fc-toolbar .fc-button .fc-icon-chevron-left:before {
@@ -2674,7 +2677,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .fc .fc-toolbar .fc-button .fc-icon-chevron-right {
 	font-family: 'PrimeIcons' !important;
 	text-indent: 0;
-	font-size: 1rem
+	font-size: 0.9rem
 }
 
 .fc .fc-toolbar .fc-button .fc-icon-chevron-right:before {
@@ -2684,7 +2687,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .fc .fc-toolbar .fc-button:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .fc .fc-toolbar .fc-button.fc-dayGridMonth-button,
@@ -2725,7 +2728,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .fc .fc-toolbar .fc-button.fc-timeGridDay-button:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf;
+	box-shadow: 0 0 0 0.0.9rem #698ebf;
 	z-index: 1
 }
 
@@ -2744,7 +2747,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-orderlist .p-orderlist-controls {
-	padding: 1rem
+	padding: 0.9rem
 }
 
 .p-orderlist .p-orderlist-controls .p-button {
@@ -2755,7 +2758,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	background: #f8f9fa;
 	color: #495057;
 	border: 1px solid #dee2e6;
-	padding: 1rem;
+	padding: 0.9rem;
 	border-bottom: 0 none;
 	border-top-right-radius: 3px;
 	border-top-left-radius: 3px
@@ -2766,7 +2769,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-orderlist .p-orderlist-filter-container {
-	padding: 1rem;
+	padding: 0.9rem;
 	background: #fff;
 	border: 1px solid #dee2e6;
 	border-bottom: 0 none
@@ -2791,7 +2794,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-orderlist .p-orderlist-list .p-orderlist-item {
-	padding: 0.5rem 1rem;
+	padding: 0.5rem 0.9rem;
 	margin: 0;
 	border: 0 none;
 	color: #495057;
@@ -2824,7 +2827,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 		flex-direction: column
 	}
 	.p-orderlist .p-orderlist-controls {
-		padding: 1rem;
+		padding: 0.9rem;
 		flex-direction: row
 	}
 	.p-orderlist .p-orderlist-controls .p-button {
@@ -2868,7 +2871,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	border: 1px solid #dee2e6;
 	background: #fff;
 	color: #495057;
-	padding: 1rem
+	padding: 0.9rem
 }
 
 .p-organizationchart .p-organizationchart-node-content .p-node-toggler {
@@ -2880,7 +2883,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-organizationchart .p-organizationchart-node-content .p-node-toggler:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-paginator {
@@ -2888,7 +2891,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	color: #6c757d;
 	border: solid #e9ecef;
 	border-width: 0;
-	padding: 0.5rem 1rem;
+	padding: 0.5rem 0.9rem;
 	border-radius: 3px
 }
 
@@ -2968,7 +2971,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-picklist .p-picklist-buttons {
-	padding: 1rem
+	padding: 0.9rem
 }
 
 .p-picklist .p-picklist-buttons .p-button {
@@ -2979,7 +2982,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	background: #f8f9fa;
 	color: #495057;
 	border: 1px solid #dee2e6;
-	padding: 1rem;
+	padding: 0.9rem;
 	border-bottom: 0 none;
 	border-top-right-radius: 3px;
 	border-top-left-radius: 3px
@@ -2990,7 +2993,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-picklist .p-picklist-filter-container {
-	padding: 1rem;
+	padding: 0.9rem;
 	background: #fff;
 	border: 1px solid #dee2e6;
 	border-bottom: 0 none
@@ -3015,7 +3018,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-picklist .p-picklist-list .p-picklist-item {
-	padding: 0.5rem 1rem;
+	padding: 0.5rem 0.9rem;
 	margin: 0;
 	border: 0 none;
 	color: #495057;
@@ -3044,7 +3047,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-picklist .p-picklist-list .p-picklist-empty-message {
-	padding: 0.5rem 1rem;
+	padding: 0.5rem 0.9rem;
 	color: #495057
 }
 
@@ -3053,7 +3056,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 		flex-direction: column
 	}
 	.p-picklist .p-picklist-buttons {
-		padding: 1rem;
+		padding: 0.9rem;
 		flex-direction: row
 	}
 	.p-picklist .p-picklist-buttons .p-button {
@@ -3081,7 +3084,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	border: 1px solid #dee2e6;
 	background: #fff;
 	color: #495057;
-	padding: 1rem;
+	padding: 0.9rem;
 	border-radius: 3px
 }
 
@@ -3115,7 +3118,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-tree .p-tree-container .p-treenode .p-treenode-content .p-tree-toggler:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-tree .p-tree-container .p-treenode .p-treenode-content .p-treenode-icon {
@@ -3134,7 +3137,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-tree .p-tree-container .p-treenode .p-treenode-content:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-tree .p-tree-container .p-treenode .p-treenode-content.p-highlight {
@@ -3172,7 +3175,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-tree .p-treenode-children {
-	padding: 0 0 0 1rem
+	padding: 0 0 0 0.9rem
 }
 
 .p-tree .p-tree-loading-icon {
@@ -3231,7 +3234,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-tree.p-tree-horizontal .p-treenode .p-treenode-content:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-treetable .p-paginator-top {
@@ -3249,7 +3252,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	color: #495057;
 	border: 1px solid #e9ecef;
 	border-width: 1px 0 1px 0;
-	padding: 1rem 1rem;
+	padding: 0.9rem 0.9rem;
 	font-weight: 600
 }
 
@@ -3258,13 +3261,13 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	color: #495057;
 	border: 1px solid #e9ecef;
 	border-width: 0 0 1px 0;
-	padding: 1rem 1rem;
+	padding: 0.9rem 0.9rem;
 	font-weight: 600
 }
 
 .p-treetable .p-treetable-thead>tr>th {
 	text-align: left;
-	padding: 1rem 1rem;
+	padding: 0.9rem 0.9rem;
 	border: 1px solid #e9ecef;
 	border-width: 0 0 1px 0;
 	font-weight: 600;
@@ -3275,7 +3278,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 
 .p-treetable .p-treetable-tfoot>tr>td {
 	text-align: left;
-	padding: 1rem 1rem;
+	padding: 0.9rem 0.9rem;
 	border: 1px solid #e9ecef;
 	border-width: 0 0 1px 0;
 	font-weight: 600;
@@ -3331,7 +3334,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	text-align: left;
 	border: 1px solid #e9ecef;
 	border-width: 0 0 1px 0;
-	padding: 1rem 1rem
+	padding: 0.9rem 0.9rem
 }
 
 .p-treetable .p-treetable-tbody>tr>td .p-treetable-toggler {
@@ -3354,7 +3357,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-treetable .p-treetable-tbody>tr>td .p-treetable-toggler:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-treetable .p-treetable-tbody>tr>td p-treetablecheckbox .p-checkbox {
@@ -3473,7 +3476,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	color: #495057;
 	border: 1px solid #e9ecef;
 	border-width: 1px 0 1px 0;
-	padding: 1rem 1rem;
+	padding: 0.9rem 0.9rem;
 	font-weight: 600
 }
 
@@ -3489,14 +3492,14 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	color: #495057;
 	border: 1px solid #e9ecef;
 	border-width: 0 0 1px 0;
-	padding: 1rem 1rem;
+	padding: 0.9rem 0.9rem;
 	font-weight: 600;
 	border-bottom-left-radius: 3px;
 	border-bottom-right-radius: 3px
 }
 
 .p-accordion .p-accordion-header .p-accordion-header-link {
-	padding: 1rem;
+	padding: 0.9rem;
 	border: 1px solid #dee2e6;
 	color: #495057;
 	background: #f8f9fa;
@@ -3512,7 +3515,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-accordion .p-accordion-header:not(.p-disabled) .p-accordion-header-link:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-accordion .p-accordion-header:not(.p-highlight):not(.p-disabled):hover .p-accordion-header-link {
@@ -3536,7 +3539,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-accordion .p-accordion-content {
-	padding: 1rem;
+	padding: 0.9rem;
 	border: 1px solid #dee2e6;
 	background: #fff;
 	color: #495057;
@@ -3591,7 +3594,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-card .p-card-body {
-	padding: 1rem
+	padding: 0.9rem
 }
 
 .p-card .p-card-title {
@@ -3607,11 +3610,11 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-card .p-card-content {
-	padding: 1rem 0
+	padding: 0.9rem 0
 }
 
 .p-card .p-card-footer {
-	padding: 1rem 0 0 0
+	padding: 0.9rem 0 0 0
 }
 
 .p-fieldset {
@@ -3622,7 +3625,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-fieldset .p-fieldset-legend {
-	padding: 1rem;
+	padding: 0.9rem;
 	border: 1px solid #dee2e6;
 	color: #495057;
 	background: #f8f9fa;
@@ -3636,7 +3639,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-fieldset.p-fieldset-toggleable .p-fieldset-legend a {
-	padding: 1rem;
+	padding: 0.9rem;
 	color: #495057;
 	border-radius: 3px;
 	transition: box-shadow .2s
@@ -3649,7 +3652,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-fieldset.p-fieldset-toggleable .p-fieldset-legend a:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-fieldset.p-fieldset-toggleable .p-fieldset-legend:hover {
@@ -3659,12 +3662,12 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-fieldset .p-fieldset-content {
-	padding: 1rem
+	padding: 0.9rem
 }
 
 .p-panel .p-panel-header {
 	border: 1px solid #dee2e6;
-	padding: 1rem;
+	padding: 0.9rem;
 	background: #f8f9fa;
 	color: #495057;
 	border-top-right-radius: 3px;
@@ -3694,15 +3697,15 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-panel .p-panel-header .p-panel-header-icon:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-panel.p-panel-toggleable .p-panel-header {
-	padding: 0.5rem 1rem
+	padding: 0.5rem 0.9rem
 }
 
 .p-panel .p-panel-content {
-	padding: 1rem;
+	padding: 0.9rem;
 	border: 1px solid #dee2e6;
 	background: #fff;
 	color: #495057;
@@ -3712,7 +3715,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-panel .p-panel-footer {
-	padding: 0.5rem 1rem;
+	padding: 0.5rem 0.9rem;
 	border: 1px solid #dee2e6;
 	background: #fff;
 	color: #495057;
@@ -3740,7 +3743,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	border-color: transparent transparent #dee2e6 transparent;
 	background: #fff;
 	color: #6c757d;
-	padding: 1rem;
+	padding: 0.9rem;
 	font-weight: 600;
 	border-top-right-radius: 3px;
 	border-top-left-radius: 3px;
@@ -3751,7 +3754,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-tabview .p-tabview-nav li .p-tabview-nav-link:not(.p-disabled):focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-tabview .p-tabview-nav li:not(.p-highlight):not(.p-disabled):hover .p-tabview-nav-link {
@@ -3780,7 +3783,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 
 .p-tabview .p-tabview-panels {
 	background: #fff;
-	padding: 1rem;
+	padding: 0.9rem;
 	border: 0 none;
 	color: #495057;
 	border-bottom-right-radius: 3px;
@@ -3790,7 +3793,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-toolbar {
 	background: #f8f9fa;
 	border: 1px solid #dee2e6;
-	padding: 1rem;
+	padding: 0.9rem;
 	border-radius: 3px
 }
 
@@ -3838,7 +3841,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-dialog .p-dialog-header .p-dialog-header-icon:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-dialog .p-dialog-header .p-dialog-header-icon:last-child {
@@ -3871,7 +3874,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-dialog.p-confirm-dialog .p-confirm-dialog-message {
-	margin-left: 1rem
+	margin-left: 0.9rem
 }
 
 .p-dialog-mask.p-component-overlay {
@@ -3887,7 +3890,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-overlaypanel .p-overlaypanel-content {
-	padding: 1rem
+	padding: 0.9rem
 }
 
 .p-overlaypanel .p-overlaypanel-close {
@@ -3898,8 +3901,8 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	transition: background-color .2s, color .2s, box-shadow .2s;
 	border-radius: 50%;
 	position: absolute;
-	top: -1rem;
-	right: -1rem
+	top: -0.9rem;
+	right: -0.9rem
 }
 
 .p-overlaypanel .p-overlaypanel-close:enabled:hover {
@@ -3930,7 +3933,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-sidebar {
 	background: #fff;
 	color: #495057;
-	padding: 1rem;
+	padding: 0.9rem;
 	border: 0 none;
 	box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12)
 }
@@ -3954,7 +3957,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-sidebar .p-sidebar-close:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-sidebar-mask.p-component-overlay {
@@ -3987,7 +3990,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 
 .p-fileupload .p-fileupload-buttonbar {
 	background: #f8f9fa;
-	padding: 1rem;
+	padding: 0.9rem;
 	border: 1px solid #dee2e6;
 	color: #495057;
 	border-bottom: 0 none;
@@ -4002,12 +4005,12 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-fileupload .p-fileupload-buttonbar .p-button.p-fileupload-choose.p-focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-fileupload .p-fileupload-content {
 	background: #fff;
-	padding: 2rem 1rem;
+	padding: 2rem 0.9rem;
 	border: 1px solid #dee2e6;
 	color: #495057;
 	border-bottom-right-radius: 3px;
@@ -4019,7 +4022,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-fileupload .p-fileupload-row>div {
-	padding: 1rem 1rem
+	padding: 0.9rem 0.9rem
 }
 
 .p-fileupload.p-fileupload-advanced .p-message {
@@ -4042,7 +4045,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	background: #fff;
 	border: 1px solid #dee2e6;
 	border-radius: 3px;
-	padding: 1rem
+	padding: 0.9rem
 }
 
 .p-breadcrumb ul li .p-menuitem-link {
@@ -4053,7 +4056,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-breadcrumb ul li .p-menuitem-link:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-breadcrumb ul li .p-menuitem-link .p-menuitem-text {
@@ -4087,7 +4090,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-contextmenu .p-menuitem-link {
-	padding: .75rem 1rem;
+	padding: .75rem 0.9rem;
 	color: #495057;
 	border-radius: 0;
 	transition: box-shadow .2s;
@@ -4167,7 +4170,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-megamenu .p-megamenu-root-list>.p-menuitem>.p-menuitem-link {
-	padding: .75rem 1rem;
+	padding: .75rem 0.9rem;
 	color: #495057;
 	border-radius: 3px;
 	transition: box-shadow .2s;
@@ -4231,7 +4234,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-megamenu .p-menuitem-link {
-	padding: .75rem 1rem;
+	padding: .75rem 0.9rem;
 	color: #495057;
 	border-radius: 0;
 	transition: box-shadow .2s;
@@ -4282,7 +4285,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 
 .p-megamenu .p-megamenu-submenu-header {
 	margin: 0;
-	padding: 0.75rem 1rem;
+	padding: 0.75rem 0.9rem;
 	color: #495057;
 	background: #fff;
 	font-weight: 600;
@@ -4328,7 +4331,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-menu .p-menuitem-link {
-	padding: .75rem 1rem;
+	padding: .75rem 0.9rem;
 	color: #495057;
 	border-radius: 0;
 	transition: box-shadow .2s;
@@ -4378,7 +4381,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 
 .p-menu .p-submenu-header {
 	margin: 0;
-	padding: 0.75rem 1rem;
+	padding: 0.75rem 0.9rem;
 	color: #495057;
 	background: #fff;
 	font-weight: 600;
@@ -4400,7 +4403,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-menubar .p-menuitem-link {
-	padding: .75rem 1rem;
+	padding: .75rem 0.9rem;
 	color: #495057;
 	border-radius: 0;
 	transition: box-shadow .2s;
@@ -4443,7 +4446,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-menubar .p-menubar-root-list>.p-menuitem>.p-menuitem-link {
-	padding: .75rem 1rem;
+	padding: .75rem 0.9rem;
 	color: #495057;
 	border-radius: 3px;
 	transition: box-shadow .2s;
@@ -4555,7 +4558,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	.p-menubar .p-menubar-button:focus {
 		outline: 0 none;
 		outline-offset: 0;
-		box-shadow: 0 0 0 0.1rem #698ebf
+		box-shadow: 0 0 0 0.0.9rem #698ebf
 	}
 	.p-menubar .p-menubar-root-list {
 		position: absolute;
@@ -4578,7 +4581,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 		position: static
 	}
 	.p-menubar .p-menubar-root-list>.p-menuitem>.p-menuitem-link {
-		padding: .75rem 1rem;
+		padding: .75rem 0.9rem;
 		color: #495057;
 		border-radius: 0;
 		transition: box-shadow .2s;
@@ -4660,7 +4663,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-panelmenu .p-panelmenu-header>a {
-	padding: 1rem;
+	padding: 0.9rem;
 	border: 1px solid #dee2e6;
 	color: #495057;
 	background: #f8f9fa;
@@ -4680,7 +4683,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-panelmenu .p-panelmenu-header>a:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-panelmenu .p-panelmenu-header:not(.p-highlight):not(.p-disabled)>a:hover {
@@ -4721,7 +4724,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-panelmenu .p-panelmenu-content .p-menuitem .p-menuitem-link {
-	padding: .75rem 1rem;
+	padding: .75rem 0.9rem;
 	color: #495057;
 	border-radius: 0;
 	transition: box-shadow .2s;
@@ -4768,7 +4771,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-panelmenu .p-panelmenu-content .p-submenu-list:not(.p-panelmenu-root-submenu) {
-	padding: 0 0 0 1rem
+	padding: 0 0 0 0.9rem
 }
 
 .p-panelmenu .p-panelmenu-panel {
@@ -4817,7 +4820,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-slidemenu .p-menuitem-link {
-	padding: .75rem 1rem;
+	padding: .75rem 0.9rem;
 	color: #495057;
 	border-radius: 0;
 	transition: box-shadow .2s;
@@ -4895,7 +4898,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-slidemenu .p-slidemenu-backward {
-	padding: .75rem 1rem;
+	padding: .75rem 0.9rem;
 	color: #495057
 }
 
@@ -4926,7 +4929,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-steps .p-steps-item .p-menuitem-link:not(.p-disabled):focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-steps .p-steps-item.p-highlight .p-steps-number {
@@ -4947,7 +4950,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	left: 0;
 	display: block;
 	position: absolute;
-	margin-top: -1rem
+	margin-top: -0.9rem
 }
 
 .p-tabmenu .p-tabmenu-nav {
@@ -4966,7 +4969,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	border-color: transparent transparent #dee2e6 transparent;
 	background: #fff;
 	color: #6c757d;
-	padding: 1rem;
+	padding: 0.9rem;
 	font-weight: 600;
 	border-top-right-radius: 3px;
 	border-top-left-radius: 3px;
@@ -4981,7 +4984,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-tabmenu .p-tabmenu-nav .p-tabmenuitem .p-menuitem-link:not(.p-disabled):focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-tabmenu .p-tabmenu-nav .p-tabmenuitem:not(.p-highlight):not(.p-disabled):hover .p-menuitem-link {
@@ -5006,7 +5009,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-tieredmenu .p-menuitem-link {
-	padding: .75rem 1rem;
+	padding: .75rem 0.9rem;
 	color: #495057;
 	border-radius: 0;
 	transition: box-shadow .2s;
@@ -5134,12 +5137,12 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-inline-message .p-inline-message-icon {
-	font-size: 1rem;
+	font-size: 0.9rem;
 	margin-right: .5rem
 }
 
 .p-inline-message .p-inline-message-text {
-	font-size: 1rem
+	font-size: 0.9rem
 }
 
 .p-inline-message.p-inline-message-icon-only .p-inline-message-icon {
@@ -5147,12 +5150,12 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-message {
-	margin: 1rem 0;
+	margin: 0.9rem 0;
 	border-radius: 3px
 }
 
 .p-message .p-message-wrapper {
-	padding: 1rem 1.5rem
+	padding: 0.9rem 1.5rem
 }
 
 .p-message .p-message-close {
@@ -5170,7 +5173,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-message .p-message-close:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-message.p-message-info {
@@ -5234,7 +5237,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-message .p-message-text {
-	font-size: 1rem;
+	font-size: 0.9rem;
 	font-weight: 500
 }
 
@@ -5256,18 +5259,18 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 }
 
 .p-toast .p-toast-message {
-	margin: 0 0 1rem 0;
+	margin: 0 0 0.9rem 0;
 	box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
 	border-radius: 3px
 }
 
 .p-toast .p-toast-message .p-toast-message-content {
-	padding: 1rem;
+	padding: 0.9rem;
 	border-width: 0 0 0 6px
 }
 
 .p-toast .p-toast-message .p-toast-message-content .p-toast-message-text {
-	margin: 0 0 0 1rem
+	margin: 0 0 0 0.9rem
 }
 
 .p-toast .p-toast-message .p-toast-message-content .p-toast-message-icon {
@@ -5297,7 +5300,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-toast .p-toast-message .p-toast-icon-close:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-toast .p-toast-message.p-toast-message-info {
@@ -5390,17 +5393,17 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-galleria .p-galleria-caption {
 	background: rgba(0, 0, 0, 0.5);
 	color: #f8f9fa;
-	padding: 1rem
+	padding: 0.9rem
 }
 
 .p-galleria .p-galleria-indicators {
-	padding: 1rem
+	padding: 0.9rem
 }
 
 .p-galleria .p-galleria-indicators .p-galleria-indicator button {
 	background-color: #e9ecef;
-	width: 1rem;
-	height: 1rem;
+	width: 0.9rem;
+	height: 0.9rem;
 	transition: background-color .2s, color .2s, box-shadow .2s;
 	border-radius: 50%
 }
@@ -5443,7 +5446,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 
 .p-galleria .p-galleria-thumbnail-container {
 	background: rgba(0, 0, 0, 0.9);
-	padding: 1rem 0.25rem
+	padding: 0.9rem 0.25rem
 }
 
 .p-galleria .p-galleria-thumbnail-container .p-galleria-thumbnail-prev,
@@ -5470,7 +5473,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-galleria .p-galleria-thumbnail-container .p-galleria-thumbnail-item-content:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-galleria-mask.p-component-overlay {
@@ -5491,7 +5494,7 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 .p-inplace .p-inplace-display:focus {
 	outline: 0 none;
 	outline-offset: 0;
-	box-shadow: 0 0 0 0.1rem #698ebf
+	box-shadow: 0 0 0 0.0.9rem #698ebf
 }
 
 .p-progressbar {
@@ -5516,11 +5519,11 @@ p-togglebutton.ng-dirty.ng-invalid>.p-togglebutton.p-button {
 	background: #fff;
 	color: #495057;
 	border: 1px solid #dee2e6;
-	padding: 1rem
+	padding: 0.9rem
 }
 
 .p-terminal .p-terminal-input {
-	font-size: 1rem;
+	font-size: 0.9rem;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"
 }
 

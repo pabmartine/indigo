@@ -41,6 +41,10 @@ export class BookService {
     });
   }
 
+  getSerie(serie: string, languages: string[]): Observable<any> {
+    return this.http.get(this.endpoint + "/serie?serie=" + serie + "&languages=" + languages);
+  }
+
   getSimilar(similar: string[], languages: string[]): Observable<any> {
     return this.http.get(this.endpoint + "/similar?similar=" + similar + "&languages=" + languages);
   }
@@ -94,5 +98,18 @@ export class BookService {
 
   getLanguages(): Observable<any> {
     return this.http.get(this.endpoint + "/languages");
+  }
+
+  getImage(path: string): Observable<any> {
+    return this.http.get(this.endpoint + "/image?path=" + path);
+  }
+
+  deleteBook(id: string): Observable<any> {
+    return this.http.delete(this.endpoint + "/delete?id=" + id);
+  }
+
+  editBook(book: Book): Observable<any> {
+    console.log(book);
+    return this.http.put(this.endpoint + "/edit", book);
   }
 }

@@ -67,6 +67,10 @@ export class ProfileComponent implements OnInit {
     return JSON.parse(sessionStorage.user).role == 'USER' || (JSON.parse(sessionStorage.user).role == 'ADMIN' && JSON.parse(sessionStorage.user).username == this.user.username);
   }
 
+  isUser(){
+    return JSON.parse(sessionStorage.user).role == 'USER';
+  }
+
   isValid(){
     let valid = this.user.username && this.user.password && this.user.language;
     return valid;
@@ -88,9 +92,11 @@ export class ProfileComponent implements OnInit {
 
   setLanguages(){
     this.languages = [
-      { label: this.translate.instant('locale.languages.es'), value: 'es' },
-      { label: this.translate.instant('locale.languages.en'), value: 'en' },
-      { label: this.translate.instant('locale.languages.fr'), value: 'fr' }
+      { label: this.translate.instant('locale.languages.es'), value: 'es-ES' },
+      { label: this.translate.instant('locale.languages.en'), value: 'en-GB' },
+      { label: this.translate.instant('locale.languages.fr'), value: 'fr-FR' },
+      { label: this.translate.instant('locale.languages.pt'), value: 'pt-PT' },
+      { label: this.translate.instant('locale.languages.de'), value: 'de-DE' }
     ];
   }
 

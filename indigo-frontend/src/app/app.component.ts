@@ -18,15 +18,15 @@ export class AppComponent {
   constructor(private router: Router, public translate: TranslateService){
     
     //Locale
-    translate.addLangs(['en', 'fr', 'es']);
-    translate.setDefaultLang('en');
+    translate.addLangs(['en-GB', 'fr-FR', 'es-ES']);
+    translate.setDefaultLang('en-GB');
 
     if (sessionStorage.user) {
       const user = JSON.parse(sessionStorage.user);
       translate.use(user.language);
     } else {
       const browserLang = translate.getBrowserLang();
-      translate.use(browserLang.match(/en|fr|es/) ? browserLang : 'en');
+      translate.use(browserLang.match(/en-GB|fr-FR|es-ES/) ? browserLang : 'en-GB');
     }
    
     

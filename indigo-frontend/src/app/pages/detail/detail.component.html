@@ -1,192 +1,505 @@
 <p-toast position="top-center" [showTransformOptions]="'translateY(-100%)'"></p-toast>
 <div class="book" *ngIf="selected">
   <p-card>
-    <div class="content-header p-grid">
-      <div class="p-col-12 p-md-7">
-        <span class="page-title">
-          {{selected.title}}
-        </span>
-      </div>
-      <div class="p-col-5 book-title-buttons">
+    <div class="pc">
 
-        <button id="refreshBook" type="button" pButton (click)="refreshBook();" icon="pi pi-refresh"
-          title="{{'locale.buttons.refresh' | translate}}" class="book-title-button" *ngIf="isAdmin()"></button>
-
-        <button id="downloadEpub" type="button" pButton (click)="downloadEpub();" icon="pi pi-download"
-          title="{{'locale.buttons.download' | translate}}" class="book-title-button"></button>
-
-        <button id="viewEpub" type="button" pButton (click)="viewEpub();" icon="pi pi-eye"
-          title="{{'locale.buttons.view' | translate}}" class="book-title-button"></button>
-
-        <button id="send2Kindle" type="button" pButton (click)="sendToKindle();" icon="pi pi-share-alt"
-          title="{{'locale.buttons.send' | translate}}" class="book-title-button" *ngIf="kindle"></button>
-
-        <button id="addFavoriteBook" type="button" pButton (click)="addFavoriteBook();" icon="pi pi-heart"
-          title="{{'locale.buttons.favorite.add' | translate}}" class="book-title-button"
-          *ngIf="!favoriteBook"></button>
-
-        <button id="deleteFavoriteBook" type="button" pButton (click)="deleteFavoriteBook();" icon="pi pi-heart"
-          title="{{'locale.buttons.favorite.delete' | translate}}" class="book-title-button-favorite"
-          *ngIf="favoriteBook"></button>
-      </div>
-    </div>
-    <div class="content-body p-grid">
-      <div class="p-col-12 p-md-4 p-lg-2 p-xl-1">
-        <div class="book-title-image">
-          <img [src]="selected.image" class="book-detail-image" />
-        </div>
-        <div class="book-title-buttons-side">
+      <div class="content-header p-grid">
+        <div class="book-title-buttons">
 
 
-          <button id="addFavoriteBookSmall" type="button" pButton (click)="addFavoriteBook();" icon="pi pi-heart"
-            title="{{'locale.buttons.favorite.add' | translate}}" class="book-title-button"
-            *ngIf="!favoriteBook"></button>
+          <button id="closeBook" type="button" pButton (click)="close()" icon="pi pi-times"
+            title="{{'locale.buttons.close' | translate}}" class="book-title-button"></button>
 
-          <button id="deleteFavoriteBookSmall" type="button" pButton (click)="deleteFavoriteBook();" icon="pi pi-heart"
-            title="{{'locale.buttons.favorite.delete' | translate}}" class="book-title-button-favorite"
-            *ngIf="favoriteBook"></button>
-
-          <button id="send2KindleSmall" type="button" pButton (click)="sendToKindle();" icon="pi pi-share-alt"
-            title="{{'locale.buttons.send' | translate}}" class="book-title-button" *ngIf="kindle"></button>
-
-          <button id="viewEpub" type="button" pButton (click)="viewEpub();" icon="pi pi-eye"
-            title="{{'locale.buttons.view' | translate}}" class="book-title-button"></button>
+          <p-speedDial id="optionsBook" [model]="items" direction="down" transitionDelay="80"
+            showIcon="pi pi-ellipsis-h" hideIcon="pi pi-ellipsis-v" class="book-title-button"
+            *ngIf="isAdmin()"></p-speedDial>
 
           <button id="downloadEpub" type="button" pButton (click)="downloadEpub();" icon="pi pi-download"
             title="{{'locale.buttons.download' | translate}}" class="book-title-button"></button>
 
-          <button id="refreshBookSmall" type="button" pButton (click)="refreshBook();" icon="pi pi-refresh"
-            title="{{'locale.buttons.refresh' | translate}}" class="book-title-button" *ngIf="isAdmin()"></button>
+          <button id="viewEpub" type="button" pButton (click)="viewEpub();" icon="pi pi-eye"
+            title="{{'locale.buttons.view' | translate}}" class="book-title-button"></button>
+
+          <button id="send2Kindle" type="button" pButton (click)="sendToKindle();" icon="pi pi-share-alt"
+            title="{{'locale.buttons.send' | translate}}" class="book-title-button" *ngIf="kindle"></button>
+
+          <button id="addFavoriteBook" type="button" pButton (click)="addFavoriteBook();" icon="pi pi-heart"
+            title="{{'locale.buttons.favorite.add' | translate}}" class="book-title-button"
+            *ngIf="!favoriteBook"></button>
+
+          <button id="deleteFavoriteBook" type="button" pButton (click)="deleteFavoriteBook();" icon="pi pi-heart"
+            title="{{'locale.buttons.favorite.delete' | translate}}" class="book-title-button-favorite"
+            *ngIf="favoriteBook"></button>
+        </div>
+      </div>
+      <div class="content-body p-grid">
+        <div class="p-col-12 p-md-4">
+          <div class="book-title-image">
+            <img [src]="selectedImage" class="book-detail-image" />
+          </div>
+        </div>
+        <div class="p-col-12 p-md-8">
+          <div class="book-detail-title" *ngIf="!(selected.serie && selected.serie.name)">
+            {{selected.title}}
+          </div>
+          <div class="book-detail-title" *ngIf="selected.serie && selected.serie.name">
+            {{selected.title}} (<span class="book-detail-serie"
+              (click)="getBooksBySerie(selected.serie.name);">{{selected.serie.name}} {{selected.serie.index}}</span>)
+          </div>
+          <div class="book-detail-subtitle">
+            <span *ngFor="let author of selected.authors">
+              <a href="javascript:;" (click)="openAuthor(author);">{{author}}</a><span
+                *ngIf="author != selected.authors[selected.authors.length-1]"> & </span>
+            </span>
+          </div>
+          <div class="book-detail-comment" [innerHTML]="selected.comment"></div>
+        </div>
+      </div>
+
+      <div class="metadata-container">
+        <div class="metadata-item" *ngIf="selected.rating">
+          <span class="metadata-title">{{'locale.books.detail.metadata.rating' | translate}}</span>
+          <p-rating class="metadata-value" [ngModel]="selected.rating" readonly="true" stars="5"
+            [cancel]="false"></p-rating>
+        </div>
+        <p-divider layout="vertical" *ngIf="selected.rating"></p-divider>
+        <div class="metadata-item">
+          <span class="metadata-title">{{'locale.books.detail.metadata.genre' | translate}}</span>
+          <span class="metadata-value" (click)="getBooksByTag(selected.tags[0]);" *ngIf="selected.tags.length==1"
+            onmouseover="this.style.cursor='pointer'">{{selected.tags}}</span>
+          <span class="metadata-subvalue" (click)="getBooksByTag(tag);" *ngFor="let tag of selected.tags"
+            onmouseover="this.style.cursor='pointer'"><span *ngIf="selected.tags.length>1">{{tag}}</span></span>
+        </div>
+        <p-divider layout="vertical"></p-divider>
+        <div class="metadata-item">
+          <span class="metadata-title">{{'locale.books.detail.metadata.published' | translate}}</span>
+          <span class="metadata-value">{{toDate(selected.pubDate) | date:'yyyy'}}</span>
+          <span class="metadata-subvalue">{{toDate(selected.pubDate) | date:'dd MMMM'}}</span>
+        </div>
+        <p-divider layout="vertical"></p-divider>
+        <div class="metadata-item">
+          <span class="metadata-title">{{'locale.books.detail.metadata.language' | translate}}</span>
+          <span class="metadata-value" *ngIf="selected.languages.length==1">{{selected.languages}}</span>
+          <span class="metadata-subvalue" *ngFor="let lang of selected.languages">{{'locale.languages.' + lang |
+            translate}}</span>
+        </div>
+        <p-divider layout="vertical"></p-divider>
+        <div class="metadata-item">
+          <span class="metadata-title">{{'locale.books.detail.metadata.pages' | translate}}</span>
+          <span class="metadata-value">{{selected.pages}}</span>
+          <span class="metadata-subvalue">{{'locale.books.detail.pages' | translate}}</span>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="mobile">
+
+      <div class="content-body p-grid">
+        <div class="p-col-12">
+
+          <div class="book-title-buttons">
+
+            <button id="closeBook" type="button" pButton (click)="close()" icon="pi pi-times"
+              title="{{'locale.buttons.close' | translate}}" class="book-title-button"></button>
+
+            <p-speedDial id="optionsBook" [model]="items" direction="down" transitionDelay="80"
+              showIcon="pi pi-ellipsis-h" hideIcon="pi pi-ellipsis-v" class="book-title-button"
+              *ngIf="isAdmin()"></p-speedDial>
+
+            <button id="downloadEpub" type="button" pButton (click)="downloadEpub();" icon="pi pi-download"
+              title="{{'locale.buttons.download' | translate}}" class="book-title-button"></button>
+
+            <button id="viewEpub" type="button" pButton (click)="viewEpub();" icon="pi pi-eye"
+              title="{{'locale.buttons.view' | translate}}" class="book-title-button"></button>
+
+            <button id="send2Kindle" type="button" pButton (click)="sendToKindle();" icon="pi pi-share-alt"
+              title="{{'locale.buttons.send' | translate}}" class="book-title-button" *ngIf="kindle"></button>
+
+            <button id="deleteFavoriteBook" type="button" pButton (click)="deleteFavoriteBook();" icon="pi pi-heart"
+              title="{{'locale.buttons.favorite.delete' | translate}}" class="book-title-button-favorite"
+              *ngIf="favoriteBook"></button>
+
+            <button id="addFavoriteBook" type="button" pButton (click)="addFavoriteBook();" icon="pi pi-heart"
+              title="{{'locale.buttons.favorite.add' | translate}}" class="book-title-button"
+              *ngIf="!favoriteBook"></button>
+
+          </div>
+          <div class="book-title-image">
+            <img [src]="selectedImage" class="book-detail-image" />
+          </div>
+        </div>
+        <div class="p-col-12">
+          <div class="book-detail-series" *ngIf="selected.serie && selected.serie.name">
+            <span class="book-detail-serie" (click)="getBooksBySerie(selected.serie.name);">{{selected.serie.name}}
+              {{selected.serie.index}}</span>
+          </div>
+          <div class="book-detail-title">
+            {{selected.title}}
+          </div>
+          <div class="book-detail-subtitle">
+            <span *ngFor="let author of selected.authors">
+              <a href="javascript:;" (click)="openAuthor(author);">{{author}}</a><span
+                *ngIf="author != selected.authors[selected.authors.length-1]"> & </span>
+            </span>
+          </div>
+          <div class="book-detail-comment" [innerHTML]="selected.comment"></div>
 
         </div>
-
       </div>
-      <div class="p-col-12 p-md-8 p-lg-10 p-xl-11">
-        <div class="book-detail-subtitle">
-          <span *ngFor="let author of selected.authors">
-            <a href="javascript:;" (click)="getBooksByAuthor(author);">{{author}}</a><span
-              *ngIf="author != selected.authors[selected.authors.length-1]"> & </span>
+
+      <div class="metadata-container">
+        <div class="metadata-item" *ngIf="selected.rating">
+          <span class="metadata-title">{{'locale.books.detail.metadata.rating' | translate}}</span>
+          <p-rating class="metadata-value" [ngModel]="selected.rating" readonly="true" stars="5"
+            [cancel]="false"></p-rating>
+        </div>
+        <p-divider layout="vertical" *ngIf="selected.rating"></p-divider>
+        <div class="metadata-item">
+          <span class="metadata-title">{{'locale.books.detail.metadata.genre' | translate}}</span>
+          <span class="metadata-value" (click)="getBooksByTag(selected.tags[0]);" *ngIf="selected.tags.length==1"
+            onmouseover="this.style.cursor='pointer'">{{selected.tags}}</span>
+          <span class="metadata-subvalue" (click)="getBooksByTag(tag);" *ngFor="let tag of selected.tags"
+            onmouseover="this.style.cursor='pointer'"><span *ngIf="selected.tags.length>1">{{tag}}</span></span>
+        </div>
+        <p-divider layout="vertical"></p-divider>
+        <div class="metadata-item">
+          <span class="metadata-title">{{'locale.books.detail.metadata.published' | translate}}</span>
+          <span class="metadata-value">{{toDate(selected.pubDate) | date:'yyyy'}}</span>
+          <span class="metadata-subvalue">{{toDate(selected.pubDate) | date:'dd MMMM'}}</span>
+        </div>
+        <p-divider layout="vertical"></p-divider>
+        <div class="metadata-item">
+          <span class="metadata-title">{{'locale.books.detail.metadata.language' | translate}}</span>
+          <span class="metadata-value" *ngIf="selected.languages.length==1">{{selected.languages}}</span>
+          <span class="metadata-subvalue" *ngFor="let lang of selected.languages">{{'locale.languages.' + lang |
+            translate}}</span>
+        </div>
+        <p-divider layout="vertical"></p-divider>
+        <div class="metadata-item">
+          <span class="metadata-title">{{'locale.books.detail.metadata.pages' | translate}}</span>
+          <span class="metadata-value">{{selected.pages}}</span>
+          <span class="metadata-subvalue">{{'locale.books.detail.pages' | translate}}</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div *ngIf="selected.reviews?.length > 0">
+      <p-divider></p-divider>
+      <div class="content-header p-grid">
+        <div class="p-col-12 p-md-10">
+          <span class="page-title">
+            Comentarios
           </span>
         </div>
-        <div *ngIf="selected.rating">
-          <p-rating [ngModel]="selected.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
-        </div>
-        <div>{{'locale.books.detail.pubdate' | translate}} {{selected.pubDate}}</div>
-        <div>{{selected.pages}} {{'locale.books.detail.pages' | translate}}</div>
-        <div class="book-detail-series" *ngIf="selected.serie && selected.serie.name">
-          <button type="button" pButton (click)="getBooksBySerie(selected.serie.name);" [label]="selected.serie.name"
-            class="book-detail-serie p-button-info"></button>
-          <span class="book-detail-serie-num">{{selected.serie.index}}</span>
-        </div>
-        <div class="book-detail-tags" *ngIf="selected.tags">
-          <button type="button" pButton (click)="getBooksByTag(tag);" [label]="tag"
-            class="book-detail-tag p-button-success" *ngFor="let tag of selected.tags"></button>
-        </div>
 
-
-        <div class="book-detail-comment" [innerHTML]="selected.comment"></div>
-
-        <div class="book-detail-buttons">
-
-          <button type="button" pButton label="{{'locale.buttons.close' | translate}}" (click)="close()"
-            class="book-detail-button"></button>
-
+        <div class="p-col-12 p-md-2 content-header-subtitle" *ngIf="showExpandReview">
+          <span class="page-subtitle" *ngIf="!expandReview" onmouseover="this.style.cursor='pointer'">
+            <span (click)="expandReview = true" style="white-space: nowrap;">{{'locale.books.detail.expand.more' |
+              translate}}</span>
+          </span>
+          <span class="page-subtitle" *ngIf="expandReview" onmouseover="this.style.cursor='pointer'">
+            <span (click)="expandReview = false; checkOverflowReview()"
+              style="white-space: nowrap;">{{'locale.books.detail.expand.less' | translate}}</span>
+          </span>
         </div>
 
       </div>
-    </div>
-  </p-card>
 
-  <p-dialog (onShow)="showDialogMaximized(dialDetail)" #dialDetail [style]="{width: '500px'}" [(visible)]="showEpub"
-    [modal]="true" [baseZIndex]="10000" [draggable]="false" [closable]="true" [resizable]="false" [focusOnShow]="false">
-
-    <p-header> {{ selected.title }} </p-header>
-    <div class="p-grid">
-      <div class="p-col-12 p-md-3">
-        <p-card>
-          <div class="chapters">
-            <div style="text-align:center">
-              <img [src]="selected.image" class="chapter-image" />
+      <div id="inlineReview" class="content-body p-grid inline" *ngIf="!expandReview">
+        <div class="p-col-12 p-md-4" *ngFor="let review of selected.reviews">
+          <div class="review">
+            <div *ngIf="review.rating">
+              <p-rating [ngModel]="review.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
             </div>
-            <ul>
-              <li class="ch" *ngFor="let item of chapterList" (click)="changeChapter(item.href)">{{item.label}}</li>
-            </ul>
+            <span class="review-title">{{review.title}}</span>
+            <span class="review-comment" [ngClass]="{ 'review-comment-expand': expandReview }">{{review.comment}}</span>
           </div>
-        </p-card>
+        </div>
       </div>
-      <div class="p-col-12 p-md-9">
-        <p-card>
-          <div class="content">
-            <div id="viewer" class="spreads" #viewer></div>
+      <div class="content-body p-grid" *ngIf="expandReview">
+        <div class="p-col-12" *ngFor="let review of selected.reviews">
+          <div class="review">
+            <div *ngIf="review.rating">
+              <p-rating [ngModel]="review.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+            </div>
+            <span class="review-title">{{review.title}}</span>
+            <span class="review-comment" [ngClass]="{ 'review-comment-expand': expandReview }">{{review.comment}}</span>
+
           </div>
-          <div class="overlay-left">
-            <button type="button" pButton (click)="prev()" label="{{'locale.buttons.previous' | translate}}"></button>
+        </div>
+      </div>
+
+    </div>
+
+    <div *ngIf="serie?.length > 0">
+      <p-divider></p-divider>
+      <div class="content-header p-grid">
+        <div class="p-col-12 p-md-10">
+          <span class="page-title">
+            {{'locale.books.serie.title' | translate}}
+          </span>
+        </div>
+        <div class="p-col-12 p-md-2 content-header-subtitle" *ngIf="showExpandSerie">
+          <span class="page-subtitle" *ngIf="!expandSerie" onmouseover="this.style.cursor='pointer'">
+            <span (click)="expandSerie = true" style="white-space: nowrap;">{{'locale.books.detail.expand.more' |
+              translate}}</span>
+          </span>
+          <span class="page-subtitle" *ngIf="expandSerie" onmouseover="this.style.cursor='pointer'">
+            <span (click)="expandSerie = false; checkOverflowSerie()"
+              style="white-space: nowrap;">{{'locale.books.detail.expand.less' | translate}}</span>
+          </span>
+        </div>
+      </div>
+      <div id="inlineSerie" class="content-body p-grid inline" *ngIf="!expandSerie">
+        <div class="p-sm-6 p-md-4 p-lg-2" *ngFor="let book of serie">
+          <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)" style="cursor: pointer" />
+          <div>
+            <span class="title">{{book.title}}</span>
           </div>
-          <div class="overlay-right">
-            <button type="button" pButton (click)="next()" label="{{'locale.buttons.next' | translate}}"></button>
+          <div>
+            <a href="javascript:;" (click)="openAuthor(book.authors[0]);">{{book.authors[0]}}</a>
           </div>
-        </p-card>
-      </div>
-    </div>
-
-
-
-
-  </p-dialog>
-</div>
-
-<div class="book" *ngIf="similar?.length > 0">
-  <p-card>
-    <div class="content-header p-grid">
-      <div class="p-col-12 p-md-6">
-        <span class="page-title">
-          {{'locale.books.similar.title' | translate}}
-        </span>
-      </div>
-    </div>
-    <div class="content-body p-grid">
-      <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of similar">
-        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)" style="cursor: pointer;" />
-        <div>
-          <span class="title">{{book.title}}</span>
-        </div>
-        <div>
-          <span class="subtitle" *ngFor="let author of book.authors">
-            <a href="javascript:;" (click)="getBooksByAuthor(author)">{{author}}</a><span
-              *ngIf="author != book.authors[book.authors.length-1]"> & </span></span>
-        </div>
-        <div *ngIf="book.rating">
-          <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+          <div *ngIf="book.rating">
+            <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+          </div>
         </div>
       </div>
-    </div>
-  </p-card>
-</div>
+      <div class="content-body p-grid" *ngIf="expandSerie">
+        <div class="p-sm-6 p-md-4 p-lg-2" *ngFor="let book of serie">
+          <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)"
+            style="cursor: pointer;" />
+          <div>
+            <span class="title">{{book.title}}</span>
+          </div>
+          <div>
+            <a href="javascript:;" (click)="openAuthor(book.authors[0]);">{{book.authors[0]}}</a>
+          </div>
+          <div *ngIf="book.rating">
+            <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+          </div>
+        </div>
+      </div>
 
-<div class="book" *ngIf="recommendations?.length > 0">
-  <p-card>
-    <div class="content-header p-grid">
-      <div class="p-col-12 p-md-6">
-        <span class="page-title">
-          {{'locale.books.recommendations.title' | translate}}
-        </span>
-      </div>
     </div>
-    <div class="content-body p-grid">
-      <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of recommendations">
-        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)" style="cursor: pointer;" />
-        <div>
-          <span class="title">{{book.title}}</span>
+
+    <div *ngIf="similar?.length > 0">
+      <p-divider></p-divider>
+      <div class="content-header p-grid">
+        <div class="p-col-12 p-md-10">
+          <span class="page-title">
+            {{'locale.books.similar.title' | translate}}
+          </span>
         </div>
-        <div>
-          <span class="subtitle" *ngFor="let author of book.authors">
-            <a href="javascript:;" (click)="getBooksByAuthor(author)">{{author}}</a><span
-              *ngIf="author != book.authors[book.authors.length-1]"> & </span></span>
-        </div>
-        <div *ngIf="book.rating">
-          <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+        <div class="p-col-12 p-md-2 content-header-subtitle" *ngIf="showExpandSimilar">
+          <span class="page-subtitle" *ngIf="!expandSimilar" onmouseover="this.style.cursor='pointer'">
+            <span (click)="expandSimilar = true" style="white-space: nowrap;">{{'locale.books.detail.expand.more' |
+              translate}}</span>
+          </span>
+          <span class="page-subtitle" *ngIf="expandSimilar" onmouseover="this.style.cursor='pointer'">
+            <span (click)="expandSimilar = false; checkOverflowSimilar()"
+              style="white-space: nowrap;">{{'locale.books.detail.expand.less' | translate}}</span>
+          </span>
         </div>
       </div>
+      <div id="inlineSimilar" class="content-body p-grid inline" *ngIf="!expandSimilar">
+        <div class="p-sm-6 p-md-4 p-lg-2" *ngFor="let book of similar">
+          <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)" style="cursor: pointer" />
+          <div>
+            <span class="title">{{book.title}}</span>
+          </div>
+          <div>
+            <a href="javascript:;" (click)="openAuthor(book.authors[0]);">{{book.authors[0]}}</a>
+          </div>
+          <div *ngIf="book.rating">
+            <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+          </div>
+        </div>
+      </div>
+      <div class="content-body p-grid" *ngIf="expandSimilar">
+        <div class="p-sm-6 p-md-4 p-lg-2" *ngFor="let book of similar">
+          <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)"
+            style="cursor: pointer;" />
+          <div>
+            <span class="title">{{book.title}}</span>
+          </div>
+          <div>
+            <a href="javascript:;" (click)="openAuthor(book.authors[0]);">{{book.authors[0]}}</a>
+          </div>
+          <div *ngIf="book.rating">
+            <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+          </div>
+        </div>
+      </div>
+
     </div>
+
+    <div *ngIf="recommendations?.length > 0">
+      <p-divider></p-divider>
+      <div class="content-header p-grid">
+        <div class="p-col-12 p-md-10">
+          <span class="page-title">
+            {{'locale.books.recommendations.title' | translate}}
+          </span>
+        </div>
+        <div class="p-col-12 p-md-2 content-header-subtitle" *ngIf="showExpandRecommendations">
+          <span class="page-subtitle" *ngIf="!expandRecommendations" onmouseover="this.style.cursor='pointer'">
+            <span (click)="expandRecommendations = true"
+              style="white-space: nowrap;">{{'locale.books.detail.expand.more' | translate}}</span>
+          </span>
+          <span class="page-subtitle" *ngIf="expandRecommendations" onmouseover="this.style.cursor='pointer'">
+            <span (click)="expandRecommendations = false; checkOverflowRecommendations()"
+              style="white-space: nowrap;">{{'locale.books.detail.expand.less' | translate}}</span>
+          </span>
+        </div>
+      </div>
+      <div id="inlineRecommendations" class="content-body p-grid inline" *ngIf="!expandRecommendations">
+        <div class="p-sm-6 p-md-4 p-lg-2" *ngFor="let book of recommendations" #theElementYouWantToCheck>
+          <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)" style="cursor: pointer" />
+          <div>
+            <span class="title">{{book.title}}</span>
+          </div>
+          <div>
+            <a href="javascript:;" (click)="openAuthor(book.authors[0]);">{{book.authors[0]}}</a>
+          </div>
+          <div *ngIf="book.rating">
+            <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+          </div>
+        </div>
+      </div>
+      <div class="content-body p-grid" *ngIf="expandRecommendations">
+        <div class="p-sm-6 p-md-4 p-lg-2" *ngFor="let book of recommendations">
+          <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)"
+            style="cursor: pointer;" />
+          <div>
+            <span class="title">{{book.title}}</span>
+          </div>
+          <div>
+            <a href="javascript:;" (click)="openAuthor(book.authors[0]);">{{book.authors[0]}}</a>
+          </div>
+          <div *ngIf="book.rating">
+            <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <p-dialog (onShow)="showDialogMaximized(dialDetail)" #dialDetail [style]="{width: '500px'}" [(visible)]="showEpub"
+      [modal]="true" [baseZIndex]="10000" [draggable]="false" [closable]="true" [resizable]="false"
+      [focusOnShow]="false">
+      <p-card>
+        <div class="content-header p-grid">
+          <div class="p-col-11">
+            <span class="page-title">
+              {{selected.title}}
+            </span>
+          </div>
+          <div class="p-col-1 view-title-buttons">
+            <button id="closeView" type="button" pButton (click)="showEpub = false" icon="pi pi-times"
+              title="{{'locale.buttons.close' | translate}}" class="book-title-button"></button>
+          </div>
+        </div>
+        <div class="p-grid">
+          <div class="p-col-12 p-md-3">
+            <div class="chapters">
+              <div style="text-align:center">
+                <img [src]="selected.image" class="chapter-image" />
+              </div>
+              <ul>
+                <li class="ch" *ngFor="let item of chapterList" (click)="changeChapter(item.href)">{{item.label}}</li>
+              </ul>
+            </div>
+          </div>
+          <p-divider layout="vertical" class="viewer-vertical-divider"></p-divider>
+          <p-divider class="viewer-horizontal-divider"></p-divider>
+          <div class="p-col-12 p-md-8 viewer-content">
+            <div class="content">
+              <div id="viewer" class="spreads" #viewer></div>
+            </div>
+            <div class="overlay-left">
+              <button type="button" pButton (click)="prev()" title="{{'locale.buttons.previous' | translate}}"
+                icon="pi pi-chevron-left"></button>
+            </div>
+            <div class="overlay-right">
+              <button type="button" pButton (click)="next()" title="{{'locale.buttons.next' | translate}}"
+                icon="pi pi-chevron-right"></button>
+            </div>
+          </div>
+        </div>
+
+      </p-card>
+    </p-dialog>
+
+    <p-dialog #editDetail [style]="{width: '1024px'}" [(visible)]="editDialog" [modal]="true" [baseZIndex]="10000"
+      [draggable]="false" [closable]="true" [resizable]="false" [focusOnShow]="false">
+      <p-card>
+
+        
+
+        <div class="content-header p-grid">
+          <div class="book-title-buttons">
+            <button id="closeView" type="button" pButton (click)="editDialog = false" icon="pi pi-times"
+              title="{{'locale.buttons.close' | translate}}" class="book-title-button"></button>
+          </div>
+        </div>
+
+        <div class="content-body p-grid p-fluid">
+
+          <div class="p-col-12 p-md-2">{{'locale.books.detail.edit.title' | translate}}</div>
+          <div class="p-col p-md-10">
+            <input type="text" pInputText autocomplete="off" [(ngModel)]="editedBook.title" />
+          </div>
+
+          <div class="p-col-12 p-md-2">{{'locale.books.detail.edit.author' | translate}}</div>
+          <div class="p-col p-md-10">
+            <p-chips [(ngModel)]="editedBook.authors" disabled="true"></p-chips>
+          </div>
+
+          <div class="p-col-12 p-md-2">{{'locale.books.detail.edit.plot' | translate}}</div>
+          <div class="p-col p-md-10">
+            <textarea rows="5" cols="30" pInputTextarea [autoResize]="true" [(ngModel)]="editedBook.comment"></textarea>
+          </div>
+
+
+          <div class="p-col-12 p-md-2">{{'locale.books.detail.edit.gender' | translate}}</div>
+          <div class="p-col p-md-10">
+            <p-chips [(ngModel)]="editedBook.tags" disabled="true"></p-chips>
+          </div>
+
+
+          <div class="p-col-12 p-md-2">{{'locale.books.detail.edit.pubdate' | translate}}</div>
+          <div class="p-col p-md-10">
+            <p-inputMask [(ngModel)]="editedBook.pubDate" mask="99/99/9999" placeholder="99/99/9999" slotChar="dd/mm/yyyy"></p-inputMask>
+
+          </div>
+
+          <div class="p-col-12 p-md-2">{{'locale.books.detail.edit.language' | translate}}</div>
+          <div class="p-col p-md-10">
+            <p-chips [(ngModel)]="editedBook.languages" disabled="true"></p-chips>
+          </div>
+
+          <div class="p-col-12 p-md-2">{{'locale.books.detail.edit.pages' | translate}}</div>
+          <div class="p-col p-md-10">
+            <p-inputNumber mode="decimal" [showButtons]="true" [min]="0" [max]="5000" [(ngModel)]="editedBook.pages">
+            </p-inputNumber>
+          </div>
+
+          <div class="p-col-12 p-md-2">{{'locale.books.detail.edit.rating' | translate}}</div>
+          <div class="p-col p-md-10">
+            <p-rating class="metadata-value" [(ngModel)]="editedBook.rating" stars="5"
+            [cancel]="false"></p-rating>
+          </div>
+        </div>
+
+        <div class="p-col-12 page-buttons">
+          <button type="button" pButton label="{{'locale.buttons.save' | translate}}" class="page-button"
+            (click)="saveBook()">
+          </button>
+        </div>
+
+      </p-card>
+    </p-dialog>
   </p-card>
 </div>

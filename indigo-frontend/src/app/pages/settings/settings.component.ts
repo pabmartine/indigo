@@ -8,7 +8,7 @@ import { AuthorService } from 'src/app/services/author.service';
 import { ConfigService } from 'src/app/services/config.service';
 import { MetadataService } from 'src/app/services/metadata.service';
 import { UserService } from 'src/app/services/user.service';
-import { UtilService } from 'src/app/services/util.service';
+import { MailService } from 'src/app/services/mail.service';
 
 @Component({
   selector: 'app-settings',
@@ -60,7 +60,7 @@ export class SettingsComponent implements OnInit {
     public authorService: AuthorService,
     public metadataService: MetadataService,
     public configService: ConfigService,
-    public utilService: UtilService,
+    public mailService: MailService,
     public userService: UserService,
     private router: Router) {
 
@@ -137,17 +137,6 @@ export class SettingsComponent implements OnInit {
   }
 
   getMetadata() {
-    this.configService.get("metadata.pull").subscribe(
-      data => {
-        if (data)
-          this.metadataPull = Number(data.value) / 1000;
-      },
-      error => {
-        console.log(error);
-      }
-    );
-
-
     this.configService.get("goodreads.key").subscribe(
       data => {
         if (data)
@@ -244,7 +233,6 @@ export class SettingsComponent implements OnInit {
 
     let configs: Config[] = [];
     configs.push(new Config("goodreads.key", this.goodReadsKey));
-    configs.push(new Config("metadata.pull", String(this.metadataPull * 1000)));
     configs.push(new Config("smtp.provider", this.smtpProvider));
     configs.push(new Config("smtp.host", this.smtpHost));
     configs.push(new Config("smtp.port", this.smtpPort));
@@ -269,27 +257,35 @@ export class SettingsComponent implements OnInit {
   }
 
   isBooksFull() {
-    return this.type === 'full' && this.entity === 'books';
+    return this.type === 'FULL' && this.entity === 'BOOKS';
   }
 
   isBooksPartial() {
-    return this.type === 'partial' && this.entity === 'books';
+    return this.type === 'PARTIAL' && this.entity === 'BOOKS';
   }
 
   isAuthorsFull() {
-    return this.type === 'full' && this.entity === 'authors';
+    return this.type === 'FULL' && this.entity === 'AUTHORS';
   }
 
   isAuthorsPartial() {
-    return this.type === 'partial' && this.entity === 'authors';
+    return this.type === 'PARTIAL' && this.entity === 'AUTHORS';
+  }
+
+  isReviewsFull() {
+    return this.type === 'FULL' && this.entity === 'REVIEWS';
+  }
+
+  isReviewsPartial() {
+    return this.type === 'PARTIAL' && this.entity === 'REVIEWS';
   }
 
   isAllFull() {
-    return this.type === 'full' && this.entity === 'all';
+    return this.type === 'FULL' && this.entity === 'LOAD';
   }
 
   isAllPartial() {
-    return this.type === 'partial' && this.entity === 'all';
+    return this.type === 'PARTIAL' && this.entity === 'LOAD';
   }
 
 
@@ -297,12 +293,14 @@ export class SettingsComponent implements OnInit {
   doExecuteMetadata(type: string, entity: string) {
 
     if (
-      type === 'full' && entity === 'authors' && this.isAuthorsFull() ||
-      type === 'partial' && entity === 'authors' && this.isAuthorsPartial() ||
-      type === 'full' && entity === 'books' && this.isBooksFull() ||
-      type === 'partial' && entity === 'books' && this.isBooksPartial() ||
-      type === 'full' && entity === 'all' && this.isAllFull() ||
-      type === 'partial' && entity === 'all' && this.isAllPartial()
+      type === 'FULL' && entity === 'REVIEWS' && this.isReviewsFull() ||
+      type === 'PARTIAL' && entity === 'REVIEWS' && this.isReviewsPartial() ||
+      type === 'FULL' && entity === 'AUTHORS' && this.isAuthorsFull() ||
+      type === 'PARTIAL' && entity === 'AUTHORS' && this.isAuthorsPartial() ||
+      type === 'FULL' && entity === 'BOOKS' && this.isBooksFull() ||
+      type === 'PARTIAL' && entity === 'BOOKS' && this.isBooksPartial() ||
+      type === 'FULL' && entity === 'LOAD' && this.isAllFull() ||
+      type === 'PARTIAL' && entity === 'LOAD' && this.isAllPartial()
     ) {
       this.metadataService.stop().subscribe(
         data => {
@@ -340,7 +338,7 @@ export class SettingsComponent implements OnInit {
     this.isSendTestMail = true;
 
     const user = JSON.parse(sessionStorage.user);
-    this.utilService.sendTestMail(user.kindle).subscribe(
+    this.mailService.sendTestMail(user.kindle).subscribe(
       data => {
         this.getSmtp(true);
         this.isSendTestMail = false;

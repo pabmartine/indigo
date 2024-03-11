@@ -73,7 +73,10 @@ export class CategoriesComponent implements OnInit {
         label: this.translate.instant('locale.tags.actions.merge.title'), icon: 'menu-icon fa fa-compress', command: () => this.showMerge()
       },
       {
-        label: this.translate.instant('locale.tags.actions.image.title'), icon: 'menu-icon fa fa-image', command: () => this.showImage()
+        label: this.translate.instant('locale.tags.actions.image.modify.title'), icon: 'menu-icon fa fa-image', command: () => this.showImage()
+      },
+      {
+        label: this.translate.instant('locale.tags.actions.image.update.title'), icon: 'menu-icon fa fa-image', command: () => this.updateImage()
       }
     ];
 
@@ -128,9 +131,6 @@ export class CategoriesComponent implements OnInit {
     this.sortedTags = Object.assign([], this.tags);
     this.sortedTags.sort((a, b) => (a.name > b.name) ? 1 : -1);
     this.rename = true;
-
-    console.log(this.sourceTag.name);
-
   }
 
   showMerge() {
@@ -146,6 +146,22 @@ export class CategoriesComponent implements OnInit {
     this.sortedTags = Object.assign([], this.tags);
     this.sortedTags.sort((a, b) => (a.name > b.name) ? 1 : -1);
     this.image = true;
+  }
+
+  updateImage() {
+    this.messageService.clear();
+    
+    this.tagService.updateImage(this.sourceTag.id).subscribe(
+      data => {
+        this.sourceTag.image = data.image;
+      },
+      error => {
+        console.log(error);
+        this.messageService.clear();
+        this.messageService.add({ key: "rename", severity: 'error', detail: this.translate.instant('locale.tags.error.image'), closable: false, life: 5000 });
+      }
+    );
+    
   }
 
   validateRename(event) {

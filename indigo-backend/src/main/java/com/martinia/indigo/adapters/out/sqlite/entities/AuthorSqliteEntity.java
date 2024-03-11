@@ -8,6 +8,8 @@ import javax.persistence.Id;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,7 +21,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
+@Builder
 @Table(name = "\"authors\"")
 public class AuthorSqliteEntity implements Serializable {
 	private static final long serialVersionUID = 1L;

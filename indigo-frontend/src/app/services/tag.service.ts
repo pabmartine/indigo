@@ -32,5 +32,9 @@ export class TagService {
   saveImage(source:number, image: string) : Observable<any> {
     return this.http.get<string>(this.endpoint+"/image?source="+source+"&image="+image);
   }  
+
+  updateImage(source:number) : Observable<any> {
+    return this.http.get<string>(this.endpoint+"/image/update?source="+source);
+  }  
  
 }

@@ -13,13 +13,13 @@
     <div class="content-body p-grid">
       <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let author of favorites">
         <div class="user_avatar">
-          <img [src]="author.image" class="avatar" (click)="getBooksByAuthor(author)" style="cursor: pointer;"
+          <img [src]="author.image" class="avatar" (click)="showDetails(author)" style="cursor: pointer;"
             *ngIf="author.image" />
 
-          <img src="./assets/images/avatar3.jpg" class="avatar" (click)="getBooksByAuthor(author)"
+          <img src="./assets/images/avatar3.jpg" class="avatar" (click)="showDetails(author)"
             style="cursor: pointer;" *ngIf="!author.image" />
 
-          <a href="javascript:;" (click)="getBooksByAuthor(author)" style="cursor: pointer;">
+          <a href="javascript:;" (click)="showDetails(author)" style="cursor: pointer;">
             <span class="title">{{author.sort}}</span>
             <span class="subtitle">{{author.numBooks}} {{'locale.authors.total' | translate}}</span>
           </a>
@@ -50,13 +50,13 @@
       <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let author of authors">
 
         <div class="user_avatar">
-          <img [src]="author.image" class="avatar" (click)="getBooksByAuthor(author)" style="cursor: pointer;"
+          <img [src]="author.image" class="avatar" (click)="showDetails(author)" style="cursor: pointer;"
             *ngIf="author.image" />
 
-          <img src="./assets/images/avatar3.jpg" class="avatar" (click)="getBooksByAuthor(author)"
+          <img src="./assets/images/avatar3.jpg" class="avatar" (click)="showDetails(author)"
             style="cursor: pointer;" *ngIf="!author.image" />
 
-          <a href="javascript:;" (click)="getBooksByAuthor(author)" style="cursor: pointer;">
+          <a href="javascript:;" (click)="showDetails(author)" style="cursor: pointer;">
             <span class="title">{{author.sort}}</span>
             <span class="subtitle">{{author.numBooks}} {{'locale.authors.total' | translate}}</span>
           </a>
@@ -68,4 +68,13 @@
     <button type="button" pButton [ngClass]="'up-button'" *ngIf="showGoUpButton" (click)="scrollTop()"
       icon="pi pi-arrow-up"></button>
   </p-card>
+</div>
+
+<div class="book">
+  <p-dialog [(visible)]="showDetail" [modal]="true" [draggable]="false" [resizable]="false" [transitionOptions]="'0ms'">
+    <app-author (eventClose)="closeDetails()" (eventOpen)="openDetails()" (eventBook)="openBook($event)" (eventAuthor)="refreshAuthor($event)"></app-author>
+  </p-dialog>
+  <p-dialog [(visible)]="showBookDetail" [modal]="true" [draggable]="false" [resizable]="false" [transitionOptions]="'0ms'">
+    <app-detail (eventClose)="closeBookDetails()" (eventOpen)="openBookDetails()" (eventAuthor)="openAuthor($event)"></app-detail>
+  </p-dialog>
 </div>

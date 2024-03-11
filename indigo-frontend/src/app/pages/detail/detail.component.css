@@ -6,15 +6,38 @@
     justify-content: center;
 }
 
+.viewer-vertical-divider {
+    display: inherit;
+}
+
+.viewer-horizontal-divider {
+    display: none;
+}
+
+.viewer-content {
+    position: relative;
+}
+
+.view-title-buttons {
+    text-align: right;
+}
 
 .overlay-left {
     float: left;
-    padding-left: 10px;
+    left: 10px;
+    bottom: 50%;
+    position: absolute;
+    overflow: hidden;
+    opacity: 0.7;
 }
 
 .overlay-right {
     text-align: right;
-    padding-right: 10px;
+    right: 10px;
+    bottom: 50%;
+    position: absolute;
+    overflow: hidden;
+    opacity: 0.7;
 }
 
 @media (max-width: 640px) {
@@ -23,15 +46,23 @@
         float: left;
         padding-left: 10px;
     }
-    
+
     .overlay-right {
         text-align: right;
         padding-right: 10px;
     }
 
+    .viewer-vertical-divider {
+        display: none;
+    }
+
+    .viewer-horizontal-divider {
+        display: inherit;
+        width: 100%;
+    }
 }
 
-.chapters{
+.chapters {
     height: 750px;
     overflow-y: auto;
 }
@@ -43,19 +74,19 @@
 }
 
 @media (max-width: 640px) {
-    .chapters{
+    .chapters {
         height: 300px;
         overflow-y: auto;
     }
 }
 
-.content{
+.content {
     height: 712px;
 }
 
 @media (max-width: 640px) {
-    .content{
-    height: 735px;
+    .content {
+        height: 735px;
     }
 }
 
@@ -69,31 +100,129 @@
 
 @media (min-width: 1140px) {
     #viewer.spreads:after {
-      position: absolute;
-      z-index: 1;
-      width: 1px;
-      border-right: 1px #000 solid;
-      height: 90%;
-      left: 50%;
-      margin-left: -1px;
-      top: 5%;
-      opacity: .15;
-      box-shadow: -2px 0 15px rgba(0, 0, 0, 1);
-      content:  "";
+        position: absolute;
+        z-index: 1;
+        width: 1px;
+        border-right: 1px #000 solid;
+        height: 90%;
+        left: 50%;
+        margin-left: -1px;
+        top: 5%;
+        opacity: .15;
+        box-shadow: -2px 0 15px rgba(0, 0, 0, 1);
+        content: "";
     }
-  
+
     #viewer.spreads.single:after {
-      display: none;
+        display: none;
     }
-  }
+}
 
 
 
 
-  .chapter-image {
+.chapter-image {
     box-shadow: 0 1px 3px 0 rgb(0 0 0 / 20%), 0 1px 1px 0 rgb(0 0 0 / 14%), 0 2px 1px -1px rgb(0 0 0 / 12%);
     cursor: pointer;
     margin-bottom: 0.5em;
     max-width: 100%;
     height: 200px;
+}
+
+.metadata-item {
+    width: 33%;
+}
+
+.metadata-container {
+    display: flex;
+    text-align: center;
+    overflow: auto;
+    width: 100%;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+
+.metadata-title {
+    display: block;
+    font-size: 13px;
+    line-height: 1.38462;
+    font-weight: 600;
+    letter-spacing: -.005em;
+    margin-bottom: 5px;
+}
+
+.metadata-value {
+    display: block;
+    margin-bottom: 0;
+    font-size: 15px;
+    line-height: 1.25;
+    font-weight: 700;
+    letter-spacing: .023em;
+}
+
+.metadata-subvalue {
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: normal;
+    font-size: 12px;
+    line-height: 1.33337;
+    font-weight: 400;
+    letter-spacing: 0;
+}
+
+.review {
+    height: 100%;
+    padding: 13px 16px 16px;
+    background-color: #eceff4;
+    border-radius: 6px;
+}
+
+.review-name {
+    color: #636366;
+    font-size: 0.9rem;
+    line-height: 1.33337;
+    font-weight: 600;
+    letter-spacing: 0;
+    display: block;
+    padding-top: 5px;
+}
+
+.review-title {
+    font-size: 0.9rem;
+    line-height: 1.38462;
+    font-weight: 600;
+    letter-spacing: -.005em;
+    display: block;
+    padding-top: 5px;
+}
+
+.review-date {
+    color: #636366;
+    font-size: 0.9re,;
+    line-height: 1.33337;
+    font-weight: 500;
+    letter-spacing: 0;
+    display: block;
+    padding-bottom: 5px;
+}
+
+.review-comment {
+    font-size: 0.9rem;
+    line-height: 1.38462;
+    font-weight: 400;
+    letter-spacing: -.005em;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.review-comment-expand {
+    display: block !important;
+    overflow: auto !important;
+}
+
+.edit-detail .p-field {
+    margin-bottom: 0px !important;
 }
