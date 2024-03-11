@@ -45,9 +45,8 @@
                                 {{'locale.notifications.status' | translate}}
                                 <p-sortIcon field="status"></p-sortIcon>
                             </th>
-                            <th class="center" pSortableColumn="error">
-                                {{'locale.notifications.error' | translate}}
-                                <p-sortIcon field="error"></p-sortIcon>
+                            <th class="center">
+                                {{'locale.notifications.message' | translate}}
                             </th>
                             <th class="table-buttons"></th>
                         </tr>
@@ -131,8 +130,8 @@
                             </td>
                             <td>{{notif.user}}
                             </td>
-                            <td (mouseover)="cover=notif.image;op.toggle($event)">{{notif.title}}
-                            </td>
+                            <td *ngIf="notif.title; else noTitle" (mouseover)="cover=notif.image;op.toggle($event)">{{notif.title}}</td>
+                            <ng-template #noTitle><td></td></ng-template>
                             <td>{{notif.sendDate}}</td>
                             <td>{{'locale.notifications.read.' + notif.readUser | translate}}
                             </td>
@@ -140,7 +139,7 @@
                             </td>
                             <td>{{'locale.notifications.statuses.' + notif.status | translate}}
                             </td>
-                            <td class="column-overflow" title="{{notif.error}}">{{notif.error}}
+                            <td class="column-overflow" (mouseover)="upload=notif.upload;op2.toggle($event)">{{notif.message}}
                             </td>
                             <td class="table-buttons" style="text-overflow: unset;">
                                 <button pButton type="button" icon="pi pi-trash"
@@ -152,6 +151,21 @@
                 <p-overlayPanel #op class="no-border">
                     <ng-template pTemplate>
                         <img [src]="cover" class="detail-image img-fluid" />
+                    </ng-template>
+                </p-overlayPanel>
+                <p-overlayPanel #op2 class="no-border">
+                    <ng-template pTemplate>
+                        <p>Total libros procesados: {{upload.total}}</p>
+                        <p>Extraidos: {{upload.extract}}</p>
+                        <p>Borrados: {{upload.deleted}}</p>
+                        <p>Extraidos con error: {{upload.extractError}}</p>
+                        <p>Movidos con error: {{upload.moveError}}</p>
+                        <p>Borrados con error: {{upload.deleteError}}</p>
+                        <p>Libros añadidos: {{upload.newBooks}}</p>
+                        <p>Libros actualizados: {{upload.updatedBooks}}</p>
+                        <p>Autores añadidos: {{upload.newAuthors}}</p>
+                        <p>Etiquetas añadidas: {{upload.newTags}}</p>
+                        
                     </ng-template>
                 </p-overlayPanel>
             </div>

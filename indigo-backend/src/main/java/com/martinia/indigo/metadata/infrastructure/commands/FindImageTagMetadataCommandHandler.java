@@ -10,7 +10,7 @@ import javax.annotation.Resource;
 
 @Slf4j
 @Component
-public class FindImageTagMetadataCommandHandler implements CommandHandler<FindImageTagMetadataCommand, String> {
+public class FindImageTagMetadataCommandHandler extends CommandHandler<FindImageTagMetadataCommand, String> {
 
 	@Resource
 	private FindImageTagMetadataUseCase findImageTagMetadataUseCase;

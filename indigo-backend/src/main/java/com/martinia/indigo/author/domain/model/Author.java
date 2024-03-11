@@ -1,6 +1,6 @@
 package com.martinia.indigo.author.domain.model;
 
-import com.martinia.indigo.common.model.NumBooks;
+import com.martinia.indigo.common.domain.model.NumBooks;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

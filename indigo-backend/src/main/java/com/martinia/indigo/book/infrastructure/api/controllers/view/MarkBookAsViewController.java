@@ -1,7 +1,7 @@
 package com.martinia.indigo.book.infrastructure.api.controllers.view;
 
 import com.martinia.indigo.book.domain.ports.usecases.view.MarkBookAsViewUseCase;
-import com.martinia.indigo.common.model.View;
+import com.martinia.indigo.common.domain.model.View;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

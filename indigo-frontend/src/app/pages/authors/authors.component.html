@@ -20,7 +20,7 @@
             style="cursor: pointer;" *ngIf="!author.image" />
 
           <a href="javascript:;" (click)="showDetails(author)" style="cursor: pointer;">
-            <span class="title">{{author.sort}}</span>
+            <span class="title">{{author.name}}</span>
             <span class="subtitle">{{author.numBooks}} {{'locale.authors.total' | translate}}</span>
           </a>
         </div>
@@ -57,7 +57,7 @@
             style="cursor: pointer;" *ngIf="!author.image" />
 
           <a href="javascript:;" (click)="showDetails(author)" style="cursor: pointer;">
-            <span class="title">{{author.sort}}</span>
+            <span class="title">{{author.name}}</span>
             <span class="subtitle">{{author.numBooks}} {{'locale.authors.total' | translate}}</span>
           </a>
         </div>

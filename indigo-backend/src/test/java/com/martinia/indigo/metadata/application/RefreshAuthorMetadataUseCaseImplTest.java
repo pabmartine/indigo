@@ -86,7 +86,7 @@ public class RefreshAuthorMetadataUseCaseImplTest extends BaseIndigoTest {
 		expectedAuthor.setName(sort);
 		expectedAuthor.setSort(sort);
 
-		Mockito.when(authorRepository.findBySort(sort)).thenReturn(Optional.of(author));
+		Mockito.when(authorRepository.findByName(sort)).thenReturn(Optional.of(author));
 		Mockito.when(dataUtils.getData(any())).thenReturn(null);
 		Mockito.when(bookRepository.findAll(any(), anyInt(), anyInt(), anyString(), anyString())).thenReturn(Collections.emptyList());
 		// When
@@ -95,7 +95,7 @@ public class RefreshAuthorMetadataUseCaseImplTest extends BaseIndigoTest {
 		// Then
 		Assertions.assertTrue(result.isPresent());
 		super.assertRecursively(expectedAuthor, result.get(), "lastMetadataSync");
-		Mockito.verify(authorRepository, Mockito.times(2)).findBySort(sort);
+		Mockito.verify(authorRepository, Mockito.times(2)).findByName(sort);
 	}
 
 	@Test
@@ -104,14 +104,14 @@ public class RefreshAuthorMetadataUseCaseImplTest extends BaseIndigoTest {
 		String sort = "John Doe";
 		String lang = "en";
 
-		Mockito.when(authorRepository.findBySort(sort)).thenReturn(Optional.empty());
+		Mockito.when(authorRepository.findByName(sort)).thenReturn(Optional.empty());
 
 		// When
 		Optional<Author> result = refreshAuthorMetadataUseCase.findAuthorMetadata(sort, lang);
 
 		// Then
 		Assertions.assertTrue(result.isEmpty());
-		Mockito.verify(authorRepository).findBySort(sort);
+		Mockito.verify(authorRepository).findByName(sort);
 		Mockito.verifyNoMoreInteractions(authorRepository);
 	}
 }

@@ -6,7 +6,7 @@ import { saveAs } from 'file-saver';
 import { MenuItem, MessageService } from 'primeng/api';
 import { Dialog } from 'primeng/dialog';
 import { Book } from 'src/app/domain/book';
-import { Notif } from 'src/app/domain/notif';
+import { Notification } from 'src/app/domain/notification';
 import { Search } from 'src/app/domain/search';
 import { Serie } from 'src/app/domain/serie';
 import { NotificationEnum } from 'src/app/enums/notification.enum.';
@@ -245,20 +245,20 @@ export class DetailComponent implements OnInit {
   }
 
 
-  addNotification(book: string, type: NotificationEnum, status: StatusEnum, error: string): void {
-    const user = JSON.parse(sessionStorage.user);
+  // addNotification(book: string, type: NotificationEnum, status: StatusEnum, error: string): void {
+  //   const user = JSON.parse(sessionStorage.user);
   
-    const notification = new Notif(null, book, user.username, type, status, error, this.datepipe.transform(new Date(), 'dd/MM/yyyy HH:mm:ss'));
+  //   const notification = new Notification(null, book, user.username, type, status, error, this.datepipe.transform(new Date(), 'dd/MM/yyyy HH:mm:ss'));
   
-    this.notificationService.save(notification).subscribe({
-      next: (data) => {
-        console.log(data);
-      },
-      error: (error) => {
-        console.log(error);
-      }
-    });
-  }
+  //   this.notificationService.save(notification).subscribe({
+  //     next: (data) => {
+  //       console.log(data);
+  //     },
+  //     error: (error) => {
+  //       console.log(error);
+  //     }
+  //   });
+  // }
   
 
   sendToKindle(): void {
@@ -274,7 +274,7 @@ export class DetailComponent implements OnInit {
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.kindle.ok'), closable: false, life: 5000 });
   
         // Add to notifications table
-        this.addNotification(book, NotificationEnum.KINDLE, StatusEnum.SEND, null);
+        // this.addNotification(book, NotificationEnum.KINDLE, StatusEnum.SEND, null);
       },
       error: (error) => {
         console.log(error);
@@ -282,7 +282,7 @@ export class DetailComponent implements OnInit {
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.kindle.error'), closable: false, life: 5000 });
   
         // Add to notifications table
-        this.addNotification(book + '', NotificationEnum.KINDLE, StatusEnum.NOT_SEND, error.error.message);
+        // this.addNotification(book + '', NotificationEnum.KINDLE, StatusEnum.NOT_SEND, error.error.message);
       }
     });
   }

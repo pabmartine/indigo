@@ -4,7 +4,7 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
 import com.gargoylesoftware.htmlunit.html.HtmlArticle;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.martinia.indigo.common.model.Review;
+import com.martinia.indigo.common.domain.model.Review;
 import com.martinia.indigo.metadata.domain.model.ProviderEnum;
 import com.martinia.indigo.metadata.domain.ports.adapters.libretranslate.DetectLibreTranslatePort;
 import com.martinia.indigo.metadata.domain.ports.adapters.libretranslate.TranslateLibreTranslatePort;
@@ -121,32 +121,32 @@ public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseC
 				.replaceAll(",", "").replaceAll("\\.", "+").replaceAll(":", "+").replaceAll("\\+\\+", "+");
 	}
 
-	private List<Review> getReviews(String lang, String url, int numPage) throws Exception {
+	private List<Review> getReviews(final String lang, final String url, final int numPage) throws Exception {
 
-		List<Review> reviews = new ArrayList<>();
+		final List<Review> reviews = new ArrayList<>();
 
-		HtmlPage page = webClient.getPage(endpoint.substring(0, endpoint.indexOf(".com") + 4) + url);
+		final HtmlPage page = webClient.getPage(endpoint.substring(0, endpoint.indexOf(".com") + 4) + url);
 
-		List<Review> foreignComments = new ArrayList<>();
+		final List<Review> foreignComments = new ArrayList<>();
 		page.getByXPath("//article[@class='ReviewCard']").stream().takeWhile(data -> reviews.size() < 10).forEach(item -> {
 			HtmlArticle htmlArticle = (HtmlArticle) item;
 			try {
-				String name = htmlArticle.getFirstChild().getFirstChild().getFirstChild().getNextSibling().getFirstChild().getFirstChild()
+				final String name = htmlArticle.getFirstChild().getFirstChild().getFirstChild().getNextSibling().getFirstChild().getFirstChild()
 						.getFirstChild().asText();
-				String strRating = htmlArticle.getFirstChild().getNextSibling().getFirstChild().getFirstChild().getFirstChild()
+				final String strRating = htmlArticle.getFirstChild().getNextSibling().getFirstChild().getFirstChild().getFirstChild()
 						.getAttributes().getNamedItem("aria-label").getNodeValue();
-				Matcher matcher = Pattern.compile("\\d+").matcher(strRating);
+				final Matcher matcher = Pattern.compile("\\d+").matcher(strRating);
 				matcher.find();
 				int rating = Integer.valueOf(matcher.group());
 				String title = "";
 				String strDate = htmlArticle.getFirstChild().getNextSibling().getFirstChild().getFirstChild().getNextSibling().asText();
 				Date date = SDF.parse(strDate);
-				String comment = htmlArticle.getFirstChild().getNextSibling().getFirstChild().getNextSibling().getFirstChild()
+				final String comment = htmlArticle.getFirstChild().getNextSibling().getFirstChild().getNextSibling().getFirstChild()
 						.getFirstChild().getFirstChild().getFirstChild().asText();
 
-				String language = detectLibreTranslatePort.map(libreTranslate -> libreTranslate.detect(comment)).orElse(null);
+				final String language = detectLibreTranslatePort.map(libreTranslate -> libreTranslate.detect(comment)).orElse(null);
 
-				Review review = Review.builder().comment(comment).name(name).date(date).rating(rating).title(title)
+				final Review review = Review.builder().comment(comment).name(name).date(date).rating(rating).title(title)
 						.lastMetadataSync(new Date()).provider(ProviderEnum.GOODREADS.name()).build();
 				if (language != null && !language.equals(lang)) {
 					foreignComments.add(review);

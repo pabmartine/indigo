@@ -1,7 +1,7 @@
 package com.martinia.indigo.common.infrastructure.mongo.mappers;
 
 import com.martinia.indigo.book.infrastructure.mongo.entities.ReviewMongo;
-import com.martinia.indigo.common.model.Review;
+import com.martinia.indigo.common.domain.model.Review;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

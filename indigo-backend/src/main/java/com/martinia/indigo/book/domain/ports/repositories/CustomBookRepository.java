@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
-import com.martinia.indigo.common.model.Search;
+import com.martinia.indigo.common.domain.model.Search;
 
 public interface CustomBookRepository {
 

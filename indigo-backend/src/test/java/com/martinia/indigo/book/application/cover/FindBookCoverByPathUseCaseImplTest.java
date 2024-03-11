@@ -2,7 +2,7 @@ package com.martinia.indigo.book.application.cover;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.ports.usecases.cover.FindBookCoverByPathUseCase;
-import com.martinia.indigo.common.util.UtilComponent;
+import com.martinia.indigo.common.util.ImageUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -20,7 +20,7 @@ public class FindBookCoverByPathUseCaseImplTest extends BaseIndigoTest {
 	private FindBookCoverByPathUseCase findBookCoverByPathUseCase;
 
 	@MockBean
-	private UtilComponent utilComponent;
+	private ImageUtils imageUtils;
 
 	@Test
 	public void testGetImage_WithValidPath() {
@@ -29,7 +29,7 @@ public class FindBookCoverByPathUseCaseImplTest extends BaseIndigoTest {
 		String base64Image = "base64encodedimage";
 
 		// Mock the behavior of utilComponent.getBase64Cover()
-		when(utilComponent.getBase64Cover(path, false)).thenReturn(base64Image);
+		when(imageUtils.getBase64Cover(path, false)).thenReturn(base64Image);
 
 		// When
 		Optional<String> imageOptional = findBookCoverByPathUseCase.getImage(path);
@@ -45,7 +45,7 @@ public class FindBookCoverByPathUseCaseImplTest extends BaseIndigoTest {
 		String path = "invalid/path";
 
 		// Mock the behavior of utilComponent.getBase64Cover()
-		when(utilComponent.getBase64Cover(path, false)).thenReturn(null);
+		when(imageUtils.getBase64Cover(path, false)).thenReturn(null);
 
 		// When
 		Optional<String> imageOptional = findBookCoverByPathUseCase.getImage(path);

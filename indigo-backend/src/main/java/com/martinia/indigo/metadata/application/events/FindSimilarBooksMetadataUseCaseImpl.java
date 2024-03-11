@@ -2,7 +2,7 @@ package com.martinia.indigo.metadata.application.events;
 
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
-import com.martinia.indigo.common.model.Search;
+import com.martinia.indigo.common.domain.model.Search;
 import com.martinia.indigo.metadata.domain.ports.usecases.events.FindSimilarBooksMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

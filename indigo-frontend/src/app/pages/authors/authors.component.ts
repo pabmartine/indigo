@@ -65,8 +65,8 @@ export class AuthorsComponent implements OnInit {
     this.sorts.push(
       { label: this.translate.instant('locale.authors.order_by.total.desc'), value: 'numBooks.total,desc' },
       { label: this.translate.instant('locale.authors.order_by.total.asc'), value: 'numBooks.total,asc' },
-      { label: this.translate.instant('locale.authors.order_by.sort.asc'), value: 'sort,asc' },
-      { label: this.translate.instant('locale.authors.order_by.sort.desc'), value: 'sort,desc' }
+      { label: this.translate.instant('locale.authors.order_by.sort.asc'), value: 'name,asc' },
+      { label: this.translate.instant('locale.authors.order_by.sort.desc'), value: 'name,desc' }
     );
   }
 
@@ -206,7 +206,7 @@ export class AuthorsComponent implements OnInit {
 
     this.selectedSort = sessionStorage.getItem('authors_order');
     if (!this.selectedSort) {
-      this.sort = "sort";
+      this.sort = "name";
       this.order = "asc";
       this.selectedSort = this.sort + "," + this.order;
     }

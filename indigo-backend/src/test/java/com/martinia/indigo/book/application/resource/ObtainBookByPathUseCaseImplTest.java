@@ -2,7 +2,7 @@ package com.martinia.indigo.book.application.resource;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.domain.ports.usecases.resource.ObtainBookByPathUseCase;
-import com.martinia.indigo.common.util.UtilComponent;
+import com.martinia.indigo.common.util.ImageUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -17,7 +17,7 @@ public class ObtainBookByPathUseCaseImplTest extends BaseIndigoTest {
 	private ObtainBookByPathUseCase obtainBookByPathUseCase;
 
 	@MockBean
-	private UtilComponent utilComponent;
+	private ImageUtils imageUtils;
 
 	@Test
 	public void testGetEpub_ReturnsEpubResource() {
@@ -25,7 +25,7 @@ public class ObtainBookByPathUseCaseImplTest extends BaseIndigoTest {
 		String path = "path/to/book.epub";
 		Resource epubResource = Mockito.mock(Resource.class);
 
-		when(utilComponent.getEpub("path/to/book.epub")).thenReturn(epubResource);
+		when(imageUtils.getEpub("path/to/book.epub")).thenReturn(epubResource);
 
 		// When
 		Resource result = obtainBookByPathUseCase.getEpub(path);

@@ -23,6 +23,6 @@ public class FindAllNotificationsUseCaseImpl implements FindAllNotificationsUseC
 
 	@Override
 	public List<Notification> findAllByOrderBySendDateDesc() {
-		return notificationMongoMapper.entities2Domains(notificationRepository.findAll(Sort.by(Sort.Direction.DESC, "sendDate")));
+		return notificationMongoMapper.entities2Domains(notificationRepository.findAll(Sort.by(Sort.Direction.DESC, "date")));
 	}
 }

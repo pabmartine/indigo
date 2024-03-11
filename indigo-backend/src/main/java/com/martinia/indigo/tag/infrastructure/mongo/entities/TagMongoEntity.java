@@ -19,24 +19,20 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Document(collection = "tags")
+@Document(collection = "tags2")
 public class TagMongoEntity implements Serializable {
-
-
-	
-	private static final long serialVersionUID = 3821856920529740875L;
 
 	@Id
 	private String id;
 	private String name;
 	private String image;
 	private NumBooksMongo numBooks;
-	
+
 	public TagMongoEntity(String tag, List<String> languages) {
 		this.name = tag;
 		this.numBooks = new NumBooksMongo();
 		this.numBooks.setTotal(1);
 		languages.forEach(lang -> this.numBooks.getLanguages().put(lang, 1));
 	}
-	
+
 }

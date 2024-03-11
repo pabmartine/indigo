@@ -21,16 +21,13 @@
 
     <p-tieredMenu #menu [model]="items" [popup]="true"></p-tieredMenu>
 
-    <p-overlayPanel #msg>
+    <p-overlayPanel class="overlay" #msg>
         <ng-template pTemplate>
             <div class="messages" *ngIf="messages.length==0">
                 <span class="message-text">{{'locale.messages.none' | translate}}</span>
             </div>
-            <div class="messages" *ngFor="let message of messages">
-                <span class="message-text" [innerHtml] = "message.message"></span>
-                <a href="javascript:;">
-                    <span class="message-icon pi pi-trash" (click)="markMessageAsRead(message.id)"></span>
-                </a>    
+            <div class="messages" *ngFor="let message of messages" onmouseover="this.style.cursor='pointer'">
+                <span class="message-text" [innerHtml] = "message.message" (click)="markMessageAsRead(message.id)"></span>            
             </div>
         </ng-template>
     </p-overlayPanel>

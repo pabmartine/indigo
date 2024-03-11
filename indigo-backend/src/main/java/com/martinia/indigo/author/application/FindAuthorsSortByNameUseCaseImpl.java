@@ -22,7 +22,7 @@ public class FindAuthorsSortByNameUseCaseImpl implements FindAuthorsSortByNameUs
 
 	@Override
 	public Optional<Author> findBySort(String sort) {
-		return authorRepository.findBySort(sort).map(author -> Optional.of(authorMongoMapper.entity2Domain(author)))
+		return authorRepository.findByName(sort).map(author -> Optional.of(authorMongoMapper.entity2Domain(author)))
 				.orElse(Optional.empty());
 	}
 

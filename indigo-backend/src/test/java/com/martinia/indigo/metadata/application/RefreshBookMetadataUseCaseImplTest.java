@@ -1,7 +1,6 @@
 package com.martinia.indigo.metadata.application;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.adapters.out.sqlite.service.CalibreRepository;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
@@ -65,9 +64,6 @@ public class RefreshBookMetadataUseCaseImplTest extends BaseIndigoTest {
 	@MockBean
 	private CommandBus commandBus;
 
-	@MockBean
-	private CalibreRepository calibreRepository;
-
 	@BeforeEach
 	@SneakyThrows
 	void init() {
@@ -93,8 +89,6 @@ public class RefreshBookMetadataUseCaseImplTest extends BaseIndigoTest {
 		Book expectedBook = new Book();
 		expectedBook.setPath(path);
 
-		Mockito.when(calibreRepository.findBookByPath(Mockito.anyString())).thenReturn(expectedBook);
-
 		Mockito.when(mockBookRepository.findByPath(path)).thenReturn(Optional.of(book));
 
 		// When
@@ -115,8 +109,6 @@ public class RefreshBookMetadataUseCaseImplTest extends BaseIndigoTest {
 
 		Book expectedBook = new Book();
 		expectedBook.setPath(path);
-		Mockito.when(calibreRepository.findBookByPath(Mockito.anyString())).thenReturn(expectedBook);
-
 		// When
 		Optional<Book> result = refreshBookMetadataUseCase.findBookMetadata(path, "es");
 

@@ -1,4 +1,5 @@
 export enum StatusEnum {
     SEND,
-    NOT_SEND
+    NOT_SEND,
+    FINISHED
 }

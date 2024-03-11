@@ -42,7 +42,7 @@ public class FindFavoriteAuthorsUseCaseImpl implements FindFavoriteAuthorsUseCas
 	}
 
 	private Optional<Author> findAuthor(String sort) {
-		return authorRepository.findBySort(sort)
+		return authorRepository.findByName(sort)
 				.map(author -> Optional.of(authorMongoMapper.entity2Domain(author)))
 				.orElse(Optional.empty());
 	}

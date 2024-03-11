@@ -19,10 +19,8 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "books")
+@Document(collection = "books2")
 public class BookMongoEntity implements Serializable {
-
-	private static final long serialVersionUID = 7913092341598911896L;
 
 	@BsonRepresentation(BsonType.OBJECT_ID)
 	@Id
@@ -45,5 +43,6 @@ public class BookMongoEntity implements Serializable {
 	private List<ReviewMongo> reviews;
 
 	private Date lastMetadataSync;
+	private float version;
 
 }

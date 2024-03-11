@@ -28,10 +28,10 @@ public class RefreshAuthorMetadataUseCaseImpl implements RefreshAuthorMetadataUs
 	@Override
 	public Optional<Author> findAuthorMetadata(String sort, String lang) {
 
-		return authorRepository.findBySort(sort).map(author -> {
+		return authorRepository.findByName(sort).map(author -> {
 			commandBus.executeAndWait(
 					FindAuthorMetadataCommand.builder().authorId(author.getId()).override(true).lastExecution(0).lang(lang).build());
-			return Optional.of(mapper.entity2Domain(authorRepository.findBySort(sort).get()));
+			return Optional.of(mapper.entity2Domain(authorRepository.findByName(sort).get()));
 		}).orElse(Optional.empty());
 
 	}

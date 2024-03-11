@@ -3,7 +3,7 @@ package com.martinia.indigo.common.infrastructure.api.mappers;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.martinia.indigo.common.infrastructure.api.model.ReviewDto;
-import com.martinia.indigo.common.model.Review;
+import com.martinia.indigo.common.domain.model.Review;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

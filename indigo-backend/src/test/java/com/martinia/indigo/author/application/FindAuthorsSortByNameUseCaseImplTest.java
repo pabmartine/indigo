@@ -40,7 +40,7 @@ public class FindAuthorsSortByNameUseCaseImplTest extends BaseIndigoTest {
 		author.setId("1");
 		author.setName("John Doe");
 
-		when(authorRepository.findBySort(eq(sort))).thenReturn(Optional.of(authorEntity));
+		when(authorRepository.findByName(eq(sort))).thenReturn(Optional.of(authorEntity));
 		when(authorMongoMapper.entity2Domain(authorEntity)).thenReturn(author);
 
 		// When
@@ -55,7 +55,7 @@ public class FindAuthorsSortByNameUseCaseImplTest extends BaseIndigoTest {
 		// Given
 		String sort = "non-existing-sort";
 
-		when(authorRepository.findBySort(eq(sort))).thenReturn(Optional.empty());
+		when(authorRepository.findByName(eq(sort))).thenReturn(Optional.empty());
 
 		// When
 		Optional<Author> result = findAuthorsSortByNameUseCase.findBySort(sort);

@@ -10,4 +10,5 @@ public class BookMetadataFoundEvent implements Event {
 
 	private String bookId;
 	private String similar;
+
 }

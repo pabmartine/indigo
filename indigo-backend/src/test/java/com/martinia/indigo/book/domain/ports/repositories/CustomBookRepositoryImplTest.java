@@ -1,7 +1,7 @@
 package com.martinia.indigo.book.domain.ports.repositories;
 
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
-import com.martinia.indigo.common.model.Search;
+import com.martinia.indigo.common.domain.model.Search;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;

@@ -3,7 +3,7 @@ package com.martinia.indigo.metadata.infrastructure.adapters.amazon;
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.common.infrastructure.api.mappers.ReviewDtoMapper;
 import com.martinia.indigo.common.infrastructure.api.model.ReviewDto;
-import com.martinia.indigo.common.model.Review;
+import com.martinia.indigo.common.domain.model.Review;
 import com.martinia.indigo.metadata.domain.ports.usecases.amazon.FindAmazonReviewsUseCase;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;

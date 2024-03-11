@@ -4,7 +4,7 @@ import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlDivision;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import com.martinia.indigo.common.model.Review;
+import com.martinia.indigo.common.domain.model.Review;
 import com.martinia.indigo.metadata.domain.model.ProviderEnum;
 import com.martinia.indigo.metadata.domain.ports.usecases.amazon.FindAmazonReviewsUseCase;
 import lombok.extern.slf4j.Slf4j;

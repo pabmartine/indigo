@@ -2,12 +2,14 @@ package com.martinia.indigo.metadata.application.commands;
 
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
+import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import com.martinia.indigo.common.bus.event.domain.ports.EventBus;
 import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
 import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
+import com.martinia.indigo.metadata.domain.model.commands.FindReviewMetadataCommand;
+import com.martinia.indigo.metadata.domain.model.events.BookMetadataFoundEvent;
 import com.martinia.indigo.metadata.domain.ports.adapters.goodreads.FindGoodReadsBookPort;
 import com.martinia.indigo.metadata.domain.ports.adapters.google.FindGoogleBooksBookPort;
-import com.martinia.indigo.metadata.domain.model.events.BookMetadataFoundEvent;
 import com.martinia.indigo.metadata.domain.ports.usecases.commands.FindBookMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -40,6 +42,8 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 
 	@Resource
 	private EventBus eventBus;
+	@Resource
+	private CommandBus commandBus;
 
 	@Value("${metadata.goodreads.pull}")
 	private Long pullTime;
@@ -48,7 +52,6 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 	public void find(final String bookId, final boolean override, final long lastExecution) {
 
 		bookRepository.findById(bookId).ifPresent(book -> {
-
 
 			if (override || refreshBookMetadata(book)) {
 
@@ -94,7 +97,6 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 				bookRepository.save(book);
 
 				log.info("Found metadata for {}", book.getTitle());
-
 
 				eventBus.publish(BookMetadataFoundEvent.builder().bookId(book.getId()).similar(similar).build());
 

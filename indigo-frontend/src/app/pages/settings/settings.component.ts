@@ -1,7 +1,7 @@
 import { Component, OnInit, SimpleChanges } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { MessageService, SelectItem } from 'primeng/api';
+import { ConfirmationService, MessageService, SelectItem } from 'primeng/api';
 import { forkJoin } from 'rxjs';
 import { Config } from 'src/app/domain/config';
 import { User } from 'src/app/domain/user';
@@ -10,12 +10,13 @@ import { ConfigService } from 'src/app/services/config.service';
 import { MailService } from 'src/app/services/mail.service';
 import { MetadataService } from 'src/app/services/metadata.service';
 import { UserService } from 'src/app/services/user.service';
+import { FileService } from 'src/app/services/file.service';
 
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.component.html',
   styleUrls: ['./settings.component.css'],
-  providers: [MessageService]
+  providers: [MessageService, ConfirmationService]
 })
 export class SettingsComponent implements OnInit {
 
@@ -27,6 +28,9 @@ export class SettingsComponent implements OnInit {
   total: number = 0;
   message: string;
   progressBar: number = 0;
+
+  uploads: number = 0;
+  uploadsProgress: number = 0;
 
   userList: User[];
   goodReadsKey: string;
@@ -40,6 +44,10 @@ export class SettingsComponent implements OnInit {
   smtpPassword: string;
   smtpStatus: string;
   smtpProvider: string = "other";
+
+  uploadsPath: string;
+  badge: number = 0;
+
 
   encryptions: SelectItem[] = [
     // { label: '', value: 'none' },
@@ -61,9 +69,11 @@ export class SettingsComponent implements OnInit {
     public authorService: AuthorService,
     public metadataService: MetadataService,
     public configService: ConfigService,
+    public fileService: FileService,
     public mailService: MailService,
     public userService: UserService,
-    private router: Router) {
+    private router: Router,
+    private confirmationService: ConfirmationService) {
 
 
   }
@@ -74,6 +84,7 @@ export class SettingsComponent implements OnInit {
     this.getGlobal();
     this.getMetadata();
     this.getSmtp();
+    this.getUploads();
   }
 
   ngOnInit(): void {
@@ -98,6 +109,9 @@ export class SettingsComponent implements OnInit {
         this.current = data.current;
         this.total = data.total;
         this.message = data.message;
+
+        this.uploads = data.uploadsTotal;
+        this.uploadsProgress = data.uploadsCurrent;
   
         if (this.message) {
           this.message = this.translate.instant('locale.settings.panel.metadata.' + this.message);
@@ -133,6 +147,19 @@ export class SettingsComponent implements OnInit {
       next: (data) => {
         if (data) {
           this.booksRecommendations = Number(data.value);
+        }
+      },
+      error: (error) => {
+        console.log(error);
+      }
+    });
+  }
+
+  getUploads(): void {
+    this.fileService.getUploadsPath().subscribe({
+      next: (data) => {
+        if (data) {
+          this.uploadsPath = data.path;
         }
       },
       error: (error) => {
@@ -210,6 +237,20 @@ export class SettingsComponent implements OnInit {
   }
   
 
+
+  upload(data:number): void {
+    this.fileService.upload(data).subscribe({
+      next: (data) => {
+        if (data) {
+          console.log(data);
+        }
+      },
+      error: (error) => {
+        console.log(error);
+      }
+    });
+  }
+
   isBooksFull() {
     return this.type === 'FULL' && this.entity === 'BOOKS';
   }
@@ -232,14 +273,6 @@ export class SettingsComponent implements OnInit {
 
   isReviewsPartial() {
     return this.type === 'PARTIAL' && this.entity === 'REVIEWS';
-  }
-
-  isAllFull() {
-    return this.type === 'FULL' && this.entity === 'LOAD';
-  }
-
-  isAllPartial() {
-    return this.type === 'PARTIAL' && this.entity === 'LOAD';
   }
 
 
@@ -275,9 +308,7 @@ export class SettingsComponent implements OnInit {
       (type === 'FULL' && entity === 'AUTHORS' && this.isAuthorsFull()) ||
       (type === 'PARTIAL' && entity === 'AUTHORS' && this.isAuthorsPartial()) ||
       (type === 'FULL' && entity === 'BOOKS' && this.isBooksFull()) ||
-      (type === 'PARTIAL' && entity === 'BOOKS' && this.isBooksPartial()) ||
-      (type === 'FULL' && entity === 'LOAD' && this.isAllFull()) ||
-      (type === 'PARTIAL' && entity === 'LOAD' && this.isAllPartial())
+      (type === 'PARTIAL' && entity === 'BOOKS' && this.isBooksPartial())
     ) {
       this.metadataService.stop().subscribe({
         next: () => {
@@ -356,5 +387,36 @@ export class SettingsComponent implements OnInit {
       }
     }
   }
+
+  detect(){
+
+    this.fileService.count().subscribe({
+      next: (data) => {
+        console.log(data);
+        if (data>0) {
+          this.confirmationService.confirm({ 
+            message: 'Se han detectado ' + data + ' libros nuevos. ¿Desea añadirlos a su biblioteca?', 
+            header: 'Añadir libros',
+            acceptLabel: 'Aceptar',
+            rejectLabel: 'Cancelar',
+            accept: () => {
+              this.upload(data);
+            },
+          }); 
+         } else {
+          this.confirmationService.confirm({ 
+            message: 'No se han detectado libros nuevos en ' + this.uploadsPath, 
+            header: 'Añadir libros',
+            acceptLabel: 'Cerrar',
+            rejectVisible: false
+          });
+         }
+      },
+      error: (error) => {
+        console.log(error);
+      }
+    });
+  }
+
 
 }

@@ -11,7 +11,7 @@ import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.tag.infrastructure.api.controllers.FindAllTagsController;
 import com.martinia.indigo.tag.infrastructure.api.model.TagDto;
 import com.martinia.indigo.tag.infrastructure.api.mappers.TagDtoMapper;
-import com.martinia.indigo.common.model.NumBooks;
+import com.martinia.indigo.common.domain.model.NumBooks;
 import com.martinia.indigo.tag.domain.model.Tag;
 import com.martinia.indigo.tag.domain.ports.usecases.FindAllTagsUseCase;
 import org.junit.jupiter.api.BeforeEach;

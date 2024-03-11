@@ -2,6 +2,8 @@ package com.martinia.indigo.metadata.application.goodreads;
 
 import com.martinia.indigo.common.util.DataUtils;
 import com.martinia.indigo.metadata.domain.model.ProviderEnum;
+import com.martinia.indigo.metadata.domain.ports.adapters.libretranslate.DetectLibreTranslatePort;
+import com.martinia.indigo.metadata.domain.ports.adapters.libretranslate.TranslateLibreTranslatePort;
 import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsAuthorUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -16,6 +18,7 @@ import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.text.Normalizer;
 import java.util.Arrays;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -33,12 +36,24 @@ public class FindGoodReadsAuthorUseCaseImpl implements FindGoodReadsAuthorUseCas
 	@Resource
 	private DataUtils dataUtils;
 
+	@Resource
+	private Optional<DetectLibreTranslatePort> detectLibreTranslatePort;
+
+	@Resource
+	private Optional<TranslateLibreTranslatePort> translateLibreTranslatePort;
+
 	private static String normalize(String title) {
 		if (title.contains("(")) {
 			title = title.substring(0, title.indexOf("(")) + title.substring(title.indexOf(")") + 1, title.length());
 		}
-		return Normalizer.normalize(title, Normalizer.Form.NFD).toLowerCase().replaceAll("[^\\p{ASCII}]", "").replaceAll(" ", "+")
-				.replaceAll(",", "").replaceAll("\\.", "+").replaceAll(":", "+").replaceAll("\\+\\+", "+");
+		return Normalizer.normalize(title, Normalizer.Form.NFD)
+				.toLowerCase()
+				.replaceAll("[^\\p{ASCII}]", "")
+				.replaceAll(" ", "+")
+				.replaceAll(",", "")
+				.replaceAll("\\.", "+")
+				.replaceAll(":", "+")
+				.replaceAll("\\+\\+", "+");
 	}
 
 	@Override
@@ -61,8 +76,11 @@ public class FindGoodReadsAuthorUseCaseImpl implements FindGoodReadsAuthorUseCas
 
 					if (name != null && id != null) {
 
-						String filterName = StringUtils.stripAccents(name).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ")
-								.toLowerCase().trim();
+						String filterName = StringUtils.stripAccents(name)
+								.replaceAll("[^a-zA-Z0-9]", " ")
+								.replaceAll("\\s+", " ")
+								.toLowerCase()
+								.trim();
 
 						String[] terms = subject.split(" ");
 
@@ -113,6 +131,15 @@ public class FindGoodReadsAuthorUseCaseImpl implements FindGoodReadsAuthorUseCas
 		}
 		catch (Exception e) {
 			log.error(e.getMessage());
+		}
+
+		if (ret != null && !StringUtils.isEmpty(ret[0])) {
+			final String description = ret[0];
+			String language = detectLibreTranslatePort.map(libreTranslate -> libreTranslate.detect(description)).orElse(null);
+			if (!language.equals("es")) {
+				ret[0] = translateLibreTranslatePort.map(libreTranslate -> libreTranslate.translate(description, "es")).orElse(null);
+			}
+
 		}
 
 		return ret;

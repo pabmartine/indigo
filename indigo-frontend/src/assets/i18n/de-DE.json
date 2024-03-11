@@ -12,7 +12,7 @@
         },
         "footer": {
             "title": "Indigo",
-            "subtitle": "Kostenlose Web-Interface für die Calibre-E-Book-Bibliothek"
+            "subtitle": "Erkunde, organisiere und genieße deine digitale Sammlung von E-Books"
         },
         "sidebar": {
             "menu": {
@@ -383,6 +383,7 @@
             "sendDate": "Datum",
             "readUser": "Vom Benutzer gelesen",
             "readAdmin": "Vom Administrator gelesen",
+            "Nachricht": "Nachricht",
             "error": "Fehler",
             "search": "Suchen nach ",
             "select": "Wählen Sie ein ",
@@ -400,10 +401,12 @@
             },
             "statuses": {
                 "SEND": "Gesendet",
-                "NOT_SEND": "Nicht gesendet"
+                "NOT_SEND": "Nicht gesendet",
+				"FINISHED": "Fertig"
             },
             "types": {
-                "KINDLE": "Kindle"
+                "KINDLE": "An Kindle senden",
+                "UPLOAD": "Hochgeladene Bücher"
             }
         },
         "buttons": {
@@ -432,20 +435,26 @@
         "languages": {
             "es": "Spanisch",
             "en": "Englisch",
+            "ca": "Katalanisch",
             "fr": "Französisch",
             "pt": "Portugiesisch",
             "de": "Deutsch",
-            "eus": "Baskisch",
-            "glg": "Galizisch",
+            "it": "Italienisch",
+            "sv": "Schwedisch",
+            "eu": "Baskisch",
+            "gl": "Galicisch",
+            "eo": "Esperanto",
+            "spa": "Spanisch",
+            "eng": "Englisch",
+            "kat": "Katalanisch",
+            "fra": "Französisch",
+            "por": "Portugiesisch",
+            "deu": "Deutsch",
             "ita": "Italienisch",
             "swe": "Schwedisch",
-            "spa": "Spanisch",
-            "cat": "Katalanisch",
-            "deu": "Deutsch",
-            "por": "Portugiesisch",
-            "eng": "Englisch",
-            "epo": "Esperanto",
-            "fra": "Französisch"
+            "eus": "Baskisch",
+            "glg": "Galicisch",
+            "epo": "Esperanto"
         },
         "session": {
             "title": "Sitzung abgelaufen",

@@ -2,7 +2,7 @@ package com.martinia.indigo.book.infrastructure.api.cover;
 
 import com.martinia.indigo.BaseIndigoIntegrationTest;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
-import com.martinia.indigo.common.util.UtilComponent;
+import com.martinia.indigo.common.util.ImageUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class FindBookCoverByPathControllerIntegrationTest extends BaseIndigoIntegrationTest {
 
 	@MockBean
-	private UtilComponent utilComponent;
+	private ImageUtils imageUtils;
 
 	private BookMongoEntity bookMongoEntity;
 
@@ -34,7 +34,7 @@ class FindBookCoverByPathControllerIntegrationTest extends BaseIndigoIntegration
 	@Test
 	void testGetImage() throws Exception {
 		// Given
-		Mockito.when(utilComponent.getBase64Cover(anyString(), anyBoolean())).thenReturn("image");
+		Mockito.when(imageUtils.getBase64Cover(anyString(), anyBoolean())).thenReturn("image");
 
 		// When
 		ResultActions resultActions = mockMvc.perform(
@@ -49,7 +49,7 @@ class FindBookCoverByPathControllerIntegrationTest extends BaseIndigoIntegration
 	void testGetImageNoPath() throws Exception {
 		// Given
 		final String path = "unknown";
-		Mockito.when(utilComponent.getBase64Cover(anyString(), anyBoolean())).thenReturn(null);
+		Mockito.when(imageUtils.getBase64Cover(anyString(), anyBoolean())).thenReturn(null);
 
 		// When
 		ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.get("/api/book/image").param("path", path));

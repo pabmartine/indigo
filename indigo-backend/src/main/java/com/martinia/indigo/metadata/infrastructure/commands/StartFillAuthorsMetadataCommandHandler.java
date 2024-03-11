@@ -10,7 +10,7 @@ import javax.annotation.Resource;
 
 @Slf4j
 @Component
-public class StartFillAuthorsMetadataCommandHandler implements CommandHandler<StartFillAuthorsMetadataCommand, Void> {
+public class StartFillAuthorsMetadataCommandHandler extends CommandHandler<StartFillAuthorsMetadataCommand, Void> {
 
 	@Resource
 	private StartFillAuthorsMetadataUseCase startFillAuthorsMetadataUseCase;

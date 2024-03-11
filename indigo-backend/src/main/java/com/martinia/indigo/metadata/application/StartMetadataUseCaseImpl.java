@@ -7,7 +7,6 @@ import com.martinia.indigo.metadata.domain.model.MetadataProcessType;
 import com.martinia.indigo.metadata.domain.model.commands.StartFillAuthorsMetadataCommand;
 import com.martinia.indigo.metadata.domain.model.commands.StartFillBooksMetadataCommand;
 import com.martinia.indigo.metadata.domain.model.commands.StartFillReviewsMetadataCommand;
-import com.martinia.indigo.metadata.domain.model.commands.StartInitialLoadCommand;
 import com.martinia.indigo.metadata.domain.ports.usecases.StartMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,7 +25,6 @@ public class StartMetadataUseCaseImpl implements StartMetadataUseCase {
 	@Resource
 	private MetadataSingleton metadataSingleton;
 
-	//	@Async
 	@Override
 	public void start(String lang, String type, String entity) {
 		log.info("Starting async process");
@@ -37,37 +35,36 @@ public class StartMetadataUseCaseImpl implements StartMetadataUseCase {
 		metadataSingleton.start(type, entity);
 
 		if (type.equals(MetadataProcessType.FULL.name())) {
-			if (entity.equals(MetadataProcessEnum.LOAD.name())) {
-				commandBus.execute(StartInitialLoadCommand.builder().override(true).build());
-			}
-			if (entity.equals(MetadataProcessEnum.BOOKS.name())) {
+			switch (entity) {
+			case "BOOKS":
 				commandBus.execute(StartFillBooksMetadataCommand.builder().override(true).build());
-			}
-			if (entity.equals(MetadataProcessEnum.AUTHORS.name())) {
+				break;
+			case "AUTHORS":
 				commandBus.execute(StartFillAuthorsMetadataCommand.builder().override(true).lang(lang).build());
-			}
-			if (entity.equals(MetadataProcessEnum.REVIEWS.name())) {
+				break;
+			case "REVIEWS":
 				commandBus.execute(StartFillReviewsMetadataCommand.builder().override(true).lang(lang).build());
-
+				break;
+			default:
+				throw new RuntimeException();
 			}
 
 		}
 
 		if (type.equals(MetadataProcessType.PARTIAL.name())) {
-			if (entity.equals(MetadataProcessEnum.LOAD.name())) {
-				commandBus.execute(StartInitialLoadCommand.builder().override(false).build());
-			}
-			if (entity.equals(MetadataProcessEnum.BOOKS.name())) {
+			switch (MetadataProcessEnum.valueOf(entity)) {
+			case BOOKS:
 				commandBus.execute(StartFillBooksMetadataCommand.builder().override(false).build());
-			}
-			if (entity.equals(MetadataProcessEnum.AUTHORS.name())) {
+				break;
+			case AUTHORS:
 				commandBus.execute(StartFillAuthorsMetadataCommand.builder().override(false).lang(lang).build());
-
-			}
-			if (entity.equals(MetadataProcessEnum.REVIEWS.name())) {
+				break;
+			case REVIEWS:
 				commandBus.execute(StartFillReviewsMetadataCommand.builder().override(true).lang(lang).build());
+				break;
+			default:
+				throw new RuntimeException();
 			}
-
 		}
 
 	}

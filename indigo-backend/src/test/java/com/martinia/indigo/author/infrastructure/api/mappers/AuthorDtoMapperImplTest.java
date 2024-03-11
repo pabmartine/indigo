@@ -2,7 +2,7 @@ package com.martinia.indigo.author.infrastructure.api.mappers;
 
 import com.martinia.indigo.author.domain.model.Author;
 import com.martinia.indigo.author.infrastructure.api.model.AuthorDto;
-import com.martinia.indigo.common.model.NumBooks;
+import com.martinia.indigo.common.domain.model.NumBooks;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

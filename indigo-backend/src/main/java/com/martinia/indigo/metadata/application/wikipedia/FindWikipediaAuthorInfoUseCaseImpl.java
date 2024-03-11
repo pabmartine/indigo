@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.martinia.indigo.common.util.DataUtils;
 import com.martinia.indigo.metadata.domain.model.ProviderEnum;
+import com.martinia.indigo.metadata.domain.ports.adapters.libretranslate.TranslateLibreTranslatePort;
 import com.martinia.indigo.metadata.domain.ports.usecases.wikipedia.FindWikipediaAuthorInfoUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.util.Arrays;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -22,6 +24,9 @@ public class FindWikipediaAuthorInfoUseCaseImpl implements FindWikipediaAuthorIn
 
 	@Resource
 	private DataUtils dataUtils;
+
+	@Resource
+	private Optional<TranslateLibreTranslatePort> translateLibreTranslatePort;
 
 	@Value("${metadata.wikipedia.author-info}")
 	private String endpoint;
@@ -70,6 +75,13 @@ public class FindWikipediaAuthorInfoUseCaseImpl implements FindWikipediaAuthorIn
 		}
 		catch (Exception e) {
 			log.error(url);
+		}
+
+		if (ret!=null && !lang.equals("es") && !StringUtils.isEmpty(ret[0])){
+			final String description = ret[0];
+			ret[0] = translateLibreTranslatePort.map(libreTranslate -> libreTranslate.translate(description, "es"))
+					.orElse(null);
+
 		}
 
 		return ret;
