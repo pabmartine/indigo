@@ -1,6 +1,7 @@
 package com.martinia.indigo.adapters.out.sqlite.mapper;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.mapstruct.Mapper;
 
