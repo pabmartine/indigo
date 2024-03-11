@@ -76,7 +76,7 @@ export class AuthorsComponent implements OnInit {
 
     this.reset();
     this.count();
-    //    this.getAll();
+//    this.getAll();
     this.getFavorites();
   }
 
@@ -121,26 +121,27 @@ export class AuthorsComponent implements OnInit {
     document.documentElement.scrollTop = 0; // Other
   }
 
-  count(): void {
-    this.authorService.count(this.user.languageBooks).subscribe({
-      next: (data) => {
+  count() {
+    this.authorService.count(this.user.languageBooks).subscribe(
+      data => {
         this.total = data;
         this.lastPage = this.total / this.size;
         this.title = this.translate.instant('locale.authors.title') + " (" + this.total + ")";
+
         this.getAll();
       },
-      error: (error) => {
+      error => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.error.data'), closable: false, life: 5000 });
       }
-    });
+    );
   }
 
+  getAll() {
+    this.authorService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order).subscribe(
+      data => {
 
-  getAll(): void {
-    this.authorService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order).subscribe({
-      next: (data) => {
         data.forEach(author => {
           if (author.image) {
             let objectURL = 'data:image/jpeg;base64,' + author.image;
@@ -153,14 +154,13 @@ export class AuthorsComponent implements OnInit {
 
         this.page++;
       },
-      error: (error) => {
+      error => {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.error.data'), closable: false, life: 5000 });
       }
-    });
+    );
   }
-
 
 
 
@@ -174,26 +174,24 @@ export class AuthorsComponent implements OnInit {
 
 
 
-  getFavorites(): void {
+  getFavorites() {
     const user = JSON.parse(sessionStorage.user);
-    this.authorService.getFavorites(user.username).subscribe({
-      next: (data) => {
+    this.authorService.getFavorites(user.username).subscribe(
+      data => {
+
         data.forEach((author) => {
-          if (author.image) {
-            let objectURL = 'data:image/jpeg;base64,' + author.image;
-            author.image = objectURL;
-          }
+          let objectURL = 'data:image/jpeg;base64,' + author.image;
+          author.image = objectURL;
         });
 
         Array.prototype.push.apply(this.favorites, data);
         this.page++;
       },
-      error: (error) => {
+      error => {
         console.log(error);
       }
-    });
+    );
   }
-
 
 
 
@@ -241,22 +239,24 @@ export class AuthorsComponent implements OnInit {
     this.detailComponent.showDetails(book);
   }
 
-  openAuthor(sort: string): void {
+  openAuthor(sort: string) {
     this.showBookDetail = false;
-    this.authorService.getByName(sort).subscribe({
-      next: (data) => {
-        if (data && data.image) {
-          let objectURL = 'data:image/jpeg;base64,' + data.image;
-          data.image = objectURL;
-        }
+    this.authorService.getByName(sort).subscribe(
+      data => {
+        if (data)
+          if (data.image) {
+            let objectURL = 'data:image/jpeg;base64,' + data.image;
+            data.image = objectURL;
+          }
         this.authorComponent.showDetails(data);
       },
-      error: (error) => {
+      error => {
         console.log(error);
       }
-    });
+    );
+
+
   }
-  
 
   refreshAuthor(author: Author) {
     const index = this.authors.findIndex((b) => b.id === author.id);
