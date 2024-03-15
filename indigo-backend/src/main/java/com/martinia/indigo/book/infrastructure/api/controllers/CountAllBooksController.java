@@ -1,7 +1,7 @@
 package com.martinia.indigo.book.infrastructure.api.controllers;
 
 import com.martinia.indigo.book.domain.ports.usecases.CountAllBooksUseCase;
-import com.martinia.indigo.common.model.Search;
+import com.martinia.indigo.common.domain.model.Search;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,7 @@
 book:
   library:
     path: /EPL
+    uploads: ${book.library.path}/uploads
 
 logging.level:
   root: INFO
@@ -35,19 +36,7 @@ spring:
       password: 5N27A-Bjac{=wt_3
       port: 27017
       username: indigo
-  datasource:
-    driver-class-name: org.sqlite.JDBC
-    initialSize: 1
-    jdbcUrl: ${spring.datasource.url}
-    maxActive: 1
-    maxIdle: 1
-    password: ''
-    url: jdbc:sqlite:/${book.library.path}/metadata.db
-    username: ''
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.SQLiteDialect
+
   mail:
     properties:
       mail:
@@ -89,3 +78,17 @@ metadata:
     author-info: ${metadata.wikipedia.url}/w/api.php?format=json&action=query&prop=extracts|pageimages&exintro&explaintext&generator=search&gsrlimit=1&redirects=1&piprop=original&gsrsearch=$subject
   unsplash:
     url: https://unsplash.com/es/s/fotos/$term
+
+retries:
+  maxAttempts:
+    commands: 3
+    events: 3
+  delay:
+    commands: 1000
+    events: 1000
+  multiplier:
+    commands: 2
+    events: 2
+  maxDelay:
+    commands: 0
+    events: 0

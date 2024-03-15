@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
-import { Notif } from 'src/app/domain/notif';
+import { Notification } from 'src/app/domain/notification';
+import { NotificationUpload } from 'src/app/domain/notification.upload';
 import { NotificationEnum } from 'src/app/enums/notification.enum.';
 import { StatusEnum } from 'src/app/enums/status.enum';
 import { BookService } from 'src/app/services/book.service';
@@ -17,12 +18,13 @@ import { UserService } from 'src/app/services/user.service';
 })
 export class NotificationsComponent implements OnInit {
 
-  notifications: Notif[];
+  notifications: Notification[];
   types: any[];
   users: any[] = [];
   statuses: any[];
   read: any[];
-  cover: string;
+  data: string;
+  upload: NotificationUpload
 
 
   constructor(private messageService: MessageService,
@@ -36,12 +38,14 @@ export class NotificationsComponent implements OnInit {
     this.getNotifications();
 
     this.types = [
-      { label: this.translate.instant('locale.notifications.types.KINDLE'), value: NotificationEnum[NotificationEnum.KINDLE] }
+      { label: this.translate.instant('locale.notifications.types.KINDLE'), value: NotificationEnum[NotificationEnum.KINDLE] },
+      { label: this.translate.instant('locale.notifications.types.UPLOAD'), value: NotificationEnum[NotificationEnum.UPLOAD] }
     ]
 
     this.statuses = [
       { label: this.translate.instant('locale.notifications.statuses.SEND'), value: StatusEnum[StatusEnum.SEND] },
-      { label: this.translate.instant('locale.notifications.statuses.NOT_SEND'), value: StatusEnum[StatusEnum.NOT_SEND] }
+      { label: this.translate.instant('locale.notifications.statuses.NOT_SEND'), value: StatusEnum[StatusEnum.NOT_SEND]},
+      { label: this.translate.instant('locale.notifications.statuses.FINISHED'), value: StatusEnum[StatusEnum.FINISHED]}
     ]
 
     this.read = [
@@ -68,12 +72,19 @@ export class NotificationsComponent implements OnInit {
 
 
   getNotifications(): void {
+    
     this.notificationService.findAll().subscribe({
       next: (data) => {
         if (data) {
           this.notifications = data;
           this.notifications.forEach((notif) => {
-            this.getBook(notif);
+            
+            if (notif.type===NotificationEnum.KINDLE){
+              this.getBook(notif);
+            }
+            if (notif.type===NotificationEnum.UPLOAD){
+              ;
+            }
           });
         }
       },
@@ -84,14 +95,14 @@ export class NotificationsComponent implements OnInit {
     });
   }
 
-
-  getBook(notif: Notif): void {
-    this.bookService.getBookByPath(notif.book).subscribe({
+  getBook(notif: Notification): void {
+    this.bookService.getBookByPath(notif.kindle.book).subscribe({
       next: (data) => {
         if (data) {
-          notif.title = data.title;
+          notif.kindle.title = data.title;
           let objectURL = 'data:image/jpeg;base64,' + data.image;
-          notif.image = objectURL;
+          notif.kindle.image = objectURL;
+          console.log(notif.kindle.image);
         }
       },
       error: (error) => {
@@ -115,4 +126,5 @@ export class NotificationsComponent implements OnInit {
 
 
 }
+
 

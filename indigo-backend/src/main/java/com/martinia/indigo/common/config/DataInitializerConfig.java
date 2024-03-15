@@ -8,18 +8,15 @@ import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.datasource.init.ScriptException;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Locale;
 
 @Slf4j
 @Component
-		//@Profile("!test")
 class DataInitializerConfig {
 
 	@Resource
@@ -38,7 +35,7 @@ class DataInitializerConfig {
 	private String recommendations;
 
 	@PostConstruct
-	private void init() throws ScriptException, SQLException {
+	private void init() {
 
 		if (userRepository.findByUsername(username).isEmpty()) {
 			UserMongoEntity user = UserMongoEntity.builder()

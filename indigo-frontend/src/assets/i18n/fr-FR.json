@@ -12,7 +12,7 @@
 		},
 		"footer": {
 			"title": "Indigo",
-			"subtitle": "Interface Web gratuite pour Calibre eBook Library"
+			"subtitle": "Explorez, organisez et profitez de votre collection numérique de livres électroniques"
 		},
 		"sidebar": {
 			"menu": {
@@ -383,7 +383,7 @@
 			"readAdmin": "Lu par l'administrateur",
 			"status": "Status",
 			"sendDate": "Date",
-			"error": "Error",
+			"message" : "Message",
 			"search": "Rechercher par",
 			"select": "Sélectionnez un ",
 			"actions": {
@@ -400,10 +400,12 @@
 			},
 			"statuses": {
 				"SEND": "Envoyé",
-				"NOT_SEND": "Non envoyé"
+				"NOT_SEND": "Non envoyé",
+				"FINISHED": "Terminé"
 			},
 			"types": {
-				"KINDLE": "Kindle"
+				"KINDLE" : "Envoi vers Kindle",
+				"UPLOAD" : "Livres téléchargés"
 			}
 		},
 		"buttons": {
@@ -430,22 +432,28 @@
 			}
 		},
 		"languages": {
-			"es": "Espagnol",
-			"en": "Anglais",
-			"fr": "Français",
-			"pt": "Portugais",
-			"de": "Allemand",
-			"eus": "Basque",
-			"glg": "Galicien",
-			"ita": "Italien",
+			"es": "espagnol",
+			"en": "anglais",
+			"ca": "catalan",
+			"fr": "français",
+			"pt": "portugais",
+			"de": "allemand",
+			"it": "Italian",
+			"sv": "suédois",
+			"eu": "basque",
+			"gl": "Galicien",
+			"eo": "Esperanto",
+			"spa": "espagnol",
+			"eng": "anglais",
+			"cat": "catalan",
+			"fra": "français",
+			"por": "portugais",
+			"deu": "allemand",
+			"ita": "italien",
 			"swe": "suédois",
-			"spa": "Espagnol",
-			"chat": "Catalan",
-			"deu": "Allemand",
-			"por": "Portugais",
-			"eng": "Anglais",
-			"epo": "Espéranto",
-			"fra": "français"
+			"eus": "basque",
+			"glg": "galicien",
+			"epo": "Esperanto"
 		},
 		"session": {
 			"title": "Session expirée",

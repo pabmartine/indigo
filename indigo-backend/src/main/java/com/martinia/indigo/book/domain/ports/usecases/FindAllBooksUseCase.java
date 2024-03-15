@@ -1,7 +1,7 @@
 package com.martinia.indigo.book.domain.ports.usecases;
 
 import com.martinia.indigo.book.domain.model.Book;
-import com.martinia.indigo.common.model.Search;
+import com.martinia.indigo.common.domain.model.Search;
 
 import java.util.List;
 

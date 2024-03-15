@@ -56,7 +56,7 @@
                     <div class="p-grid p-fluid">
 
                         <div class="p-col-12"></div>
-                        
+
                         <div class="p-col-12 p-md-4">
                             {{'locale.settings.panel.global.recommendations' | translate}}</div>
                         <div class="p-col p-md-8">
@@ -75,7 +75,7 @@
                     <div class="p-grid p-fluid">
 
                         <div class="p-col-12"></div>
-                       
+
                         <div class="p-col-12 p-md-4">
                             {{'locale.settings.panel.metadata.goodreadskey' | translate}}
                         </div>
@@ -86,61 +86,14 @@
                         <div class="p-grid p-col-12 metadata">
                             <div class="p-col-12 p-md-6">
                                 <div class="metadata-box">
-                                    <span class="metadata-icon pi pi-bookmark"></span>
-                                    <div class="metadata-title">Biblioteca</div>
-                                    <div class="metadata-subtitle">Cargar libros en la biblioteca</div>
-                                    <div class="metadata-subinfo p-grid">
-                                        <div class="p-col-8 p-md-10">
-                                            <div class="progress">
-                                                <p-progressBar [value]="progressBar" *ngIf="isAllFull()"></p-progressBar>
-                                            </div>
-                                        </div>
-                                        <div class="p-col-2 p-md-1">
-                                            <span *ngIf="isAllFull()">{{progressBar}}%</span>
-                                            <span *ngIf="!isAllFull()">0%</span>
-                                        </div>
-                                        <div class="p-col-2 p-md-1">
-                                            <a href="javascript:;" (click)="doExecuteMetadata('FULL', 'LOAD')">
-                                                <span class="metadata-action-icon pi"
-                                                [ngClass]="{ 'pi-pause': isAllFull(), 'pi-play': !isAllFull()  }"></span>
-                                            </a>
-                                        </div>
-                                    </div> 
-                                </div>
-                            </div>
-                            <div class="p-col-12 p-md-6">
-                                <div class="metadata-box">
-                                    <span class="metadata-icon pi pi-bookmark"></span>
-                                    <div class="metadata-title">Biblioteca</div>
-                                    <div class="metadata-subtitle">Cargar libros nuevos en la biblioteca</div>
-                                    <div class="metadata-subinfo p-grid">
-                                        <div class="p-col-8 p-md-10">
-                                            <div class="progress">
-                                                <p-progressBar [value]="progressBar"  *ngIf="isAllPartial()"></p-progressBar>
-                                            </div>
-                                        </div>
-                                        <div class="p-col-2 p-md-1">
-                                            <span *ngIf="isAllPartial()">{{progressBar}}%</span>
-                                            <span *ngIf="!isAllPartial()">0%</span>
-                                        </div>
-                                        <div class="p-col-2 p-md-1">
-                                            <a href="javascript:;" (click)="doExecuteMetadata('PARTIAL', 'LOAD')">
-                                                <span class="metadata-action-icon pi"
-                                                    [ngClass]="{ 'pi-pause': isAllPartial(), 'pi-play': !isAllPartial()  }"></span>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="p-col-12 p-md-6">
-                                <div class="metadata-box">
                                     <span class="metadata-icon pi pi-book"></span>
                                     <div class="metadata-title">Libros</div>
                                     <div class="metadata-subtitle">Actualizar metadatos de todos los libros</div>
                                     <div class="metadata-subinfo p-grid">
                                         <div class="p-col-8 p-md-10">
                                             <div class="progress">
-                                                <p-progressBar [value]="progressBar" *ngIf="isBooksFull()"></p-progressBar>
+                                                <p-progressBar [value]="progressBar"
+                                                    *ngIf="isBooksFull()"></p-progressBar>
                                             </div>
                                         </div>
                                         <div class="p-col-2 p-md-1">
@@ -164,7 +117,8 @@
                                     <div class="metadata-subinfo p-grid">
                                         <div class="p-col-8 p-md-10">
                                             <div class="progress">
-                                                <p-progressBar [value]="progressBar" *ngIf="isBooksPartial()"></p-progressBar>
+                                                <p-progressBar [value]="progressBar"
+                                                    *ngIf="isBooksPartial()"></p-progressBar>
                                             </div>
                                         </div>
                                         <div class="p-col-2 p-md-1">
@@ -188,7 +142,8 @@
                                     <div class="metadata-subinfo p-grid">
                                         <div class="p-col-8 p-md-10">
                                             <div class="progress">
-                                                <p-progressBar [value]="progressBar" *ngIf="isAuthorsFull()"></p-progressBar>
+                                                <p-progressBar [value]="progressBar"
+                                                    *ngIf="isAuthorsFull()"></p-progressBar>
                                             </div>
                                         </div>
                                         <div class="p-col-2 p-md-1">
@@ -212,7 +167,8 @@
                                     <div class="metadata-subinfo p-grid">
                                         <div class="p-col-8 p-md-10">
                                             <div class="progress">
-                                                <p-progressBar [value]="progressBar" *ngIf="isAuthorsPartial()"></p-progressBar>
+                                                <p-progressBar [value]="progressBar"
+                                                    *ngIf="isAuthorsPartial()"></p-progressBar>
                                             </div>
                                         </div>
                                         <div class="p-col-2 p-md-1">
@@ -236,7 +192,8 @@
                                     <div class="metadata-subinfo p-grid">
                                         <div class="p-col-8 p-md-10">
                                             <div class="progress">
-                                                <p-progressBar [value]="progressBar" *ngIf="isReviewsFull()"></p-progressBar>
+                                                <p-progressBar [value]="progressBar"
+                                                    *ngIf="isReviewsFull()"></p-progressBar>
                                             </div>
                                         </div>
                                         <div class="p-col-2 p-md-1">
@@ -260,7 +217,8 @@
                                     <div class="metadata-subinfo p-grid">
                                         <div class="p-col-8 p-md-10">
                                             <div class="progress">
-                                                <p-progressBar [value]="progressBar" *ngIf="isReviewsPartial()"></p-progressBar>
+                                                <p-progressBar [value]="progressBar"
+                                                    *ngIf="isReviewsPartial()"></p-progressBar>
                                             </div>
                                         </div>
                                         <div class="p-col-2 p-md-1">
@@ -278,7 +236,7 @@
                             </div>
                         </div>
 
-                       
+
                     </div>
                 </p-panel>
             </div>
@@ -345,6 +303,34 @@
                 </p-panel>
             </div>
 
+            <div class="p-col">
+                <p-panel header="{{'locale.settings.panel.file.title' | translate}}" [toggleable]="true"
+                    [collapsed]="true">
+                    <div class="p-grid p-fluid">
+
+                        <div class="p-col-12"></div>
+
+                        <div class="p-col-12 p-md-4">{{'locale.settings.panel.file.uploads.path' | translate}}
+                        </div>
+                        <div class="p-col-12 p-md-7">
+
+                            <input type="text" pInputText autocomplete="off" [(ngModel)]="uploadsPath" disabled="true"
+                                *ngIf="uploadsProgress==0" />
+
+                            <div class="uploadsProgress" *ngIf="uploadsProgress>0">
+                                <p-progressBar [value]="uploadsProgress" ></p-progressBar>
+                            </div>
+                            
+                        </div>
+                        <div class="p-col-12 p-md-1">
+                            <p-confirmDialog class="confirmDialog"></p-confirmDialog>
+                            <p-button label="{{'locale.buttons.detect' | translate}}" icon="pi pi-refresh"
+                                class="settings-button" (click)="detect()"></p-button>
+                        </div> 
+                    </div>
+                </p-panel>
+            </div>
+
 
             <div class="p-col-12 page-buttons">
                 <button type="button" pButton label="{{'locale.buttons.save' | translate}}" class="page-button"
@@ -353,5 +339,11 @@
             </div>
 
         </div>
+
+
+
+
     </p-card>
+
+
 </div>

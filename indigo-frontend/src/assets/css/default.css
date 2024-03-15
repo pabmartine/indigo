@@ -431,8 +431,13 @@ body a {
 }
 
 .header .messages, .messages {
-	padding: 5px;
+	padding: 10px;
 	text-align: justify;
+}
+
+.header .messages, .messages:hover {
+	background-color: #efefef;
+    border-radius: 3px;
 }
 
 .header .message-text, .message-text {
@@ -447,6 +452,20 @@ body a {
 
 .header .message-icon:hover {
 	color: #698ebf;
+}
+
+.p-overlaypanel {
+	margin-top: 25px !important;
+}
+
+@media (max-width: 820px) {
+	.p-overlaypanel {
+		margin-top: 15px !important;
+	}
+}
+
+.p-overlaypanel:after, .p-overlaypanel:before {
+    left: calc(var(--overlayArrowLeft, 0) + 0.7rem) !important;
 }
 
 .header #topbar-menu-button:hover,
@@ -1223,8 +1242,25 @@ body a {
     margin: 0px 0 0px 0;
 }
 
+.uploadsProgress .p-progressbar {
+    height: 100%;
+    background: #fff;
+    border-radius: 0px;
+    padding: 0px;
+    margin: 0;
+}
+
 .settings .p-progressbar-determinate .p-progressbar-label {
     display: none !important;
+}
+
+.uploadsProgress .p-progressbar-determinate .p-progressbar-label {
+	display: block !important;
+	color: #fff;
+}
+
+.settings .confirmDialog .p-button-icon-left  {
+    display: none;
 }
 
 

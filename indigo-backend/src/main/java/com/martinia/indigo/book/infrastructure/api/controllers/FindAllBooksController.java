@@ -4,7 +4,7 @@ import com.martinia.indigo.book.infrastructure.api.model.BookDto;
 import com.martinia.indigo.book.infrastructure.api.mappers.BookDtoMapper;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.ports.usecases.FindAllBooksUseCase;
-import com.martinia.indigo.common.model.Search;
+import com.martinia.indigo.common.domain.model.Search;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

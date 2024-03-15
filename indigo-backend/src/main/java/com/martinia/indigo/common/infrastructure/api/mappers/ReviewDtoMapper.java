@@ -1,7 +1,7 @@
 package com.martinia.indigo.common.infrastructure.api.mappers;
 
 import com.martinia.indigo.common.infrastructure.api.model.ReviewDto;
-import com.martinia.indigo.common.model.Review;
+import com.martinia.indigo.common.domain.model.Review;
 import org.mapstruct.Mapper;
 
 import java.util.List;

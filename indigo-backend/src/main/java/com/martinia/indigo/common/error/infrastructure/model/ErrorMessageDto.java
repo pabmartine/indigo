@@ -15,7 +15,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ErrorMessageDto implements Serializable {
 
-	private static final long serialVersionUID = 3683312775319760826L;
 	private int statusCode;
 	private Date timestamp;
 	private String message;

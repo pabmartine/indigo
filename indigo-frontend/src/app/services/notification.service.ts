@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { Notif } from '../domain/notif';
+import { Notification } from '../domain/notification';
 
 @Injectable({
   providedIn: 'root'
@@ -29,15 +29,15 @@ export class NotificationService {
     return this.http.get(this.endpoint + "/user?user=" + user);
   }
 
-  public save(notification: Notif): Observable<any> {
-    return this.http.put<Notif>(this.endpoint + "/save", notification);
-  }
+  //public save(notification: Notification): Observable<any> {
+  //  return this.http.put<Notification>(this.endpoint + "/save", notification);
+  // }
 
   public read(id: string, user:string): Observable<any> {
-    return this.http.get<Notif>(this.endpoint + "/read?id=" + id + "&user=" + user);
+    return this.http.get<Notification>(this.endpoint + "/read?id=" + id + "&user=" + user);
   }
 
   public delete(id: string): Observable<any> {
-    return this.http.delete<Notif>(this.endpoint + "/delete?id=" + id);
+    return this.http.delete<Notification>(this.endpoint + "/delete?id=" + id);
   }
 }

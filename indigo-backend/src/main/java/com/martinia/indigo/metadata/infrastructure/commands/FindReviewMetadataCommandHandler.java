@@ -10,7 +10,7 @@ import javax.annotation.Resource;
 
 @Slf4j
 @Component
-public class FindReviewMetadataCommandHandler implements CommandHandler<FindReviewMetadataCommand, Void> {
+public class FindReviewMetadataCommandHandler extends CommandHandler<FindReviewMetadataCommand, Void> {
 
 	@Resource
 	private FindReviewMetadataUseCase findReviewMetadataUseCase;
@@ -18,7 +18,7 @@ public class FindReviewMetadataCommandHandler implements CommandHandler<FindRevi
 	@Override
 	public Void handle(final FindReviewMetadataCommand command) {
 
-		findReviewMetadataUseCase.find(command.getBookId(), command.isOverride(), command.getLastExecution(), command.getLang());
+		findReviewMetadataUseCase.find(command.getBookId(), command.isOverride(), command.getLang());
 
 		return null;
 	}

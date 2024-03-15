@@ -1,7 +1,7 @@
 package com.martinia.indigo.book.domain.ports.repositories;
 
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
-import com.martinia.indigo.common.model.Search;
+import com.martinia.indigo.common.domain.model.Search;
 import com.martinia.indigo.notification.infrastructure.mongo.entities.NotificationMongoEntity;
 import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
 import com.mongodb.MongoClientSettings;
@@ -45,6 +45,9 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 	@Resource
 	private MongoTemplate mongoTemplate;
+
+	private String collectionName = BookMongoEntity.class.getAnnotation(org.springframework.data.mongodb.core.mapping.Document.class)
+			.collection();
 
 	public long count(Search search) {
 
@@ -259,7 +262,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 				new Document("$sort", new Document(sort.equals("numBooks") ? "count" : "_id", order.equalsIgnoreCase("asc") ? 1 : -1)),
 				new Document("$skip", page * size), new Document("$limit", size));
 
-		AggregateIterable<Document> data = mongoTemplate.getCollection("books").aggregate(list);
+		AggregateIterable<Document> data = mongoTemplate.getCollection(collectionName).aggregate(list);
 
 		Iterator<Document> it = data.iterator();
 		while (it.hasNext()) {
@@ -282,7 +285,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 				new Document("$group", new Document("_id", "$serie.name").append("count", new Document("$sum", 1L))),
 				new Document("$group", new Document("_id", "$serie.name").append("count", new Document("$sum", 1L))));
 
-		AggregateIterable<Document> data = mongoTemplate.getCollection("books").aggregate(list);
+		AggregateIterable<Document> data = mongoTemplate.getCollection(collectionName).aggregate(list);
 		if (data.iterator().hasNext()) {
 			ret = Long.parseLong(data.iterator().next().get("count").toString());
 		}
@@ -322,7 +325,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 				MongoClientSettings.getDefaultCodecRegistry(),
 				org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build()));
 
-		FindIterable<BookMongoEntity> data = mongoTemplate.getCollection("books")
+		FindIterable<BookMongoEntity> data = mongoTemplate.getCollection(collectionName)
 				.withCodecRegistry(pojoCodecRegistry)
 				.find(filter, BookMongoEntity.class);
 
@@ -350,7 +353,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 		}
 		Bson filter = in("_id", list);
 
-		FindIterable<BookMongoEntity> books = mongoTemplate.getCollection("books")
+		FindIterable<BookMongoEntity> books = mongoTemplate.getCollection(collectionName)
 				.withCodecRegistry(pojoCodecRegistry)
 				.find(filter, BookMongoEntity.class);
 
@@ -389,17 +392,17 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 			List<String> recommendations = new ArrayList<>();
 
 			for (NotificationMongoEntity notif : notifs) {
+				if (notif.getType().equals("KINDLE")) {
+					query = new Query();
+					criterias.clear();
+					criterias.add(Criteria.where("path").is(notif.getKindle().getBook()));
+					query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
+					BookMongoEntity book = mongoTemplate.findOne(query, BookMongoEntity.class);
 
-				query = new Query();
-				criterias.clear();
-				criterias.add(Criteria.where("path").is(notif.getBook()));
-				query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
-				BookMongoEntity book = mongoTemplate.findOne(query, BookMongoEntity.class);
-
-				if (book != null && !CollectionUtils.isEmpty(book.getRecommendations())) {
-					recommendations.addAll(book.getRecommendations());
+					if (book != null && !CollectionUtils.isEmpty(book.getRecommendations())) {
+						recommendations.addAll(book.getRecommendations());
+					}
 				}
-
 			}
 
 			if (!CollectionUtils.isEmpty(recommendations)) {
@@ -433,7 +436,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 		AggregateIterable<BookMongoEntity> data = collection.aggregate(Arrays.asList(new Document("$match", new Document("user", user)),
 				new Document("$project", new Document("_id", 0L).append("book", 1L)), new Document("$lookup",
-						new Document("from", "books").append("localField", "book")
+						new Document("from", collectionName).append("localField", "book")
 								.append("foreignField", "path")
 								.append("as", "typeCategory")),
 				new Document("$match", new Document("typeCategory.recommendations", new Document("$ne", new BsonNull()))),
@@ -442,8 +445,9 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 				new Document("$project", new Document("_id", new Document("$toObjectId", "$typeCategory.recommendations"))),
 				new Document("$group", new Document("_id", "$_id").append("count", new Document("$sum", 1L))),
 				new Document("$sort", new Document("count", -1L)), new Document("$lookup",
-						new Document("from", "books").append("localField", "_id").append("foreignField", "_id").append("as", "book")),
-				new Document("$replaceRoot", new Document("newRoot",
+						new Document("from", collectionName).append("localField", "_id")
+								.append("foreignField", "_id")
+								.append("as", "book")), new Document("$replaceRoot", new Document("newRoot",
 						new Document("$mergeObjects", Arrays.asList(new Document("$arrayElemAt", Arrays.asList("$book", 0L)), "$$ROOT")))),
 				new Document("$match", new Document("languages", new Document("$in", languages))),
 				new Document("$sort", new Document(sort, (order.equals("asc") ? 1 : -1)).append("_id", -1L)),
@@ -462,7 +466,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 				MongoClientSettings.getDefaultCodecRegistry(),
 				org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build()));
 
-		MongoCollection<Document> collection = mongoTemplate.getCollection("books").withCodecRegistry(pojoCodecRegistry);
+		MongoCollection<Document> collection = mongoTemplate.getCollection(collectionName).withCodecRegistry(pojoCodecRegistry);
 
 		AggregateIterable<Document> data = collection.aggregate(Arrays.asList(new Document("$project", new Document("languages", 1L)),
 				new Document("$unwind", new Document("path", "$languages")),

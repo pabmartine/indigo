@@ -1,8 +1,6 @@
 package com.martinia.indigo.metadata.infrastructure.api.controllers;
 
 import com.martinia.indigo.BaseIndigoIntegrationTest;
-import com.martinia.indigo.adapters.out.sqlite.entities.BookSqliteEntity;
-import com.martinia.indigo.adapters.out.sqlite.repository.BookSqliteRepository;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.book.infrastructure.mongo.entities.SerieMongo;
 import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
@@ -12,20 +10,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -56,15 +48,7 @@ public class RefreshBookMetadataControllerIntegrationTest extends BaseIndigoInte
 	public void refreshBookMetadataBookOk() throws Exception {
 		// Given
 		insertBook();
-		Mockito.when(bookSqliteRepository.findByPath(anyString())).thenReturn(Optional.of(BookSqliteEntity.builder()
-						.id(1)
-				.path(PATH)
-				.title(TITLE)
-						.pubDate("2000-01-01 00:00:00+00:00")
-						.lastModified("2000-01-01 00:00:00+00:00")
-						.seriesIndex(BigDecimal.ONE)
-						.authorSort("author")
-				.build()));
+
 		// When
 		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/api/metadata/book")
 				.param("book", PATH)
@@ -84,8 +68,7 @@ public class RefreshBookMetadataControllerIntegrationTest extends BaseIndigoInte
 				.andExpect(jsonPath("$.authors[0]").value("author"))
 				.andExpect(jsonPath("$.tags[0]").value("tag"))
 				.andExpect(jsonPath("$.similar[0]").value("similar"))
-				.andExpect(jsonPath("$.languages[0]").value("es"))
-				;
+				.andExpect(jsonPath("$.languages[0]").value("es"));
 
 		Mockito.verify(commandBus, Mockito.times(1)).executeAndWait(any(FindBookMetadataCommand.class));
 		Mockito.verify(commandBus, Mockito.times(1)).executeAndWait(any(FindReviewMetadataCommand.class));
@@ -106,6 +89,5 @@ public class RefreshBookMetadataControllerIntegrationTest extends BaseIndigoInte
 				.build();
 		bookRepository.save(bookMongoEntity);
 	}
-
 
 }

@@ -41,12 +41,12 @@ public class FindReviewMetadataUseCaseImpl implements FindReviewMetadataUseCase 
 	private ReviewMongoMapper reviewMongoMapper;
 
 	@Override
-	public void find(final String bookId, final boolean override, final long lastExecution, final String lang) {
+	public void find(final String bookId, final boolean override, final String lang) {
 
 		bookRepository.findById(bookId).ifPresent(book -> {
 
 			if (override || refreshReviewMetadata(book.getReviews())) {
-				log.debug("Obtaining reviews");
+
 				List<ReviewDto> reviews = findGoodReadsReviewsPort.map(gr -> gr.getReviews(lang, book.getTitle(), book.getAuthors()))
 						.orElse(Collections.EMPTY_LIST);
 

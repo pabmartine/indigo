@@ -12,7 +12,7 @@
 		},
 		"footer": {
 			"title": "Indigo",
-			"subtitle": "Free web interface for Caliber eBook Library"
+			"subtitle": "Explore, organize, and enjoy your digital collection of e-books"
 		},
 		"sidebar": {
 			"menu": {
@@ -383,7 +383,7 @@
 			"readAdmin": "Read by administrator",
 			"status": "Status",
 			"sendDate": "Date",
-			"error": "Error",
+			"message": "Message",
 			"search": "Search by ",
 			"select": "Select a ",
 			"actions": {
@@ -400,10 +400,12 @@
 			},
 			"statuses": {
 				"SEND": "Sent",
-				"NOT_SEND": "Not sent"
+				"NOT_SEND": "Not sent",
+				"FINISHED": "Finished"
 			},
 			"types": {
-				"KINDLE": "Kindle"
+				"KINDLE": "Sending to Kindle",
+				"UPLOAD": "Uploaded books"
 			}
 		},
 		"buttons": {
@@ -432,20 +434,26 @@
 		"languages": {
 			"es": "Spanish",
 			"en": "English",
+			"ca": "Catalan",
 			"fr": "French",
 			"pt": "Portuguese",
 			"de": "German",
-			"eus": "Basque",
-			"glg": "Galician",
+			"it": "Italian",
+			"sv": "Swedish",
+			"eu": "Basque",
+			"gl": "Galician",
+			"eo": "Esperanto",
+			"spa": "Spanish",
+			"eng": "English",
+			"cat": "Catalan",
+			"fra": "French",
+			"por": "Portuguese",
+			"deu": "German",
 			"ita": "Italian",
 			"swe": "Swedish",
-			"spa": "Spanish",
-			"cat": "Catalan",
-			"deu": "German",
-			"por": "Portugues",
-			"eng": "English",
-			"epo": "Esperanto",
-			"fra": "French"
+			"eus": "Basque",
+			"glg": "Galician",
+			"epo": "Esperanto"
 		},
 		"session": {
 			"title": "Session expired",

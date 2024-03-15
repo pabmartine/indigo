@@ -3,6 +3,7 @@ package com.martinia.indigo.author.domain.ports.repositories;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;

@@ -72,8 +72,8 @@ public class FindFavoriteAuthorsUseCaseImplTest extends BaseIndigoTest {
 		author2.setName("John Doe");
 
 		when(userRepository.findByUsername(user)).thenReturn(Optional.of(userEntity));
-		when(authorRepository.findBySort("Jane Smith")).thenReturn(Optional.of(author1));
-		when(authorRepository.findBySort("John Doe")).thenReturn(Optional.of(author2));
+		when(authorRepository.findByName("Jane Smith")).thenReturn(Optional.of(author1));
+		when(authorRepository.findByName("John Doe")).thenReturn(Optional.of(author2));
 		when(authorMongoMapper.entity2Domain(author1)).thenReturn(new Author());
 		when(authorMongoMapper.entity2Domain(author2)).thenReturn(new Author());
 
@@ -82,8 +82,8 @@ public class FindFavoriteAuthorsUseCaseImplTest extends BaseIndigoTest {
 
 		// Then
 		verify(userRepository).findByUsername(user);
-		verify(authorRepository).findBySort("Jane Smith");
-		verify(authorRepository).findBySort("John Doe");
+		verify(authorRepository).findByName("Jane Smith");
+		verify(authorRepository).findByName("John Doe");
 		verify(authorMongoMapper).entity2Domain(author1);
 		verify(authorMongoMapper).entity2Domain(author2);
 

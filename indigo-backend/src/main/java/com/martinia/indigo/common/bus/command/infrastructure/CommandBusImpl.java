@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,14 +30,8 @@ public class CommandBusImpl implements CommandBus {
 	@Autowired
 	public void setCommandHandlerImplementations(List<CommandHandler> commandHandlerImplementations) {
 		commandHandlerImplementations.forEach(commandHandler -> {
-			Class<?> commandClass = null;
-			try {
-				commandClass = getCommandClass(commandHandler);
-				Optional.ofNullable(commandClass).ifPresent(clazz -> handlers.put(clazz, commandHandler));
-			}
-			catch (ClassNotFoundException e) {
-				throw new RuntimeException(e);
-			}
+			final Class<?> commandClass = commandHandler.getCommandClass();
+			Optional.ofNullable(commandClass).ifPresent(clazz -> handlers.put(clazz, commandHandler));
 		});
 	}
 
@@ -77,21 +69,6 @@ public class CommandBusImpl implements CommandBus {
 			}
 			throw new RuntimeException("Error executing command", ex);
 		}
-	}
-
-	private Class<?> getCommandClass(CommandHandler handler) throws ClassNotFoundException {
-		Type[] interfaces = handler.getClass().getGenericInterfaces();
-		for (Type type : interfaces) {
-			if (type instanceof ParameterizedType) {
-				ParameterizedType parameterizedType = (ParameterizedType) type;
-				Type rawType = parameterizedType.getRawType();
-				if (rawType instanceof Class && CommandHandler.class.isAssignableFrom((Class<?>) rawType)) {
-					return (Class<?>) parameterizedType.getActualTypeArguments()[0];
-				}
-			}
-		}
-		log.error("Unable to determine the Command class for the given handler.");
-		return null;
 	}
 
 }

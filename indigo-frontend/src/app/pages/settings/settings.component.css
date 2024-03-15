@@ -1,0 +1,13 @@
+.uploadsProgress {
+    font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji",Segoe UI Symbol;
+    font-size: .9rem;
+    color: #495057;
+    background: #fff;
+    border: 1px solid #ced4da;
+    transition: background-color .2s,color .2s,border-color .2s,box-shadow .2s;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: 3px;
+    height: 34px;
+}

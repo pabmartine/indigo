@@ -19,8 +19,6 @@ import java.util.List;
 @AllArgsConstructor
 public class BookDto implements Serializable {
 
-	private static final long serialVersionUID = 3010775368721977810L;
-
 	@NotEmpty
 	private String id;
 	@NotEmpty

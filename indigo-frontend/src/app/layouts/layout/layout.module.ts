@@ -43,6 +43,7 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
 import {SpeedDialModule} from 'primeng/speeddial';
 import {DividerModule} from 'primeng/divider';
 import { ChipsModule } from 'primeng/chips';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 
 //translate
@@ -103,8 +104,8 @@ import { AuthorComponent } from 'src/app/pages/author/author.component';
     OverlayPanelModule,
     SpeedDialModule,
     DividerModule,
-    ChipsModule
-    // AngularEpubViewerModule
+    ChipsModule,
+    ConfirmDialogModule
   ],
   exports: [
 

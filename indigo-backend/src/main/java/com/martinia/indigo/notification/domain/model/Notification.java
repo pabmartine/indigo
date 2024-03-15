@@ -1,13 +1,13 @@
 package com.martinia.indigo.notification.domain.model;
 
-import java.io.Serializable;
-import java.util.Date;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.io.Serializable;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -17,12 +17,14 @@ import lombok.Setter;
 public class Notification implements Serializable {
 
 	private String id;
-	private String type;
+	private NotificationEnum type;
 	private String user;
-	private String book;
-	private String status;
-	private String error;
+	private Date date;
 	private boolean readUser;
 	private boolean readAdmin;
-	private Date sendDate;
+	private StatusEnum status;
+	private String message;
+	private NotificationEpubFileUploadItem upload;
+	private NotificationKindleItem kindle;
+
 }

@@ -8,7 +8,6 @@ import com.martinia.indigo.metadata.domain.model.MetadataProcessType;
 import com.martinia.indigo.metadata.domain.model.commands.StartFillAuthorsMetadataCommand;
 import com.martinia.indigo.metadata.domain.model.commands.StartFillBooksMetadataCommand;
 import com.martinia.indigo.metadata.domain.model.commands.StartFillReviewsMetadataCommand;
-import com.martinia.indigo.metadata.domain.model.commands.StartInitialLoadCommand;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -63,44 +62,38 @@ public class StartMetadataUseCaseImplTest extends BaseIndigoTest {
 		verify(metadataSingleton, times(1)).stop();
 		verify(metadataSingleton, times(1)).start(type.name(), entity.name());
 		if (type == MetadataProcessType.FULL) {
-			if (entity == MetadataProcessEnum.LOAD) {
-				verify(commandBus, times(1)).execute(any(StartInitialLoadCommand.class));
+
+			if (entity == MetadataProcessEnum.BOOKS) {
+				verify(commandBus, times(1)).execute(any(StartFillBooksMetadataCommand.class));
 			}
 			else {
-				if (entity == MetadataProcessEnum.BOOKS) {
-					verify(commandBus, times(1)).execute(any(StartFillBooksMetadataCommand.class));
+				if (entity == MetadataProcessEnum.AUTHORS) {
+					verify(commandBus, times(1)).execute(any(StartFillAuthorsMetadataCommand.class));
 				}
 				else {
-					if (entity == MetadataProcessEnum.AUTHORS) {
-						verify(commandBus, times(1)).execute(any(StartFillAuthorsMetadataCommand.class));
-					}
-					else {
-						if (entity == MetadataProcessEnum.REVIEWS) {
-							verify(commandBus, times(1)).execute(any(StartFillReviewsMetadataCommand.class));
-						}
+					if (entity == MetadataProcessEnum.REVIEWS) {
+						verify(commandBus, times(1)).execute(any(StartFillReviewsMetadataCommand.class));
 					}
 				}
 			}
+
 		}
 		else {
-			if (entity == MetadataProcessEnum.LOAD) {
-				verify(commandBus, times(1)).execute(any(StartInitialLoadCommand.class));
+
+			if (entity == MetadataProcessEnum.BOOKS) {
+				verify(commandBus, times(1)).execute(any(StartFillBooksMetadataCommand.class));
 			}
 			else {
-				if (entity == MetadataProcessEnum.BOOKS) {
-					verify(commandBus, times(1)).execute(any(StartFillBooksMetadataCommand.class));
+				if (entity == MetadataProcessEnum.AUTHORS) {
+					verify(commandBus, times(1)).execute(any(StartFillAuthorsMetadataCommand.class));
 				}
 				else {
-					if (entity == MetadataProcessEnum.AUTHORS) {
-						verify(commandBus, times(1)).execute(any(StartFillAuthorsMetadataCommand.class));
-					}
-					else {
-						if (entity == MetadataProcessEnum.REVIEWS) {
-							verify(commandBus, times(1)).execute(any(StartFillReviewsMetadataCommand.class));
-						}
+					if (entity == MetadataProcessEnum.REVIEWS) {
+						verify(commandBus, times(1)).execute(any(StartFillReviewsMetadataCommand.class));
 					}
 				}
 			}
+
 		}
 	}
 

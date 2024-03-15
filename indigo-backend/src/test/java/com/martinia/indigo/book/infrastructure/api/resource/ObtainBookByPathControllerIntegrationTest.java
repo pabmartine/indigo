@@ -1,7 +1,7 @@
 package com.martinia.indigo.book.infrastructure.api.resource;
 
 import com.martinia.indigo.BaseIndigoIntegrationTest;
-import com.martinia.indigo.common.util.UtilComponent;
+import com.martinia.indigo.common.util.ImageUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -14,7 +14,7 @@ import java.io.File;
 class ObtainBookByPathControllerIntegrationTest extends BaseIndigoIntegrationTest {
 
 	@MockBean
-	private UtilComponent utilComponent;
+	private ImageUtils imageUtils;
 
 	@Test
 	void testGetEpub() throws Exception {
@@ -23,7 +23,7 @@ class ObtainBookByPathControllerIntegrationTest extends BaseIndigoIntegrationTes
 		File file = new File("test.json");
 		Mockito.when(resource.getFile()).thenReturn(file);
 		Mockito.when(resource.getFilename()).thenReturn("file");
-		Mockito.when(utilComponent.getEpub(Mockito.anyString())).thenReturn(resource);
+		Mockito.when(imageUtils.getEpub(Mockito.anyString())).thenReturn(resource);
 
 		final String path = "path";
 

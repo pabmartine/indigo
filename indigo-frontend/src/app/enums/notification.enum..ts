@@ -1,3 +1,4 @@
 export enum NotificationEnum {
-    KINDLE
+    KINDLE = "KINDLE", 
+    UPLOAD = "UPLOAD"
 }

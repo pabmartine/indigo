@@ -15,7 +15,6 @@ import lombok.Setter;
 @Builder
 public class SerieMongo implements Serializable {
 
-	private static final long serialVersionUID = 7556669089558736925L;
 	private int index;
 	private String name;
 

@@ -1,6 +1,5 @@
 package com.martinia.indigo;
 
-import com.martinia.indigo.adapters.out.sqlite.repository.BookSqliteRepository;
 import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.domain.ports.repositories.ViewRepository;
@@ -48,10 +47,6 @@ public class BaseIndigoTest {
 	protected BookRepository bookRepository;
 
 	@Resource
-	protected BookSqliteRepository bookSqliteRepository;
-
-
-	@Resource
 	protected AuthorRepository authorRepository;
 
 	@Resource
@@ -85,7 +80,7 @@ public class BaseIndigoTest {
 				.isEqualTo(expectedObject);
 	}
 
-	private void deleteCollections(){
+	private void deleteCollections() {
 		configurationRepository.deleteAll();
 		bookRepository.deleteAll();
 		authorRepository.deleteAll();
@@ -94,6 +89,5 @@ public class BaseIndigoTest {
 		userRepository.deleteAll();
 		viewRepository.deleteAll();
 	}
-
 
 }

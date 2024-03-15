@@ -17,7 +17,6 @@ import lombok.Setter;
 @Builder
 public class NumBooksMongo implements Serializable {
 
-	private static final long serialVersionUID = 7556669089558736925L;
 	private int total = 1;
 	private Map<String, Integer> languages = new HashMap<>();
 

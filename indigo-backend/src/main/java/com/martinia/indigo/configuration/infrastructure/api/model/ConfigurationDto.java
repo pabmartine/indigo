@@ -13,8 +13,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ConfigurationDto implements Serializable {
 
-	private static final long serialVersionUID = 3210483964355113351L;
-
 	private String key;
 	private String value;
 

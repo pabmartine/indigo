@@ -10,7 +10,7 @@ import javax.annotation.Resource;
 
 @Slf4j
 @Component
-public class FindBookMetadataCommandHandler implements CommandHandler<FindBookMetadataCommand, Void> {
+public class FindBookMetadataCommandHandler extends CommandHandler<FindBookMetadataCommand, Void> {
 
 	@Resource
 	private FindBookMetadataUseCase findBookMetadataUseCase;

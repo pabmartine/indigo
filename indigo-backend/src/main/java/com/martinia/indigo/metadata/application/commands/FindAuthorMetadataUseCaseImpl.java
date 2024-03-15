@@ -4,8 +4,8 @@ import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
 import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
-import com.martinia.indigo.common.model.Search;
-import com.martinia.indigo.common.util.UtilComponent;
+import com.martinia.indigo.common.domain.model.Search;
+import com.martinia.indigo.common.util.ImageUtils;
 import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
 import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
 import com.martinia.indigo.metadata.domain.ports.adapters.goodreads.FindGoodReadsAuthorPort;
@@ -44,7 +44,7 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 	private Optional<FindWikipediaAuthorPort> findWikipediaAuthorPort;
 
 	@Resource
-	private UtilComponent utilComponent;
+	private ImageUtils imageUtils;
 
 	@Value("${metadata.goodreads.pull}")
 	private Long pullTime;
@@ -60,9 +60,9 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 						.map(ConfigurationMongoEntity::getValue)
 						.orElse(null);
 
-				author.setDescription(null);
-				author.setImage(null);
-				author.setProvider(null);
+//				author.setDescription(null);
+//				author.setImage(null);
+//				author.setProvider(null);
 
 				String[] wikipedia = findWikipediaAuthorPort.map(wiki -> wiki.findAuthor(author.getName(), lang, 0)).orElse(null);
 
@@ -74,7 +74,10 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 					String[] goodReads = findGoodReadsAuthorPort.map(gr -> gr.findAuthor(goodreads, author.getName())).orElse(null);
 					if (goodReads != null) {
 						author.setDescription(goodReads[0]);
-						author.setImage(goodReads[1]);
+						if (author.getImage()==null) {
+							author.setImage(goodReads[1]);
+							author.setImage(imageUtils.getBase64Url(author.getImage()));
+						}
 						author.setProvider(goodReads[2]);
 
 						long milliseconds = (System.currentTimeMillis() - lastExecution);
@@ -95,31 +98,28 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 					if (StringUtils.isEmpty(author.getDescription()) && !StringUtils.isEmpty(wikipedia[0])) {
 						author.setDescription(wikipedia[0]);
 					}
-					if (StringUtils.isEmpty(author.getImage()) && !StringUtils.isEmpty(wikipedia[1])) {
+					if (StringUtils.isEmpty(author.getImage()) && !StringUtils.isEmpty(wikipedia[1]) && author.getImage()==null) {
 						author.setImage(wikipedia[1]);
+						author.setImage(imageUtils.getBase64Url(author.getImage()));
 					}
 					if (StringUtils.isEmpty(author.getProvider()) && !StringUtils.isEmpty(wikipedia[2])) {
 						author.setProvider(wikipedia[2]);
 					}
 				}
 
-				if (!StringUtils.isEmpty(author.getImage())) {
-					author.setImage(utilComponent.getBase64Url(author.getImage()));
-				}
-
-				if (StringUtils.isEmpty(author.getImage())) {
-					Search search = new Search();
-					search.setAuthor(author.getSort());
-					List<BookMongoEntity> books = bookRepository.findAll(search, 0, Integer.MAX_VALUE, "pubDate", "desc");
-					for (BookMongoEntity book : books) {
-						String image = utilComponent.getImageFromEpub(book.getPath(), "autor", "author");
-						author.setImage(image);
-						if (author.getImage() != null) {
-							break;
-						}
-					}
-
-				}
+//				if (StringUtils.isEmpty(author.getImage())) {
+//					Search search = new Search();
+//					search.setAuthor(author.getName());
+//					List<BookMongoEntity> books = bookRepository.findAll(search, 0, Integer.MAX_VALUE, "pubDate", "desc");
+//					for (BookMongoEntity book : books) {
+//						String image = imageUtils.getImageFromEpub(book.getPath(), "autor", "author");
+//						author.setImage(image);
+//						if (author.getImage() != null) {
+//							break;
+//						}
+//					}
+//
+//				}
 
 				author.setLastMetadataSync(Calendar.getInstance().getTime());
 				authorRepository.save(author);

@@ -14,7 +14,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserDto implements Serializable {
 
-	private static final long serialVersionUID = 4542051545576599212L;
 	private String id;
 	private String username;
 	private String password;

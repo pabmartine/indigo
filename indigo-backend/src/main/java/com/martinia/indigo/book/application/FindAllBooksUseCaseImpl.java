@@ -4,7 +4,7 @@ import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.domain.ports.usecases.FindAllBooksUseCase;
 import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
-import com.martinia.indigo.common.model.Search;
+import com.martinia.indigo.common.domain.model.Search;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;

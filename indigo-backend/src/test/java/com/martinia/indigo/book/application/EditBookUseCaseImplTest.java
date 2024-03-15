@@ -7,7 +7,7 @@ import com.martinia.indigo.book.domain.ports.usecases.EditBookUseCase;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
 import com.martinia.indigo.common.bus.event.domain.ports.EventBus;
-import com.martinia.indigo.common.util.UtilComponent;
+import com.martinia.indigo.common.util.ImageUtils;
 import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -17,6 +17,7 @@ import javax.annotation.Resource;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,7 +39,7 @@ public class EditBookUseCaseImplTest extends BaseIndigoTest {
 	private EventBus eventBus;
 
 	@MockBean
-	private UtilComponent utilComponent;
+	private ImageUtils imageUtils;
 
 	@Test
 	public void testEditWithWrongImageFormat() {
@@ -50,7 +51,7 @@ public class EditBookUseCaseImplTest extends BaseIndigoTest {
 
 		when(bookRepository.findById(any())).thenReturn(Optional.of(bookEntity));
 		when(bookMongoMapper.domain2Entity(any())).thenReturn(bookEntity);
-		when(utilComponent.getBase64Cover(any(), eq(true))).thenReturn("base64Image");
+		when(imageUtils.getBase64Cover(anyString(), eq(true))).thenReturn("base64Image");
 
 		// When
 		useCase.edit(mockBook);
@@ -69,7 +70,7 @@ public class EditBookUseCaseImplTest extends BaseIndigoTest {
 
 		when(bookRepository.findById(any())).thenReturn(Optional.of(bookEntity));
 		when(bookMongoMapper.domain2Entity(any())).thenReturn(bookEntity);
-		when(utilComponent.getBase64Cover(any(), eq(true))).thenReturn("base64Image");
+		when(imageUtils.getBase64Cover(anyString(), eq(true))).thenReturn("base64Image");
 
 		// When
 		useCase.edit(mockBook);
@@ -89,7 +90,7 @@ public class EditBookUseCaseImplTest extends BaseIndigoTest {
 
 		when(bookRepository.findById(any())).thenReturn(Optional.of(sourceBookEntity));
 		when(bookMongoMapper.domain2Entity(any())).thenReturn(targetBookEntity);
-		when(utilComponent.getBase64Cover(any(), eq(true))).thenReturn("base64Image");
+		when(imageUtils.getBase64Cover(anyString(), eq(true))).thenReturn("base64Image");
 
 		// When
 		useCase.edit(mockBook);

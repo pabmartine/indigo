@@ -1,7 +1,7 @@
 package com.martinia.indigo.common.infrastructure.mongo.mappers;
 
 import com.martinia.indigo.common.infrastructure.mongo.entities.ViewMongoEntity;
-import com.martinia.indigo.common.model.View;
+import com.martinia.indigo.common.domain.model.View;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

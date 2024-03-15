@@ -19,9 +19,6 @@ import lombok.Setter;
 @Document(collection = "views")
 public class ViewMongoEntity implements Serializable {
 
-
-	private static final long serialVersionUID = -4795328375068921585L;
-	
 	@Id
 	private String id;
 	private String user;
