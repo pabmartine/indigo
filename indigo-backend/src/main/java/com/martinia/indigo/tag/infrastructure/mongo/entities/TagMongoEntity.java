@@ -19,7 +19,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Document(collection = "tags2")
+@Document(collection = "tags")
 public class TagMongoEntity implements Serializable {
 
 	@Id

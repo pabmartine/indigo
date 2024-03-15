@@ -17,7 +17,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Document(collection = "notifications2")
+@Document(collection = "notifications")
 public class NotificationMongoEntity implements Serializable {
 
 	@Id

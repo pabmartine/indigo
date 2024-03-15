@@ -17,7 +17,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Document(collection = "authors2")
+@Document(collection = "authors")
 public class AuthorMongoEntity implements Serializable {
 
 	@Id

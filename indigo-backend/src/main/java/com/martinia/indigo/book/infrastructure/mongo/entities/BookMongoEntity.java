@@ -19,7 +19,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "books2")
+@Document(collection = "books")
 public class BookMongoEntity implements Serializable {
 
 	@BsonRepresentation(BsonType.OBJECT_ID)
