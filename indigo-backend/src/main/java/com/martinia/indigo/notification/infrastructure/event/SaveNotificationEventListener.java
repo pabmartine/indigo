@@ -1,9 +1,11 @@
 package com.martinia.indigo.notification.infrastructure.event;
 
 import com.martinia.indigo.common.bus.event.domain.model.EventBusListener;
+import com.martinia.indigo.file.domain.model.events.EmailSendedEvent;
 import com.martinia.indigo.file.domain.model.events.UploadEpubFilesProcessFinishedEvent;
 import com.martinia.indigo.notification.domain.model.Notification;
 import com.martinia.indigo.notification.domain.model.NotificationEpubFileUploadItem;
+import com.martinia.indigo.notification.domain.model.NotificationKindleItem;
 import com.martinia.indigo.notification.domain.model.events.NotificationEvent;
 import com.martinia.indigo.notification.domain.ports.usecases.SaveNotificationUseCase;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +39,18 @@ public class SaveNotificationEventListener extends EventBusListener<Notification
 					.message(event.getMessage())
 					.upload(buildUploads((UploadEpubFilesProcessFinishedEvent) event))
 					.build();
+		} else if (event instanceof EmailSendedEvent) {
+			return Notification.builder()
+					.id(event.getId())
+					.type(event.getType())
+					.user(event.getUser())
+					.date(event.getDate())
+					.readUser(event.isReadUser())
+					.readAdmin(event.isReadAdmin())
+					.status(event.getStatus())
+					.message(event.getMessage())
+					.kindle(buildKindle((EmailSendedEvent) event))
+					.build();
 		}
 		return null;
 	}
@@ -54,6 +68,12 @@ public class SaveNotificationEventListener extends EventBusListener<Notification
 				.newTags(event.getNewTags())
 				.moved(event.getMoved())
 				.deleted(event.getDeleted())
+				.build();
+	}
+
+	private NotificationKindleItem buildKindle(final EmailSendedEvent event) {
+		return NotificationKindleItem.builder()
+				.book(event.getBook())
 				.build();
 	}
 }

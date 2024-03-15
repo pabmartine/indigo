@@ -130,17 +130,18 @@
                             </td>
                             <td>{{notif.user}}
                             </td>
-                            <td *ngIf="notif.title; else noTitle" (mouseover)="cover=notif.image;op.toggle($event)">{{notif.title}}</td>
+                            <td *ngIf="notif.kindle && notif.kindle.title; else noTitle" (mouseover)="data=notif.kindle.image;opCover.toggle($event)">{{notif.kindle.title}}</td>
                             <ng-template #noTitle><td></td></ng-template>
-                            <td>{{notif.sendDate}}</td>
+                            <td>{{notif.date}}</td>
                             <td>{{'locale.notifications.read.' + notif.readUser | translate}}
                             </td>
                             <td>{{'locale.notifications.read.' + notif.readAdmin | translate}}
                             </td>
                             <td>{{'locale.notifications.statuses.' + notif.status | translate}}
                             </td>
-                            <td class="column-overflow" (mouseover)="upload=notif.upload;op2.toggle($event)">{{notif.message}}
-                            </td>
+                            <td class="column-overflow" *ngIf="notif.message && notif.upload" (mouseover)="upload=notif.upload;opUpload.toggle($event)" (mouseout)="opUpload.hide()">{{notif.message}}</td>
+                            <td class="column-overflow" *ngIf="notif.message && notif.kindle" (mouseover)="data=notif.message;opKindle.toggle($event)" (mouseout)="opKindle.hide()">{{notif.message}}</td>
+                            <td class="column-overflow" *ngIf="!notif.message">{{notif.message}}</td>
                             <td class="table-buttons" style="text-overflow: unset;">
                                 <button pButton type="button" icon="pi pi-trash"
                                     (click)="deleteNotification(notif.id)"></button>
@@ -148,12 +149,12 @@
                         </tr>
                     </ng-template>
                 </p-table>
-                <p-overlayPanel #op class="no-border">
+                <p-overlayPanel #opCover class="no-border">
                     <ng-template pTemplate>
-                        <img [src]="cover" class="detail-image img-fluid" />
+                        <img [src]="data" class="detail-image img-fluid" />
                     </ng-template>
                 </p-overlayPanel>
-                <p-overlayPanel #op2 class="no-border">
+                <p-overlayPanel #opUpload class="no-border">
                     <ng-template pTemplate>
                         <p>Total libros procesados: {{upload.total}}</p>
                         <p>Extraidos: {{upload.extract}}</p>
@@ -166,6 +167,11 @@
                         <p>Autores añadidos: {{upload.newAuthors}}</p>
                         <p>Etiquetas añadidas: {{upload.newTags}}</p>
                         
+                    </ng-template>
+                </p-overlayPanel>
+                <p-overlayPanel #opKindle class="no-border">
+                    <ng-template pTemplate>
+                        <p>{{data}}</p>                        
                     </ng-template>
                 </p-overlayPanel>
             </div>

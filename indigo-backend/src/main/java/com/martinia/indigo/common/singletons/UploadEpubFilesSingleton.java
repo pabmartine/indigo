@@ -42,11 +42,11 @@ public class UploadEpubFilesSingleton {
 
 	public void stop() {
 		log.info(this.toString());
-		eventBus.publish(buildProcess());
+		eventBus.publish(buildEvent());
 		clear();
 	}
 
-	private UploadEpubFilesProcessFinishedEvent buildProcess() {
+	private UploadEpubFilesProcessFinishedEvent buildEvent() {
 		return UploadEpubFilesProcessFinishedEvent.builder()
 				.type(NotificationEnum.UPLOAD)
 				.user("system")

@@ -23,7 +23,7 @@ export class NotificationsComponent implements OnInit {
   users: any[] = [];
   statuses: any[];
   read: any[];
-  cover: string;
+  data: string;
   upload: NotificationUpload
 
 
@@ -102,6 +102,7 @@ export class NotificationsComponent implements OnInit {
           notif.kindle.title = data.title;
           let objectURL = 'data:image/jpeg;base64,' + data.image;
           notif.kindle.image = objectURL;
+          console.log(notif.kindle.image);
         }
       },
       error: (error) => {
