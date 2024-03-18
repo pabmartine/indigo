@@ -12,7 +12,7 @@ import java.util.Date;
 public class DateUtils {
 
 	public static Date parseDate(String dateStr) {
-		final String[] possibleFormats = { "yyyy-MM-dd", "yyyy", "yyyy-MM" };
+		final String[] possibleFormats = { "yyyy-MM-dd", "yyyy", "yyyy-MM", "yyyy-MM-dd'T'HH:mm:ssXXX"  };
 
 		for (String format : possibleFormats) {
 			try {

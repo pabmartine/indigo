@@ -64,11 +64,20 @@ public class XmlUtils {
 					.map(index -> (int) Math.floor(index))
 					.orElse(0);
 			final List<String> subjects = getSubjects(root);
-			final int pages = Optional.ofNullable(getMetaAttributeValue(root, "calibre:user_metadata:#pages", "#value#"))
+			int pages = Optional.ofNullable(getMetaAttributeValue(root, "calibre:user_metadata:#pages", "#value#"))
 					.filter(StringUtils::isNoneEmpty)
 					.filter(item -> !item.equals("null"))
 					.map(Integer::valueOf)
 					.orElse(0);
+
+			if (pages==0){
+				pages = Optional.ofNullable(getMetaAttributeValue(root, "calibre:user_metadata:#paginas", "#value#"))
+						.filter(StringUtils::isNoneEmpty)
+						.filter(item -> !item.equals("null"))
+						.map(Integer::valueOf)
+						.orElse(0);
+			}
+
 			final float version = Optional.ofNullable(getMetaAttributeValue(root, "calibre:user_metadata:#version", "#value#"))
 					.filter(StringUtils::isNoneEmpty)
 					.map(vrs -> vrs.replace("[", "").replace("]", "").replace("'", "").replace("\"", ""))
@@ -181,6 +190,8 @@ public class XmlUtils {
 					.getNodeValue()
 					.equals(eventAttribute)) {
 				return node.getTextContent();
+			} else if (node.getFirstChild()!=null){
+				return node.getFirstChild().getNodeValue();
 			}
 		}
 		return null;

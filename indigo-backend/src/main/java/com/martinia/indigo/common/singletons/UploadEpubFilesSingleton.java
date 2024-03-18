@@ -8,9 +8,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.annotation.Resource;
 import java.util.Calendar;
+import java.util.Optional;
 
 @Getter
 @NoArgsConstructor
@@ -49,7 +52,7 @@ public class UploadEpubFilesSingleton {
 	private UploadEpubFilesProcessFinishedEvent buildEvent() {
 		return UploadEpubFilesProcessFinishedEvent.builder()
 				.type(NotificationEnum.UPLOAD)
-				.user("system")
+				.user(getUserName())
 				.date(Calendar.getInstance().getTime())
 				.message(buildMessage())
 				.status(StatusEnum.FINISHED)
@@ -65,6 +68,11 @@ public class UploadEpubFilesSingleton {
 				.moved(this.moved)
 				.deleted(this.deleted)
 				.build();
+	}
+
+	private String getUserName() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		return auth != null && auth.getName() != null ? auth.getName() : "system";
 	}
 
 	private String buildMessage() {

@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -96,7 +97,7 @@ public class SendMailUseCaseImpl extends BaseMailUseCaseImpl implements SendMail
 	private EmailSendedEvent buildEvent(final String error, final String path) {
 		return EmailSendedEvent.builder()
 				.type(NotificationEnum.KINDLE)
-				.user("system")
+				.user(SecurityContextHolder.getContext().getAuthentication().getName())
 				.date(Calendar.getInstance().getTime())
 				.message(error)
 				.status(Optional.ofNullable(error).map(e -> StatusEnum.NOT_SEND).orElse(StatusEnum.SEND))

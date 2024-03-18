@@ -98,8 +98,8 @@ public class ExtractEpubFileUseCaseImpl implements ExtractEpubFileUseCase {
 		try (ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(path.toFile()))) {
 			ZipEntry zipEntry = zipInputStream.getNextEntry();
 			while (zipEntry != null) {
-				if (zipEntry.getName().toLowerCase().endsWith(fileName.toLowerCase())) {
-					createImageIfNotExist(zipInputStream, path, fileName);
+				if (zipEntry.getName().toLowerCase().contains(fileName.toLowerCase())) {
+					createImageIfNotExist(zipInputStream, path, zipEntry.getName().toLowerCase());
 					image = imageUtils.getBase64Cover(zipInputStream, true);
 					break;
 				}
