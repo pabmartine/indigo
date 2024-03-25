@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -34,8 +35,8 @@ import java.util.zip.ZipInputStream;
 @Slf4j
 public class ExtractEpubFileUseCaseImpl implements ExtractEpubFileUseCase {
 
-	@Value("${book.library.path}")
-	private String endpointBook;
+	@Value("${book.library.uploads}")
+	private String uploadsPath;
 
 	@Resource
 	private ImageUtils imageUtils;
@@ -55,7 +56,9 @@ public class ExtractEpubFileUseCaseImpl implements ExtractEpubFileUseCase {
 
 	@Override
 	@Transactional
-	public void extract(final Path path) {
+	public void extract(Path path) {
+
+		path = checkEpubPath(path);
 
 		final BookOpf bookOpf = extractEpub(path);
 		if (bookOpf == null) {
@@ -72,6 +75,23 @@ public class ExtractEpubFileUseCaseImpl implements ExtractEpubFileUseCase {
 
 		eventBus.publish(EpubFileExtractedEvent.builder().path(path).bookOpf(bookOpf).build());
 
+	}
+
+	private Path checkEpubPath(final Path path) {
+		final String strPath = path.toString();
+		final String fileName = path.getFileName().toString();
+		final String basePath = strPath.replace(fileName, "").replace("/", "");
+		if (basePath.trim().equals(uploadsPath.replace("/", "").trim())) {
+			try {
+				Path newPath = Files.createDirectory(Path.of(uploadsPath + FileSystems.getDefault().getSeparator() + UUID.randomUUID()));
+				Path movedPath = Files.move(path, newPath.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
+				return movedPath;
+			}
+			catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return path;
 	}
 
 	private BookOpf extractEpub(final Path path) {
@@ -95,10 +115,12 @@ public class ExtractEpubFileUseCaseImpl implements ExtractEpubFileUseCase {
 
 	private String extractImage(final Path path, String fileName) {
 		String image = null;
+		String realFileName = fileName;
 		try (ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(path.toFile()))) {
 			ZipEntry zipEntry = zipInputStream.getNextEntry();
 			while (zipEntry != null) {
 				if (zipEntry.getName().toLowerCase().contains(fileName.toLowerCase())) {
+					realFileName = zipEntry.getName();
 					createImageIfNotExist(zipInputStream, path, zipEntry.getName().toLowerCase());
 					image = imageUtils.getBase64Cover(zipInputStream, true);
 					break;
@@ -108,7 +130,7 @@ public class ExtractEpubFileUseCaseImpl implements ExtractEpubFileUseCase {
 		}
 		catch (Exception ex) {
 			log.error(ex.getMessage());
-			image = findAlternativeImageInPath(path, fileName);
+			image = findAlternativeImageInPath(path, realFileName);
 		}
 		return image;
 	}
@@ -116,7 +138,7 @@ public class ExtractEpubFileUseCaseImpl implements ExtractEpubFileUseCase {
 	private String findAlternativeImageInPath(final Path path, final String fileName) {
 		String image = null;
 		try {
-			final Path sourceCoverPath = Path.of(path.getParent() + FileSystems.getDefault().getSeparator() + fileName);
+			final Path sourceCoverPath = Path.of(path.getParent() + FileSystems.getDefault().getSeparator() + fileName.replace("jpeg", "jpg"));
 			if (sourceCoverPath.toFile().exists()) {
 				image = imageUtils.getBase64Cover(Files.newInputStream(sourceCoverPath), true);
 			}
@@ -129,7 +151,7 @@ public class ExtractEpubFileUseCaseImpl implements ExtractEpubFileUseCase {
 
 	private void createImageIfNotExist(final InputStream inputStream, final Path path, final String fileName) {
 		try {
-			final Path sourceCoverPath = Path.of(path.getParent() + FileSystems.getDefault().getSeparator() + fileName);
+			final Path sourceCoverPath = Path.of(path.getParent() + FileSystems.getDefault().getSeparator() + fileName.replace("jpeg", "jpg"));
 			if (!sourceCoverPath.toFile().exists()) {
 				Files.copy(inputStream, sourceCoverPath, StandardCopyOption.REPLACE_EXISTING);
 			}
