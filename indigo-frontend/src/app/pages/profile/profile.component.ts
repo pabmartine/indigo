@@ -96,7 +96,8 @@ export class ProfileComponent implements OnInit {
       { label: this.translate.instant('locale.languages.en'), value: 'en-GB' },
       { label: this.translate.instant('locale.languages.fr'), value: 'fr-FR' },
       { label: this.translate.instant('locale.languages.pt'), value: 'pt-PT' },
-      { label: this.translate.instant('locale.languages.de'), value: 'de-DE' }
+      { label: this.translate.instant('locale.languages.de'), value: 'de-DE' },
+      { label: this.translate.instant('locale.languages.eu'), value: 'eu-ES' }
     ];
   }
 

@@ -1,0 +1,463 @@
+{
+    "locale": {
+        "header": {
+            "title": "[EU_TRANSLATE] INDIGO",
+            "user": "[EU_TRANSLATE] User",
+            "messages": "[EU_TRANSLATE] Messages",
+            "search": "[EU_TRANSLATE] Enter title or author to search",
+            "menu": {
+                "profile": "[EU_TRANSLATE] Profile",
+                "logout": "[EU_TRANSLATE] Logout"
+            }
+        },
+        "footer": {
+            "title": "[EU_TRANSLATE] Indigo",
+            "subtitle": "[EU_TRANSLATE] Explore, organize, and enjoy your digital collection of e-books"
+        },
+        "sidebar": {
+            "menu": {
+                "books": "[EU_TRANSLATE] Books",
+                "recommendations": "[EU_TRANSLATE] For you",
+                "authors": "[EU_TRANSLATE] Authors",
+                "tags": "[EU_TRANSLATE] Categories",
+                "series": "[EU_TRANSLATE] Series",
+                "search": "[EU_TRANSLATE] Advanced search",
+                "settings": "[EU_TRANSLATE] Settings",
+                "notifications": "[EU_TRANSLATE] Notifications"
+            }
+        },
+        "messages": {
+            "none": "[EU_TRANSLATE] There are no pending messages",
+            "kindle": {
+                "ok": "[EU_TRANSLATE] The book <strong> {{book}} </strong> has been successfully sent to the <strong> {{user}} </strong> kindle",
+                "error": "[EU_TRANSLATE] An error occurred in sending the book <strong> {{book}} </strong> to the kindle of <strong> {{user}} </strong>"
+            },
+            "function_not_available": "[EU_TRANSLATE] This function is not available at the moment"
+        },
+        "books": {
+            "title": "[EU_TRANSLATE] Books",
+            "title_of": "[EU_TRANSLATE] Books of ",
+            "title_published": "[EU_TRANSLATE] Books published",
+            "search_results": "[EU_TRANSLATE] Search results: ",
+            "detail": {
+                "title": "[EU_TRANSLATE] Book details",
+                "pubdate": "[EU_TRANSLATE] Publication date:",
+                "pages": "[EU_TRANSLATE] pages",
+                "delete": {
+                    "ok": "[EU_TRANSLATE] The book has been removed from the library",
+                    "error": "[EU_TRANSLATE] The book could not be removed from the library"
+                },
+                "edit": {
+                    "title": "[EU_TRANSLATE] Title",
+                    "author": "[EU_TRANSLATE] Author",
+                    "plot": "[EU_TRANSLATE] Plot",
+                    "gender": "[EU_TRANSLATE] Gender",
+                    "pubdate": "[EU_TRANSLATE] Published",
+                    "language": "[EU_TRANSLATE] Language",
+                    "pages": "[EU_TRANSLATE] Pages",
+                    "rating": "[EU_TRANSLATE] Rating",
+                    "ok": "[EU_TRANSLATE] The book has been edited",
+                    "error": "[EU_TRANSLATE] The book could not be edited"
+                },
+                "kindle": {
+                    "todo": "[EU_TRANSLATE] The book will be sent to your device",
+                    "ok": "[EU_TRANSLATE] The book has been sent to your device and will appear in a few minutes",
+                    "error": "[EU_TRANSLATE] The book could not be sent"
+                },
+                "favorite": {
+                    "add": {
+                        "ok": "[EU_TRANSLATE] The book has been added to favorites",
+                        "error": "[EU_TRANSLATE] The book could not be added to favorites"
+                    },
+                    "delete": {
+                        "ok": "[EU_TRANSLATE] The book has been removed from favorites",
+                        "error": "[EU_TRANSLATE] The book could not be removed from favorites"
+                    }
+                },
+                "download": {
+                    "error": "[EU_TRANSLATE] The book could not be downloaded"
+                },
+                "metadata": {
+                    "rating": "[EU_TRANSLATE] RATING",
+                    "genre": "[EU_TRANSLATE] GENRE",
+                    "published": "[EU_TRANSLATE] PUBLISHED",
+                    "language": "[EU_TRANSLATE] LANGUAGE",
+                    "pages": "[EU_TRANSLATE] EXTENSION"
+                },
+                "expand": {
+                    "more": "[EU_TRANSLATE] View more",
+                    "less": "[EU_TRANSLATE] View less"
+                }
+            },
+            "serie": {
+                "title": "[EU_TRANSLATE] From the same series"
+            },
+            "similar": {
+                "title": "[EU_TRANSLATE] Other similar books"
+            },
+            "recommendations": {
+                "title": "[EU_TRANSLATE] You may also like",
+                "title2": "[EU_TRANSLATE] Selected for you"
+            },
+            "favorites": {
+                "title": "[EU_TRANSLATE] Favorites"
+            },
+            "refresh": {
+                "process": "[EU_TRANSLATE] Updating data",
+                "result": {
+                    "ok": "[EU_TRANSLATE] Data updated correctly",
+                    "error": "[EU_TRANSLATE] Could not get data"
+                }
+            },
+            "order_by": {
+                "id": {
+                    "asc": "[EU_TRANSLATE] Older added",
+                    "desc": "[EU_TRANSLATE] Recently added"
+                },
+                "pubdate": {
+                    "asc": "[EU_TRANSLATE] First published",
+                    "desc": "[EU_TRANSLATE] Latest published"
+                },
+                "title": {
+                    "asc": "[EU_TRANSLATE] Ascending title",
+                    "desc": "[EU_TRANSLATE] Descending title"
+                },
+                "rating": {
+                    "asc": "[EU_TRANSLATE] Lowest rated",
+                    "desc": "[EU_TRANSLATE] Best rated"
+                },
+                "count": {
+                    "desc": "[EU_TRANSLATE] Most recommended",
+                    "asc": "[EU_TRANSLATE] Less recommended"
+                }
+            },
+            "error": {
+                "data": "[EU_TRANSLATE] The data could not be obtained",
+                "tags": "[EU_TRANSLATE] The categories could not be retrieved",
+                "series": "[EU_TRANSLATE] The series could not be retrieved",
+                "pages": "[EU_TRANSLATE] Failed to retrieve pages",
+                "comment": "[EU_TRANSLATE] The description could not be retrieved",
+                "cover": "[EU_TRANSLATE] The image could not be recovered"
+            }
+        },
+        "authors": {
+            "title": "[EU_TRANSLATE] Authors",
+            "order_by": {
+                "total": {
+                    "asc": "[EU_TRANSLATE] Authors with fewer books",
+                    "desc": "[EU_TRANSLATE] Authors with more books"
+                },
+                "sort": {
+                    "asc": "[EU_TRANSLATE] Authors by ascending name",
+                    "desc": "[EU_TRANSLATE] Authors by descending name"
+                }
+            },
+            "favorites": {
+                "title": "[EU_TRANSLATE] Favorites",
+                "add": {
+                    "ok": "[EU_TRANSLATE] The author has been added to favorites",
+                    "error": "[EU_TRANSLATE] The author could not be added to favorites"
+                },
+                "delete": {
+                    "ok": "[EU_TRANSLATE] The author has been removed from favorites",
+                    "error": "[EU_TRANSLATE] The author could not be removed from favorites"
+                }
+            },
+            "refresh": {
+                "process": "[EU_TRANSLATE] Updating data",
+                "result": {
+                    "ok": "[EU_TRANSLATE] Data updated correctly",
+                    "error": "[EU_TRANSLATE] Could not get data"
+                }
+            },
+            "total": "[EU_TRANSLATE] books in the library",
+            "error": {
+                "data": "[EU_TRANSLATE] The data could not be obtained"
+            }
+        },
+        "tags": {
+            "title": "[EU_TRANSLATE] Categories",
+            "order_by": {
+                "total": {
+                    "asc": "[EU_TRANSLATE] Categories with fewer books",
+                    "desc": "[EU_TRANSLATE] Categories of my books"
+                },
+                "name": {
+                    "asc": "[EU_TRANSLATE] Categories by ascending name",
+                    "desc": "[EU_TRANSLATE] Categories by descending name"
+                }
+            },
+            "actions": {
+                "settings": {
+                    "title": "[EU_TRANSLATE] Options"
+                },
+                "rename": {
+                    "title": "[EU_TRANSLATE] Rename",
+                    "description": {
+                        "source": "[EU_TRANSLATE] Select the tag to rename",
+                        "target": "[EU_TRANSLATE] Enter the new name"
+                    },
+                    "error": "[EU_TRANSLATE] There is already a category with the new name entered",
+                    "info": "[EU_TRANSLATE] The category {{source}} is going to be renamed to {{target}}. Do you want to continue?"
+                },
+                "merge": {
+                    "title": "[EU_TRANSLATE] Mix",
+                    "description": {
+                        "source": "[EU_TRANSLATE] Select the source tag",
+                        "target": "[EU_TRANSLATE] Select the target tag"
+                    },
+                    "error": "[EU_TRANSLATE] The selected categories must be different",
+                    "info": "[EU_TRANSLATE] The category {{source}} is going to be mixed in {{target}}. Do you want to continue?"
+                },
+                "image": {
+                    "modify": {
+                        "title": "[EU_TRANSLATE] Modify image"
+                    },
+                    "update": {
+                        "title": "[EU_TRANSLATE] Update image"
+                    },
+                    "description": {
+                        "source": "[EU_TRANSLATE] Select the source tag",
+                        "target": "[EU_TRANSLATE] Enter the url of the new image"
+                    },
+                    "error": "[EU_TRANSLATE] The entered image is not correct",
+                    "info": "[EU_TRANSLATE] The image entered is correct. Do you want to continue?"
+                }
+            },
+            "total": "[EU_TRANSLATE] books in the library",
+            "error": {
+                "data": "[EU_TRANSLATE] The data could not be obtained",
+                "merge": "[EU_TRANSLATE] The operation could not be performed",
+                "rename": "[EU_TRANSLATE] The operation could not be performed",
+                "image": "[EU_TRANSLATE] The operation could not be performed"
+            }
+        },
+        "series": {
+            "title": "[EU_TRANSLATE] Series",
+            "order_by": {
+                "total": {
+                    "asc": "[EU_TRANSLATE] Series with fewer books",
+                    "desc": "[EU_TRANSLATE] Series with more books"
+                },
+                "sort": {
+                    "asc": "[EU_TRANSLATE] Series by ascending name",
+                    "desc": "[EU_TRANSLATE] Series by descending name"
+                }
+            },
+            "total": "[EU_TRANSLATE] books in the library",
+            "error": {
+                "data": "[EU_TRANSLATE] The data could not be obtained"
+            }
+        },
+        "profile": {
+            "title": "[EU_TRANSLATE] Profile of {{username}}",
+            "account": {
+                "title": "[EU_TRANSLATE] Account",
+                "username": "[EU_TRANSLATE] User",
+                "password": "[EU_TRANSLATE] Password",
+                "role": "[EU_TRANSLATE] Role",
+                "language": "[EU_TRANSLATE] Interface language",
+                "languages": "[EU_TRANSLATE] Language of books",
+                "kindle": "[EU_TRANSLATE] Kindle device email address",
+                "kindle_short": "[EU_TRANSLATE] Kindle",
+                "account": "[EU_TRANSLATE] Account"
+            },
+            "permissions": {
+                "title": "[EU_TRANSLATE] Permissions",
+                "show_random_books": "[EU_TRANSLATE] Show random books"
+            },
+            "books": {
+                "title": "[EU_TRANSLATE] My readings"
+            },
+            "error": {
+                "get": "[EU_TRANSLATE] The profile could not be retrieved",
+                "update": "[EU_TRANSLATE] The profile could not be updated",
+                "save": "[EU_TRANSLATE] The profile could not be saved",
+                "name": "[EU_TRANSLATE] A user with that name already exists"
+            },
+            "ok": {
+                "update": "[EU_TRANSLATE] Profile successfully updated"
+            }
+        },
+        "settings": {
+            "title": "[EU_TRANSLATE] Configuration",
+            "panel": {
+                "users": {
+                    "title": "[EU_TRANSLATE] Users"
+                },
+                "global": {
+                    "title": "[EU_TRANSLATE] General",
+                    "recommendations": "[EU_TRANSLATE] Maximum number of recommended readings per book",
+                    "recommendations2": "[EU_TRANSLATE] Maximum number of recommended readings per user"
+                },
+                "metadata": {
+                    "title": "[EU_TRANSLATE] Metadata",
+                    "pull": "[EU_TRANSLATE] Make a request every (seconds)",
+                    "goodreadskey": "[EU_TRANSLATE] GoodReads Developer Key",
+                    "all": {
+                        "partial": "[EU_TRANSLATE] Update all metadata (ratings, comments, author biography, etc.) for new books",
+                        "full": "[EU_TRANSLATE] Update all metadata (ratings, comments, author biography, etc.) for the entire library. Overwrite existing ones."
+                    },
+                    "authors": {
+                        "partial": "[EU_TRANSLATE] Update author metadata for new books",
+                        "full": "[EU_TRANSLATE] Update author metadata for the entire library. Overwrite existing ones."
+                    },
+                    "indexing_books": "[EU_TRANSLATE] Indexing library (1/5) ...",
+                    "filling_recommendations": "[EU_TRANSLATE] Generating recommendations (3/5) ...",
+                    "obtaining_metadata_books": "[EU_TRANSLATE] Obtaining books metadata (4/5) ...",
+                    "obtaining_metadata_authors": "[EU_TRANSLATE] Obtaining authors metadata (5/5) ...",
+                    "filling_authors": "[EU_TRANSLATE] Filling authors (2/5) ..."
+                },
+                "smtp": {
+                    "title": "[EU_TRANSLATE] Mail server",
+                    "host": "[EU_TRANSLATE] Server",
+                    "port": "[EU_TRANSLATE] Port",
+                    "encryption": "[EU_TRANSLATE] Encryption",
+                    "provider": "[EU_TRANSLATE] Provider",
+                    "username": "[EU_TRANSLATE] User",
+                    "password": "[EU_TRANSLATE] Password",
+                    "test": "[EU_TRANSLATE] Check server configuration",
+                    "status": {
+                        "unknown": "[EU_TRANSLATE] Unknown",
+                        "ok": "[EU_TRANSLATE] Validated",
+                        "error": "[EU_TRANSLATE] Error"
+                    },
+                    "providers": {
+                        "gmail": "[EU_TRANSLATE] Gmail",
+                        "outlook": "[EU_TRANSLATE] Outlook",
+                        "other": "[EU_TRANSLATE] Other"
+                    }
+                }
+            },
+            "actions": {
+                "save": {
+                    "ok": "[EU_TRANSLATE] Configuration saved successfully",
+                    "error": "[EU_TRANSLATE] The configuration could not be saved"
+                },
+                "start": {
+                    "error": "[EU_TRANSLATE] The service could not be started"
+                },
+                "stop": {
+                    "error": "[EU_TRANSLATE] The service could not be stopped"
+                },
+                "delete": {
+                    "error": "[EU_TRANSLATE] The user could not be deleted"
+                }
+            }
+        },
+        "login": {
+            "title": "[EU_TRANSLATE] Login to the system",
+            "username": "[EU_TRANSLATE] User",
+            "password": "[EU_TRANSLATE] Password",
+            "rememberme": "[EU_TRANSLATE] Remember me",
+            "username.required": "[EU_TRANSLATE] The user is required",
+            "password.required": "[EU_TRANSLATE] The password is required",
+            "userpass.wrong": "[EU_TRANSLATE] Incorrect username and / or password",
+            "error": "[EU_TRANSLATE] An access error has occurred"
+        },
+        "search": {
+            "title": "[EU_TRANSLATE] Advanced search",
+            "field": {
+                "title": "[EU_TRANSLATE] Title",
+                "author": "[EU_TRANSLATE] Author",
+                "serie": "[EU_TRANSLATE] Serie",
+                "date": {
+                    "ini": "[EU_TRANSLATE] Publication date after",
+                    "end": "[EU_TRANSLATE] Publication date before"
+                },
+                "pages": {
+                    "min": "[EU_TRANSLATE] Number of pages greater than",
+                    "max": "[EU_TRANSLATE] Number of pages less than"
+                },
+                "tags": "[EU_TRANSLATE] Categories"
+            },
+            "searching": "[EU_TRANSLATE] Searching..."
+        },
+        "notifications": {
+            "title": "[EU_TRANSLATE] Notifications",
+            "id": "[EU_TRANSLATE] Id",
+            "user": "[EU_TRANSLATE] User",
+            "book": "[EU_TRANSLATE] Book",
+            "type": "[EU_TRANSLATE] Type",
+            "readUser": "[EU_TRANSLATE] Read by user",
+            "readAdmin": "[EU_TRANSLATE] Read by administrator",
+            "status": "[EU_TRANSLATE] Status",
+            "sendDate": "[EU_TRANSLATE] Date",
+            "message": "[EU_TRANSLATE] Message",
+            "search": "[EU_TRANSLATE] Search by ",
+            "select": "[EU_TRANSLATE] Select a ",
+            "actions": {
+                "get": {
+                    "error": "[EU_TRANSLATE] Could not get notifications"
+                },
+                "delete": {
+                    "error": "[EU_TRANSLATE] The notification could not be cleared"
+                }
+            },
+            "read": {
+                "true": "[EU_TRANSLATE] Yes",
+                "false": "[EU_TRANSLATE] No"
+            },
+            "statuses": {
+                "SEND": "[EU_TRANSLATE] Sent",
+                "NOT_SEND": "[EU_TRANSLATE] Not sent",
+                "FINISHED": "[EU_TRANSLATE] Finished"
+            },
+            "types": {
+                "KINDLE": "[EU_TRANSLATE] Sending to Kindle",
+                "UPLOAD": "[EU_TRANSLATE] Uploaded books"
+            }
+        },
+        "buttons": {
+            "login": "[EU_TRANSLATE] Enter",
+            "logout": "[EU_TRANSLATE] Exit",
+            "accept": "[EU_TRANSLATE] Accept",
+            "cancel": "[EU_TRANSLATE] Cancel",
+            "close": "[EU_TRANSLATE] Close",
+            "save": "[EU_TRANSLATE] Save",
+            "send": "[EU_TRANSLATE] Send to Kindle",
+            "new": "[EU_TRANSLATE] New",
+            "add": "[EU_TRANSLATE] Add",
+            "search": "[EU_TRANSLATE] Search",
+            "next": "[EU_TRANSLATE] Next",
+            "previous": "[EU_TRANSLATE] Previous",
+            "view": "[EU_TRANSLATE] See book",
+            "download": "[EU_TRANSLATE] Download book",
+            "refresh": "[EU_TRANSLATE] Refresh metadata",
+            "delete": "[EU_TRANSLATE] Delete",
+            "edit": "[EU_TRANSLATE] Edit",
+            "favorite": {
+                "add": "[EU_TRANSLATE] Add to favorites",
+                "delete": "[EU_TRANSLATE] Remove from favorites"
+            }
+        },
+        "languages": {
+            "es": "[EU_TRANSLATE] Spanish",
+            "en": "[EU_TRANSLATE] English",
+            "ca": "[EU_TRANSLATE] Catalan",
+            "fr": "[EU_TRANSLATE] French",
+            "pt": "[EU_TRANSLATE] Portuguese",
+            "de": "[EU_TRANSLATE] German",
+            "it": "[EU_TRANSLATE] Italian",
+            "sv": "[EU_TRANSLATE] Swedish",
+            "eu": "[EU_TRANSLATE] Basque",
+            "gl": "[EU_TRANSLATE] Galician",
+            "eo": "[EU_TRANSLATE] Esperanto",
+            "spa": "[EU_TRANSLATE] Spanish",
+            "eng": "[EU_TRANSLATE] English",
+            "cat": "[EU_TRANSLATE] Catalan",
+            "fra": "[EU_TRANSLATE] French",
+            "por": "[EU_TRANSLATE] Portuguese",
+            "deu": "[EU_TRANSLATE] German",
+            "ita": "[EU_TRANSLATE] Italian",
+            "swe": "[EU_TRANSLATE] Swedish",
+            "eus": "[EU_TRANSLATE] Basque",
+            "glg": "[EU_TRANSLATE] Galician",
+            "epo": "[EU_TRANSLATE] Esperanto"
+        },
+        "session": {
+            "title": "[EU_TRANSLATE] Session expired",
+            "description": "[EU_TRANSLATE] The session has expired, please log in again."
+        }
+    }
+}

@@ -60,6 +60,8 @@ export function mapLanguageCode(languageCode: string): string {
     return 'en-GB';
   } else if (languageCode === 'FR') {
     return 'fr-FR';
+  } else if (languageCode === 'eu') {
+    return 'eu-ES';
   }
   // Si no hay coincidencia, devuelve el código original
   return languageCode;
