@@ -23,13 +23,12 @@ public class FindAllNotificationsByUserControllerIntegrationTest extends BaseInd
 	public void init() {
 		notificationEntity = NotificationMongoEntity.builder()
 				.id("1")
-				.book("book")
 				.user("user")
 				.type(NotificationEnum.KINDLE.name())
 				.build();
 		notificationRepository.save(notificationEntity);
 
-		notificationEntity2 = NotificationMongoEntity.builder().id("2").book("book2").user("user").type("type").build();
+		notificationEntity2 = NotificationMongoEntity.builder().id("2").user("user").type("type").build();
 		notificationRepository.save(notificationEntity2);
 	}
 

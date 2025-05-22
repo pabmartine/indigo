@@ -392,7 +392,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 			List<String> recommendations = new ArrayList<>();
 
 			for (NotificationMongoEntity notif : notifs) {
-				if (notif.getType().equals("KINDLE")) {
+				if (notif.getType()!=null && notif.getType().equals("KINDLE")) {
 					query = new Query();
 					criterias.clear();
 					criterias.add(Criteria.where("path").is(notif.getKindle().getBook()));

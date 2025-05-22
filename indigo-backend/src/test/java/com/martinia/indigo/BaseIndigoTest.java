@@ -68,8 +68,8 @@ public class BaseIndigoTest {
 		reset(applicationEventPublisher);
 	}
 
-	protected void assertEventPublished(Class event) {
-		verify(applicationEventPublisher, times(1)).publishEvent(any(event));
+	protected void assertEventPublished(Object event) {
+		verify(applicationEventPublisher, times(1)).publishEvent(event);
 	}
 
 	protected void assertRecursively(final Object actualObject, final Object expectedObject, final String... ignoredFields) {

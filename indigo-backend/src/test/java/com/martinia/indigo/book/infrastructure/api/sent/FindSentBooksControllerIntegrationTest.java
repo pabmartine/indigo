@@ -3,6 +3,7 @@ package com.martinia.indigo.book.infrastructure.api.sent;
 import com.martinia.indigo.BaseIndigoIntegrationTest;
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
+import com.martinia.indigo.notification.infrastructure.mongo.entities.NotificationKindleMongoItem;
 import com.martinia.indigo.notification.infrastructure.mongo.entities.NotificationMongoEntity;
 import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,7 +44,7 @@ class FindSentBooksControllerIntegrationTest extends BaseIndigoIntegrationTest {
 		NotificationMongoEntity notificationMongoEntity = NotificationMongoEntity.builder()
 				.id(UUID.randomUUID().toString())
 				.user(userMongoEntity.getUsername())
-				.book(bookMongoEntity.getPath())
+				.type("KINDLE").kindle(NotificationKindleMongoItem.builder().book(bookMongoEntity.getPath()).build())
 				.build();
 		notificationRepository.save(notificationMongoEntity);
 	}

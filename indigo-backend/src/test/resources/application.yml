@@ -1,6 +1,7 @@
 book:
     library:
         path: /tmp
+        uploads: ${book.library.path}/uploads
 
 logging.level:
     root: INFO

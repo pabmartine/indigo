@@ -24,7 +24,6 @@ public class FindNotReadNotificationsControllerIntegrationTest extends BaseIndig
 	public void init() {
 		notificationEntity = NotificationMongoEntity.builder()
 				.id("1")
-				.book("book")
 				.user("user")
 				.readAdmin(true)
 				.type(NotificationEnum.KINDLE.name())
@@ -33,7 +32,6 @@ public class FindNotReadNotificationsControllerIntegrationTest extends BaseIndig
 
 		notificationEntity2 = NotificationMongoEntity.builder()
 				.id("2")
-				.book("book2")
 				.user("user")
 				.readAdmin(false)
 				.type(NotificationEnum.KINDLE.name())

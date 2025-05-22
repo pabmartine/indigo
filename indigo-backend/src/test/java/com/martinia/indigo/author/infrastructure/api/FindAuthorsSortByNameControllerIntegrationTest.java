@@ -47,7 +47,7 @@ public class FindAuthorsSortByNameControllerIntegrationTest extends BaseIndigoIn
 	public void findAuthorsSortByName() throws Exception {
 
 		//Given
-		final String sort = "sort";
+		final String sort = "name";
 
 		//When
 		ResultActions result = mockMvc.perform(

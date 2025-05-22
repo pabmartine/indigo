@@ -46,7 +46,7 @@ public class StartMetadataUseCaseImpl implements StartMetadataUseCase {
 				commandBus.execute(StartFillReviewsMetadataCommand.builder().override(true).lang(lang).build());
 				break;
 			default:
-				throw new RuntimeException();
+				break;
 			}
 
 		}
@@ -63,7 +63,7 @@ public class StartMetadataUseCaseImpl implements StartMetadataUseCase {
 				commandBus.execute(StartFillReviewsMetadataCommand.builder().override(true).lang(lang).build());
 				break;
 			default:
-				throw new RuntimeException();
+				break;
 			}
 		}
 

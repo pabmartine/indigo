@@ -29,7 +29,6 @@ public class MergeTagControllerTest extends BaseIndigoTest {
 	private MergeTagController mergeTagController;
 
 	@Test
-	@Transactional
 	public void testMerge() throws Exception {
 		// Given
 		String source = "sourceTag";

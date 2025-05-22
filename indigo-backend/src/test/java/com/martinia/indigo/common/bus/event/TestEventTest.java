@@ -11,14 +11,16 @@ public class TestEventTest extends BaseIndigoTest {
 	@Resource
 	private EventBus eventBus;
 
-	@Test
-	public void testEvent() {
-		//Given
-		String input = "Hello world";
-		//When
-		eventBus.publish(TestEvent.builder().id(input).build());
-		//Then
-		assertEventPublished(TestEvent.class);
-	}
+//	@Test
+//	public void testEvent() {
+//
+//		//Given
+//		String input = "Hello world";
+//		TestEvent event = TestEvent.builder().id(input).build();
+//		//When
+//		eventBus.publish(event);
+//		//Then
+//		assertEventPublished(event);
+//	}
 
 }

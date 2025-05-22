@@ -40,7 +40,6 @@ public class FindNotReadNotificationsByUserControllerIntegrationTest extends Bas
 	public void init() {
 		notificationEntity = NotificationMongoEntity.builder()
 				.id("1")
-				.book("book")
 				.user("user")
 				.readUser(true)
 				.type(NotificationEnum.KINDLE.name())
@@ -49,7 +48,6 @@ public class FindNotReadNotificationsByUserControllerIntegrationTest extends Bas
 
 		notificationEntity2 = NotificationMongoEntity.builder()
 				.id("2")
-				.book("book2")
 				.user("user")
 				.readUser(false)
 				.type(NotificationEnum.KINDLE.name())
