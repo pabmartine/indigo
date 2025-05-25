@@ -16,8 +16,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.Resource;
+import org.springframework.transaction.annotation.Transactional;
 import java.text.Normalizer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -81,7 +81,7 @@ public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseC
 			HtmlAnchor htmlAnchor = (HtmlAnchor) item;
 			try {
 				String ref = htmlAnchor.getHrefAttribute();
-				String compareTitle = htmlAnchor.getFirstChild().getNextSibling().getFirstChild().asText();
+				String compareTitle = htmlAnchor.getFirstChild().getNextSibling().getFirstChild().asNormalizedText();
 				String[] terms = normalize(compareTitle).split("\\+");
 				String filter = StringUtils.stripAccents(title).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ").toLowerCase()
 						.trim();
@@ -132,17 +132,17 @@ public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseC
 			HtmlArticle htmlArticle = (HtmlArticle) item;
 			try {
 				final String name = htmlArticle.getFirstChild().getFirstChild().getFirstChild().getNextSibling().getFirstChild().getFirstChild()
-						.getFirstChild().asText();
+						.getFirstChild().asNormalizedText();
 				final String strRating = htmlArticle.getFirstChild().getNextSibling().getFirstChild().getFirstChild().getFirstChild()
 						.getAttributes().getNamedItem("aria-label").getNodeValue();
 				final Matcher matcher = Pattern.compile("\\d+").matcher(strRating);
 				matcher.find();
 				int rating = Integer.valueOf(matcher.group());
 				String title = "";
-				String strDate = htmlArticle.getFirstChild().getNextSibling().getFirstChild().getFirstChild().getNextSibling().asText();
+				String strDate = htmlArticle.getFirstChild().getNextSibling().getFirstChild().getFirstChild().getNextSibling().asNormalizedText();
 				Date date = SDF.parse(strDate);
 				final String comment = htmlArticle.getFirstChild().getNextSibling().getFirstChild().getNextSibling().getFirstChild()
-						.getFirstChild().getFirstChild().getFirstChild().asText();
+						.getFirstChild().getFirstChild().getFirstChild().asNormalizedText();
 
 				final String language = detectLibreTranslatePort.map(libreTranslate -> libreTranslate.detect(comment)).orElse(null);
 

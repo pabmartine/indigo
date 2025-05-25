@@ -9,7 +9,7 @@ import com.martinia.indigo.tag.infrastructure.mongo.mappers.TagMongoMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;

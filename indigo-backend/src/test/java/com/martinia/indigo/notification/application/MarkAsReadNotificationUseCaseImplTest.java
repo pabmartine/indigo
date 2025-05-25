@@ -29,7 +29,7 @@ import com.martinia.indigo.notification.infrastructure.mongo.entities.Notificati
 import com.martinia.indigo.user.domain.model.User;
 import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 public class MarkAsReadNotificationUseCaseImplTest extends BaseIndigoTest {
 

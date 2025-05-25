@@ -13,7 +13,7 @@ import static org.mockito.Mockito.when;
 
 public class ObtainBookByPathUseCaseImplTest extends BaseIndigoTest {
 
-	@javax.annotation.Resource
+	@jakarta.annotation.Resource
 	private ObtainBookByPathUseCase obtainBookByPathUseCase;
 
 	@MockBean

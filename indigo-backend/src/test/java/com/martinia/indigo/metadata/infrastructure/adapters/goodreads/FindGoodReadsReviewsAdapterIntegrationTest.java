@@ -15,7 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,12 +41,11 @@ public class FindGoodReadsReviewsAdapterIntegrationTest extends BaseIndigoIntegr
 		final DomNode child1 = Mockito.mock(DomNode.class);
 		final DomNode child2 = Mockito.mock(DomNode.class);
 		final DomNode child3 = Mockito.mock(DomNode.class);
-		Mockito.when(htmlAnchor.getAttribute("href")).thenReturn("ref");
 		Mockito.when(htmlAnchor.getHrefAttribute()).thenReturn("/ref");
 		Mockito.when(htmlAnchor.getFirstChild()).thenReturn(child1);
 		Mockito.when(child1.getNextSibling()).thenReturn(child2);
 		Mockito.when(child2.getFirstChild()).thenReturn(child3);
-		Mockito.when(child3.asText()).thenReturn("title");
+		Mockito.when(child3.asNormalizedText()).thenReturn("title");
 		Mockito.when(page.getByXPath(Mockito.anyString())).thenReturn(list);
 		Mockito.when(webClient.getPage("https://www.goodreads.com/search?q=example_title+author1+author2&search_type=books"))
 				.thenReturn(page);
@@ -74,14 +73,14 @@ public class FindGoodReadsReviewsAdapterIntegrationTest extends BaseIndigoIntegr
 		Mockito.when(child24.getFirstChild()).thenReturn(child25);
 		Mockito.when(child24.getNextSibling()).thenReturn(child25);
 		Mockito.when(child25.getFirstChild()).thenReturn(child26);
-		Mockito.when(child25.asText()).thenReturn("january 23, 2014");
+		Mockito.when(child25.asNormalizedText()).thenReturn("january 23, 2014");
 		Mockito.when(child25.getAttributes()).thenReturn(attributes);
 		Mockito.when(attributes.getNamedItem(anyString())).thenReturn(node);
 		Mockito.when(node.getNodeValue()).thenReturn("5.0");
 		Mockito.when(child26.getFirstChild()).thenReturn(child27);
 		Mockito.when(child27.getFirstChild()).thenReturn(child28);
-		Mockito.when(child27.asText()).thenReturn("name");
-		Mockito.when(child28.asText()).thenReturn("comment");
+		Mockito.when(child27.asNormalizedText()).thenReturn("name");
+		Mockito.when(child28.asNormalizedText()).thenReturn("comment");
 		Mockito.when(page2.getByXPath(Mockito.anyString())).thenReturn(list2);
 		Mockito.when(webClient.getPage("https://www.goodreads.com/ref")).thenReturn(page2);
 

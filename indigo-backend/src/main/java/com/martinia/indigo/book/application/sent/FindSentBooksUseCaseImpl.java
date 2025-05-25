@@ -9,8 +9,8 @@ import com.martinia.indigo.notification.domain.ports.repositories.NotificationRe
 import com.martinia.indigo.notification.infrastructure.mongo.entities.NotificationMongoEntity;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.Resource;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

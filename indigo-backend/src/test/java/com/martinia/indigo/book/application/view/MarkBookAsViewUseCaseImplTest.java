@@ -7,7 +7,7 @@ import com.martinia.indigo.common.domain.model.View;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;

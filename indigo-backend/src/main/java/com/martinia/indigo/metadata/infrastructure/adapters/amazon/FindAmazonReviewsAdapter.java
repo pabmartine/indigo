@@ -7,7 +7,7 @@ import com.martinia.indigo.metadata.domain.ports.usecases.amazon.FindAmazonRevie
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.List;
 
 @Component

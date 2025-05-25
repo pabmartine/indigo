@@ -9,7 +9,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;

@@ -18,10 +18,11 @@ import com.martinia.indigo.metadata.infrastructure.events.BookMetadataFoundFindB
 import com.martinia.indigo.metadata.infrastructure.events.BookMetadataFoundFindSimilarBooksEventListener;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 public class BaseIndigoIntegrationTest extends BaseIndigoTest {
 
@@ -32,6 +33,7 @@ public class BaseIndigoIntegrationTest extends BaseIndigoTest {
 	protected EventBus eventBus;
 
 	@Resource
+	@Lazy
 	protected CommandBus commandBus;
 
 	@Resource

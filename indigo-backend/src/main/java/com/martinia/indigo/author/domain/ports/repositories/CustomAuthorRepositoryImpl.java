@@ -13,7 +13,7 @@ import org.springframework.util.CollectionUtils;
 
 import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @Repository
 public class CustomAuthorRepositoryImpl implements CustomAuthorRepository {

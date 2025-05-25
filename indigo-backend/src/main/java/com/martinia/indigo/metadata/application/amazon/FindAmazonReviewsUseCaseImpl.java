@@ -1,20 +1,19 @@
 package com.martinia.indigo.metadata.application.amazon;
 
-import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlDivision;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.martinia.indigo.common.domain.model.Review;
 import com.martinia.indigo.metadata.domain.model.ProviderEnum;
 import com.martinia.indigo.metadata.domain.ports.usecases.amazon.FindAmazonReviewsUseCase;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
 import java.net.InetAddress;
 import java.text.Normalizer;
 import java.text.SimpleDateFormat;
@@ -86,7 +85,7 @@ public class FindAmazonReviewsUseCaseImpl implements FindAmazonReviewsUseCase {
 						"data-asin");
 				String compareTitle = ((HtmlDivision) page.getByXPath("//div[@data-component-type='s-search-result']").get(0))
 						.getFirstChild().getFirstChild().getFirstChild().getFirstChild().getFirstChild().getFirstChild().getNextSibling()
-						.getFirstChild().getFirstChild().getFirstChild().getFirstChild().getFirstChild().asText();
+						.getFirstChild().getFirstChild().getFirstChild().getFirstChild().getFirstChild().asNormalizedText();
 				String[] terms = normalize(compareTitle).split("\\+");
 				String filter = StringUtils.stripAccents(title).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ").toLowerCase()
 						.trim();
@@ -137,21 +136,21 @@ public class FindAmazonReviewsUseCaseImpl implements FindAmazonReviewsUseCase {
 			HtmlDivision htmlDivision = (HtmlDivision) item;
 			try {
 				String name = htmlDivision.getFirstChild().getFirstChild().getFirstChild().getFirstChild().getFirstChild().getNextSibling()
-						.getFirstChild().asText();
+						.getFirstChild().asNormalizedText();
 				int rating = Integer.valueOf(
 						htmlDivision.getFirstChild().getFirstChild().getFirstChild().getNextSibling().getFirstChild().getFirstChild()
-								.asText().substring(0, 1));
+								.asNormalizedText().substring(0, 1));
 				String title = htmlDivision.getFirstChild().getFirstChild().getFirstChild().getNextSibling().getFirstChild()
-						.getNextSibling().getNextSibling().getFirstChild().getNextSibling().getFirstChild().asText();
+						.getNextSibling().getNextSibling().getFirstChild().getNextSibling().getFirstChild().asNormalizedText();
 				String strDate = htmlDivision.getFirstChild().getFirstChild().getFirstChild().getNextSibling().getNextSibling()
-						.getFirstChild().asText();
+						.getFirstChild().asNormalizedText();
 				Matcher matcher = Pattern.compile("\\d+").matcher(strDate);
 				matcher.find();
 				int value = Integer.valueOf(matcher.group());
 				strDate = strDate.substring(strDate.indexOf(String.valueOf(value)), strDate.length()).replaceAll("de ", "");
 				Date date = SDF.parse(strDate);
 				String comment = htmlDivision.getFirstChild().getFirstChild().getFirstChild().getNextSibling().getNextSibling()
-						.getNextSibling().getNextSibling().getFirstChild().getFirstChild().getNextSibling().getFirstChild().asText();
+						.getNextSibling().getNextSibling().getFirstChild().getFirstChild().getNextSibling().getFirstChild().asNormalizedText();
 
 				reviews.add(Review.builder().comment(comment).name(name).date(date).rating(rating).title(title).lastMetadataSync(new Date())
 						.provider(ProviderEnum.WIKIPEDIA.name()).build());

@@ -3,7 +3,7 @@ package com.martinia.indigo.metadata.application.commands;
 import com.martinia.indigo.BaseIndigoTest;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import static org.junit.Assert.assertNull;
 

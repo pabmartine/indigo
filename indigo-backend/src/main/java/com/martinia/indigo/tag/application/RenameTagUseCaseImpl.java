@@ -6,8 +6,8 @@ import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
 import com.martinia.indigo.tag.domain.ports.usecases.RenameTagUseCase;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.Resource;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service

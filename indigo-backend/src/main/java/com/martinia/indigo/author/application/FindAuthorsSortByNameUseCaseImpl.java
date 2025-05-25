@@ -6,8 +6,8 @@ import com.martinia.indigo.author.domain.ports.usecases.FindAuthorsSortByNameUse
 import com.martinia.indigo.author.infrastructure.mongo.mappers.AuthorMongoMapper;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.Resource;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Service

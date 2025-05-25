@@ -4,7 +4,7 @@ import com.martinia.indigo.file.domain.ports.usecases.FindEpubFilesUploadPathUse
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional

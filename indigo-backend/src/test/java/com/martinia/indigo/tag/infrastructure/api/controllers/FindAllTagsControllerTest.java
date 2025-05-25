@@ -21,7 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 
 public class FindAllTagsControllerTest extends BaseIndigoTest {

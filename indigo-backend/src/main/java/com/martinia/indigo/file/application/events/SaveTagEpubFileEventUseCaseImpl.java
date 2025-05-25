@@ -10,8 +10,8 @@ import com.martinia.indigo.tag.infrastructure.mongo.entities.TagMongoEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.Resource;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service

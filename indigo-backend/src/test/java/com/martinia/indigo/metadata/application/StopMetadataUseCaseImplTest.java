@@ -5,7 +5,7 @@ import com.martinia.indigo.common.singletons.MetadataSingleton;
 import com.martinia.indigo.metadata.domain.ports.usecases.StopMetadataUseCase;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 

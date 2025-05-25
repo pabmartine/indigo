@@ -12,7 +12,7 @@ import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import java.util.Optional;
 

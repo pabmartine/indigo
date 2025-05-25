@@ -9,7 +9,7 @@ import org.springframework.context.event.ApplicationEventMulticaster;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @Slf4j
 @Component

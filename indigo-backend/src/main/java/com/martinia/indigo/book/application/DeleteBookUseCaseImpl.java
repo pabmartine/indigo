@@ -7,8 +7,8 @@ import com.martinia.indigo.common.exceptions.MetadataRunningException;
 import com.martinia.indigo.common.singletons.MetadataSingleton;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.Resource;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional

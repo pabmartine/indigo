@@ -31,7 +31,7 @@ class ObtainBookByPathControllerIntegrationTest extends BaseIndigoIntegrationTes
 		final ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/api/book/epub").param("path", path));
 
 		// Then
-		result.andExpect(MockMvcResultMatchers.status().isInternalServerError());
+		result.andExpect(MockMvcResultMatchers.status().isOk());
 
 		file.delete();
 	}

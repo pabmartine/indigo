@@ -2,23 +2,21 @@ package com.martinia.indigo.metadata.application.commands;
 
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
-import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import com.martinia.indigo.common.bus.event.domain.ports.EventBus;
 import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
 import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
-import com.martinia.indigo.metadata.domain.model.commands.FindReviewMetadataCommand;
 import com.martinia.indigo.metadata.domain.model.events.BookMetadataFoundEvent;
 import com.martinia.indigo.metadata.domain.ports.adapters.goodreads.FindGoodReadsBookPort;
 import com.martinia.indigo.metadata.domain.ports.adapters.google.FindGoogleBooksBookPort;
 import com.martinia.indigo.metadata.domain.ports.usecases.commands.FindBookMetadataUseCase;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Optional;
@@ -42,8 +40,6 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 
 	@Resource
 	private EventBus eventBus;
-	@Resource
-	private CommandBus commandBus;
 
 	@Value("${metadata.goodreads.pull}")
 	private Long pullTime;
