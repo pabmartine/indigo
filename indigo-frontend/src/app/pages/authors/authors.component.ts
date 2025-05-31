@@ -1,6 +1,8 @@
 import { ChangeDetectorRef, Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { MessageService } from 'primeng/api';
 import { SelectItem } from 'primeng/api/selectitem';
 import { Author } from 'src/app/domain/author';
@@ -71,17 +73,108 @@ export class AuthorsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
     this.showGoUpButton = false;
-
     this.reset();
-    this.count();
-//    this.getAll();
-    this.getFavorites();
+
+    const observables = [
+      this.authorService.count(this.user.languageBooks).pipe(
+        catchError(error => {
+          console.error('Error fetching count:', error);
+          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.error.data'), closable: false, life: 5000 });
+          return of(0);
+        })
+      ),
+      this.authorService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order).pipe(
+        catchError(error => {
+          console.error('Error fetching initial authors:', error);
+          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.error.data'), closable: false, life: 5000 });
+          return of([]);
+        })
+      ),
+      this.authorService.getFavorites(this.user.username).pipe(
+        catchError(error => {
+          console.error('Error fetching favorites:', error);
+          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.error.favorites'), closable: false, life: 5000 });
+          return of([]);
+        })
+      )
+    ];
+
+    forkJoin(observables).subscribe(
+      ([countData, authorsData, favoritesData]: [number, Author[], Author[]]) => {
+        this.total = countData;
+        this.lastPage = this.total / this.size;
+        this.title = this.translate.instant('locale.authors.title') + " (" + this.total + ")";
+
+        this.authors = authorsData.map(author => {
+          // author.image remains base64 string or path
+          return author;
+        });
+        if (authorsData.length > 0) {
+          this.page++;
+        }
+
+        this.favorites = favoritesData.map(author => {
+          // author.image remains base64 string or path
+          return author;
+        });
+
+        this.changeDetectorRef.detectChanges();
+      },
+      error => {
+        // Generic error for forkJoin if needed, though individual catches are preferred
+        console.error('Error in forkJoin for initial author data load:', error);
+        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.error.generic'), closable: false, life: 5000 });
+      }
+    );
   }
 
-  onChange(event) {
+  private fetchSortedInitialAuthors() {
+    const observables = [
+      this.authorService.count(this.user.languageBooks).pipe(
+        catchError(error => {
+          console.error('Error fetching count:', error);
+          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.error.data'), closable: false, life: 5000 });
+          return of(0);
+        })
+      ),
+      this.authorService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order).pipe(
+        catchError(error => {
+          console.error('Error fetching sorted initial authors:', error);
+          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.error.data'), closable: false, life: 5000 });
+          return of([]);
+        })
+      )
+    ];
 
+    forkJoin(observables).subscribe(
+      ([countData, authorsData]: [number, Author[]]) => {
+        this.total = countData;
+        this.lastPage = this.total / this.size;
+        // Title update might not be strictly necessary here if only sort order changes, not the total count logic.
+        // However, if count could change due to some backend logic with sorting, it's safer.
+        this.title = this.translate.instant('locale.authors.title') + " (" + this.total + ")";
+
+
+        this.authors = authorsData.map(author => {
+          // author.image remains base64 string or path
+          return author;
+        });
+
+        if (authorsData.length > 0) {
+          this.page++;
+        }
+        this.changeDetectorRef.detectChanges();
+      },
+      error => {
+        console.error('Error in forkJoin for sorted initial authors:', error);
+        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.error.generic'), closable: false, life: 5000 });
+      }
+    );
+  }
+
+
+  onChange(event) {
     const index = this.selectedSort.indexOf(",");
     this.sort = this.selectedSort.slice(0, index);
     this.order = this.selectedSort.slice(index + 1);
@@ -90,9 +183,8 @@ export class AuthorsComponent implements OnInit {
 
     this.page = 0;
     this.authors.length = 0;
-    this.favorites.length = 0
-
-    this.getAll();
+    // Favorites are not reloaded on sort, so this.favorites.length = 0; is removed.
+    this.fetchSortedInitialAuthors();
   }
 
   @HostListener('window:scroll', [])
@@ -112,7 +204,7 @@ export class AuthorsComponent implements OnInit {
 
   onScroll() {
     if (this.authors.length < this.total) {
-      this.getAll();
+      this.getAllForScroll();
     }
   }
 
@@ -121,37 +213,15 @@ export class AuthorsComponent implements OnInit {
     document.documentElement.scrollTop = 0; // Other
   }
 
-  count() {
-    this.authorService.count(this.user.languageBooks).subscribe(
-      data => {
-        this.total = data;
-        this.lastPage = this.total / this.size;
-        this.title = this.translate.instant('locale.authors.title') + " (" + this.total + ")";
-
-        this.getAll();
-      },
-      error => {
-        console.log(error);
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.error.data'), closable: false, life: 5000 });
-      }
-    );
-  }
-
-  getAll() {
+  getAllForScroll() {
     this.authorService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order).subscribe(
       data => {
-
         data.forEach(author => {
-          if (author.image) {
-            let objectURL = 'data:image/jpeg;base64,' + author.image;
-            author.image = objectURL;
-          }
+          // author.image remains base64 string or path
         });
 
         Array.prototype.push.apply(this.authors, data);
         this.changeDetectorRef.detectChanges();
-
         this.page++;
       },
       error => {
@@ -162,38 +232,12 @@ export class AuthorsComponent implements OnInit {
     );
   }
 
-
-
   getBooksByAuthor(author: Author) {
-    this.reset();
-
+    // this.reset(); // Reset might not be needed here if navigating away
     let search: Search = new Search();
     search.author = author.sort;
     this.router.navigate(["books"], { queryParams: { adv_search: JSON.stringify(search), author: JSON.stringify(author) } });
   }
-
-
-
-  getFavorites() {
-    const user = JSON.parse(sessionStorage.user);
-    this.authorService.getFavorites(user.username).subscribe(
-      data => {
-
-        data.forEach((author) => {
-          let objectURL = 'data:image/jpeg;base64,' + author.image;
-          author.image = objectURL;
-        });
-
-        Array.prototype.push.apply(this.favorites, data);
-        this.page++;
-      },
-      error => {
-        console.log(error);
-      }
-    );
-  }
-
-
 
   private reset() {
     this.authors.length = 0;
