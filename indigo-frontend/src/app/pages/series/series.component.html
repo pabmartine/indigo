@@ -17,14 +17,33 @@
       </div>
     </div>
 
-    <div class="content-body p-grid" infiniteScroll [infiniteScrollDistance]="2" (scrolled)="onScroll()">
-      <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let serie of series">
+    <!-- Loading state -->
+    <div *ngIf="isLoading" class="loading-container">
+      <span class="loading">{{'locale.search.searching' | translate}}</span>
+    </div>
+
+    <!-- Series grid -->
+    <div class="content-body p-grid"
+         infiniteScroll
+         [infiniteScrollDistance]="2"
+         (scrolled)="onScroll()"
+         *ngIf="!isLoading">
+      <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1"
+           *ngFor="let serie of series; trackBy: trackBySerieId">
         <div class="stack twisted" *ngIf="serie.image">
-          <img [src]="serie.image" class="list-image" (click)="getBooksBySerie(serie.name)"
-            style="cursor: pointer;" />
+          <img [src]="serie.image"
+               class="list-image"
+               (click)="getBooksBySerie(serie.name)"
+               style="cursor: pointer;"
+               loading="lazy"
+               [alt]="serie.name" />
         </div>
         <div class="center">
-          <a href="javascript:;" (click)="getBooksBySerie(serie.name)">
+          <a href="javascript:;"
+             (click)="getBooksBySerie(serie.name)"
+             style="cursor: pointer;"
+             tabindex="0"
+             (keyup.enter)="getBooksBySerie(serie.name)">
             <span class="title">{{serie.name}}</span>
             <span class="subtitle">{{serie.numBooks}} {{'locale.series.total' | translate}}</span>
           </a>
@@ -32,7 +51,12 @@
       </div>
     </div>
 
-    <button type="button" pButton [ngClass]="'up-button'" *ngIf="showGoUpButton" (click)="scrollTop()"
-      icon="pi pi-arrow-up"></button>
+    <button type="button"
+            pButton
+            [ngClass]="'up-button'"
+            *ngIf="showGoUpButton"
+            (click)="scrollTop()"
+            icon="pi pi-arrow-up"
+            aria-label="Scroll to top"></button>
   </p-card>
 </div>

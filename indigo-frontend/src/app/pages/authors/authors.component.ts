@@ -1,8 +1,10 @@
-import { ChangeDetectorRef, Component, HostListener, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
 import { SelectItem } from 'primeng/api/selectitem';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { Author } from 'src/app/domain/author';
 import { Book } from 'src/app/domain/book';
 import { Search } from 'src/app/domain/search';
@@ -10,14 +12,14 @@ import { AuthorComponent } from 'src/app/pages/author/author.component';
 import { DetailComponent } from 'src/app/pages/detail/detail.component';
 import { AuthorService } from 'src/app/services/author.service';
 
-
 @Component({
   selector: 'app-authors',
   templateUrl: './authors.component.html',
   styleUrls: ['./authors.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [MessageService]
 })
-export class AuthorsComponent implements OnInit {
+export class AuthorsComponent implements OnInit, OnDestroy {
 
   @ViewChild(AuthorComponent) authorComponent: AuthorComponent;
   @ViewChild(DetailComponent) detailComponent: DetailComponent;
@@ -27,33 +29,62 @@ export class AuthorsComponent implements OnInit {
 
   title: string;
 
-  total: number;
+  total: number = 0;
 
-  private page: number;
-  private lastPage: number;
+  private page: number = 0;
+  private lastPage: number = 0;
 
   private size: number;
-  private sort: string;
-  private order: string;
+  private sort: string = "name";
+  private order: string = "asc";
 
   sorts: SelectItem[] = [];
   selectedSort: string;
 
-  showGoUpButton: boolean;
+  showGoUpButton: boolean = false;
   private showScrollHeight = 400;
   private hideScrollHeight = 200;
 
   user = JSON.parse(sessionStorage.user);
 
+  // Cache para optimizar rendimiento
+  private authorsCache = new Map<string, Author[]>();
+  private favoritesCache: Author[] = null;
+
+  // Subject para manejar la destrucción del componente
+  private destroy$ = new Subject<void>();
+
+  // Estados de diálogos
+  showDetail: boolean = false;
+  showBookDetail: boolean = false;
+
+  // Estado de carga
+  isLoading: boolean = false;
 
   constructor(
     private authorService: AuthorService,
     private router: Router,
     private messageService: MessageService,
     public translate: TranslateService,
-    private changeDetectorRef: ChangeDetectorRef) {
+    private cdr: ChangeDetectorRef
+  ) {
+    this.initializeScreenSize();
+    this.initializeSortOptions();
+  }
 
-    //defines the number of elements to retrieve according to the width of the screen
+  ngOnInit(): void {
+    this.reset();
+    this.loadInitialData();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.authorsCache.clear();
+  }
+
+  private initializeScreenSize(): void {
+    // Define el número de elementos según el ancho de pantalla
     if (window.screen.width <= 640) {
       this.size = 10;
     } else if (window.screen.width <= 1024) {
@@ -61,27 +92,41 @@ export class AuthorsComponent implements OnInit {
     } else {
       this.size = 80;
     }
+  }
 
-    this.sorts.push(
+  private initializeSortOptions(): void {
+    this.sorts = [
       { label: this.translate.instant('locale.authors.order_by.total.desc'), value: 'numBooks.total,desc' },
       { label: this.translate.instant('locale.authors.order_by.total.asc'), value: 'numBooks.total,asc' },
       { label: this.translate.instant('locale.authors.order_by.sort.asc'), value: 'name,asc' },
       { label: this.translate.instant('locale.authors.order_by.sort.desc'), value: 'name,desc' }
-    );
+    ];
   }
 
-  ngOnInit(): void {
+  private loadInitialData(): void {
+    this.isLoading = true;
+    this.cdr.detectChanges();
 
-    this.showGoUpButton = false;
-
-    this.reset();
-    this.count();
-//    this.getAll();
-    this.getFavorites();
+    // Cargar datos en paralelo para mejor rendimiento
+    Promise.all([
+      this.countAsync(),
+      this.getFavoritesAsync()
+    ]).then(() => {
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    }).catch(error => {
+      console.error('Error loading initial data:', error);
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    });
   }
 
-  onChange(event) {
+  // Método para trackBy en ngFor
+  trackByAuthorId(index: number, author: Author): string {
+    return author.id || index.toString();
+  }
 
+  onChange(event): void {
     const index = this.selectedSort.indexOf(",");
     this.sort = this.selectedSort.slice(0, index);
     this.order = this.selectedSort.slice(index + 1);
@@ -90,13 +135,13 @@ export class AuthorsComponent implements OnInit {
 
     this.page = 0;
     this.authors.length = 0;
-    this.favorites.length = 0
+    this.authorsCache.clear(); // Limpiar cache cuando cambia el orden
 
     this.getAll();
   }
 
   @HostListener('window:scroll', [])
-  onWindowScroll() {
+  onWindowScroll(): void {
     if ((window.pageYOffset ||
       document.documentElement.scrollTop ||
       document.body.scrollTop) > this.showScrollHeight) {
@@ -110,92 +155,213 @@ export class AuthorsComponent implements OnInit {
     }
   }
 
-  onScroll() {
+  onScroll(): void {
     if (this.authors.length < this.total) {
       this.getAll();
     }
   }
 
-  scrollTop() {
+  scrollTop(): void {
     document.body.scrollTop = 0; // Safari
     document.documentElement.scrollTop = 0; // Other
   }
 
-  count() {
-    this.authorService.count(this.user.languageBooks).subscribe(
-      data => {
-        this.total = data;
-        this.lastPage = this.total / this.size;
-        this.title = this.translate.instant('locale.authors.title') + " (" + this.total + ")";
-
-        this.getAll();
-      },
-      error => {
-        console.log(error);
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.error.data'), closable: false, life: 5000 });
-      }
-    );
-  }
-
-  getAll() {
-    this.authorService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order).subscribe(
-      data => {
-
-        data.forEach(author => {
-          if (author.image) {
-            let objectURL = 'data:image/jpeg;base64,' + author.image;
-            author.image = objectURL;
+  private countAsync(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.authorService.count(this.user.languageBooks)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (data) => {
+            this.total = data;
+            this.lastPage = this.total / this.size;
+            this.title = this.translate.instant('locale.authors.title') + " (" + this.total + ")";
+            this.getAll();
+            resolve();
+          },
+          error: (error) => {
+            console.log(error);
+            this.messageService.clear();
+            this.messageService.add({
+              severity: 'error',
+              detail: this.translate.instant('locale.authors.error.data'),
+              closable: false,
+              life: 5000
+            });
+            reject(error);
           }
         });
-
-        Array.prototype.push.apply(this.authors, data);
-        this.changeDetectorRef.detectChanges();
-
-        this.page++;
-      },
-      error => {
-        console.log(error);
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.authors.error.data'), closable: false, life: 5000 });
-      }
-    );
+    });
   }
 
+  count(): void {
+    this.countAsync();
+  }
 
+  getAll(): void {
+    const cacheKey = `${this.page}-${this.size}-${this.sort}-${this.order}-${this.user.languageBooks?.join(',')}`;
 
-  getBooksByAuthor(author: Author) {
+    // Verificar cache
+    if (this.authorsCache.has(cacheKey)) {
+      const cachedData = this.authorsCache.get(cacheKey);
+      Array.prototype.push.apply(this.authors, cachedData);
+      this.page++;
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.authorService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          // INMEDIATAMENTE mostrar autores sin procesar imágenes
+          const authorsWithoutImages = data.map(author => ({
+            ...author,
+            image: null, // Temporalmente sin imagen
+            originalImage: author.image // Guardar imagen original
+          }));
+
+          // Mostrar datos inmediatamente
+          Array.prototype.push.apply(this.authors, authorsWithoutImages);
+          this.page++;
+          this.cdr.detectChanges();
+
+          // Procesar imágenes de forma asíncrona
+          this.processAuthorsImagesAsync(authorsWithoutImages, this.authors.length - authorsWithoutImages.length);
+
+          // Guardar en cache con imágenes procesadas para futuras cargas
+          const processedData = this.processAuthors(data);
+          this.authorsCache.set(cacheKey, processedData);
+        },
+        error: (error) => {
+          console.log(error);
+          this.messageService.clear();
+          this.messageService.add({
+            severity: 'error',
+            detail: this.translate.instant('locale.authors.error.data'),
+            closable: false,
+            life: 5000
+          });
+        }
+      });
+  }
+
+  private processAuthors(data: Author[]): Author[] {
+    return data.map(author => {
+      if (author.image) {
+        author.image = 'data:image/jpeg;base64,' + author.image;
+      }
+      return author;
+    });
+  }
+
+  private processAuthorsImagesAsync(authors: any[], startIndex: number): void {
+    // Procesar imágenes en pequeños lotes para no bloquear la UI
+    const batchSize = 3;
+    let currentIndex = 0;
+
+    const processBatch = () => {
+      const endIndex = Math.min(currentIndex + batchSize, authors.length);
+
+      for (let i = currentIndex; i < endIndex; i++) {
+        const author = authors[i];
+        const targetIndex = startIndex + i;
+
+        if (author.originalImage && targetIndex < this.authors.length) {
+          // Procesar imagen de forma asíncrona
+          setTimeout(() => {
+            this.authors[targetIndex].image = 'data:image/jpeg;base64,' + author.originalImage;
+            this.cdr.detectChanges();
+          }, i * 15); // Pequeño delay entre imágenes
+        }
+      }
+
+      currentIndex = endIndex;
+
+      // Continuar con el siguiente lote si hay más imágenes
+      if (currentIndex < authors.length) {
+        setTimeout(processBatch, 100); // Pausa entre lotes
+      }
+    };
+
+    // Iniciar procesamiento
+    setTimeout(processBatch, 150);
+  }
+
+  private processFavoritesImagesAsync(favorites: any[]): void {
+    favorites.forEach((author, index) => {
+      if (author.originalImage) {
+        setTimeout(() => {
+          this.favorites[index].image = 'data:image/jpeg;base64,' + author.originalImage;
+          this.cdr.detectChanges();
+        }, index * 75); // Delay progresivo para suavizar la carga
+      }
+    });
+  }
+
+  getBooksByAuthor(author: Author): void {
     this.reset();
 
-    let search: Search = new Search();
+    const search: Search = new Search();
     search.author = author.sort;
-    this.router.navigate(["books"], { queryParams: { adv_search: JSON.stringify(search), author: JSON.stringify(author) } });
-  }
-
-
-
-  getFavorites() {
-    const user = JSON.parse(sessionStorage.user);
-    this.authorService.getFavorites(user.username).subscribe(
-      data => {
-
-        data.forEach((author) => {
-          let objectURL = 'data:image/jpeg;base64,' + author.image;
-          author.image = objectURL;
-        });
-
-        Array.prototype.push.apply(this.favorites, data);
-        this.page++;
-      },
-      error => {
-        console.log(error);
+    this.router.navigate(["books"], {
+      queryParams: {
+        adv_search: JSON.stringify(search),
+        author: JSON.stringify(author)
       }
-    );
+    });
   }
 
+  private getFavoritesAsync(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      // Usar cache si está disponible
+      if (this.favoritesCache) {
+        this.favorites = [...this.favoritesCache];
+        this.cdr.detectChanges();
+        resolve();
+        return;
+      }
 
+      this.authorService.getFavorites(this.user.username)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (data) => {
+            // INMEDIATAMENTE mostrar favoritos sin imágenes procesadas
+            const favoritesWithoutImages = data.map(author => ({
+              ...author,
+              image: null,
+              originalImage: author.image
+            }));
 
-  private reset() {
+            Array.prototype.push.apply(this.favorites, favoritesWithoutImages);
+            this.cdr.detectChanges();
+
+            // Procesar imágenes de favoritos de forma asíncrona
+            this.processFavoritesImagesAsync(favoritesWithoutImages);
+
+            // Guardar en cache con imágenes procesadas para futuras cargas
+            const processedFavorites = data.map(author => {
+              if (author.image) {
+                author.image = 'data:image/jpeg;base64,' + author.image;
+              }
+              return author;
+            });
+            this.favoritesCache = [...processedFavorites];
+
+            resolve();
+          },
+          error: (error) => {
+            console.log(error);
+            resolve(); // No rechazar, solo continuar
+          }
+        });
+    });
+  }
+
+  getFavorites(): void {
+    this.getFavoritesAsync();
+  }
+
+  private reset(): void {
     this.authors.length = 0;
     this.favorites.length = 0;
     this.total = 0;
@@ -207,69 +373,83 @@ export class AuthorsComponent implements OnInit {
       this.sort = "name";
       this.order = "asc";
       this.selectedSort = this.sort + "," + this.order;
-    }
-    else {
+    } else {
       const index = this.selectedSort.indexOf(",");
       this.sort = this.selectedSort.slice(0, index);
       this.order = this.selectedSort.slice(index + 1);
     }
-
   }
 
+  showDetails(author: Author): void {
+    if (!author || !this.authorComponent) return;
 
-
-  showDetail: boolean;
-
-  showDetails(author: Author) {
     this.authorComponent.showDetails(author);
-  }
-
-  closeDetails() {
-    this.showDetail = false;
-  }
-  openDetails() {
     this.showDetail = true;
   }
 
+  closeDetails(): void {
+    this.showDetail = false;
+  }
 
-  showBookDetail: boolean;
+  openDetails(): void {
+    this.showDetail = true;
+  }
 
-  openBook(book: Book) {
+  openBook(book: Book): void {
+    if (!book || !this.detailComponent) return;
+
     this.showDetail = false;
     this.detailComponent.showDetails(book);
+    this.showBookDetail = true;
   }
 
-  openAuthor(sort: string) {
+  openAuthor(sort: string): void {
+    if (!sort) return;
+
     this.showBookDetail = false;
-    this.authorService.getByName(sort).subscribe(
-      data => {
-        if (data)
-          if (data.image) {
-            let objectURL = 'data:image/jpeg;base64,' + data.image;
-            data.image = objectURL;
+    this.authorService.getByName(sort)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          if (data) {
+            if (data.image) {
+              data.image = 'data:image/jpeg;base64,' + data.image;
+            }
+            this.authorComponent.showDetails(data);
+            this.showDetail = true;
           }
-        this.authorComponent.showDetails(data);
-      },
-      error => {
-        console.log(error);
-      }
-    );
-
-
+        },
+        error: (error) => {
+          console.log(error);
+        }
+      });
   }
 
-  refreshAuthor(author: Author) {
-    const index = this.authors.findIndex((b) => b.id === author.id);
+  refreshAuthor(author: Author): void {
+    if (!author) return;
+
+    const index = this.authors.findIndex((a) => a.id === author.id);
     if (index !== -1) {
       this.authors[index] = author;
+      this.cdr.detectChanges();
+    }
+
+    // También actualizar en favoritos si existe
+    const favIndex = this.favorites.findIndex((a) => a.id === author.id);
+    if (favIndex !== -1) {
+      this.favorites[favIndex] = author;
+      // Limpiar cache de favoritos para refrescar
+      this.favoritesCache = null;
+      this.cdr.detectChanges();
     }
   }
 
-  closeBookDetails() {
+  closeBookDetails(): void {
     this.showDetail = false;
     this.showBookDetail = false;
   }
-  openBookDetails() {
+
+  openBookDetails(): void {
     this.showDetail = false;
     this.showBookDetail = true;
   }

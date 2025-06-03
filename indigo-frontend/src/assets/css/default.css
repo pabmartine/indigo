@@ -1557,3 +1557,26 @@ body a {
     margin-top: 0.2rem;
     margin-bottom: 0.2rem;
 }
+
+.loading-image {
+  opacity: 0.7;
+  filter: grayscale(50%);
+  transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+.loading-image:not(.loading-image) {
+  opacity: 1;
+  filter: none;
+}
+
+/* Skeleton loading effect */
+.loading-image {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

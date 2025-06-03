@@ -11,15 +11,22 @@
     </div>
 
     <div class="content-body p-grid">
-      <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let author of favorites">
+      <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1"
+           *ngFor="let author of favorites; trackBy: trackByAuthorId">
         <div class="user_avatar">
-          <img [src]="author.image" class="avatar" (click)="showDetails(author)" style="cursor: pointer;"
-            *ngIf="author.image" />
+          <img [src]="author.image || './assets/images/avatar3.jpg'"
+               class="avatar"
+               (click)="showDetails(author)"
+               style="cursor: pointer;"
+               loading="lazy"
+               [alt]="author.name"
+               [class.loading-image]="!author.image" />
 
-          <img src="./assets/images/avatar3.jpg" class="avatar" (click)="showDetails(author)"
-            style="cursor: pointer;" *ngIf="!author.image" />
-
-          <a href="javascript:;" (click)="showDetails(author)" style="cursor: pointer;">
+          <a href="javascript:;"
+             (click)="showDetails(author)"
+             style="cursor: pointer;"
+             tabindex="0"
+             (keyup.enter)="showDetails(author)">
             <span class="title">{{author.name}}</span>
             <span class="subtitle">{{author.numBooks}} {{'locale.authors.total' | translate}}</span>
           </a>
@@ -38,7 +45,10 @@
         </span>
       </div>
       <div class="p-col-12 p-md-6" style="text-align: right;">
-        <p-dropdown [options]="sorts" [(ngModel)]="selectedSort" (onChange)="onChange($event)"  class="sortBy">
+        <p-dropdown [options]="sorts"
+                    [(ngModel)]="selectedSort"
+                    (onChange)="onChange($event)"
+                    class="sortBy">
           <ng-template let-item pTemplate="selectedItem">
             <span style="vertical-align:middle">{{item.label}}</span>
           </ng-template>
@@ -46,17 +56,34 @@
       </div>
     </div>
 
-    <div class="content-body p-grid" infiniteScroll [infiniteScrollDistance]="2" (scrolled)="onScroll()">
-      <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let author of authors">
+    <!-- Loading state -->
+    <div *ngIf="isLoading" class="loading-container">
+      <span class="loading">{{'locale.search.searching' | translate}}</span>
+    </div>
+
+    <!-- Authors grid -->
+    <div class="content-body p-grid"
+         infiniteScroll
+         [infiniteScrollDistance]="2"
+         (scrolled)="onScroll()"
+         *ngIf="!isLoading">
+      <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1"
+           *ngFor="let author of authors; trackBy: trackByAuthorId">
 
         <div class="user_avatar">
-          <img [src]="author.image" class="avatar" (click)="showDetails(author)" style="cursor: pointer;"
-            *ngIf="author.image" />
+          <img [src]="author.image || './assets/images/avatar3.jpg'"
+               class="avatar"
+               (click)="showDetails(author)"
+               style="cursor: pointer;"
+               loading="lazy"
+               [alt]="author.name"
+               [class.loading-image]="!author.image" />
 
-          <img src="./assets/images/avatar3.jpg" class="avatar" (click)="showDetails(author)"
-            style="cursor: pointer;" *ngIf="!author.image" />
-
-          <a href="javascript:;" (click)="showDetails(author)" style="cursor: pointer;">
+          <a href="javascript:;"
+             (click)="showDetails(author)"
+             style="cursor: pointer;"
+             tabindex="0"
+             (keyup.enter)="showDetails(author)">
             <span class="title">{{author.name}}</span>
             <span class="subtitle">{{author.numBooks}} {{'locale.authors.total' | translate}}</span>
           </a>
@@ -65,16 +92,37 @@
       </div>
     </div>
 
-    <button type="button" pButton [ngClass]="'up-button'" *ngIf="showGoUpButton" (click)="scrollTop()"
-      icon="pi pi-arrow-up"></button>
+    <button type="button"
+            pButton
+            [ngClass]="'up-button'"
+            *ngIf="showGoUpButton"
+            (click)="scrollTop()"
+            icon="pi pi-arrow-up"
+            aria-label="Scroll to top"></button>
   </p-card>
 </div>
 
 <div class="book">
-  <p-dialog [(visible)]="showDetail" [modal]="true" [draggable]="false" [resizable]="false" [transitionOptions]="'0ms'">
-    <app-author (eventClose)="closeDetails()" (eventOpen)="openDetails()" (eventBook)="openBook($event)" (eventAuthor)="refreshAuthor($event)"></app-author>
+  <p-dialog [(visible)]="showDetail"
+            [modal]="true"
+            [draggable]="false"
+            [resizable]="false"
+            [transitionOptions]="'150ms'"
+            [closeOnEscape]="true">
+    <app-author (eventClose)="closeDetails()"
+                (eventOpen)="openDetails()"
+                (eventBook)="openBook($event)"
+                (eventAuthor)="refreshAuthor($event)"></app-author>
   </p-dialog>
-  <p-dialog [(visible)]="showBookDetail" [modal]="true" [draggable]="false" [resizable]="false" [transitionOptions]="'0ms'">
-    <app-detail (eventClose)="closeBookDetails()" (eventOpen)="openBookDetails()" (eventAuthor)="openAuthor($event)"></app-detail>
+
+  <p-dialog [(visible)]="showBookDetail"
+            [modal]="true"
+            [draggable]="false"
+            [resizable]="false"
+            [transitionOptions]="'150ms'"
+            [closeOnEscape]="true">
+    <app-detail (eventClose)="closeBookDetails()"
+                (eventOpen)="openBookDetails()"
+                (eventAuthor)="openAuthor($event)"></app-detail>
   </p-dialog>
 </div>
