@@ -45,7 +45,7 @@ export class LoginComponent implements OnInit {
         localStorage.setItem('password', this.user.password);
         localStorage.setItem('rememberMe', this.rememberMe.toString());
       }
-  
+
       console.log("1");
       this.loginService.login(user).subscribe({
         next: (response) => {
@@ -55,6 +55,7 @@ export class LoginComponent implements OnInit {
                 user = data;
                 user.token = response.headers.get("Authorization").slice(7);
                 sessionStorage.setItem('user', JSON.stringify(user));
+                sessionStorage.setItem('token', user.token);
                 this.translate.use(user.language);
                 this.router.navigate(["books"]);
               },
@@ -86,7 +87,7 @@ export class LoginComponent implements OnInit {
       });
     }
   }
-  
+
 
 
   validate(user: User): boolean {

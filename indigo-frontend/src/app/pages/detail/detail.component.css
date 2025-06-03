@@ -1,228 +1,823 @@
-#viewer {
-    width: 100%;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* =================================
+   ESTILOS ESPECÍFICOS DEL COMPONENTE DETAIL
+   ================================= */
+
+/* Contenedor principal del detalle */
+.book .p-card .p-card-content {
+  padding: 0.9rem 0 0.5rem 0;
 }
 
-.viewer-vertical-divider {
-    display: inherit;
+.book .p-card-title {
+  font-weight: 600 !important;
+  padding: 20px !important;
 }
 
-.viewer-horizontal-divider {
-    display: none;
+.book .p-card .p-card-body {
+  padding: 0.9rem;
+  margin-bottom: 20px;
 }
 
-.viewer-content {
-    position: relative;
+/* =================================
+   BOTONES DE ACCIÓN DEL DETALLE
+   ================================= */
+
+.book .book-title-buttons {
+  text-align: right;
+  width: 100%;
+  position: relative;
+  margin-bottom: 1rem;
 }
 
-.view-title-buttons {
-    text-align: right;
+.book .book-title-button,
+.book .p-speeddial-button {
+  background-color: transparent !important;
+  border: 1px solid transparent !important;
+  font-size: 24px !important;
+  padding-bottom: -18px;
+  bottom: 7px;
+  float: right;
+  color: #698ebf !important;
+  transition: color 0.3s !important;
+  box-shadow: none !important;
+  width: 1.8em !important;
+  margin-left: 0.5rem;
 }
 
-.overlay-left {
-    float: left;
-    left: 10px;
-    bottom: 50%;
-    position: absolute;
-    overflow: hidden;
-    opacity: 0.7;
+.book .book-title-button-favorite {
+  background-color: transparent !important;
+  border: 1px solid transparent !important;
+  font-size: 24px !important;
+  padding-bottom: -18px;
+  bottom: 7px;
+  float: right;
+  color: #f28686 !important;
+  transition: color 0.3s !important;
+  box-shadow: none !important;
+  width: 1.843em !important;
+  margin-left: 0.5rem;
 }
 
-.overlay-right {
-    text-align: right;
-    right: 10px;
-    bottom: 50%;
-    position: absolute;
-    overflow: hidden;
-    opacity: 0.7;
+.book .book-title-button:hover,
+.book .p-speeddial-button:hover {
+  color: #547eb6 !important;
+  transform: scale(1.1);
 }
 
-@media (max-width: 640px) {
+/* =================================
+   IMAGEN Y INFORMACIÓN PRINCIPAL
+   ================================= */
 
-    .overlay-left {
-        float: left;
-        padding-left: 10px;
-    }
-
-    .overlay-right {
-        text-align: right;
-        padding-right: 10px;
-    }
-
-    .viewer-vertical-divider {
-        display: none;
-    }
-
-    .viewer-horizontal-divider {
-        display: inherit;
-        width: 100%;
-    }
+.book .book-title-image {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 1rem;
 }
 
-.chapters {
-    height: 750px;
-    overflow-y: auto;
+.book .book-detail-image {
+  max-width: 100% !important;
+  height: auto !important;
+  object-fit: contain !important;
+  border-radius: 4px !important;
+  box-shadow: 0 3px 10px 0 rgba(0, 0, 0, 0.2), 0 1px 3px 0 rgba(0, 0, 0, 0.15) !important;
+  transition: transform 0.3s ease !important;
 }
 
-.ch {
-    cursor: pointer;
-    font-size: 14px;
-    margin-bottom: 5px;
+.book .book-detail-image:hover {
+  transform: scale(1.02);
 }
 
-@media (max-width: 640px) {
-    .chapters {
-        height: 300px;
-        overflow-y: auto;
-    }
+/* Información del libro */
+.book .book-detail-title {
+  color: #495057;
+  font-size: 1.5rem !important;
+  line-height: 1.3;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.8rem;
 }
 
-.content {
-    height: 712px;
+.book .book-detail-subtitle {
+  color: #698ebf;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
 }
 
-@media (max-width: 640px) {
-    .content {
-        height: 735px;
-    }
+.book .book-detail-subtitle a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.3s ease;
 }
 
-#viewer.spreads {
-    position: relative;
-    cursor: pointer;
-    margin-bottom: 0.5em;
-    height: 745px;
-    background: white;
+.book .book-detail-subtitle a:hover {
+  color: #547eb6;
+  text-decoration: underline;
 }
 
-@media (min-width: 1140px) {
-    #viewer.spreads:after {
-        position: absolute;
-        z-index: 1;
-        width: 1px;
-        border-right: 1px #000 solid;
-        height: 90%;
-        left: 50%;
-        margin-left: -1px;
-        top: 5%;
-        opacity: .15;
-        box-shadow: -2px 0 15px rgba(0, 0, 0, 1);
-        content: "";
-    }
-
-    #viewer.spreads.single:after {
-        display: none;
-    }
+.book .book-detail-series {
+  margin-bottom: 0.5rem;
+  text-align: center;
 }
 
+.book .book-detail-serie {
+  cursor: pointer;
+  text-decoration: underline;
+  color: #698ebf;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
 
+.book .book-detail-serie:hover {
+  color: #547eb6;
+}
 
+.book .book-detail-comment {
+  padding-top: 1rem;
+  text-align: justify;
+  line-height: 1.6;
+  color: #495057;
+  font-size: 0.95rem;
+}
 
-.chapter-image {
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 20%), 0 1px 1px 0 rgb(0 0 0 / 14%), 0 2px 1px -1px rgb(0 0 0 / 12%);
-    cursor: pointer;
-    margin-bottom: 0.5em;
-    max-width: 100%;
-    height: 200px;
+/* =================================
+   CONTENEDOR DE METADATA
+   ================================= */
+
+.metadata-container {
+  display: flex !important;
+  text-align: center !important;
+  overflow: auto !important;
+  width: 100% !important;
+  margin: 2rem 0 !important;
+  padding: 1.5rem !important;
+  background: #f8f9fa !important;
+  border-radius: 8px !important;
+  border: 1px solid #e9ecef !important;
 }
 
 .metadata-item {
-    width: 33%;
-}
-
-.metadata-container {
-    display: flex;
-    text-align: center;
-    overflow: auto;
-    width: 100%;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
+  width: 33% !important;
+  padding: 0 1rem !important;
+  min-width: 120px !important;
+  flex: 1 !important;
 }
 
 .metadata-title {
-    display: block;
-    font-size: 13px;
-    line-height: 1.38462;
-    font-weight: 600;
-    letter-spacing: -.005em;
-    margin-bottom: 5px;
+  display: block !important;
+  font-size: 0.8rem !important;
+  line-height: 1.4 !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  margin-bottom: 0.5rem !important;
+  color: #6c757d !important;
+  text-transform: uppercase !important;
 }
 
 .metadata-value {
-    display: block;
-    margin-bottom: 0;
-    font-size: 15px;
-    line-height: 1.25;
-    font-weight: 700;
-    letter-spacing: .023em;
+  display: block !important;
+  margin-bottom: 0.3rem !important;
+  font-size: 1rem !important;
+  line-height: 1.3 !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+  color: #495057 !important;
+}
+
+.metadata-value.p-rating {
+  justify-content: center !important;
 }
 
 .metadata-subvalue {
-    display: block;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: normal;
-    font-size: 12px;
-    line-height: 1.33337;
-    font-weight: 400;
-    letter-spacing: 0;
+  display: block !important;
+  text-overflow: ellipsis !important;
+  overflow: hidden !important;
+  white-space: normal !important;
+  font-size: 0.85rem !important;
+  line-height: 1.4 !important;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+  color: #6c757d !important;
 }
 
+.metadata-subvalue[onmouseover]:hover {
+  color: #698ebf !important;
+  cursor: pointer !important;
+}
+
+/* =================================
+   SECCIONES DE LIBROS RELACIONADOS
+   ================================= */
+
+/* Grid para libros relacionados */
+.book .content-body.p-grid.inline {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  gap: 1rem !important;
+  padding: 1rem 0.5rem !important;
+  margin: 0 !important;
+  scroll-behavior: smooth !important;
+}
+
+.book .content-body.p-grid:not(.inline) {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 1rem !important;
+  justify-content: flex-start !important;
+  padding: 1rem 0.5rem !important;
+  margin: 0 !important;
+}
+
+/* Elementos de libros relacionados */
+.book .content-body .p-sm-6,
+.book .content-body .p-md-4,
+.book .content-body .p-lg-2 {
+  flex: 0 0 auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+/* En modo inline (scroll horizontal) */
+.book .content-body.inline .p-sm-6,
+.book .content-body.inline .p-md-4,
+.book .content-body.inline .p-lg-2 {
+  min-width: 140px !important;
+  max-width: 160px !important;
+}
+
+/* En modo expandido (grid normal) */
+.book .content-body:not(.inline) .p-sm-6 {
+  width: calc(50% - 0.5rem) !important;
+  max-width: 180px !important;
+}
+
+.book .content-body:not(.inline) .p-md-4 {
+  width: calc(25% - 0.75rem) !important;
+  max-width: 200px !important;
+}
+
+.book .content-body:not(.inline) .p-lg-2 {
+  width: calc(16.666% - 0.83rem) !important;
+  max-width: 180px !important;
+}
+
+/* Imágenes de libros relacionados */
+.book .list-image {
+  width: 100% !important;
+  height: 225px !important;
+  object-fit: cover !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.15), 0 1px 3px 0 rgba(0, 0, 0, 0.2) !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.book .list-image:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.25), 0 2px 6px 0 rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Información de libros relacionados */
+.book .title {
+  color: #495057 !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.3rem !important;
+  display: block !important;
+  width: 100% !important;
+  text-overflow: ellipsis !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  font-size: 0.9rem !important;
+  text-align: center !important;
+}
+
+.book .subtitle {
+  font-weight: 500 !important;
+  font-size: 0.8rem !important;
+  color: #6c757d !important;
+  opacity: 0.8 !important;
+  margin-bottom: 0.3rem !important;
+  display: block !important;
+  width: 100% !important;
+  text-overflow: ellipsis !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+}
+
+.book .subtitle a {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+.book .subtitle a:hover {
+  color: #698ebf !important;
+  text-decoration: underline !important;
+}
+
+/* Rating en libros relacionados */
+.book .content-body .p-rating {
+  justify-content: center !important;
+  margin-top: 0.3rem !important;
+}
+
+.book .content-body .pi-comments {
+  margin-top: 0.5rem !important;
+  font-size: 0.9rem !important;
+}
+
+/* =================================
+   SECCIÓN DE COMENTARIOS/REVIEWS
+   ================================= */
+
 .review {
-    height: 100%;
-    padding: 13px 16px 16px;
-    background-color: #eceff4;
-    border-radius: 6px;
+  height: 100% !important;
+  padding: 1rem 1.2rem 1.2rem !important;
+  background-color: #f8f9fa !important;
+  border-radius: 8px !important;
+  border: 1px solid #e9ecef !important;
+  margin-bottom: 1rem !important;
+  transition: box-shadow 0.3s ease !important;
+}
+
+.review:hover {
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+.review .p-rating {
+  margin-bottom: 0.8rem !important;
 }
 
 .review-name {
-    color: #636366;
-    font-size: 0.9rem;
-    line-height: 1.33337;
-    font-weight: 600;
-    letter-spacing: 0;
-    display: block;
-    padding-top: 5px;
+  color: #6c757d !important;
+  font-size: 0.85rem !important;
+  line-height: 1.4 !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  display: block !important;
+  padding-top: 0.5rem !important;
 }
 
 .review-title {
-    font-size: 0.9rem;
-    line-height: 1.38462;
-    font-weight: 600;
-    letter-spacing: -.005em;
-    display: block;
-    padding-top: 5px;
+  font-size: 1rem !important;
+  line-height: 1.4 !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  display: block !important;
+  padding-top: 0.5rem !important;
+  color: #495057 !important;
+  margin-bottom: 0.5rem !important;
 }
 
 .review-date {
-    color: #636366;
-    font-size: 0.9re,;
-    line-height: 1.33337;
-    font-weight: 500;
-    letter-spacing: 0;
-    display: block;
-    padding-bottom: 5px;
+  color: #6c757d !important;
+  font-size: 0.8rem !important;
+  line-height: 1.4 !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.02em !important;
+  display: block !important;
+  padding-bottom: 0.5rem !important;
 }
 
 .review-comment {
-    font-size: 0.9rem;
-    line-height: 1.38462;
-    font-weight: 400;
-    letter-spacing: -.005em;
-    display: -webkit-box;
-    -webkit-line-clamp: 5;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  font-size: 0.9rem !important;
+  line-height: 1.5 !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.01em !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 5 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  color: #495057 !important;
 }
 
 .review-comment-expand {
-    display: block !important;
-    overflow: auto !important;
+  display: block !important;
+  overflow: auto !important;
+  -webkit-line-clamp: unset !important;
 }
 
+/* =================================
+   VIEWER DE EPUB
+   ================================= */
+
+#viewer {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #fff !important;
+  border-radius: 4px !important;
+}
+
+.viewer-vertical-divider {
+  display: inherit !important;
+}
+
+.viewer-horizontal-divider {
+  display: none !important;
+}
+
+.viewer-content {
+  position: relative !important;
+}
+
+.view-title-buttons {
+  text-align: right !important;
+}
+
+.overlay-left {
+  float: left !important;
+  left: 10px !important;
+  bottom: 50% !important;
+  position: absolute !important;
+  overflow: hidden !important;
+  opacity: 0.8 !important;
+  z-index: 10 !important;
+}
+
+.overlay-right {
+  text-align: right !important;
+  right: 10px !important;
+  bottom: 50% !important;
+  position: absolute !important;
+  overflow: hidden !important;
+  opacity: 0.8 !important;
+  z-index: 10 !important;
+}
+
+.overlay-left:hover,
+.overlay-right:hover {
+  opacity: 1 !important;
+}
+
+.chapters {
+  height: 750px !important;
+  overflow-y: auto !important;
+  padding: 1rem !important;
+  background: #f8f9fa !important;
+  border-radius: 4px !important;
+}
+
+.ch {
+  cursor: pointer !important;
+  font-size: 0.9rem !important;
+  margin-bottom: 0.5rem !important;
+  padding: 0.5rem !important;
+  border-radius: 3px !important;
+  transition: background-color 0.3s ease !important;
+}
+
+.ch:hover {
+  background-color: #e9ecef !important;
+  color: #698ebf !important;
+}
+
+.content {
+  height: 712px !important;
+  border: 1px solid #dee2e6 !important;
+  border-radius: 4px !important;
+  overflow: hidden !important;
+}
+
+#viewer.spreads {
+  position: relative !important;
+  cursor: pointer !important;
+  margin-bottom: 0.5em !important;
+  height: 745px !important;
+  background: white !important;
+  border-radius: 4px !important;
+}
+
+.chapter-image {
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.15), 0 1px 3px 0 rgba(0, 0, 0, 0.2) !important;
+  cursor: pointer !important;
+  margin-bottom: 0.5em !important;
+  max-width: 100% !important;
+  height: 200px !important;
+  object-fit: cover !important;
+  border-radius: 4px !important;
+}
+
+/* Línea central para modo spreads */
+@media (min-width: 1140px) {
+  #viewer.spreads:after {
+    position: absolute !important;
+    z-index: 1 !important;
+    width: 1px !important;
+    border-right: 1px #000 solid !important;
+    height: 90% !important;
+    left: 50% !important;
+    margin-left: -1px !important;
+    top: 5% !important;
+    opacity: 0.15 !important;
+    box-shadow: -2px 0 15px rgba(0, 0, 0, 1) !important;
+    content: "" !important;
+  }
+
+  #viewer.spreads.single:after {
+    display: none !important;
+  }
+}
+
+/* =================================
+   FORMULARIO DE EDICIÓN
+   ================================= */
+
 .edit-detail .p-field {
-    margin-bottom: 0px !important;
+  margin-bottom: 1rem !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.edit-detail .p-fluid .p-field > label {
+  width: 200px !important;
+  margin-right: 1rem !important;
+  font-weight: 600 !important;
+  color: #495057 !important;
+}
+
+.edit-detail .p-field .p-inputtext,
+.edit-detail .p-field .p-inputtextarea,
+.edit-detail .p-field .p-inputnumber {
+  flex: 1 !important;
+}
+
+.edit-detail .p-chips .p-chips-multiple-container {
+  min-height: 2.5rem !important;
+}
+
+/* =================================
+   RESPONSIVE DESIGN
+   ================================= */
+
+/* Móviles pequeños (menos de 480px) */
+@media (max-width: 479px) {
+  .book .book-detail-title {
+    font-size: 1.2rem !important;
+    text-align: center !important;
+  }
+
+  .book .book-detail-subtitle {
+    font-size: 1rem !important;
+    text-align: center !important;
+  }
+
+  .book .book-detail-comment {
+    font-size: 0.9rem !important;
+  }
+
+  .metadata-container {
+    flex-direction: column !important;
+    padding: 1rem !important;
+  }
+
+  .metadata-item {
+    width: 100% !important;
+    margin-bottom: 1rem !important;
+    padding: 0.5rem 0 !important;
+    border-bottom: 1px solid #e9ecef !important;
+  }
+
+  .metadata-item:last-child {
+    border-bottom: none !important;
+  }
+
+  .book .content-body.inline {
+    gap: 0.5rem !important;
+    padding: 0.5rem 0.25rem !important;
+  }
+
+  .book .content-body.inline .p-sm-6,
+  .book .content-body.inline .p-md-4,
+  .book .content-body.inline .p-lg-2 {
+    min-width: 120px !important;
+    max-width: 140px !important;
+  }
+
+  .book .list-image {
+    height: 180px !important;
+  }
+}
+
+/* Móviles (480px - 639px) */
+@media (min-width: 480px) and (max-width: 639px) {
+  .book .book-detail-title {
+    font-size: 1.3rem !important;
+  }
+
+  .metadata-container {
+    flex-wrap: wrap !important;
+  }
+
+  .metadata-item {
+    width: 50% !important;
+    margin-bottom: 1rem !important;
+  }
+}
+
+/* Tablets pequeñas (640px - 767px) */
+@media (min-width: 640px) and (max-width: 767px) {
+  .book .content-body:not(.inline) .p-sm-6 {
+    width: calc(33.333% - 0.67rem) !important;
+  }
+}
+
+/* Responsive para viewer de EPUB */
+@media (max-width: 640px) {
+  .overlay-left {
+    float: left !important;
+    padding-left: 10px !important;
+    position: relative !important;
+    bottom: auto !important;
+  }
+
+  .overlay-right {
+    text-align: right !important;
+    padding-right: 10px !important;
+    position: relative !important;
+    bottom: auto !important;
+  }
+
+  .viewer-vertical-divider {
+    display: none !important;
+  }
+
+  .viewer-horizontal-divider {
+    display: inherit !important;
+    width: 100% !important;
+  }
+
+  .chapters {
+    height: 300px !important;
+  }
+
+  .content {
+    height: 735px !important;
+  }
+}
+
+/* Responsive para móviles */
+@media (max-width: 820px) {
+  .book .book-detail-image {
+    width: 60% !important;
+    margin: 0 auto !important;
+  }
+
+  .book .book-detail-title {
+    text-align: center !important;
+  }
+
+  .book .book-detail-subtitle {
+    text-align: center !important;
+  }
+
+  .book .book-detail-series {
+    padding-top: 0px !important;
+    text-align: center !important;
+    margin-bottom: 10px !important;
+  }
+
+  .book .book-detail-serie {
+    margin-right: 0px !important;
+    text-transform: uppercase !important;
+    font-size: 0.8rem !important;
+  }
+
+  .book .p-dialog {
+    width: 100vw !important;
+    max-height: 100% !important;
+  }
+
+  .book .book-title-image {
+    width: 100% !important;
+    text-align: center !important;
+    display: inline-block !important;
+  }
+
+  .book .book-title-buttons {
+    display: block !important;
+  }
+}
+
+/* =================================
+   CLASES UTILITARIAS
+   ================================= */
+
+.pc {
+  display: inherit !important;
+}
+
+.mobile {
+  display: none !important;
+}
+
+@media (max-width: 820px) {
+  .pc {
+    display: none !important;
+  }
+
+  .mobile {
+    display: inherit !important;
+  }
+}
+
+/* =================================
+   DIÁLOGOS Y MODALES
+   ================================= */
+
+.book .p-dialog {
+  width: 90vw !important;
+  max-width: 1200px !important;
+  height: auto !important;
+}
+
+.book .p-dialog .p-dialog-content {
+  background: #eceff4 !important;
+  padding-top: 30px !important;
+}
+
+.book .p-dialog .p-dialog-header {
+  display: none !important;
+}
+
+.book .p-dialog .p-dialog-header .p-dialog-title {
+  font-weight: 600 !important;
+  font-size: 1.25rem !important;
+  padding-left: 34px !important;
+}
+
+/* =================================
+   OVERLAYS DE DIALOGS
+   ================================= */
+
+.book .p-dialog,
+.book .p-dialog-mask.p-component-overlay {
+  z-index: 1010 !important;
+}
+
+/* =================================
+   ANIMACIONES Y TRANSICIONES
+   ================================= */
+
+.book .content-body {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =================================
+   SCROLLBAR PERSONALIZADA
+   ================================= */
+
+.book .content-body.inline::-webkit-scrollbar {
+  height: 6px;
+}
+
+.book .content-body.inline::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.book .content-body.inline::-webkit-scrollbar-thumb {
+  background: #698ebf;
+  border-radius: 3px;
+}
+
+.book .content-body.inline::-webkit-scrollbar-thumb:hover {
+  background: #547eb6;
+}
+
+.chapters::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chapters::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.chapters::-webkit-scrollbar-thumb {
+  background: #698ebf;
+  border-radius: 3px;
+}
+
+.chapters::-webkit-scrollbar-thumb:hover {
+  background: #547eb6;
 }

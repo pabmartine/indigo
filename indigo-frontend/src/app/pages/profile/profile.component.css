@@ -1,0 +1,559 @@
+/* Contenedor principal del perfil */
+.profile {
+  padding: 0;
+  margin: 0 0 2rem 0;
+}
+
+.profile .p-card {
+  background: #fff;
+  border-radius: 3px;
+  box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
+}
+
+/* Encabezado */
+.profile .content-header {
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 0;
+}
+
+.profile .page-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #495057;
+  display: block;
+}
+
+.profile .page-subtitle {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #698ebf;
+  display: block;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e9ecef;
+}
+
+/* Cuerpo del contenido */
+.profile .content-body {
+  padding: 1.5rem;
+}
+
+/* Secciones de cuenta y permisos */
+.profile .account,
+.profile .permissions {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 3px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  min-height: 400px;
+}
+
+/* Campos del formulario */
+.profile .p-field {
+  margin-bottom: 1.5rem;
+}
+
+.profile .p-field:last-child {
+  margin-bottom: 0;
+}
+
+.profile .p-field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+/* Inputs de texto */
+.profile .p-inputtext {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: #fff;
+}
+
+.profile .p-inputtext:focus {
+  outline: none;
+  border-color: #698ebf;
+  box-shadow: 0 0 0 0.2rem rgba(105, 142, 191, 0.25);
+}
+
+.profile .p-inputtext[readonly] {
+  background-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Dropdown */
+.profile .p-dropdown {
+  width: 100%;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.profile .p-dropdown:not(.p-disabled):hover {
+  border-color: #698ebf;
+}
+
+.profile .p-dropdown:not(.p-disabled).p-focus {
+  outline: none;
+  border-color: #698ebf;
+  box-shadow: 0 0 0 0.2rem rgba(105, 142, 191, 0.25);
+}
+
+.profile .p-dropdown .p-dropdown-label {
+  padding: 0.75rem;
+  display: flex;
+  align-items: center;
+}
+
+/* Banderas en dropdown */
+.profile .flag {
+  width: 20px;
+  height: auto;
+  margin-right: 0.5rem;
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* MultiSelect */
+.profile .p-multiselect {
+  width: 100%;
+  min-height: 2.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.profile .p-multiselect:not(.p-disabled):hover {
+  border-color: #698ebf;
+}
+
+.profile .p-multiselect:not(.p-disabled).p-focus {
+  outline: none;
+  border-color: #698ebf;
+  box-shadow: 0 0 0 0.2rem rgba(105, 142, 191, 0.25);
+}
+
+.profile .p-multiselect .p-multiselect-label {
+  padding: 0.75rem;
+  min-height: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Tokens del multiselect */
+.profile .multiselected-item-token {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  margin: 0.125rem 0.25rem 0.125rem 0;
+  background: #698ebf;
+  color: #fff;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.profile .multiselected-empty-token {
+  display: inline-block;
+  padding: 0.25rem 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* Botones de página */
+.profile .page-buttons {
+  text-align: right;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.profile .page-button {
+  background: #698ebf;
+  border: 1px solid #698ebf;
+  color: #fff;
+  padding: 0.75rem 2rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  margin-left: 0.5rem;
+}
+
+.profile .page-button:hover:not(:disabled) {
+  background: #547eb6;
+  border-color: #547eb6;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(105, 142, 191, 0.3);
+}
+
+.profile .page-button:active {
+  background: #4770a6;
+  border-color: #4770a6;
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(105, 142, 191, 0.3);
+}
+
+.profile .page-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(105, 142, 191, 0.5);
+}
+
+.profile .page-button:disabled {
+  background: #e9ecef;
+  border-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Sección de libros */
+.book {
+  padding: 0;
+  margin: 2rem 0 0 0;
+}
+
+.book .p-card {
+  background: #fff;
+  border-radius: 3px;
+  box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
+}
+
+.book .content-header {
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 0;
+}
+
+.book .content-body {
+  padding: 1.5rem;
+}
+
+/* Grid de libros */
+.book .content-body > div {
+  padding: 0.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Imágenes de libros */
+.book .list-image {
+  width: 120px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+}
+
+.book .list-image:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Títulos y autores de libros */
+.book .title {
+  display: block;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.3rem;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  text-align: center;
+  width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.book .subtitle {
+  display: block;
+  font-size: 0.75rem;
+  color: #6c757d;
+  line-height: 1.2;
+  text-align: center;
+  width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.book .subtitle a {
+  color: #698ebf;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.book .subtitle a:hover {
+  color: #547eb6;
+  text-decoration: underline;
+}
+
+/* Estilos responsivos */
+@media (max-width: 1200px) {
+  .book .list-image {
+    width: 110px;
+    height: 165px;
+  }
+
+  .book .title,
+  .book .subtitle {
+    width: 110px;
+  }
+}
+
+@media (max-width: 992px) {
+  .profile .content-header,
+  .profile .content-body,
+  .book .content-header,
+  .book .content-body {
+    padding: 1rem;
+  }
+
+  .profile .account,
+  .profile .permissions {
+    padding: 1rem;
+    min-height: auto;
+    margin-bottom: 1rem;
+  }
+
+  .profile .page-title {
+    font-size: 1.3rem;
+  }
+
+  .profile .page-subtitle {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+
+  .book .list-image {
+    width: 100px;
+    height: 150px;
+  }
+
+  .book .title,
+  .book .subtitle {
+    width: 100px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile .content-header,
+  .profile .content-body,
+  .book .content-header,
+  .book .content-body {
+    padding: 0.75rem;
+  }
+
+  .profile .account,
+  .profile .permissions {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .profile .page-title {
+    font-size: 1.2rem;
+  }
+
+  .profile .page-subtitle {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .profile .p-field {
+    margin-bottom: 1rem;
+  }
+
+  .profile .p-field label {
+    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .profile .p-inputtext,
+  .profile .p-dropdown .p-dropdown-label {
+    padding: 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .profile .page-button {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.85rem;
+    width: 100%;
+    margin: 0.25rem 0;
+  }
+
+  .profile .page-buttons {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+  }
+
+  .book .list-image {
+    width: 90px;
+    height: 135px;
+  }
+
+  .book .title,
+  .book .subtitle {
+    width: 90px;
+    font-size: 0.75rem;
+  }
+
+  .profile .multiselected-item-token {
+    padding: 0.2rem 0.4rem;
+    margin: 0.1rem 0.2rem 0.1rem 0;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .profile .content-header,
+  .profile .content-body,
+  .book .content-header,
+  .book .content-body {
+    padding: 0.5rem;
+  }
+
+  .profile .account,
+  .profile .permissions {
+    padding: 0.5rem;
+  }
+
+  .profile .page-title {
+    font-size: 1.1rem;
+  }
+
+  .profile .page-subtitle {
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .profile .p-field {
+    margin-bottom: 0.75rem;
+  }
+
+  .profile .p-inputtext,
+  .profile .p-dropdown .p-dropdown-label {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .profile .page-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  .book .content-body > div {
+    padding: 0.25rem;
+  }
+
+  .book .list-image {
+    width: 80px;
+    height: 120px;
+  }
+
+  .book .title,
+  .book .subtitle {
+    width: 80px;
+    font-size: 0.7rem;
+  }
+}
+
+/* Animaciones */
+.profile .account,
+.profile .permissions {
+  animation: slideInUp 0.3s ease-out;
+}
+
+.book .content-body > div {
+  animation: fadeInScale 0.3s ease-out;
+  animation-fill-mode: both;
+}
+
+.book .content-body > div:nth-child(1) { animation-delay: 0.05s; }
+.book .content-body > div:nth-child(2) { animation-delay: 0.1s; }
+.book .content-body > div:nth-child(3) { animation-delay: 0.15s; }
+.book .content-body > div:nth-child(4) { animation-delay: 0.2s; }
+.book .content-body > div:nth-child(5) { animation-delay: 0.25s; }
+.book .content-body > div:nth-child(6) { animation-delay: 0.3s; }
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Estados de carga */
+.profile .loading .p-inputtext,
+.profile .loading .p-dropdown,
+.profile .loading .p-multiselect {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Mejoras de accesibilidad */
+.profile .p-field label {
+  cursor: pointer;
+}
+
+.profile .p-inputtext:focus,
+.profile .p-dropdown.p-focus,
+.profile .p-multiselect.p-focus {
+  position: relative;
+  z-index: 1;
+}
+
+/* Estados de validación */
+.profile .p-invalid .p-inputtext,
+.profile .p-invalid .p-dropdown,
+.profile .p-invalid .p-multiselect {
+  border-color: #d57c7c;
+}
+
+.profile .p-invalid .p-inputtext:focus,
+.profile .p-invalid .p-dropdown:focus,
+.profile .p-invalid .p-multiselect:focus {
+  box-shadow: 0 0 0 0.2rem rgba(213, 124, 124, 0.25);
+}

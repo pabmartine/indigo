@@ -19,7 +19,7 @@ data:
     default-image: https://s.gr-assets.com/assets/nophoto/user/u_200x266-e183445fd1a1b5cc7075bb1cf7043306.png
 
 jwt:
-  criptKey: '&8e#tGj$45JSGSma'
+  criptKey: 'u7N!fXr#5QeB@3yZpWcLm9DvTgHsKxRq'
   expiration: 36000000
 
 server:

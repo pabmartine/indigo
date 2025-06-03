@@ -21,16 +21,14 @@
                [alt]="book.title"
                [class.loading-image]="!book.image" />
         </div>
-        <div>
+        <div class="book-info">
           <span class="title">{{book.title}}</span>
-        </div>
-        <div>
           <span class="subtitle">
             <a href="javascript:;" (click)="openAuthor(book.authors[0])">{{book.authors[0]}}</a>
           </span>
-        </div>
-        <div *ngIf="book.rating">
-          <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+          <div *ngIf="book.rating">
+            <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+          </div>
         </div>
       </div>
     </div>
@@ -69,23 +67,21 @@
                [alt]="book.title"
                [class.loading-image]="!book.image" />
         </div>
-        <div>
+        <div class="book-info">
           <span class="title">{{book.title}}</span>
-        </div>
-        <div>
           <span class="subtitle">
             <a href="javascript:;" (click)="openAuthor(book.authors[0])">{{book.authors[0]}}</a>
           </span>
-        </div>
-        <div *ngIf="book.rating">
-          <p-rating [ngModel]="book.rating"
-                    readonly="true"
-                    stars="5"
-                    [cancel]="false"
-                    style="display: inline-block;"></p-rating>
-          <i class="pi pi-comments"
-             style="float: right; color: burlywood"
-             *ngIf="book.reviews"></i>
+          <div *ngIf="book.rating" class="rating-container">
+            <p-rating [ngModel]="book.rating"
+                      readonly="true"
+                      stars="5"
+                      [cancel]="false"
+                      style="display: inline-block;"></p-rating>
+            <i class="pi pi-comments"
+               style="float: right; color: burlywood; margin-top: 2px;"
+               *ngIf="book.reviews"></i>
+          </div>
         </div>
       </div>
     </div>

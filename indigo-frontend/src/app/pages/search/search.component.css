@@ -1,0 +1,353 @@
+/* Contenedor principal de búsqueda */
+.search {
+  padding: 0;
+  margin: 0;
+}
+
+.search .p-card {
+  background: #fff;
+  border-radius: 3px;
+  box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
+}
+
+/* Encabezado del formulario */
+.search .content-header {
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 0;
+}
+
+.search .page-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #495057;
+  display: block;
+}
+
+/* Cuerpo del formulario */
+.search .content-body {
+  padding: 1.5rem;
+}
+
+/* Campos del formulario */
+.search .p-field {
+  margin-bottom: 1.5rem;
+}
+
+.search .p-field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+/* Inputs de texto */
+.search .p-inputtext {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: #fff;
+}
+
+.search .p-inputtext:focus {
+  outline: none;
+  border-color: #698ebf;
+  box-shadow: 0 0 0 0.2rem rgba(105, 142, 191, 0.25);
+}
+
+/* Calendarios */
+.search .p-calendar {
+  width: 100%;
+}
+
+.search .p-calendar .p-inputtext {
+  width: 100%;
+  padding-right: 2.5rem;
+}
+
+.search .p-calendar .p-datepicker-trigger {
+  right: 0.75rem;
+  color: #6c757d;
+}
+
+/* Input numbers */
+.search .p-inputnumber {
+  width: 100%;
+}
+
+.search .p-inputnumber .p-inputtext {
+  width: 100%;
+}
+
+/* MultiSelect */
+.search .p-multiselect {
+  width: 100%;
+  min-height: 2.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 3px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search .p-multiselect:not(.p-disabled):hover {
+  border-color: #698ebf;
+}
+
+.search .p-multiselect:not(.p-disabled).p-focus {
+  outline: none;
+  border-color: #698ebf;
+  box-shadow: 0 0 0 0.2rem rgba(105, 142, 191, 0.25);
+}
+
+.search .p-multiselect .p-multiselect-label {
+  padding: 0.75rem;
+  min-height: auto;
+}
+
+/* Tokens del multiselect */
+.search .multiselected-item-token {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  margin: 0.125rem 0.25rem 0.125rem 0;
+  background: #698ebf;
+  color: #fff;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  vertical-align: middle;
+}
+
+.search .multiselected-empty-token {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  margin: 0.125rem 0.25rem 0.125rem 0;
+  background: transparent;
+  color: #6c757d;
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+/* Panel del multiselect */
+.search .p-multiselect-panel {
+  min-width: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.search .p-multiselect-panel .p-multiselect-items {
+  padding: 0.5rem 0;
+}
+
+.search .p-multiselect-panel .p-multiselect-item {
+  padding: 0.5rem 0.75rem;
+  margin: 0;
+  border: none;
+  color: #495057;
+  background: transparent;
+  transition: background-color 0.2s;
+  border-radius: 0;
+}
+
+.search .p-multiselect-panel .p-multiselect-item:hover {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.search .p-multiselect-panel .p-multiselect-item.p-highlight {
+  background: #698ebf;
+  color: #fff;
+}
+
+/* Botón de búsqueda */
+.search .right {
+  text-align: right;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.search .search-button {
+  background: #698ebf;
+  border: 1px solid #698ebf;
+  color: #fff;
+  padding: 0.75rem 2rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 3px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  min-width: 120px;
+}
+
+.search .search-button:hover {
+  background: #547eb6;
+  border-color: #547eb6;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(105, 142, 191, 0.3);
+}
+
+.search .search-button:active {
+  background: #4770a6;
+  border-color: #4770a6;
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(105, 142, 191, 0.3);
+}
+
+.search .search-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(105, 142, 191, 0.5);
+}
+
+/* Estados de validación */
+.search .p-invalid .p-inputtext,
+.search .p-invalid .p-multiselect,
+.search .p-invalid .p-calendar .p-inputtext {
+  border-color: #d57c7c;
+}
+
+.search .p-invalid .p-inputtext:focus,
+.search .p-invalid .p-multiselect:focus,
+.search .p-invalid .p-calendar .p-inputtext:focus {
+  box-shadow: 0 0 0 0.2rem rgba(213, 124, 124, 0.25);
+}
+
+/* Estilos responsivos */
+@media (max-width: 992px) {
+  .search .content-header {
+    padding: 1rem 1rem 0.75rem 1rem;
+  }
+
+  .search .content-body {
+    padding: 1rem;
+  }
+
+  .search .page-title {
+    font-size: 1.3rem;
+  }
+
+  .search .p-field {
+    margin-bottom: 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .search .content-header {
+    padding: 0.75rem;
+  }
+
+  .search .content-body {
+    padding: 0.75rem;
+  }
+
+  .search .page-title {
+    font-size: 1.2rem;
+  }
+
+  .search .p-field {
+    margin-bottom: 1rem;
+  }
+
+  .search .p-field label {
+    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .search .p-inputtext {
+    padding: 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .search .search-button {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.85rem;
+    width: 100%;
+  }
+
+  .search .right {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+  }
+
+  .search .multiselected-item-token {
+    padding: 0.2rem 0.4rem;
+    margin: 0.1rem 0.2rem 0.1rem 0;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .search .content-header,
+  .search .content-body {
+    padding: 0.5rem;
+  }
+
+  .search .page-title {
+    font-size: 1.1rem;
+  }
+
+  .search .p-field {
+    margin-bottom: 0.75rem;
+  }
+
+  .search .p-inputtext {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .search .search-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Animaciones */
+.search .p-field {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Focus ring personalizado */
+.search .p-inputtext:focus,
+.search .p-multiselect.p-focus,
+.search .p-calendar.p-focus .p-inputtext {
+  position: relative;
+}
+
+/* Mejoras de accesibilidad */
+.search .p-field label {
+  cursor: pointer;
+}
+
+.search .p-inputtext:disabled,
+.search .p-multiselect.p-disabled {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Loading state */
+.search .p-inputtext.loading,
+.search .p-multiselect.loading {
+  background-image: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

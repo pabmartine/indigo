@@ -1,0 +1,550 @@
+/* =================================
+   ESTILOS ESPECÍFICOS DEL COMPONENTE CATEGORIES
+   ================================= */
+
+/* Contenedor principal del componente tag */
+.tag .p-card .p-card-content {
+  padding: 0.9rem 0 0.5rem 0;
+}
+
+.tag .p-card-title {
+  font-weight: 600 !important;
+  padding: 20px !important;
+}
+
+.tag .p-card .p-card-body {
+  padding: 0.9rem;
+  margin-bottom: 20px;
+}
+
+/* =================================
+   GRID SYSTEM RESPONSIVE CATEGORIES
+   ================================= */
+
+/* Grid container para mejor control */
+.tag .content-body.p-grid {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 1rem !important;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+  margin: 0 !important;
+  padding: 1rem 0.5rem !important;
+}
+
+/* Reset de PrimeNG grid classes para categories */
+.tag .content-body .p-sm-6,
+.tag .content-body .p-md-4,
+.tag .content-body .p-lg-3,
+.tag .content-body .p-xl-2 {
+  flex: 0 0 auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  position: relative !important;
+}
+
+/* MÓVILES MUY PEQUEÑOS - 1 columna */
+.tag .content-body .p-sm-6,
+.tag .content-body .p-md-4,
+.tag .content-body .p-lg-3,
+.tag .content-body .p-xl-2 {
+  width: 100% !important;
+  max-width: 400px !important;
+  min-width: 280px !important;
+}
+
+/* MÓVILES PEQUEÑOS (480px+) - 1 columna más ancha */
+@media screen and (min-width: 480px) {
+  .tag .content-body .p-sm-6,
+  .tag .content-body .p-md-4,
+  .tag .content-body .p-lg-3,
+  .tag .content-body .p-xl-2 {
+    width: 100% !important;
+    max-width: 450px !important;
+    min-width: 320px !important;
+  }
+}
+
+/* TABLETS PEQUEÑAS (640px+) - 2 columnas */
+@media screen and (min-width: 640px) {
+  .tag .content-body .p-sm-6,
+  .tag .content-body .p-md-4,
+  .tag .content-body .p-lg-3,
+  .tag .content-body .p-xl-2 {
+    width: calc(50% - 0.5rem) !important;
+    max-width: 350px !important;
+    min-width: 280px !important;
+  }
+}
+
+/* TABLETS (768px+) - 3 columnas */
+@media screen and (min-width: 768px) {
+  .tag .content-body .p-md-4,
+  .tag .content-body .p-lg-3,
+  .tag .content-body .p-xl-2 {
+    width: calc(33.333% - 0.67rem) !important;
+    max-width: 320px !important;
+    min-width: 250px !important;
+  }
+}
+
+/* DESKTOP PEQUEÑO (992px+) - 4 columnas */
+@media screen and (min-width: 992px) {
+  .tag .content-body .p-lg-3,
+  .tag .content-body .p-xl-2 {
+    width: calc(25% - 0.75rem) !important;
+    max-width: 300px !important;
+    min-width: 240px !important;
+  }
+}
+
+/* DESKTOP MEDIANO (1200px+) - 5 columnas */
+@media screen and (min-width: 1200px) {
+  .tag .content-body .p-xl-2 {
+    width: calc(20% - 0.8rem) !important;
+    max-width: 280px !important;
+    min-width: 220px !important;
+  }
+}
+
+/* DESKTOP GRANDE (1600px+) - 6 columnas */
+@media screen and (min-width: 1600px) {
+  .tag .content-body .p-xl-2 {
+    width: calc(16.666% - 0.83rem) !important;
+    max-width: 245px !important;
+    min-width: 200px !important;
+  }
+}
+
+/* =================================
+   CONTENEDOR DE CATEGORÍA
+   ================================= */
+
+.tag .container {
+  height: 180px !important;
+  position: relative !important;
+  box-shadow: 0 3px 10px 0 rgba(0, 0, 0, 0.2), 0 1px 3px 0 rgba(0, 0, 0, 0.15) !important;
+  cursor: pointer !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+  width: 100% !important;
+}
+
+.tag .container:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.3), 0 3px 8px 0 rgba(0, 0, 0, 0.2) !important;
+}
+
+/* =================================
+   IMAGEN DE FONDO DE CATEGORÍA
+   ================================= */
+
+.tag .tag-list-image {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  z-index: 1 !important;
+  transition: transform 0.3s ease !important;
+}
+
+.tag .container:hover .tag-list-image {
+  transform: scale(1.05) !important;
+}
+
+/* =================================
+   OVERLAYS DE TEXTO
+   ================================= */
+
+/* Overlay superior con título y menú */
+.tag .tag1 {
+  width: 100% !important;
+  position: absolute !important;
+  top: 0px !important;
+  z-index: 990 !important;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 70%, transparent 100%) !important;
+  color: #FFFFFF !important;
+  padding: 1rem !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-start !important;
+}
+
+/* Overlay inferior con subtítulo */
+.tag .tag2 {
+  width: 100% !important;
+  position: absolute !important;
+  bottom: 0px !important;
+  z-index: 990 !important;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 70%, transparent 100%) !important;
+  color: #FFFFFF !important;
+  padding: 1rem !important;
+  cursor: pointer !important;
+}
+
+/* =================================
+   TEXTO DE CATEGORÍAS
+   ================================= */
+
+.tag .tag-title {
+  color: #fff !important;
+  font-size: 1rem !important;
+  line-height: 1.3 !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  display: block !important;
+  cursor: pointer !important;
+  transition: color 0.3s ease !important;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7) !important;
+  flex: 1 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+}
+
+.tag .tag-title:hover {
+  color: #e9ecef !important;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.9) !important;
+}
+
+.tag .tag-subtitle {
+  color: #fff !important;
+  font-size: 0.9rem !important;
+  line-height: 1.4 !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.02em !important;
+  display: block !important;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7) !important;
+  opacity: 0.95 !important;
+}
+
+/* =================================
+   ICONO DE MENÚ
+   ================================= */
+
+.tag .tag-list-icon {
+  color: #fff !important;
+  font-size: 1.2rem !important;
+  padding: 0.5rem !important;
+  border-radius: 50% !important;
+  background: rgba(0, 0, 0, 0.3) !important;
+  transition: background-color 0.3s ease, transform 0.3s ease !important;
+  cursor: pointer !important;
+  backdrop-filter: blur(4px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.tag .tag-list-icon:hover {
+  background: rgba(0, 0, 0, 0.6) !important;
+  transform: scale(1.1) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* =================================
+   RESPONSIVE DESIGN PARA CATEGORIES
+   ================================= */
+
+/* Móviles pequeños (menos de 480px) */
+@media (max-width: 479px) {
+  .tag .content-body.p-grid {
+    gap: 0.8rem !important;
+    padding: 0.8rem 0.3rem !important;
+  }
+
+  .tag .container {
+    height: 160px !important;
+  }
+
+  .tag .tag1,
+  .tag .tag2 {
+    padding: 0.8rem !important;
+  }
+
+  .tag .tag-title {
+    font-size: 0.9rem !important;
+  }
+
+  .tag .tag-subtitle {
+    font-size: 0.8rem !important;
+  }
+
+  .tag .tag-list-icon {
+    font-size: 1rem !important;
+    padding: 0.4rem !important;
+  }
+}
+
+/* Móviles (480px - 639px) */
+@media (min-width: 480px) and (max-width: 639px) {
+  .tag .container {
+    height: 170px !important;
+  }
+
+  .tag .tag-title {
+    font-size: 0.95rem !important;
+  }
+
+  .tag .tag-subtitle {
+    font-size: 0.85rem !important;
+  }
+}
+
+/* Tablets pequeñas (640px - 767px) */
+@media (min-width: 640px) and (max-width: 767px) {
+  .tag .container {
+    height: 175px !important;
+  }
+}
+
+/* Tablets (768px - 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+  .tag .container {
+    height: 180px !important;
+  }
+
+  .tag .tag-title {
+    font-size: 1rem !important;
+  }
+
+  .tag .tag-subtitle {
+    font-size: 0.9rem !important;
+  }
+}
+
+/* Desktop pequeño (992px - 1199px) */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .tag .container {
+    height: 185px !important;
+  }
+}
+
+/* Desktop mediano (1200px - 1599px) */
+@media (min-width: 1200px) and (max-width: 1599px) {
+  .tag .container {
+    height: 190px !important;
+  }
+
+  .tag .tag-title {
+    font-size: 1.05rem !important;
+  }
+}
+
+/* Desktop grande (1600px+) */
+@media (min-width: 1600px) {
+  .tag .container {
+    height: 185px !important;
+  }
+}
+
+/* =================================
+   DIÁLOGOS DE ACCIONES
+   ================================= */
+
+.tag-dialogs .p-dropdown {
+  width: 100% !important;
+}
+
+.tag-dialogs .p-dialog {
+  border-radius: 8px !important;
+}
+
+.tag-dialogs .p-dialog .p-dialog-header {
+  background: #698ebf !important;
+  color: #fff !important;
+  border-top-left-radius: 8px !important;
+  border-top-right-radius: 8px !important;
+}
+
+.tag-dialogs .p-dialog .p-dialog-content {
+  padding: 2rem !important;
+}
+
+.tag-dialogs .p-dialog .p-dialog-footer {
+  padding: 1rem 2rem !important;
+  border-top: 1px solid #e9ecef !important;
+}
+
+/* Formularios en diálogos */
+.tag-dialogs .rename,
+.tag-dialogs .merge,
+.tag-dialogs .image {
+  padding: 0 !important;
+}
+
+.tag-dialogs .p-field {
+  margin-bottom: 1.5rem !important;
+}
+
+.tag-dialogs .p-field label {
+  display: block !important;
+  margin-bottom: 0.5rem !important;
+  font-weight: 600 !important;
+  color: #495057 !important;
+}
+
+.tag-dialogs .p-field input,
+.tag-dialogs .p-field .p-dropdown {
+  width: 100% !important;
+}
+
+.tag-dialogs .resume {
+  padding-top: 1rem !important;
+  margin-top: 1rem !important;
+  border-top: 1px solid #e9ecef !important;
+}
+
+/* =================================
+   MENÚ CONTEXTUAL
+   ================================= */
+
+.tag .p-tieredmenu {
+  border-radius: 6px !important;
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid #e9ecef !important;
+}
+
+.tag .p-tieredmenu .p-menuitem-link {
+  padding: 0.8rem 1rem !important;
+  transition: background-color 0.3s ease !important;
+}
+
+.tag .p-tieredmenu .p-menuitem-link:hover {
+  background: #f8f9fa !important;
+}
+
+.tag .p-tieredmenu .p-menuitem-icon {
+  margin-right: 0.5rem !important;
+  color: #698ebf !important;
+}
+
+/* =================================
+   ESTADOS ESPECIALES
+   ================================= */
+
+/* Categoría sin imagen */
+.tag .container .tag-list-image[src*="unknown.jpg"] {
+  opacity: 0.7 !important;
+  filter: grayscale(20%) !important;
+}
+
+/* Estado de carga */
+.tag .container.loading {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%) !important;
+  background-size: 200% 100% !important;
+  animation: skeleton-loading 1.5s infinite !important;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* =================================
+   ACCESIBILIDAD
+   ================================= */
+
+.tag .container:focus {
+  outline: 2px solid #698ebf !important;
+  outline-offset: 2px !important;
+}
+
+.tag .tag-title:focus,
+.tag .tag-list-icon:focus {
+  outline: 2px solid #fff !important;
+  outline-offset: 2px !important;
+  border-radius: 3px !important;
+}
+
+/* =================================
+   ANIMACIONES MEJORADAS
+   ================================= */
+
+.tag .container {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Efecto de pulsación en click */
+.tag .container:active {
+  transform: scale(0.98) !important;
+}
+
+/* =================================
+   OPTIMIZACIONES DE RENDIMIENTO
+   ================================= */
+
+.tag .content-body {
+  will-change: transform;
+  contain: layout;
+}
+
+.tag .container {
+  will-change: transform;
+}
+
+.tag .tag-list-image {
+  will-change: transform;
+}
+
+/* =================================
+   MEJORAS VISUALES
+   ================================= */
+
+/* Backdrop filter para mejor legibilidad del texto */
+.tag .tag1,
+.tag .tag2 {
+  backdrop-filter: blur(2px) !important;
+}
+
+/* Sombra de texto mejorada para contraste */
+.tag .tag-title,
+.tag .tag-subtitle {
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8), 0 0 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Border sutil para definir mejor los contenedores */
+.tag .container {
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+/* =================================
+   RESPONSIVE PARA MÓVILES
+   ================================= */
+
+@media (max-width: 820px) {
+  .tag .tag-dialogs .p-dialog {
+    width: 95vw !important;
+    max-width: none !important;
+  }
+
+  .tag .tag-dialogs .p-dialog .p-dialog-content {
+    padding: 1rem !important;
+  }
+
+  .tag .tag-dialogs .p-dialog .p-dialog-footer {
+    padding: 1rem !important;
+  }
+}

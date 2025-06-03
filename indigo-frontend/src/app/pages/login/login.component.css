@@ -1,0 +1,572 @@
+/* =================================
+   ESTILOS DEL COMPONENTE LOGIN
+   ================================= */
+
+/* Contenedor principal del login */
+.login {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #eceff4 0%, #e0e6ed 100%);
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+/* Card del login */
+.login .p-card {
+  width: 100%;
+  max-width: 400px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.06);
+  border: none;
+  overflow: hidden;
+}
+
+.login .p-card .p-card-body {
+  padding: 2.5rem 2rem;
+}
+
+.login .p-card .p-card-content {
+  padding: 0;
+}
+
+/* Título del login */
+.login .title {
+  display: block;
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 2rem;
+  letter-spacing: -0.01em;
+}
+
+/* Contenedor de datos del login */
+.login .login-data {
+  width: 100%;
+  padding: 0;
+}
+
+.login .login-data .p-col-12 {
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+.login .login-data .p-col-12:last-child {
+  margin-bottom: 0;
+}
+
+/* =================================
+   INPUT GROUPS
+   ================================= */
+
+.login .p-inputgroup {
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+}
+
+.login .p-inputgroup .p-inputtext,
+.login .p-inputgroup .p-password input {
+  flex: 1;
+  padding: 0.875rem 1rem;
+  font-size: 0.95rem;
+  border: 1px solid #ced4da;
+  border-right: none;
+  border-radius: 6px 0 0 6px;
+  background: #fff;
+  color: #495057;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.login .p-inputgroup .p-inputtext:focus,
+.login .p-inputgroup .p-password input:focus {
+  outline: none;
+  border-color: #698ebf;
+  box-shadow: 0 0 0 0.2rem rgba(105, 142, 191, 0.25);
+  z-index: 2;
+}
+
+.login .p-inputgroup .p-inputtext::placeholder,
+.login .p-inputgroup .p-password input::placeholder {
+  color: #8e9ba8;
+  font-style: italic;
+}
+
+/* Input group addons (iconos) */
+.login .p-inputgroup-addon {
+  background: #f8f9fa;
+  border: 1px solid #ced4da;
+  border-left: none;
+  border-radius: 0 6px 6px 0;
+  padding: 0.875rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3rem;
+  transition: all 0.3s ease;
+}
+
+.login .p-inputgroup:focus-within .p-inputgroup-addon {
+  border-color: #698ebf;
+  background: #f0f4f8;
+}
+
+.login .p-inputgroup-addon i {
+  color: #6c757d;
+  font-size: 1.1rem;
+  transition: color 0.3s ease;
+}
+
+.login .p-inputgroup:focus-within .p-inputgroup-addon i {
+  color: #698ebf;
+}
+
+/* =================================
+   PASSWORD FIELD
+   ================================= */
+
+.login .p-password {
+  width: 100%;
+  display: flex;
+}
+
+.login .p-password .p-password-input {
+  flex: 1;
+}
+
+.login .p-password .p-password-toggle-mask {
+  position: absolute;
+  right: 3.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: color 0.3s ease;
+  z-index: 3;
+}
+
+.login .p-password .p-password-toggle-mask:hover {
+  color: #698ebf;
+}
+
+/* =================================
+   REMEMBER ME
+   ================================= */
+
+.login .left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem !important;
+}
+
+.login .remember-me {
+  font-size: 0.9rem;
+  color: #6c757d;
+  font-weight: 500;
+  order: 2;
+}
+
+.login .p-checkbox {
+  order: 1;
+  width: 18px;
+  height: 18px;
+}
+
+.login .p-checkbox .p-checkbox-box {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #ced4da;
+  border-radius: 4px;
+  background: #fff;
+  transition: all 0.3s ease;
+}
+
+.login .p-checkbox .p-checkbox-box:not(.p-disabled):hover {
+  border-color: #698ebf;
+  background: #f8f9fa;
+}
+
+.login .p-checkbox .p-checkbox-box.p-highlight {
+  background: #698ebf;
+  border-color: #698ebf;
+}
+
+.login .p-checkbox .p-checkbox-box.p-highlight .p-checkbox-icon {
+  color: #fff;
+  font-size: 0.8rem;
+}
+
+.login .p-checkbox .p-checkbox-box:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(105, 142, 191, 0.25);
+}
+
+/* =================================
+   BOTÓN DE LOGIN
+   ================================= */
+
+.login button[type="button"] {
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #698ebf 0%, #547eb6 100%);
+  border: 1px solid #698ebf;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.login button[type="button"]:hover {
+  background: linear-gradient(135deg, #547eb6 0%, #4770a6 100%);
+  border-color: #547eb6;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(105, 142, 191, 0.4);
+}
+
+.login button[type="button"]:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(105, 142, 191, 0.3);
+}
+
+.login button[type="button"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(105, 142, 191, 0.5);
+}
+
+.login button[type="button"]:disabled {
+  background: #e9ecef;
+  border-color: #e9ecef;
+  color: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Efecto ripple en el botón */
+.login button[type="button"]::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease;
+}
+
+.login button[type="button"]:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* =================================
+   MENSAJES DE ERROR
+   ================================= */
+
+.login .error {
+  width: 100%;
+  max-width: 450px;
+  margin-top: 1.5rem;
+  padding: 0;
+}
+
+.login .error .p-messages {
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.login .error .p-message {
+  border-radius: 6px;
+  margin: 0;
+  animation: slideDown 0.3s ease-out;
+}
+
+.login .error .p-message.p-message-error {
+  background: #fee;
+  border: 1px solid #fcc;
+  color: #c33;
+}
+
+.login .error .p-message .p-message-wrapper {
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+}
+
+.login .error .p-message .p-message-icon {
+  font-size: 1.2rem;
+  margin-right: 0.75rem;
+}
+
+.login .error .p-message .p-message-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+  flex: 1;
+}
+
+/* =================================
+   RESPONSIVE DESIGN
+   ================================= */
+
+@media (max-width: 640px) {
+  .login {
+    padding: 1rem;
+    height: 100vh;
+  }
+
+  .login .p-card {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .login .p-card .p-card-body {
+    padding: 2rem 1.5rem;
+  }
+
+  .login .title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .login .p-inputgroup .p-inputtext,
+  .login .p-inputgroup .p-password input {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.9rem;
+  }
+
+  .login .p-inputgroup-addon {
+    padding: 0.75rem 0.875rem;
+    min-width: 2.75rem;
+  }
+
+  .login button[type="button"] {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+  }
+
+  .login .error {
+    max-width: 100%;
+    margin-top: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .login .p-card .p-card-body {
+    padding: 1.5rem 1rem;
+  }
+
+  .login .title {
+    font-size: 1.3rem;
+  }
+
+  .login .login-data .p-col-12 {
+    margin-bottom: 1.25rem;
+  }
+
+  .login .p-inputgroup .p-inputtext,
+  .login .p-inputgroup .p-password input {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .login .p-inputgroup-addon {
+    padding: 0.625rem 0.75rem;
+    min-width: 2.5rem;
+  }
+
+  .login .p-inputgroup-addon i {
+    font-size: 1rem;
+  }
+
+  .login button[type="button"] {
+    padding: 0.625rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .login .remember-me {
+    font-size: 0.85rem;
+  }
+}
+
+/* =================================
+   ANIMACIONES
+   ================================= */
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login .p-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animación de focus en inputs */
+.login .p-inputgroup .p-inputtext:focus,
+.login .p-inputgroup .p-password input:focus {
+  animation: focusPulse 0.3s ease-out;
+}
+
+@keyframes focusPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(105, 142, 191, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 0.5rem rgba(105, 142, 191, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(105, 142, 191, 0);
+  }
+}
+
+/* =================================
+   ESTADOS DE CARGA
+   ================================= */
+
+.login.loading button[type="button"] {
+  position: relative;
+  color: transparent;
+}
+
+.login.loading button[type="button"]::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* =================================
+   MEJORAS DE ACCESIBILIDAD
+   ================================= */
+
+.login .p-inputtext:focus,
+.login .p-password input:focus,
+.login .p-checkbox .p-checkbox-box:focus,
+.login button:focus {
+  position: relative;
+  z-index: 10;
+}
+
+/* Estados de validación */
+.login .p-invalid .p-inputtext,
+.login .p-invalid .p-password input {
+  border-color: #d57c7c;
+}
+
+.login .p-invalid .p-inputtext:focus,
+.login .p-invalid .p-password input:focus {
+  box-shadow: 0 0 0 0.2rem rgba(213, 124, 124, 0.25);
+}
+
+.login .p-invalid .p-inputgroup-addon {
+  border-color: #d57c7c;
+  background: #fdf2f2;
+}
+
+.login .p-invalid .p-inputgroup-addon i {
+  color: #d57c7c;
+}
+
+/* =================================
+   DARK MODE SUPPORT (OPCIONAL)
+   ================================= */
+
+@media (prefers-color-scheme: dark) {
+  .login {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  }
+
+  .login .p-card {
+    background: #34495e;
+    color: #ecf0f1;
+  }
+
+  .login .title {
+    color: #ecf0f1;
+  }
+
+  .login .p-inputgroup .p-inputtext,
+  .login .p-inputgroup .p-password input {
+    background: #2c3e50;
+    border-color: #4a5f7a;
+    color: #ecf0f1;
+  }
+
+  .login .p-inputgroup .p-inputtext::placeholder,
+  .login .p-inputgroup .p-password input::placeholder {
+    color: #95a5a6;
+  }
+
+  .login .p-inputgroup-addon {
+    background: #2c3e50;
+    border-color: #4a5f7a;
+  }
+
+  .login .remember-me {
+    color: #bdc3c7;
+  }
+}
+
+/* =================================
+   UTILIDADES
+   ================================= */
+
+.login .p-fluid {
+  width: 100%;
+}
+
+.login .p-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

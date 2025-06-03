@@ -5,14 +5,14 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Date;
 
 public class TokenUtils {
 
     private SecretKey getSigningKey(String key) {
-        byte[] encodedKey = Base64.getEncoder().encode(key.getBytes());
-        return Keys.hmacShaKeyFor(encodedKey);
+        return Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8));
     }
 
     public String createToken(String user, String key, Date expiration) {

@@ -1,4 +1,493 @@
-.overlay {
-    left: 40px !important;
+/* =================================
+   ESTILOS DEL COMPONENTE HEADER
+   ================================= */
+
+/* Contenedor principal del header */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50px;
+  background-color: #ffffff;
+  padding: 0.7rem 1.5rem 0em 1.5rem;
+  box-sizing: border-box;
+  color: #495057;
+  z-index: 1006;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.1);
 }
 
+.header.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* =================================
+   BOTONES DEL HEADER
+   ================================= */
+
+.header .button-menu {
+  background-color: transparent !important;
+  border: 1px solid transparent !important;
+  font-size: 24px !important;
+  padding-bottom: -18px;
+  bottom: 7px;
+  float: left;
+  color: #495057 !important;
+  transition: color 0.3s !important;
+  left: -15px;
+}
+
+.header .button-search {
+  background-color: transparent !important;
+  border: 1px solid transparent !important;
+  font-size: 24px !important;
+  padding-bottom: -18px;
+  bottom: 7px;
+  float: right;
+  color: #495057 !important;
+  transition: color 0.3s !important;
+  right: -20px;
+}
+
+.header .button-messages {
+  background-color: transparent !important;
+  border: 1px solid transparent !important;
+  font-size: 24px !important;
+  padding-bottom: -18px;
+  bottom: 7px;
+  float: right;
+  color: #495057 !important;
+  transition: color 0.3s !important;
+  right: -30px;
+  top: -8px;
+}
+
+.header .button-menu:hover,
+.header .button-search:hover,
+.header .button-messages:hover {
+  color: #698ebf !important;
+}
+
+.header .no-shadow {
+  box-shadow: none !important;
+}
+
+/* =================================
+   TÍTULO DEL HEADER
+   ================================= */
+
+.header .header-title,
+.header .header-title-message {
+  display: inline-block;
+  font-size: 20px;
+  margin: 5px 0 0 15px;
+  vertical-align: top;
+}
+
+.header .header-title-message {
+  color: #698ebf;
+}
+
+/* =================================
+   ICONOS DEL HEADER (DESKTOP)
+   ================================= */
+
+.header #header-icons {
+  float: right;
+  display: block;
+  animation-duration: 0.5s;
+}
+
+.header #header-icons .header-search {
+  padding: 0;
+  position: relative;
+  display: inline-block;
+  top: -4px;
+}
+
+.header #header-icons .header-search input {
+  display: inline-block;
+  border: 0 none;
+  font-size: 14px;
+  background: transparent;
+  border-bottom: 2px solid #495057;
+  outline: 0 none;
+  color: #495057;
+  width: 250px;
+  padding: 1px 20px 1px 1px;
+  margin: 0px;
+  border-radius: 2px;
+}
+
+.header #header-icons .header-search input:focus {
+  border-bottom-color: #698ebf;
+  background: rgba(248, 249, 250, 0.8);
+}
+
+.header #header-icons .header-search input::-webkit-input-placeholder {
+  color: #495057;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.header #header-icons .header-search input:-moz-placeholder {
+  color: #495057;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.header #header-icons .header-search input:-ms-input-placeholder {
+  color: #495057;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.header #header-icons .header-search .header-search-icon {
+  font-size: 16px;
+  position: absolute;
+  top: -2px;
+  right: 0px;
+  font-weight: 800;
+}
+
+.header #header-icons .header-search:hover input {
+  border-bottom-color: #698ebf;
+}
+
+.header #header-icons .header-search:hover .header-search-icon {
+  color: #698ebf;
+}
+
+/* Enlaces de iconos */
+.header #header-icons a {
+  position: relative;
+  color: #495057;
+  margin-left: 20px;
+  display: inline-block;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.header #header-icons a:hover {
+  color: #698ebf;
+}
+
+.header #header-icons a span.header-icon {
+  font-size: 23px;
+  padding-top: 3px;
+}
+
+.header #header-icons a span.active {
+  color: #EBCB8B;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* =================================
+   MENSAJES Y OVERLAYS
+   ================================= */
+
+.header .messages {
+  padding: 0.75rem 1rem;
+  margin: 0.25rem 0;
+  background: #f8f9fa;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-left: 3px solid #698ebf;
+  text-align: justify;
+}
+
+.header .messages:hover {
+  background: #e9ecef;
+  transform: translateX(2px);
+}
+
+.header .message-text {
+  color: #495057;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0;
+  padding-right: 10px;
+}
+
+.header .message-icon {
+  color: #6c757d;
+  font-size: 1.1rem;
+  margin-left: 0.5rem;
+  transition: color 0.3s ease;
+  float: right;
+}
+
+.header .messages:hover .message-icon {
+  color: #698ebf;
+}
+
+/* Overlay específico */
+.header .overlay {
+  left: 40px !important;
+  min-width: 300px;
+  max-width: 400px;
+}
+
+/* Overlay panel customizado */
+.header p-overlaypanel {
+  margin-top: 25px !important;
+}
+
+.header p-overlaypanel:after,
+.header p-overlaypanel:before {
+  left: calc(var(--overlayArrowLeft, 0) + 0.7rem) !important;
+}
+
+/* =================================
+   MENÚ TIERED
+   ================================= */
+
+.header p-tieredmenu {
+  z-index: 1010;
+}
+
+/* =================================
+   RESPONSIVE DESIGN
+   ================================= */
+
+@media (max-width: 820px) {
+  .header {
+    text-align: center;
+  }
+
+  .header .header-title {
+    font-size: 23px;
+    margin: 0px 0 0 0px;
+  }
+
+  .header .header-title-message {
+    font-size: 23px !important;
+    display: inline-block;
+    font-size: 20px;
+    vertical-align: top;
+    margin: 0px 0 0 65px;
+  }
+
+  .header #topbar-menu-button {
+    margin-bottom: 5px;
+    display: inline-block;
+    padding-right: 5px;
+  }
+
+  .header #messages-menu-button {
+    margin-top: 1px;
+    margin-right: 5px;
+    display: inline-block;
+  }
+
+  .header #sidebar-menu-button {
+    display: inline-block;
+    padding: 10px;
+  }
+
+  .header #header-icons {
+    display: none;
+    position: absolute;
+    right: 10px;
+    top: 50px;
+    padding-bottom: 5px;
+    text-align: left;
+    background: #4e5159;
+  }
+
+  .header #topbar-menu-button,
+  .header #sidebar-menu-button,
+  .header #messages-menu-button {
+    display: inline-block;
+  }
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding: 0.4rem 0.75rem;
+  }
+
+  .header .header-title,
+  .header .header-title-message {
+    font-size: 18px;
+    margin: 0 0.25rem;
+  }
+
+  .header .button-menu,
+  .header .button-search,
+  .header .button-messages {
+    font-size: 20px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 0.3rem 0.5rem;
+  }
+
+  .header .header-title,
+  .header .header-title-message {
+    font-size: 16px;
+    margin: 0;
+  }
+
+  .header .button-menu,
+  .header .button-search,
+  .header .button-messages {
+    font-size: 18px !important;
+  }
+}
+
+/* =================================
+   BOTONES ESPECÍFICOS POR ID
+   ================================= */
+
+.header #topbar-menu-button,
+.header #sidebar-menu-button,
+.header #messages-menu-button {
+  font-size: 22px;
+  text-decoration: none;
+  color: #495057;
+  transition: color 0.3s;
+  height: 45px;
+  background-color: transparent !important;
+  border: 1px solid transparent !important;
+  display: none;
+}
+
+.header #topbar-menu-button:hover,
+.header #sidebar-menu-button:hover,
+.header #messages-menu-button:hover {
+  color: #698ebf;
+}
+
+@media (max-width: 820px) {
+  .header #topbar-menu-button,
+  .header #sidebar-menu-button,
+  .header #messages-menu-button {
+    display: inline-block;
+  }
+}
+
+/* =================================
+   ESTADOS ESPECIALES
+   ================================= */
+
+/* Estado activo para botones */
+.header .button-messages.active {
+  color: #EBCB8B !important;
+  background: rgba(235, 203, 139, 0.1) !important;
+}
+
+/* Estado de carga */
+.header.loading {
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.header.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+  border: 2px solid rgba(105, 142, 191, 0.3);
+  border-top-color: #698ebf;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* =================================
+   MEJORAS DE ACCESIBILIDAD
+   ================================= */
+
+.header button:focus-visible {
+  outline: 2px solid #698ebf;
+  outline-offset: 2px;
+}
+
+.header #header-icons input:focus-visible {
+  outline: 2px solid #698ebf;
+  outline-offset: 2px;
+}
+
+.header a:focus-visible {
+  outline: 2px solid #698ebf;
+  outline-offset: 2px;
+}
+
+/* =================================
+   TRANSICIONES Y ANIMACIONES
+   ================================= */
+
+.header {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Animación para botones */
+.header button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header button:active {
+  transform: scale(0.95);
+}
+
+/* =================================
+   UTILIDADES
+   ================================= */
+
+.header .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Badge para notificaciones */
+.header .notification-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+}

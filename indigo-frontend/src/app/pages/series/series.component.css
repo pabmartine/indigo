@@ -1,0 +1,574 @@
+/* =================================
+   ESTILOS ESPECÍFICOS DEL COMPONENTE SERIES
+   ================================= */
+
+/* Contenedor principal del componente serie */
+.serie .p-card .p-card-content {
+  padding: 0.9rem 0 0.5rem 0;
+}
+
+.serie .p-card-title {
+  font-weight: 600 !important;
+  padding: 20px !important;
+}
+
+.serie .p-card .p-card-body {
+  padding: 0.9rem;
+  margin-bottom: 20px;
+}
+
+/* =================================
+   GRID SYSTEM RESPONSIVE SERIES
+   ================================= */
+
+/* Grid container para mejor control */
+.serie .content-body.p-grid {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 1.2rem !important;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+  margin: 0 !important;
+  padding: 2rem 0.5rem !important;
+}
+
+/* Reset de PrimeNG grid classes para series */
+.serie .content-body .p-sm-6,
+.serie .content-body .p-md-4,
+.serie .content-body .p-lg-2,
+.serie .content-body .p-xl-1 {
+  flex: 0 0 auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  position: relative !important;
+}
+
+/* MÓVILES MUY PEQUEÑOS - 2 columnas */
+.serie .content-body .p-sm-6,
+.serie .content-body .p-md-4,
+.serie .content-body .p-lg-2,
+.serie .content-body .p-xl-1 {
+  width: calc(50% - 0.6rem) !important;
+  max-width: 200px !important;
+  min-width: 160px !important;
+}
+
+/* MÓVILES PEQUEÑOS (480px+) - 2 columnas más anchas */
+@media screen and (min-width: 480px) {
+  .serie .content-body .p-sm-6,
+  .serie .content-body .p-md-4,
+  .serie .content-body .p-lg-2,
+  .serie .content-body .p-xl-1 {
+    width: calc(50% - 0.6rem) !important;
+    max-width: 220px !important;
+    min-width: 180px !important;
+  }
+}
+
+/* TABLETS PEQUEÑAS (640px+) - 3 columnas */
+@media screen and (min-width: 640px) {
+  .serie .content-body .p-sm-6,
+  .serie .content-body .p-md-4,
+  .serie .content-body .p-lg-2,
+  .serie .content-body .p-xl-1 {
+    width: calc(33.333% - 0.8rem) !important;
+    max-width: 240px !important;
+    min-width: 200px !important;
+  }
+}
+
+/* TABLETS (768px+) - 4 columnas */
+@media screen and (min-width: 768px) {
+  .serie .content-body .p-md-4,
+  .serie .content-body .p-lg-2,
+  .serie .content-body .p-xl-1 {
+    width: calc(25% - 0.9rem) !important;
+    max-width: 260px !important;
+    min-width: 220px !important;
+  }
+}
+
+/* DESKTOP PEQUEÑO (992px+) - 5 columnas */
+@media screen and (min-width: 992px) {
+  .serie .content-body .p-lg-2,
+  .serie .content-body .p-xl-1 {
+    width: calc(20% - 0.96rem) !important;
+    max-width: 280px !important;
+    min-width: 240px !important;
+  }
+}
+
+/* DESKTOP MEDIANO (1200px+) - 6 columnas */
+@media screen and (min-width: 1200px) {
+  .serie .content-body .p-xl-1 {
+    width: calc(16.666% - 1rem) !important;
+    max-width: 300px !important;
+    min-width: 260px !important;
+  }
+}
+
+/* DESKTOP GRANDE (1600px+) - 8 columnas */
+@media screen and (min-width: 1600px) {
+  .serie .content-body .p-xl-1 {
+    width: calc(12.5% - 1.05rem) !important;
+    max-width: 280px !important;
+    min-width: 240px !important;
+  }
+}
+
+/* =================================
+   EFECTO STACK (PILA DE LIBROS)
+   ================================= */
+
+/* Contenedor principal del stack */
+.serie .stack {
+  position: relative !important;
+  z-index: 10 !important;
+  margin: 0 auto 1.5rem auto !important;
+  width: 140px !important;
+  height: 200px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+/* Efecto twisted (rotación) */
+.serie .stack.twisted:before {
+  -webkit-transform: rotate(4deg) !important;
+  -moz-transform: rotate(4deg) !important;
+  transform: rotate(4deg) !important;
+}
+
+.serie .stack.twisted:after {
+  -webkit-transform: rotate(-4deg) !important;
+  -moz-transform: rotate(-4deg) !important;
+  transform: rotate(-4deg) !important;
+}
+
+/* Imagen principal del stack */
+.serie .stack img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  vertical-align: bottom !important;
+  border: 3px solid #fff !important;
+  border-radius: 4px !important;
+  -webkit-box-sizing: border-box !important;
+  -moz-box-sizing: border-box !important;
+  box-sizing: border-box !important;
+  cursor: pointer !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+  position: relative !important;
+  z-index: 15 !important;
+
+  /* Box shadow aplicado directamente */
+  box-shadow: 0 3px 8px 0 rgba(0, 0, 0, 0.2), 0 2px 4px 0 rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Hover effect en la imagen */
+.serie .stack img:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.3), 0 4px 8px 0 rgba(0, 0, 0, 0.2) !important;
+  z-index: 20 !important;
+}
+
+/* Capas del stack (efecto de pila) */
+.serie .stack:before,
+.serie .stack:after {
+  content: "" !important;
+  border-radius: 4px !important;
+  width: 100% !important;
+  height: 100% !important;
+  position: absolute !important;
+  border: 3px solid #fff !important;
+  left: 0 !important;
+  top: 0 !important;
+  -webkit-box-sizing: border-box !important;
+  -moz-box-sizing: border-box !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.15), 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+  -webkit-transition: 0.3s all ease-out !important;
+  -moz-transition: 0.3s all ease-out !important;
+  transition: 0.3s all ease-out !important;
+  background-color: #f8f9fa !important;
+}
+
+.serie .stack:before {
+  top: -4px !important;
+  z-index: -10 !important;
+}
+
+.serie .stack:after {
+  top: -8px !important;
+  z-index: -20 !important;
+}
+
+/* =================================
+   INFORMACIÓN DE LA SERIE
+   ================================= */
+
+/* Contenedor centrado para el texto */
+.serie .center {
+  text-align: center !important;
+  width: 100% !important;
+  margin-top: 0.5rem !important;
+}
+
+.serie .center a {
+  text-decoration: none !important;
+  color: inherit !important;
+  display: block !important;
+  width: 100% !important;
+  transition: transform 0.2s ease !important;
+}
+
+.serie .center a:hover {
+  transform: translateY(-1px) !important;
+}
+
+.serie .center a:focus {
+  outline: 2px solid #698ebf !important;
+  outline-offset: 2px !important;
+  border-radius: 3px !important;
+}
+
+/* Título de la serie */
+.serie .center .title {
+  color: #495057 !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  line-height: 1.3 !important;
+  margin-bottom: 0.4rem !important;
+  display: block !important;
+  width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+}
+
+/* Subtítulo de la serie (número de libros) */
+.serie .center .subtitle {
+  font-weight: 500 !important;
+  font-size: 0.85rem !important;
+  color: #6c757d !important;
+  opacity: 0.8 !important;
+  margin-bottom: 0.2rem !important;
+  display: block !important;
+  width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* =================================
+   RESPONSIVE DESIGN PARA SERIES
+   ================================= */
+
+/* Móviles pequeños (menos de 480px) */
+@media (max-width: 479px) {
+  .serie .content-body.p-grid {
+    gap: 0.8rem !important;
+    padding: 1.5rem 0.3rem !important;
+  }
+
+  .serie .content-body .p-sm-6,
+  .serie .content-body .p-md-4,
+  .serie .content-body .p-lg-2,
+  .serie .content-body .p-xl-1 {
+    width: calc(50% - 0.4rem) !important;
+    max-width: 180px !important;
+    min-width: 140px !important;
+  }
+
+  .serie .stack {
+    width: 110px !important;
+    height: 160px !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .serie .center .title {
+    font-size: 0.85rem !important;
+  }
+
+  .serie .center .subtitle {
+    font-size: 0.75rem !important;
+  }
+}
+
+/* Móviles (480px - 639px) */
+@media (min-width: 480px) and (max-width: 639px) {
+  .serie .stack {
+    width: 125px !important;
+    height: 180px !important;
+    margin-bottom: 1.2rem !important;
+  }
+
+  .serie .center .title {
+    font-size: 0.9rem !important;
+  }
+
+  .serie .center .subtitle {
+    font-size: 0.8rem !important;
+  }
+}
+
+/* Tablets pequeñas (640px - 767px) */
+@media (min-width: 640px) and (max-width: 767px) {
+  .serie .stack {
+    width: 135px !important;
+    height: 190px !important;
+    margin-bottom: 1.3rem !important;
+  }
+}
+
+/* Tablets (768px - 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+  .serie .stack {
+    width: 145px !important;
+    height: 205px !important;
+    margin-bottom: 1.4rem !important;
+  }
+
+  .serie .center .title {
+    font-size: 1rem !important;
+  }
+
+  .serie .center .subtitle {
+    font-size: 0.9rem !important;
+  }
+}
+
+/* Desktop pequeño (992px - 1199px) */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .serie .stack {
+    width: 155px !important;
+    height: 220px !important;
+    margin-bottom: 1.5rem !important;
+  }
+
+  .serie .center .title {
+    font-size: 1rem !important;
+  }
+}
+
+/* Desktop mediano (1200px - 1599px) */
+@media (min-width: 1200px) and (max-width: 1599px) {
+  .serie .stack {
+    width: 165px !important;
+    height: 235px !important;
+    margin-bottom: 1.5rem !important;
+  }
+
+  .serie .center .title {
+    font-size: 1.05rem !important;
+  }
+
+  .serie .center .subtitle {
+    font-size: 0.9rem !important;
+  }
+}
+
+/* Desktop grande (1600px+) */
+@media (min-width: 1600px) {
+  .serie .stack {
+    width: 155px !important;
+    height: 220px !important;
+    margin-bottom: 1.4rem !important;
+  }
+
+  .serie .center .title {
+    font-size: 1rem !important;
+  }
+}
+
+/* =================================
+   ESTADO DE CARGA
+   ================================= */
+
+.serie .loading-container {
+  width: 100%;
+  text-align: center;
+  padding: 3rem;
+}
+
+.serie .loading {
+  padding: 1rem;
+  color: #6c757d;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* =================================
+   EFECTOS DE CARGA PARA SERIES
+   ================================= */
+
+/* Efecto de carga para imágenes de series */
+.serie .loading-image {
+  opacity: 0.7;
+  filter: grayscale(50%);
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+.serie .loading-image:not(.loading-image) {
+  opacity: 1;
+  filter: none;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* =================================
+   BOTÓN SCROLL TO TOP
+   ================================= */
+
+.serie .up-button {
+  position: fixed;
+  bottom: 10px;
+  right: -1px;
+  visibility: visible;
+  font-size: 24px !important;
+  width: 50px !important;
+  border-bottom-left-radius: 10px;
+  border-top-left-radius: 10px;
+  z-index: 1000;
+}
+
+/* =================================
+   CLASES UTILITARIAS
+   ================================= */
+
+.serie .pc {
+  display: inherit;
+}
+
+.serie .mobile {
+  display: none;
+}
+
+/* =================================
+   RESPONSIVE UTILITIES
+   ================================= */
+
+@media (max-width: 820px) {
+  .serie .pc {
+    display: none !important;
+  }
+
+  .serie .mobile {
+    display: inherit !important;
+  }
+}
+
+/* =================================
+   ACCESIBILIDAD
+   ================================= */
+
+/* Focus visible para navegación por teclado */
+.serie .center a:focus-within {
+  outline: 2px solid #698ebf;
+  outline-offset: 2px;
+  border-radius: 5px;
+}
+
+/* Mejora de contraste para texto */
+.serie .center .title {
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+/* =================================
+   ANIMACIONES MEJORADAS
+   ================================= */
+
+.serie .stack {
+  transition: transform 0.3s ease !important;
+}
+
+.serie .stack:hover {
+  transform: translateY(-2px) !important;
+}
+
+.serie .stack:hover:before {
+  top: -2px !important;
+  transform: rotate(2deg) !important;
+}
+
+.serie .stack:hover:after {
+  top: -6px !important;
+  transform: rotate(-2deg) !important;
+}
+
+/* =================================
+   OPTIMIZACIONES DE RENDIMIENTO
+   ================================= */
+
+.serie .content-body {
+  will-change: transform;
+  contain: layout;
+}
+
+.serie .stack {
+  will-change: transform;
+}
+
+.serie .stack img {
+  will-change: transform;
+}
+
+/* =================================
+   ESTADOS ESPECIALES
+   ================================= */
+
+/* Serie sin imagen */
+.serie .stack.no-image {
+  background: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.serie .stack.no-image:before,
+.serie .stack.no-image:after {
+  display: none;
+}
+
+/* =================================
+   MEJORAS VISUALES
+   ================================= */
+
+/* Gradiente sutil para profundidad */
+.serie .stack:before {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.serie .stack:after {
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+}
+
+/* Sombra suave para el contenedor de información */
+.serie .center {
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.serie .center:hover {
+  background-color: rgba(105, 142, 191, 0.05);
+}

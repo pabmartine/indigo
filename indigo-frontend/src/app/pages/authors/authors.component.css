@@ -1,0 +1,514 @@
+/* =================================
+   ESTILOS ESPECÍFICOS DEL COMPONENTE AUTHORS
+   ================================= */
+
+/* Contenedor principal del componente author */
+.author .p-card .p-card-content {
+  padding: 0.9rem 0 0.5rem 0;
+}
+
+.author .p-card-title {
+  font-weight: 600 !important;
+  padding: 20px !important;
+}
+
+.author .p-card .p-card-body {
+  padding: 0.9rem;
+  margin-bottom: 20px;
+}
+
+/* =================================
+   GRID SYSTEM RESPONSIVE AUTORES
+   ================================= */
+
+/* Grid container para mejor control */
+.author .content-body.p-grid {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.8rem !important;
+  justify-content: flex-start !important;
+  align-items: flex-start !important;
+  margin: 0 !important;
+  padding: 1rem 0.5rem !important;
+}
+
+/* Reset de PrimeNG grid classes para autores */
+.author .content-body .p-sm-6,
+.author .content-body .p-md-4,
+.author .content-body .p-lg-2,
+.author .content-body .p-xl-1 {
+  flex: 0 0 auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  position: relative !important;
+}
+
+/* MÓVILES MUY PEQUEÑOS - 2 columnas */
+.author .content-body .p-sm-6,
+.author .content-body .p-md-4,
+.author .content-body .p-lg-2,
+.author .content-body .p-xl-1 {
+  width: calc(50% - 0.4rem) !important;
+  max-width: 180px !important;
+  min-width: 160px !important;
+}
+
+/* MÓVILES PEQUEÑOS (480px+) - 2 columnas más anchas */
+@media screen and (min-width: 480px) {
+  .author .content-body .p-sm-6,
+  .author .content-body .p-md-4,
+  .author .content-body .p-lg-2,
+  .author .content-body .p-xl-1 {
+    width: calc(50% - 0.4rem) !important;
+    max-width: 200px !important;
+    min-width: 170px !important;
+  }
+}
+
+/* TABLETS PEQUEÑAS (640px+) - 3 columnas */
+@media screen and (min-width: 640px) {
+  .author .content-body .p-sm-6,
+  .author .content-body .p-md-4,
+  .author .content-body .p-lg-2,
+  .author .content-body .p-xl-1 {
+    width: calc(33.333% - 0.53rem) !important;
+    max-width: 190px !important;
+    min-width: 160px !important;
+  }
+}
+
+/* TABLETS (768px+) - 4 columnas */
+@media screen and (min-width: 768px) {
+  .author .content-body .p-md-4,
+  .author .content-body .p-lg-2,
+  .author .content-body .p-xl-1 {
+    width: calc(25% - 0.6rem) !important;
+    max-width: 200px !important;
+    min-width: 170px !important;
+  }
+}
+
+/* DESKTOP PEQUEÑO (992px+) - 6 columnas */
+@media screen and (min-width: 992px) {
+  .author .content-body .p-lg-2,
+  .author .content-body .p-xl-1 {
+    width: calc(16.666% - 0.67rem) !important;
+    max-width: 190px !important;
+    min-width: 165px !important;
+  }
+}
+
+/* DESKTOP MEDIANO (1200px+) - 6 columnas */
+@media screen and (min-width: 1200px) {
+  .author .content-body .p-xl-1 {
+    width: calc(16.666% - 0.67rem) !important;
+    max-width: 200px !important;
+    min-width: 177px !important;
+  }
+}
+
+/* DESKTOP GRANDE (1600px+) - 8 columnas */
+@media screen and (min-width: 1600px) {
+  .author .content-body .p-xl-1 {
+    width: calc(12.5% - 0.7rem) !important;
+    max-width: 190px !important;
+    min-width: 177px !important;
+  }
+}
+
+/* =================================
+   AVATAR Y CONTENEDOR DE AUTOR
+   ================================= */
+
+/* Contenedor del avatar del autor */
+.author .user_avatar {
+  text-align: center !important;
+  min-height: 180px !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  padding: 0.5rem !important;
+}
+
+/* Avatar circular */
+.author .avatar {
+  width: 100px !important;
+  min-width: 100px !important;
+  height: 100px !important;
+  border: 2px solid #e9ecef !important;
+  position: relative !important;
+  overflow: hidden !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  margin-bottom: 0.8rem !important;
+  max-width: 100px !important;
+  cursor: pointer !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+  /* Aplicar shadow directamente al avatar */
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.15), 0 1px 3px 0 rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Hover effect del avatar */
+.author .avatar:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.25), 0 2px 6px 0 rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Información del autor */
+.author .user_avatar a {
+  text-decoration: none !important;
+  color: inherit !important;
+  width: 100% !important;
+  display: block !important;
+}
+
+.author .user_avatar a:focus {
+  outline: 2px solid #698ebf !important;
+  outline-offset: 2px !important;
+  border-radius: 3px !important;
+}
+
+/* Título del autor */
+.author .user_avatar .title {
+  color: #495057 !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  line-height: 1.2 !important;
+  margin-bottom: 0.3rem !important;
+  display: block !important;
+  width: 100% !important;
+  text-align: center !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+}
+
+/* Subtítulo del autor (número de libros) */
+.author .user_avatar .subtitle {
+  font-weight: inherit !important;
+  font-size: 0.8rem !important;
+  color: #6c757d !important;
+  opacity: 0.8 !important;
+  margin-bottom: 0.1rem !important;
+  display: block !important;
+  width: 100% !important;
+  text-align: center !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* =================================
+   RESPONSIVE DESIGN PARA AUTORES
+   ================================= */
+
+/* Móviles pequeños (menos de 480px) */
+@media (max-width: 479px) {
+  .author .content-body.p-grid {
+    gap: 0.6rem !important;
+    padding: 0.5rem 0.3rem !important;
+  }
+
+  .author .content-body .p-sm-6,
+  .author .content-body .p-md-4,
+  .author .content-body .p-lg-2,
+  .author .content-body .p-xl-1 {
+    width: calc(50% - 0.3rem) !important;
+    max-width: 170px !important;
+    min-width: 150px !important;
+  }
+
+  .author .user_avatar {
+    min-height: 160px !important;
+    padding: 0.3rem !important;
+  }
+
+  .author .avatar {
+    width: 80px !important;
+    min-width: 80px !important;
+    height: 80px !important;
+    max-width: 80px !important;
+    margin-bottom: 0.6rem !important;
+  }
+
+  .author .user_avatar .title {
+    font-size: 0.85rem !important;
+  }
+
+  .author .user_avatar .subtitle {
+    font-size: 0.75rem !important;
+  }
+}
+
+/* Móviles (480px - 639px) */
+@media (min-width: 480px) and (max-width: 639px) {
+  .author .user_avatar {
+    min-height: 170px !important;
+  }
+
+  .author .avatar {
+    width: 90px !important;
+    min-width: 90px !important;
+    height: 90px !important;
+    max-width: 90px !important;
+  }
+
+  .author .user_avatar .title {
+    font-size: 0.9rem !important;
+  }
+
+  .author .user_avatar .subtitle {
+    font-size: 0.8rem !important;
+  }
+}
+
+/* Tablets pequeñas (640px - 767px) */
+@media (min-width: 640px) and (max-width: 767px) {
+  .author .user_avatar {
+    min-height: 180px !important;
+  }
+
+  .author .avatar {
+    width: 95px !important;
+    min-width: 95px !important;
+    height: 95px !important;
+    max-width: 95px !important;
+  }
+}
+
+/* Tablets (768px - 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+  .author .user_avatar {
+    min-height: 190px !important;
+  }
+
+  .author .avatar {
+    width: 100px !important;
+    min-width: 100px !important;
+    height: 100px !important;
+    max-width: 100px !important;
+  }
+}
+
+/* Desktop pequeño (992px - 1199px) */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .author .user_avatar {
+    min-height: 185px !important;
+  }
+
+  .author .avatar {
+    width: 95px !important;
+    min-width: 95px !important;
+    height: 95px !important;
+    max-width: 95px !important;
+  }
+}
+
+/* Desktop mediano (1200px - 1599px) */
+@media (min-width: 1200px) and (max-width: 1599px) {
+  .author .user_avatar {
+    min-height: 190px !important;
+  }
+
+  .author .avatar {
+    width: 100px !important;
+    min-width: 100px !important;
+    height: 100px !important;
+    max-width: 100px !important;
+  }
+}
+
+/* Desktop grande (1600px+) */
+@media (min-width: 1600px) {
+  .author .user_avatar {
+    min-height: 185px !important;
+  }
+
+  .author .avatar {
+    width: 95px !important;
+    min-width: 95px !important;
+    height: 95px !important;
+    max-width: 95px !important;
+  }
+}
+
+/* =================================
+   EFECTOS DE CARGA PARA AUTORES
+   ================================= */
+
+/* Efecto de carga para avatares */
+.author .loading-image.avatar {
+  opacity: 0.7;
+  filter: grayscale(50%);
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+.author .loading-image {
+  opacity: 0.7;
+  filter: grayscale(50%);
+  transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+.author .loading-image:not(.loading-image) {
+  opacity: 1;
+  filter: none;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* =================================
+   ESTADO DE CARGA
+   ================================= */
+
+.author .loading-container {
+  width: 100%;
+  text-align: center;
+  padding: 2rem;
+}
+
+.author .loading {
+  padding: 0.9rem;
+  color: #6c757d;
+  font-size: 1rem;
+}
+
+/* =================================
+   BOTÓN SCROLL TO TOP
+   ================================= */
+
+.author .up-button {
+  position: fixed;
+  bottom: 10px;
+  right: -1px;
+  visibility: visible;
+  font-size: 24px !important;
+  width: 50px !important;
+  border-bottom-left-radius: 10px;
+  border-top-left-radius: 10px;
+  z-index: 1000;
+}
+
+/* =================================
+   CLASES UTILITARIAS
+   ================================= */
+
+.author .pc {
+  display: inherit;
+}
+
+.author .mobile {
+  display: none;
+}
+
+/* =================================
+   RESPONSIVE UTILITIES
+   ================================= */
+
+@media (max-width: 820px) {
+  .author .pc {
+    display: none !important;
+  }
+
+  .author .mobile {
+    display: inherit !important;
+  }
+}
+
+/* =================================
+   DIÁLOGOS / MODALES PARA AUTORES
+   ================================= */
+
+.author .p-dialog {
+  width: 50vw;
+  height: 100%;
+}
+
+.author .p-dialog .p-dialog-content {
+  background: #eceff4 !important;
+  padding-top: 30px;
+}
+
+.author .p-dialog .p-dialog-header {
+  display: none;
+}
+
+.author .p-dialog .p-dialog-header .p-dialog-title {
+  font-weight: 600;
+  font-size: 1.25rem;
+  padding-left: 34px;
+}
+
+/* Responsive para diálogos */
+@media (max-width: 820px) {
+  .author .p-dialog {
+    width: 100vw !important;
+    max-height: 100% !important;
+  }
+}
+
+/* =================================
+   OVERLAYS DE DIALOGS
+   ================================= */
+
+.author .p-dialog,
+.author .p-dialog-mask.p-component-overlay {
+  z-index: 1010 !important;
+}
+
+/* =================================
+   ACCESIBILIDAD
+   ================================= */
+
+/* Focus visible para navegación por teclado */
+.author .user_avatar:focus-within {
+  outline: 2px solid #698ebf;
+  outline-offset: 2px;
+  border-radius: 5px;
+}
+
+/* Mejora de contraste para texto */
+.author .user_avatar .title {
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+/* =================================
+   ANIMACIONES SUAVES
+   ================================= */
+
+.author .user_avatar {
+  transition: transform 0.2s ease !important;
+}
+
+.author .user_avatar:hover {
+  transform: translateY(-1px) !important;
+}
+
+/* =================================
+   OPTIMIZACIONES DE RENDIMIENTO
+   ================================= */
+
+.author .content-body {
+  will-change: transform;
+  contain: layout;
+}
+
+.author .avatar {
+  will-change: transform;
+}
