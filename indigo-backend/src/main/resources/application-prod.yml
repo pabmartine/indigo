@@ -27,6 +27,8 @@ server:
   port: 8080
 
 spring:
+  main:
+    allow-circular-references: true
   data:
     mongodb:
       authentication-database: admin
