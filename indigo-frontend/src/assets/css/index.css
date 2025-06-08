@@ -1,0 +1,76 @@
+/**
+ * ESTILOS PRINCIPALES DE LA APLICACIÓN
+ *
+ * Este archivo organiza todos los estilos de la aplicación de manera modular.
+ * Importa archivos CSS específicos para cada funcionalidad.
+ *
+ * Orden de importación:
+ * 1. Variables globales
+ * 2. Reset y base
+ * 3. Layout (header, sidebar, footer)
+ * 4. Componentes específicos (books, authors, etc.)
+ * 5. Componentes PrimeNG
+ * 6. Funcionalidades especiales (scroll, animaciones)
+ * 7. Responsive design
+ * 8. Temas y variaciones
+ */
+
+/* 1. VARIABLES Y BASE */
+@import url('./variables.css');
+@import url('./base.css');
+
+/* 2. LAYOUT PRINCIPAL */
+@import url('./layout.css');
+
+/* 3. COMPONENTES ESPECÍFICOS */
+@import url('./books.css');
+@import url('./authors.css');
+@import url('./series.css');
+@import url('./categories.css');
+@import url('./search.css');
+@import url('./profile.css');
+@import url('./login.css');
+@import url('./notifications.css');
+@import url('./settings.css');
+@import url('./epub-viewer.css');
+@import url('./reviews.css');
+
+/* 4. COMPONENTES PRIMENG */
+@import url('./primeng.css');
+
+/* 5. FUNCIONALIDADES ESPECIALES */
+@import url('./scroll.css');
+@import url('./animations.css');
+
+/* 6. RESPONSIVE DESIGN */
+@import url('./responsive.css');
+
+/* 7. TEMAS Y VARIACIONES */
+@import url('./themes.css');
+
+/** UTILIDADES ADICIONALES **/
+/* Overlay global para modales - asegurar configuración correcta */
+.p-dialog-mask.p-component-overlay.p-component-overlay {
+  z-index: 9999 !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background-color: rgba(0, 0, 0, 0.4) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  inset: 0 !important;
+}
+
+/* Configuraciones inline específicas - eliminar conflictos */
+.inline {
+  display: flex;
+  flex-wrap: nowrap !important;
+  margin-right: -0.5rem;
+  margin-left: -0.5rem;
+  margin-top: -0.5rem;
+  overflow: auto;
+}

@@ -4,8 +4,7 @@ import { Search } from 'src/app/domain/search';
 
 @Component({
   selector: 'app-topbar',
-  templateUrl: './topbar.component.html',
-  styleUrls: ['./topbar.component.css']
+  templateUrl: './topbar.component.html'
 })
 export class TopbarComponent implements OnInit {
 
@@ -22,7 +21,7 @@ export class TopbarComponent implements OnInit {
   }
 
   doSearch() {
-    
+
     let search:Search = new Search();
     search.path = this.search;
     this.router.navigate(["books"], { queryParams: { adv_search: JSON.stringify(search) } });

@@ -20,7 +20,6 @@ interface BookWithTempImage extends Book {
 @Component({
   selector: 'app-recommendations',
   templateUrl: './recommendations.component.html',
-  styleUrls: ['./recommendations.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [MessageService]
 })

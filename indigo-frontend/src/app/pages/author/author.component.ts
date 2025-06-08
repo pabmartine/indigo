@@ -12,7 +12,6 @@ import { BookService } from 'src/app/services/book.service';
 @Component({
   selector: 'app-author',
   templateUrl: './author.component.html',
-  styleUrls: ['./author.component.css'],
   providers: [MessageService]
 })
 export class AuthorComponent implements OnInit {

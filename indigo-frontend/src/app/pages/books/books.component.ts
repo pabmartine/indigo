@@ -13,7 +13,8 @@ import { TranslateService } from "@ngx-translate/core"
 import { MessageService } from "primeng/api"
 import { SelectItem } from "primeng/api/selectitem"
 import { combineLatest, Subject } from "rxjs"
-import { debounceTime, filter, takeUntil } from "rxjs/operators"
+import { debounceTime, filter, takeUntil, catchError } from "rxjs/operators"
+import { of } from "rxjs"
 import { Author } from "src/app/domain/author"
 import { Book } from "src/app/domain/book"
 import { Search } from "src/app/domain/search"
@@ -24,13 +25,12 @@ import { AuthorService } from "src/app/services/author.service"
 
 // Interfaz para libros con imagen temporal
 interface BookWithTempImage extends Book {
-  originalImage?: string // Optional, as it's used temporarily
+  originalImage?: string
 }
 
 @Component({
   selector: "app-books",
   templateUrl: "./books.component.html",
-  styleUrls: ["./books.component.css"],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [MessageService],
 })
@@ -38,36 +38,43 @@ export class BooksComponent implements OnInit, OnDestroy {
   @ViewChild(DetailComponent) detailComponent: DetailComponent
   @ViewChild(AuthorComponent) authorComponent: AuthorComponent
 
-  // Corrected: Declare arrays to hold BookWithTempImage
   books: BookWithTempImage[] = []
   favorites: BookWithTempImage[] = []
 
-  authorInfo: Author
-  title: string
-  private adv_search: Search
+  authorInfo: Author | null = null
+  title: string = 'Books'
+  private adv_search: Search | null = null
 
   total = 0
 
-  private page: number
-  private size: number
-  private sort: string
-  private order: string
+  private page: number = 0
+  private size: number = 20
+  private sort: string = 'id'
+  private order: string = 'desc'
 
-  showGoUpButton: boolean
+  showGoUpButton: boolean = false
   private showScrollHeight = 400
   private hideScrollHeight = 200
 
-  sorts: SelectItem[] = []
-  selectedSort: string
+  sorts: SelectItem[] = [
+    { label: 'ID (Desc)', value: 'id,desc' },
+    { label: 'ID (Asc)', value: 'id,asc' },
+    { label: 'Pub Date (Desc)', value: 'pubDate,desc' },
+    { label: 'Pub Date (Asc)', value: 'pubDate,asc' },
+    { label: 'Title (Asc)', value: 'title,asc' },
+    { label: 'Title (Desc)', value: 'title,desc' },
+    { label: 'Rating (Desc)', value: 'rating,desc' },
+    { label: 'Rating (Asc)', value: 'rating,asc' },
+  ]
+  selectedSort: string = 'id,desc'
 
   searched = false
   private isInitialized = false
 
-  user = JSON.parse(sessionStorage.user)
+  user: any = {}
 
-  // Cache can store BookWithTempImage if that's what we are processing and re-adding
   private bookCache = new Map<string, BookWithTempImage[]>()
-  private favoritesCache: BookWithTempImage[] = null
+  private favoritesCache: BookWithTempImage[] | null = null
 
   private destroy$ = new Subject<void>()
 
@@ -84,15 +91,21 @@ export class BooksComponent implements OnInit, OnDestroy {
     private location: Location,
     private cdr: ChangeDetectorRef,
   ) {
+    this.initializeUser()
     this.initializeScreenSize()
-    this.initializeSortOptions()
     this.initializeDefaults()
   }
 
   ngOnInit(): void {
+    // Cargar traducciones de forma segura después de la inicialización
+    setTimeout(() => {
+      this.loadTranslations()
+    }, 100)
+
     if (!this.isInitialized) {
-      this.initializeSubscriptions()
+      // IMPORTANTE: Procesar parámetros de URL ANTES de las suscripciones
       this.initializeSearch()
+      this.initializeSubscriptions()
       this.isInitialized = true
     }
   }
@@ -113,54 +126,97 @@ export class BooksComponent implements OnInit, OnDestroy {
     }
   }
 
-  private initializeScreenSize(): void {
-    if (window.screen.width < 640) {
-      this.size = 10
-    } else if (window.screen.width < 1024) {
-      this.size = 20
-    } else {
-      this.size = 60
+  private initializeUser(): void {
+    try {
+      const userSession = sessionStorage.getItem('user')
+      if (userSession) {
+        this.user = JSON.parse(userSession)
+      } else {
+        this.user = { languageBooks: ['en'], role: 'USER', username: '' }
+      }
+    } catch (error) {
+      console.error('Error parsing user session:', error)
+      this.user = { languageBooks: ['en'], role: 'USER', username: '' }
     }
   }
 
-  private initializeSortOptions(): void {
-    this.translate
-      .get([
-        "locale.books.order_by.id.desc",
-        "locale.books.order_by.id.asc",
-        "locale.books.order_by.pubdate.desc",
-        "locale.books.order_by.pubdate.asc",
-        "locale.books.order_by.title.asc",
-        "locale.books.order_by.title.desc",
-        "locale.books.order_by.rating.desc",
-        "locale.books.order_by.rating.asc",
-      ])
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((translations) => {
-        this.sorts = [
-          { label: translations["locale.books.order_by.id.desc"], value: "id,desc" },
-          { label: translations["locale.books.order_by.id.asc"], value: "id,asc" },
-          { label: translations["locale.books.order_by.pubdate.desc"], value: "pubDate,desc" },
-          { label: translations["locale.books.order_by.pubdate.asc"], value: "pubDate,asc" },
-          { label: translations["locale.books.order_by.title.asc"], value: "title,asc" },
-          { label: translations["locale.books.order_by.title.desc"], value: "title,desc" },
-          { label: translations["locale.books.order_by.rating.desc"], value: "rating,desc" },
-          { label: translations["locale.books.order_by.rating.asc"], value: "rating,asc" },
-        ]
-        if (this.selectedSort && this.sorts.some((s) => s.value === this.selectedSort)) {
-          this.selectedSort = this.sorts.find((s) => s.value === this.selectedSort)?.value || this.selectedSort
-        }
-        this.cdr.detectChanges()
-      })
+  private initializeScreenSize(): void {
+    if (typeof window !== 'undefined') {
+      if (window.screen.width < 640) {
+        this.size = 10
+      } else if (window.screen.width < 1024) {
+        this.size = 20
+      } else {
+        this.size = 60
+      }
+    }
   }
 
   private initializeDefaults(): void {
     this.showGoUpButton = false
     this.adv_search = null
+    this.authorInfo = null
+    this.title = 'Books'
+    this.page = 0
+    this.sort = 'id'
+    this.order = 'desc'
+    this.selectedSort = 'id,desc'
+    this.total = 0
+    this.searched = false
+    this.showDetail = false
+    this.showAuthorDetail = false
+    this.books = []
+    this.favorites = []
+  }
+
+  private loadTranslations(): void {
+    if (!this.translate) {
+      return
+    }
+
+    const translationKeys = [
+      "locale.books.order_by.id.desc",
+      "locale.books.order_by.id.asc",
+      "locale.books.order_by.pubdate.desc",
+      "locale.books.order_by.pubdate.asc",
+      "locale.books.order_by.title.asc",
+      "locale.books.order_by.title.desc",
+      "locale.books.order_by.rating.desc",
+      "locale.books.order_by.rating.asc",
+    ]
+
+    this.translate.get(translationKeys)
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError(error => {
+          console.error('Error loading translations:', error)
+          return of({}) // Retornar objeto vacío en caso de error
+        })
+      )
+      .subscribe({
+        next: (translations) => {
+          if (translations && Object.keys(translations).length > 0) {
+            this.sorts = [
+              { label: translations["locale.books.order_by.id.desc"] || 'ID (Desc)', value: "id,desc" },
+              { label: translations["locale.books.order_by.id.asc"] || 'ID (Asc)', value: "id,asc" },
+              { label: translations["locale.books.order_by.pubdate.desc"] || 'Pub Date (Desc)', value: "pubDate,desc" },
+              { label: translations["locale.books.order_by.pubdate.asc"] || 'Pub Date (Asc)', value: "pubDate,asc" },
+              { label: translations["locale.books.order_by.title.asc"] || 'Title (Asc)', value: "title,asc" },
+              { label: translations["locale.books.order_by.title.desc"] || 'Title (Desc)', value: "title,desc" },
+              { label: translations["locale.books.order_by.rating.desc"] || 'Rating (Desc)', value: "rating,desc" },
+              { label: translations["locale.books.order_by.rating.asc"] || 'Rating (Asc)', value: "rating,asc" },
+            ]
+            this.cdr.detectChanges()
+          }
+        }
+      })
   }
 
   private initializeSubscriptions(): void {
-    combineLatest([this.router.events.pipe(filter((e) => e instanceof NavigationEnd)), this.route.queryParams])
+    combineLatest([
+      this.router.events.pipe(filter((e) => e instanceof NavigationEnd)),
+      this.route.queryParams
+    ])
       .pipe(debounceTime(100), takeUntil(this.destroy$))
       .subscribe(([navigationEvent, params]) => {
         this.handleRouteChange(navigationEvent as NavigationEnd, params)
@@ -171,25 +227,43 @@ export class BooksComponent implements OnInit, OnDestroy {
     let shouldSearch = false
     let paramsChanged = false
 
+    // Debug: imprimir parámetros recibidos
+    console.log('Route change - URL:', navigationEvent.url)
+    console.log('Route change - params:', params)
+    console.log('Current adv_search before change:', this.adv_search)
+
     if (params["author"]) {
-      const newAuthorInfo = JSON.parse(params["author"])
-      if (JSON.stringify(this.authorInfo) !== JSON.stringify(newAuthorInfo)) {
-        this.authorInfo = newAuthorInfo
-        paramsChanged = true
+      try {
+        const newAuthorInfo = JSON.parse(params["author"])
+        if (JSON.stringify(this.authorInfo) !== JSON.stringify(newAuthorInfo)) {
+          this.authorInfo = newAuthorInfo
+          paramsChanged = true
+          console.log('Author info changed to:', this.authorInfo)
+        }
+      } catch (error) {
+        console.error('Error parsing author params:', error)
       }
     } else if (this.authorInfo !== null) {
       this.authorInfo = null
       paramsChanged = true
+      console.log('Author info cleared')
     }
 
     if (params["adv_search"]) {
-      const newAdvSearch = JSON.parse(params["adv_search"])
-      if (JSON.stringify(this.adv_search) !== JSON.stringify(newAdvSearch)) {
-        this.adv_search = newAdvSearch
-        paramsChanged = true
+      try {
+        const newAdvSearch = JSON.parse(params["adv_search"])
+        console.log('New parsed adv_search:', newAdvSearch) // Debug
+        if (JSON.stringify(this.adv_search) !== JSON.stringify(newAdvSearch)) {
+          this.adv_search = newAdvSearch
+          paramsChanged = true
+          console.log('Search parameters changed to:', this.adv_search) // Debug
+        }
+      } catch (error) {
+        console.error('Error parsing adv_search params:', error)
       }
     } else if (navigationEvent.url === "/books" && this.adv_search !== null && !params["author"]) {
       if (!this.isAuthorSearch(this.adv_search)) {
+        console.log('Clearing adv_search because no params and not author search')
         this.adv_search = null
         paramsChanged = true
       }
@@ -197,6 +271,7 @@ export class BooksComponent implements OnInit, OnDestroy {
 
     if (paramsChanged) {
       shouldSearch = true
+      console.log('Parameters changed, will trigger search')
     }
 
     if (
@@ -206,17 +281,44 @@ export class BooksComponent implements OnInit, OnDestroy {
       !params["adv_search"] &&
       !params["author"]
     ) {
+      console.log('Clean books route, clearing search and triggering default search')
       this.adv_search = null
       shouldSearch = true
     }
 
     if (shouldSearch) {
+      console.log('Triggering search with final adv_search:', this.adv_search) // Debug
       this.doSearch()
     }
   }
 
   private initializeSearch(): void {
-    const hasQueryParams = this.route.snapshot.queryParams["author"] || this.route.snapshot.queryParams["adv_search"]
+    const queryParams = this.route.snapshot.queryParams
+    console.log('Initial query params:', queryParams) // Debug
+
+    // Procesar inmediatamente si hay adv_search en los parámetros
+    if (queryParams["adv_search"]) {
+      try {
+        this.adv_search = JSON.parse(queryParams["adv_search"])
+        console.log('Parsed initial adv_search:', this.adv_search) // Debug
+      } catch (error) {
+        console.error('Error parsing initial adv_search:', error)
+        this.adv_search = null
+      }
+    }
+
+    // Procesar autor si existe
+    if (queryParams["author"]) {
+      try {
+        this.authorInfo = JSON.parse(queryParams["author"])
+        console.log('Parsed initial author:', this.authorInfo) // Debug
+      } catch (error) {
+        console.error('Error parsing initial author:', error)
+        this.authorInfo = null
+      }
+    }
+
+    const hasQueryParams = queryParams["author"] || queryParams["adv_search"]
     if (!hasQueryParams && !this.searched) {
       this.doSearch()
     } else if (hasQueryParams && !this.searched) {
@@ -267,14 +369,23 @@ export class BooksComponent implements OnInit, OnDestroy {
   private fetchCountAndUpdateTitle(): void {
     if (!this.adv_search) {
       this.adv_search = new Search()
-      this.adv_search.languages = this.user.languageBooks
     }
+
+    // CRUCIAL: Asegurar que los idiomas estén configurados
+    if (this.user && this.user.languageBooks) {
+      this.adv_search.languages = this.user.languageBooks
+    } else {
+      this.adv_search.languages = ['en']
+    }
+
+    console.log('Fetching count with search object:', this.adv_search) // Debug
 
     this.bookService
       .count(this.adv_search)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
+          console.log('Count result:', data) // Debug
           this.total = data
           this.updateTitle()
           this.cdr.detectChanges()
@@ -284,8 +395,8 @@ export class BooksComponent implements OnInit, OnDestroy {
           this.messageService.clear()
           this.messageService.add({
             severity: "error",
-            summary: this.translate.instant("locale.error.summary"),
-            detail: this.translate.instant("locale.books.error.data_count"),
+            summary: "Error",
+            detail: "Error loading book count",
             closable: true,
             life: 5000,
           })
@@ -295,20 +406,25 @@ export class BooksComponent implements OnInit, OnDestroy {
 
   private updateTitle(): void {
     let searchContext = ""
-    if (this.isGlobalSearch(this.adv_search)) {
-      searchContext = this.adv_search.path
-      this.title = `${this.translate.instant("locale.books.search_results")} ${searchContext} (${this.total})`
-    } else if (this.isAuthorSearch(this.adv_search)) {
-      searchContext = this.authorInfo ? this.authorInfo.name : this.adv_search.author
-      this.title = `${this.translate.instant("locale.books.title_of")} ${searchContext} (${this.total})`
-    } else if (this.isTagSearch(this.adv_search)) {
-      searchContext = this.adv_search.selectedTags.join(", ")
-      this.title = `${this.translate.instant("locale.books.title_of")} ${searchContext} (${this.total})`
-    } else if (this.isSerieSearch(this.adv_search)) {
-      searchContext = this.adv_search.serie
-      this.title = `${this.translate.instant("locale.books.title_of")} ${searchContext} (${this.total})`
-    } else {
-      this.title = `${this.translate.instant("locale.books.title")} (${this.total})`
+    try {
+      if (this.isGlobalSearch(this.adv_search)) {
+        searchContext = this.adv_search?.path || ''
+        this.title = `Search results ${searchContext} (${this.total})`
+      } else if (this.isAuthorSearch(this.adv_search)) {
+        searchContext = this.authorInfo ? this.authorInfo.name : (this.adv_search?.author || '')
+        this.title = `Books by ${searchContext} (${this.total})`
+      } else if (this.isTagSearch(this.adv_search)) {
+        searchContext = this.adv_search?.selectedTags?.join(", ") || ''
+        this.title = `Books in ${searchContext} (${this.total})`
+      } else if (this.isSerieSearch(this.adv_search)) {
+        searchContext = this.adv_search?.serie || ''
+        this.title = `Books in series ${searchContext} (${this.total})`
+      } else {
+        this.title = `Books (${this.total})`
+      }
+    } catch (error) {
+      console.error('Error updating title:', error)
+      this.title = `Books (${this.total})`
     }
     this.cdr.detectChanges()
   }
@@ -316,8 +432,17 @@ export class BooksComponent implements OnInit, OnDestroy {
   getAll(): void {
     if (!this.adv_search) {
       this.adv_search = new Search()
-      this.adv_search.languages = this.user.languageBooks
     }
+
+    // CRUCIAL: Asegurar que los idiomas estén configurados
+    if (this.user && this.user.languageBooks) {
+      this.adv_search.languages = this.user.languageBooks
+    } else {
+      this.adv_search.languages = ['en']
+    }
+
+    console.log('Getting books with search object:', this.adv_search) // Debug
+
     const cacheKey = `${this.page}-${this.size}-${this.sort}-${this.order}-${JSON.stringify(this.adv_search)}`
 
     if (this.bookCache.has(cacheKey)) {
@@ -328,12 +453,13 @@ export class BooksComponent implements OnInit, OnDestroy {
       return
     }
 
-    // The service returns Book[], so we cast to BookWithTempImage[] after mapping
     this.bookService
       .getAll(this.adv_search, this.page, this.size, this.sort, this.order)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: Book[]) => {
+          console.log('Books received:', data?.length || 0) // Debug
+
           if (!data || (data.length === 0 && this.page === 0)) {
             if (this.page === 0) this.books = []
             this.cdr.detectChanges()
@@ -343,7 +469,6 @@ export class BooksComponent implements OnInit, OnDestroy {
           const booksWithTempData: BookWithTempImage[] = data.map((book) => {
             const processedBook: BookWithTempImage = { ...book }
 
-            // Immediately set the image with proper prefix if available
             if (book.image) {
               processedBook.image = book.image.startsWith("data:") ? book.image : "data:image/jpeg;base64," + book.image
               processedBook.originalImage = book.image
@@ -353,6 +478,10 @@ export class BooksComponent implements OnInit, OnDestroy {
               processedBook.rating = Math.round(book.rating)
             }
 
+            if (!processedBook.authors || !Array.isArray(processedBook.authors)) {
+              processedBook.authors = []
+            }
+
             return processedBook
           })
 
@@ -360,7 +489,6 @@ export class BooksComponent implements OnInit, OnDestroy {
           this.page++
           this.cdr.detectChanges()
 
-          // Cache the processed books
           this.bookCache.set(cacheKey, [...booksWithTempData])
         },
         error: (error) => {
@@ -368,8 +496,8 @@ export class BooksComponent implements OnInit, OnDestroy {
           this.messageService.clear()
           this.messageService.add({
             severity: "error",
-            summary: this.translate.instant("locale.error.summary"),
-            detail: this.translate.instant("locale.books.error.data_load"),
+            summary: "Error",
+            detail: "Error loading books",
             closable: true,
             life: 5000,
           })
@@ -381,13 +509,15 @@ export class BooksComponent implements OnInit, OnDestroy {
     return book.id || `book-${index}`
   }
 
+  getFirstAuthor(book: BookWithTempImage): string {
+    return book.authors && book.authors.length > 0 ? book.authors[0] : 'Unknown Author'
+  }
+
   showDetails(book: BookWithTempImage): void {
     if (this.detailComponent) {
       this.detailComponent.showDetails(book)
       this.showDetail = true
       this.cdr.detectChanges()
-    } else {
-      console.warn("DetailComponent not available yet.")
     }
   }
 
@@ -406,8 +536,6 @@ export class BooksComponent implements OnInit, OnDestroy {
       this.authorComponent.showDetails(author)
       this.showAuthorDetail = true
       this.cdr.detectChanges()
-    } else {
-      console.warn("AuthorComponent not available yet.")
     }
   }
 
@@ -427,6 +555,15 @@ export class BooksComponent implements OnInit, OnDestroy {
   }
 
   openAuthor(authorName: string): void {
+    if (!authorName || authorName === 'Unknown Author') {
+      this.messageService.add({
+        severity: "warn",
+        summary: "Author not available",
+        detail: "Author information is not available for this book.",
+      })
+      return
+    }
+
     this.closeDetails()
     this.authorService
       .getByName(authorName)
@@ -441,17 +578,10 @@ export class BooksComponent implements OnInit, OnDestroy {
                 : "data:image/jpeg;base64," + authorData.image
             }
             this.showAuthorDetails(authorData)
-          } else {
-            this.messageService.add({
-              severity: "warn",
-              summary: "Author not found",
-              detail: `Author ${authorName} could not be retrieved.`,
-            })
           }
         },
         error: (error) => {
           console.error("Error fetching author:", error)
-          this.messageService.add({ severity: "error", summary: "Error", detail: "Could not load author details." })
         },
       })
   }
@@ -468,21 +598,13 @@ export class BooksComponent implements OnInit, OnDestroy {
             : "data:image/jpeg;base64," + book.image
           : originalBookData.image,
         originalImage: book.image || originalBookData.originalImage,
+        authors: book.authors || []
       }
 
-      // Update cache
       this.bookCache.forEach((cachedBooks, key) => {
         const cachedIndex = cachedBooks.findIndex((cb) => cb.id === book.id)
         if (cachedIndex !== -1) {
-          cachedBooks[cachedIndex] = {
-            ...book,
-            image: book.image
-              ? book.image.startsWith("data:")
-                ? book.image
-                : "data:image/jpeg;base64," + book.image
-              : cachedBooks[cachedIndex].image,
-            originalImage: book.image || cachedBooks[cachedIndex].originalImage,
-          }
+          cachedBooks[cachedIndex] = { ...this.books[index] }
         }
       })
       this.cdr.detectChanges()
@@ -499,6 +621,7 @@ export class BooksComponent implements OnInit, OnDestroy {
             : "data:image/jpeg;base64," + book.image
           : originalFavData.image,
         originalImage: book.image || originalFavData.originalImage,
+        authors: book.authors || []
       }
       if (this.favoritesCache) {
         const favCacheIndex = this.favoritesCache.findIndex((fb) => fb.id === book.id)
@@ -540,6 +663,7 @@ export class BooksComponent implements OnInit, OnDestroy {
   }
 
   private doSearch(): void {
+    console.log('Starting search with:', this.adv_search) // Debug
     this.reset()
     this.searched = true
 
@@ -553,7 +677,13 @@ export class BooksComponent implements OnInit, OnDestroy {
       this.favoritesCache = null
     }
 
-    this.adv_search.languages = this.user.languageBooks
+    // CRUCIAL: Configurar idiomas
+    if (this.user && this.user.languageBooks) {
+      this.adv_search.languages = this.user.languageBooks
+    } else {
+      this.adv_search.languages = ['en']
+    }
+
     this.getAll()
     this.fetchCountAndUpdateTitle()
   }
@@ -584,6 +714,10 @@ export class BooksComponent implements OnInit, OnDestroy {
       return
     }
 
+    if (!this.user.username) {
+      return
+    }
+
     this.bookService
       .getFavorites(this.user.username)
       .pipe(takeUntil(this.destroy$))
@@ -594,7 +728,6 @@ export class BooksComponent implements OnInit, OnDestroy {
           const favoritesWithTempData: BookWithTempImage[] = data.map((book) => {
             const processedBook: BookWithTempImage = { ...book }
 
-            // Immediately set the image with proper prefix if available
             if (book.image) {
               processedBook.image = book.image.startsWith("data:") ? book.image : "data:image/jpeg;base64," + book.image
               processedBook.originalImage = book.image
@@ -602,6 +735,10 @@ export class BooksComponent implements OnInit, OnDestroy {
 
             if (book.rating) {
               processedBook.rating = Math.round(book.rating)
+            }
+
+            if (!processedBook.authors || !Array.isArray(processedBook.authors)) {
+              processedBook.authors = []
             }
 
             return processedBook
@@ -626,9 +763,9 @@ export class BooksComponent implements OnInit, OnDestroy {
     this.page = 0
 
     const storedSort = sessionStorage.getItem("books_order")
-    if (storedSort && this.sorts.some((s) => s.value === storedSort)) {
+    if (storedSort && this.sorts && this.sorts.length > 0 && this.sorts.some((s) => s.value === storedSort)) {
       this.selectedSort = storedSort
-    } else if (this.sorts.length > 0) {
+    } else if (this.sorts && this.sorts.length > 0) {
       this.selectedSort = this.sorts[0].value
     } else {
       this.selectedSort = "id,desc"
@@ -636,8 +773,13 @@ export class BooksComponent implements OnInit, OnDestroy {
 
     if (this.selectedSort) {
       const index = this.selectedSort.indexOf(",")
-      this.sort = this.selectedSort.slice(0, index)
-      this.order = this.selectedSort.slice(index + 1)
+      if (index > -1) {
+        this.sort = this.selectedSort.slice(0, index)
+        this.order = this.selectedSort.slice(index + 1)
+      } else {
+        this.sort = "id"
+        this.order = "desc"
+      }
     }
 
     this.books.length = 0

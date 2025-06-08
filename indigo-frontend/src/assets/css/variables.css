@@ -1,0 +1,50 @@
+/** VARIABLES CSS GLOBALES **/
+:root {
+  /* Colores principales */
+  --primary-color: #698ebf;
+  --primary-hover: #547eb6;
+  --primary-active: #4770a6;
+  --secondary-color: #f28686;
+  --secondary-hover: #e06666;
+
+  /* Colores de texto */
+  --text-primary: #495057;
+  --text-secondary: #6c757d;
+  --text-muted: #9199a9;
+  --text-light: #ecf0f1;
+
+  /* Colores de fondo */
+  --bg-primary: #eceff4;
+  --bg-secondary: #ffffff;
+  --bg-light: #f8f9fa;
+  --bg-dark: #2c3e50;
+
+  /* Colores de borde */
+  --border-light: #e9ecef;
+  --border-medium: #ced4da;
+  --border-dark: #dee2e6;
+
+  /* Colores de estado */
+  --success-color: #439446;
+  --warning-color: #d9a300;
+  --error-color: #d57c7c;
+  --info-color: #698ebf;
+
+  /* Sombras */
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 2px 8px 0 rgba(0, 0, 0, 0.15), 0 1px 3px 0 rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 4px 12px 0 rgba(0, 0, 0, 0.25), 0 2px 6px 0 rgba(0, 0, 0, 0.15);
+
+  /* Medidas */
+  --header-height: 50px;
+  --sidebar-width: 275px;
+  --sidebar-mobile-width: 250px;
+  --border-radius: 4px;
+  --border-radius-sm: 3px;
+  --border-radius-lg: 8px;
+
+  /* Transiciones */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}

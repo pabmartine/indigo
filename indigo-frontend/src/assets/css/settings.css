@@ -1,0 +1,311 @@
+/** SETTINGS **/
+.settings .p-dropdown {
+  width: 100%;
+}
+
+.settings .p-panel .p-panel-header {
+  background: var(--bg-secondary);
+}
+
+.settings .p-datatable .p-datatable-thead > tr > th {
+  background: var(--bg-secondary);
+}
+
+.settings .p-button .p-button-icon-left {
+  margin-right: 0rem;
+}
+
+.settings .table-buttons {
+  width: 8em;
+  text-align: center;
+}
+
+.settings .settings-button {
+  margin-right: 5px;
+}
+
+.settings .success {
+  color: var(--success-color);
+}
+
+.settings .error {
+  color: var(--error-color);
+}
+
+.settings .warning {
+  color: var(--warning-color);
+}
+
+.settings .metadata {
+  margin: 0;
+}
+
+.settings .metadata-box {
+  padding-top: 18px;
+  color: #ffffff;
+  background-color: var(--primary-color);
+}
+
+.settings .metadata-title {
+  margin-left: 12px;
+  margin-bottom: 8px;
+  font-size: 20px;
+}
+
+.settings .metadata-subtitle {
+  margin-left: 12px;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+
+.settings .metadata-subinfo {
+  background-color: #E9E9E9;
+  height: 38px;
+  font-size: 13px;
+  border: 1px solid #dedede;
+  margin: 0;
+}
+
+.settings .metadata-subinfo span {
+  color: #585858;
+  width: auto;
+  line-height: 22px;
+}
+
+.settings .progress {
+  height: 10px;
+  background-color: #B3B0B0;
+  border-radius: 5px;
+  padding: 0;
+  margin: 6px 0 0px 10px;
+}
+
+.settings .metadata-icon {
+  float: right;
+  margin-right: 20px;
+  font-size: 50px;
+}
+
+.settings .metadata-action-icon {
+  color: var(--text-secondary) !important;
+}
+
+.settings .p-progressbar {
+  height: 10px;
+  background: #B3B0B0;
+  border-radius: 5px;
+  padding: 0;
+  margin: 0px 0 0px 0;
+}
+
+.uploadsProgress .p-progressbar {
+  height: 100%;
+  background: var(--bg-secondary);
+  border-radius: 0px;
+  padding: 0px;
+  margin: 0;
+}
+
+.settings .p-progressbar-determinate .p-progressbar-label {
+  display: none !important;
+}
+
+.uploadsProgress .p-progressbar-determinate .p-progressbar-label {
+  display: block !important;
+  color: #fff;
+}
+
+.settings .confirmDialog .p-button-icon-left {
+  display: none;
+}
+
+/* CORRECCIÓN ESPECÍFICA PARA SETTINGS - ALINEACIÓN PERFECTA */
+.settings .p-panel .p-grid.p-fluid {
+  margin: 0;
+  padding: 0;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: stretch !important;
+}
+
+.settings .p-panel .p-grid.p-fluid > div {
+  padding: 0.5rem 0;
+  margin: 0;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.settings .settings-label {
+  font-weight: 500 !important;
+  color: var(--text-primary) !important;
+  padding-right: 1rem !important;
+  min-height: 3rem !important;
+  box-sizing: border-box !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+}
+
+.settings .p-col-12.p-md-8 {
+  min-height: 3rem !important;
+  padding-left: 0 !important;
+  align-items: center !important;
+}
+
+.settings .p-col-12.p-md-8 input,
+.settings .p-col-12.p-md-8 .p-dropdown,
+.settings .p-col-12.p-md-8 .p-password {
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+/* FORZAR GRID BEHAVIOR EN PANTALLAS GRANDES */
+@media (min-width: 769px) {
+  .settings .p-panel .p-grid.p-fluid {
+    display: grid !important;
+    grid-template-columns: repeat(12, 1fr) !important;
+    gap: 0.5rem 1rem !important;
+    align-items: center !important;
+  }
+
+  .settings .p-col-12.p-md-4.settings-label {
+    grid-column: span 4 !important;
+    display: flex !important;
+    align-items: center !important;
+    min-height: 3rem !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .settings .p-col-12.p-md-8 {
+    grid-column: span 8 !important;
+    display: flex !important;
+    align-items: center !important;
+    min-height: 3rem !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .settings .p-col-12:not(.p-md-4):not(.p-md-8) {
+    grid-column: span 12 !important;
+    margin-bottom: 0.5rem !important;
+  }
+}
+
+/* Contenedor para el estado y botón de test SMTP */
+.settings .smtp-status-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  gap: 1rem !important;
+}
+
+.settings .smtp-status {
+  flex: 1 !important;
+  font-weight: 500 !important;
+  font-size: 0.9rem !important;
+}
+
+.settings .smtp-test-btn {
+  background: transparent !important;
+  border: 1px solid var(--border-medium) !important;
+  border-radius: var(--border-radius) !important;
+  padding: 0.5rem 0.75rem !important;
+  cursor: pointer !important;
+  transition: all var(--transition-fast) !important;
+  color: var(--text-secondary) !important;
+  min-width: 2.5rem !important;
+  height: 2.5rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+.settings .smtp-test-btn:hover:not(:disabled) {
+  background: var(--bg-light) !important;
+  border-color: var(--primary-color) !important;
+  color: var(--primary-color) !important;
+}
+
+.settings .smtp-test-btn:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+}
+
+.settings .smtp-test-btn .pi {
+  font-size: 1rem !important;
+}
+
+/* Espaciado entre campos */
+.settings .p-panel .p-grid.p-fluid > .p-col-12:first-child {
+  padding: 0 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.settings .p-panel .p-grid.p-fluid > .p-col-12:not(:first-child) {
+  border-top: none !important;
+}
+
+/* Eliminar márgenes conflictivos */
+.settings .p-panel .p-panel-content {
+  padding: 1rem !important;
+}
+
+.settings .p-panel .p-panel-content .p-grid {
+  margin: 0 !important;
+}
+
+/* RESPONSIVE MEJORADO PARA SETTINGS */
+@media (max-width: 768px) {
+  .settings .settings-label {
+    min-height: 2rem !important;
+    padding-bottom: 0.25rem !important;
+    align-items: flex-start !important;
+  }
+
+  .settings .p-col-12.p-md-8 {
+    min-height: 2.5rem !important;
+    padding-top: 0 !important;
+  }
+
+  .settings .smtp-status-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+  }
+
+  .settings .smtp-test-btn {
+    align-self: flex-end !important;
+  }
+}
+
+/* RESPONSIVE ESPECÍFICO PARA SETTINGS */
+@media (max-width: 992px) {
+  .settings .metadata-icon {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .settings .settings-label {
+    min-height: 2rem !important;
+    padding-bottom: 0.25rem !important;
+    align-items: flex-start !important;
+  }
+
+  .settings .p-col-12.p-md-8 {
+    min-height: 2.5rem !important;
+    padding-top: 0 !important;
+  }
+
+  .settings .smtp-status-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
+  }
+
+  .settings .smtp-test-btn {
+    align-self: flex-end !important;
+  }
+}

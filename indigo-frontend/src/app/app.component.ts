@@ -5,8 +5,7 @@ import { TranslateService, TranslationChangeEvent } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  templateUrl: './app.component.html'
 })
 export class AppComponent {
   title = 'indigo-client';
@@ -16,7 +15,7 @@ export class AppComponent {
   userInactive: Subject<any> = new Subject();
 
   constructor(private router: Router, public translate: TranslateService){
-    
+
     //Locale
     translate.addLangs(['en-GB', 'fr-FR', 'es-ES']);
     translate.setDefaultLang('en-GB');
@@ -28,9 +27,9 @@ export class AppComponent {
       const browserLang = translate.getBrowserLang();
       translate.use(browserLang.match(/en-GB|fr-FR|es-ES/) ? browserLang : 'en-GB');
     }
-   
-    
-      
+
+
+
     //Control for session idle
     this.setTimeout();
     this.userInactive.subscribe(() => {
@@ -48,7 +47,7 @@ export class AppComponent {
 
   @HostListener('window:mousemove') refreshUserState() {
     clearTimeout(this.userActivity);
-    this.setTimeout();    
+    this.setTimeout();
   }
 
   logout(){

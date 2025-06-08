@@ -15,7 +15,6 @@ import { FileService } from 'src/app/services/file.service';
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.component.html',
-  styleUrls: ['./settings.component.css'],
   providers: [MessageService, ConfirmationService]
 })
 export class SettingsComponent implements OnInit {
@@ -112,11 +111,11 @@ export class SettingsComponent implements OnInit {
 
         this.uploads = data.uploadsTotal;
         this.uploadsProgress = data.uploadsCurrent;
-  
+
         if (this.message) {
           this.message = this.translate.instant('locale.settings.panel.metadata.' + this.message);
         }
-  
+
         if (this.total !== 0) {
           this.progressBar = Math.round((this.current * 100) / this.total);
         }
@@ -126,7 +125,7 @@ export class SettingsComponent implements OnInit {
       }
     });
   }
-  
+
 
   getUsers(): void {
     this.userService.getAll().subscribe({
@@ -140,7 +139,7 @@ export class SettingsComponent implements OnInit {
       }
     });
   }
-  
+
 
   getGlobal(): void {
     this.configService.get("books.recommendations").subscribe({
@@ -167,7 +166,7 @@ export class SettingsComponent implements OnInit {
       }
     });
   }
-  
+
 
   getMetadata(): void {
     this.configService.get("goodreads.key").subscribe({
@@ -181,7 +180,7 @@ export class SettingsComponent implements OnInit {
       }
     });
   }
-  
+
 
   getSmtp(): void {
     const observables = [
@@ -193,7 +192,7 @@ export class SettingsComponent implements OnInit {
       this.configService.get("smtp.password"),
       this.configService.get("smtp.status")
     ];
-  
+
     forkJoin(observables).subscribe({
       next: ([provider, host, port, encryption, username, password, status]) => {
         this.smtpProvider = provider?.value || 'other';
@@ -208,7 +207,7 @@ export class SettingsComponent implements OnInit {
         console.log(error);
       }
     });
-  
+
   }
 
   save(): void {
@@ -222,7 +221,7 @@ export class SettingsComponent implements OnInit {
       new Config("smtp.password", this.smtpPassword),
       new Config("books.recommendations", String(this.booksRecommendations))
     ];
-  
+
     this.configService.save(configs).subscribe({
       next: () => {
         this.messageService.clear();
@@ -235,7 +234,7 @@ export class SettingsComponent implements OnInit {
       }
     });
   }
-  
+
 
 
   upload(data:number): void {
@@ -289,7 +288,7 @@ export class SettingsComponent implements OnInit {
         }
       });
     };
-  
+
     const stopAndStartMetadataService = () => {
       this.metadataService.stop().subscribe({
         next: () => {
@@ -301,7 +300,7 @@ export class SettingsComponent implements OnInit {
         }
       });
     };
-  
+
     if (
       (type === 'FULL' && entity === 'REVIEWS' && this.isReviewsFull()) ||
       (type === 'PARTIAL' && entity === 'REVIEWS' && this.isReviewsPartial()) ||
@@ -324,13 +323,13 @@ export class SettingsComponent implements OnInit {
       stopAndStartMetadataService();
     }
   }
-  
+
 
 
 
   doSendTestMail() {
     this.isSendTestMail = true;
-  
+
     const user = JSON.parse(sessionStorage.user);
     this.mailService.sendTestMail(user.kindle).subscribe({
       next: (data) => {
@@ -343,7 +342,7 @@ export class SettingsComponent implements OnInit {
       }
     });
   }
-  
+
 
   newUser() {
     this.router.navigate(["profile"], { queryParams: { type: "new" } });
@@ -365,7 +364,7 @@ export class SettingsComponent implements OnInit {
       }
     });
   }
-  
+
 
   onChange(event) {
     switch (event.value) {
@@ -394,18 +393,18 @@ export class SettingsComponent implements OnInit {
       next: (data) => {
         console.log(data);
         if (data>0) {
-          this.confirmationService.confirm({ 
-            message: 'Se han detectado ' + data + ' libros nuevos. ¿Desea añadirlos a su biblioteca?', 
+          this.confirmationService.confirm({
+            message: 'Se han detectado ' + data + ' libros nuevos. ¿Desea añadirlos a su biblioteca?',
             header: 'Añadir libros',
             acceptLabel: 'Aceptar',
             rejectLabel: 'Cancelar',
             accept: () => {
               this.upload(data);
             },
-          }); 
+          });
          } else {
-          this.confirmationService.confirm({ 
-            message: 'No se han detectado libros nuevos en ' + this.uploadsPath, 
+          this.confirmationService.confirm({
+            message: 'No se han detectado libros nuevos en ' + this.uploadsPath,
             header: 'Añadir libros',
             acceptLabel: 'Cerrar',
             rejectVisible: false

@@ -1,0 +1,112 @@
+/** AUTHORS **/
+.author .user_avatar {
+  text-align: center !important;
+  min-height: 180px !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  padding: 0.5rem !important;
+}
+
+.author .avatar {
+  width: 100px !important;
+  min-width: 100px !important;
+  height: 100px !important;
+  border: 2px solid var(--border-light) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  margin-bottom: 0.8rem !important;
+  max-width: 100px !important;
+  cursor: pointer !important;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+.author .avatar:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+.author .user_avatar a {
+  text-decoration: none !important;
+  color: inherit !important;
+  width: 100% !important;
+  display: block !important;
+  transition: transform var(--transition-fast) !important;
+}
+
+.author .user_avatar a:hover {
+  transform: translateY(-1px) !important;
+}
+
+.author .user_avatar a:focus {
+  outline: 2px solid var(--primary-color) !important;
+  outline-offset: 2px !important;
+  border-radius: var(--border-radius-sm) !important;
+}
+
+.author .user_avatar .title {
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  line-height: 1.2 !important;
+  margin-bottom: 0.3rem !important;
+  display: block !important;
+  width: 100% !important;
+  text-align: center !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.author .user_avatar .subtitle {
+  font-weight: inherit !important;
+  font-size: 0.8rem !important;
+  color: var(--text-secondary) !important;
+  opacity: 0.8 !important;
+  margin-bottom: 0.1rem !important;
+  display: block !important;
+  width: 100% !important;
+  text-align: center !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Diálogos específicos para autores */
+.author .p-dialog .p-dialog-header .p-dialog-title {
+  font-weight: 600;
+  font-size: 1.25rem;
+  padding-left: 34px;
+}
+
+/* RESPONSIVE ESPECÍFICO PARA AUTORES */
+@media (max-width: 480px) {
+  .author .user_avatar {
+    min-height: 160px !important;
+    padding: 0.3rem !important;
+  }
+
+  .author .avatar {
+    width: 80px !important;
+    min-width: 80px !important;
+    height: 80px !important;
+    max-width: 80px !important;
+    margin-bottom: 0.6rem !important;
+  }
+
+  .author .user_avatar .title {
+    font-size: 0.85rem !important;
+  }
+
+  .author .user_avatar .subtitle {
+    font-size: 0.75rem !important;
+  }
+}

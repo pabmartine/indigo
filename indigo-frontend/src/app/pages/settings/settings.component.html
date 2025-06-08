@@ -241,67 +241,69 @@
                 </p-panel>
             </div>
 
-            <div class="p-col">
-                <p-panel header="{{'locale.settings.panel.smtp.title' | translate}}" [toggleable]="true"
-                    [collapsed]="true">
-                    <div class="p-grid p-fluid">
+          <div class="p-col">
+            <p-panel header="{{'locale.settings.panel.smtp.title' | translate}}" [toggleable]="true"
+                     [collapsed]="true">
+              <div class="p-grid p-fluid">
 
-                        <div class="p-col-12"></div>
+                <div class="p-col-12"></div>
 
-                        <div class="p-col-12 p-md-4">{{'locale.settings.panel.smtp.provider' | translate}}
-                        </div>
-                        <div class="p-col-12 p-md-8">
-                            <p-dropdown [options]="providers" [(ngModel)]="smtpProvider" (onChange)="onChange($event)">
-                            </p-dropdown>
-                        </div>
+                <div class="p-col-12 p-md-4 settings-label">{{'locale.settings.panel.smtp.provider' | translate}}
+                </div>
+                <div class="p-col-12 p-md-8">
+                  <p-dropdown [options]="providers" [(ngModel)]="smtpProvider" (onChange)="onChange($event)">
+                  </p-dropdown>
+                </div>
 
-                        <div class="p-col-12 p-grid" *ngIf="smtpProvider === 'other'">
-                            <div class="p-col-12 p-md-4">{{'locale.settings.panel.smtp.host' | translate}}</div>
-                            <div class="p-col-12 p-md-8">
-                                <input type="text" pInputText autocomplete="off" [(ngModel)]="smtpHost" />
-                            </div>
+                <!-- Campos adicionales para 'other' provider -->
+                <ng-container *ngIf="smtpProvider === 'other'">
+                  <div class="p-col-12 p-md-4 settings-label">{{'locale.settings.panel.smtp.host' | translate}}</div>
+                  <div class="p-col-12 p-md-8">
+                    <input type="text" pInputText autocomplete="off" [(ngModel)]="smtpHost" />
+                  </div>
 
-                            <div class="p-col-12 p-md-4">{{'locale.settings.panel.smtp.port' | translate}}</div>
-                            <div class="p-col-12 p-md-8">
-                                <input type="text" pInputText autocomplete="off" [(ngModel)]="smtpPort" />
-                            </div>
+                  <div class="p-col-12 p-md-4 settings-label">{{'locale.settings.panel.smtp.port' | translate}}</div>
+                  <div class="p-col-12 p-md-8">
+                    <input type="text" pInputText autocomplete="off" [(ngModel)]="smtpPort" />
+                  </div>
 
-                            <div class="p-col-12 p-md-4">{{'locale.settings.panel.smtp.encryption' | translate}}
-                            </div>
-                            <div class="p-col-12 p-md-8">
-                                <p-dropdown [options]="encryptions" [(ngModel)]="smtpEncryption"></p-dropdown>
-                            </div>
-                        </div>
-                        <div class="p-col-12 p-md-4">{{'locale.settings.panel.smtp.username' | translate}}
-                        </div>
-                        <div class="p-col-12 p-md-8">
-                            <input type="text" pInputText autocomplete="off" [(ngModel)]="smtpUsername" />
-                        </div>
+                  <div class="p-col-12 p-md-4 settings-label">{{'locale.settings.panel.smtp.encryption' | translate}}
+                  </div>
+                  <div class="p-col-12 p-md-8">
+                    <p-dropdown [options]="encryptions" [(ngModel)]="smtpEncryption"></p-dropdown>
+                  </div>
+                </ng-container>
 
-                        <div class="p-col-12 p-md-4">{{'locale.settings.panel.smtp.password' | translate}}
-                        </div>
-                        <div class="p-col-12 p-md-8">
-                            <input type="password" pPassword autocomplete="off" [(ngModel)]="smtpPassword" />
-                        </div>
+                <div class="p-col-12 p-md-4 settings-label">{{'locale.settings.panel.smtp.username' | translate}}
+                </div>
+                <div class="p-col-12 p-md-8">
+                  <input type="text" pInputText autocomplete="off" [(ngModel)]="smtpUsername" />
+                </div>
 
-                        <div class="p-col-12 p-md-4">{{'locale.settings.panel.smtp.test' | translate}}</div>
-                        <div class="p-col-12 p-md-8">
-                            <div class="p-col-11" style="float: left;">
-                                <span
-                                    [ngClass]="{ 'success': smtpStatus==='ok','error': smtpStatus==='error', 'warn': smtpStatus === 'unknown'}">{{'locale.settings.panel.smtp.status.'
-                                    + smtpStatus | translate}}</span>
-                            </div>
-                            <div class="p-col-1 right" style="float: right;">
-                                <a href="javascript:;" (click)="doSendTestMail()"
-                                    [ngClass]="{ 'disabled': isSendTestMail}">
-                                    <span class="pi"
-                                        [ngClass]="{ 'pi-pause': isSendTestMail, 'pi-play': !isSendTestMail  }"></span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </p-panel>
-            </div>
+                <div class="p-col-12 p-md-4 settings-label">{{'locale.settings.panel.smtp.password' | translate}}
+                </div>
+                <div class="p-col-12 p-md-8">
+                  <input type="password" pPassword autocomplete="off" [(ngModel)]="smtpPassword" />
+                </div>
+
+                <div class="p-col-12 p-md-4 settings-label">{{'locale.settings.panel.smtp.test' | translate}}</div>
+                <div class="p-col-12 p-md-8">
+                  <div class="smtp-status-row">
+                                <span class="smtp-status"
+                                      [ngClass]="{ 'success': smtpStatus==='ok','error': smtpStatus==='error', 'warning': smtpStatus === 'unknown'}">
+                                    {{'locale.settings.panel.smtp.status.' + smtpStatus | translate}}
+                                </span>
+                    <button type="button"
+                            class="smtp-test-btn"
+                            [disabled]="isSendTestMail"
+                            (click)="doSendTestMail()">
+                      <i class="pi" [ngClass]="{ 'pi-pause': isSendTestMail, 'pi-play': !isSendTestMail }"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </p-panel>
+          </div>
 
             <div class="p-col">
                 <p-panel header="{{'locale.settings.panel.file.title' | translate}}" [toggleable]="true"
@@ -320,13 +322,13 @@
                             <div class="uploadsProgress" *ngIf="uploadsProgress>0">
                                 <p-progressBar [value]="uploadsProgress" ></p-progressBar>
                             </div>
-                            
+
                         </div>
                         <div class="p-col-12 p-md-1">
                             <p-confirmDialog class="confirmDialog"></p-confirmDialog>
                             <p-button label="{{'locale.buttons.detect' | translate}}" icon="pi pi-refresh"
                                 class="settings-button" (click)="detect()"></p-button>
-                        </div> 
+                        </div>
                     </div>
                 </p-panel>
             </div>

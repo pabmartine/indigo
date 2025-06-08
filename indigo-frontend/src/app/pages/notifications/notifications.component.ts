@@ -12,7 +12,6 @@ import { UserService } from 'src/app/services/user.service';
 @Component({
   selector: 'app-notifications',
   templateUrl: './notifications.component.html',
-  styleUrls: ['./notifications.component.css'],
   providers: [MessageService]
 
 })
@@ -72,13 +71,13 @@ export class NotificationsComponent implements OnInit {
 
 
   getNotifications(): void {
-    
+
     this.notificationService.findAll().subscribe({
       next: (data) => {
         if (data) {
           this.notifications = data;
           this.notifications.forEach((notif) => {
-            
+
             if (notif.type===NotificationEnum.KINDLE){
               this.getBook(notif);
             }

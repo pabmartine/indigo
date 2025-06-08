@@ -1,6 +1,6 @@
 <p-toast position="top-center" [showTransformOptions]="'translateY(-100%)'"></p-toast>
 
-<div class="book" *ngIf="favorites?.length > 0">
+<div class="book" *ngIf="favorites && favorites.length > 0">
   <p-card>
     <div class="content-header p-grid">
       <div class="p-col-12 p-md-6">
@@ -18,13 +18,20 @@
                (click)="showDetails(book)"
                style="cursor: pointer;"
                loading="lazy"
-               [alt]="book.title"
+               [alt]="book.title || 'Book'"
                [class.loading-image]="!book.image" />
         </div>
         <div class="book-info">
-          <span class="title">{{book.title}}</span>
+          <span class="title">{{book.title || 'Unknown Title'}}</span>
           <span class="subtitle">
-            <a href="javascript:;" (click)="openAuthor(book.authors[0])">{{book.authors[0]}}</a>
+            <a href="javascript:;"
+               (click)="openAuthor(getFirstAuthor(book))"
+               *ngIf="getFirstAuthor(book) !== 'Unknown Author'">
+              {{getFirstAuthor(book)}}
+            </a>
+            <span *ngIf="getFirstAuthor(book) === 'Unknown Author'">
+              {{getFirstAuthor(book)}}
+            </span>
           </span>
           <div *ngIf="book.rating">
             <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
@@ -41,36 +48,44 @@
     <div class="content-header p-grid">
       <div class="p-col-12 p-md-6">
         <span class="page-title">
-          {{title}}
+          {{title || 'Books'}}
         </span>
       </div>
       <div class="p-col-12 p-md-6" style="text-align: right;">
-        <p-dropdown [options]="sorts"
+        <p-dropdown [options]="sorts || []"
                     [(ngModel)]="selectedSort"
                     (onChange)="onChange($event)"
-                    class="sortBy">
+                    class="sortBy"
+                    *ngIf="sorts && sorts.length > 0">
           <ng-template let-item pTemplate="selectedItem">
-            <span style="vertical-align:middle">{{item.label}}</span>
+            <span style="vertical-align:middle">{{item?.label || 'Sort Option'}}</span>
           </ng-template>
         </p-dropdown>
       </div>
     </div>
 
     <div class="content-body p-grid" infiniteScroll [infiniteScrollDistance]="2" (scrolled)="onScroll()">
-      <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of books; trackBy: trackByBookId">
+      <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of books || []; trackBy: trackByBookId">
         <div class="book-cover-container">
           <img [src]="book.image || './assets/images/book-placeholder.jpg'"
                class="list-image book-cover"
                (click)="showDetails(book)"
                style="cursor: pointer;"
                loading="lazy"
-               [alt]="book.title"
+               [alt]="book.title || 'Book'"
                [class.loading-image]="!book.image" />
         </div>
         <div class="book-info">
-          <span class="title">{{book.title}}</span>
+          <span class="title">{{book.title || 'Unknown Title'}}</span>
           <span class="subtitle">
-            <a href="javascript:;" (click)="openAuthor(book.authors[0])">{{book.authors[0]}}</a>
+            <a href="javascript:;"
+               (click)="openAuthor(getFirstAuthor(book))"
+               *ngIf="getFirstAuthor(book) !== 'Unknown Author'">
+              {{getFirstAuthor(book)}}
+            </a>
+            <span *ngIf="getFirstAuthor(book) === 'Unknown Author'">
+              {{getFirstAuthor(book)}}
+            </span>
           </span>
           <div *ngIf="book.rating" class="rating-container">
             <p-rating [ngModel]="book.rating"

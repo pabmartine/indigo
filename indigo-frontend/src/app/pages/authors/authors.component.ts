@@ -15,7 +15,6 @@ import { AuthorService } from 'src/app/services/author.service';
 @Component({
   selector: 'app-authors',
   templateUrl: './authors.component.html',
-  styleUrls: ['./authors.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [MessageService]
 })

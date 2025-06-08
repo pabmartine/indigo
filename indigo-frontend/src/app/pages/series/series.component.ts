@@ -17,7 +17,6 @@ interface SerieWithTempImage extends Serie {
 @Component({
   selector: 'app-series',
   templateUrl: './series.component.html',
-  styleUrls: ['./series.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [MessageService]
 })

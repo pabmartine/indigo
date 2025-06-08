@@ -5,8 +5,7 @@ import { MenuItem } from 'primeng/api/menuitem';
 
 @Component({
   selector: 'app-sidebar',
-  templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.css']
+  templateUrl: './sidebar.component.html'
 })
 export class SidebarComponent implements OnInit {
 
@@ -14,7 +13,7 @@ export class SidebarComponent implements OnInit {
 
   items: MenuItem[];
   others: MenuItem[];
-  
+
   constructor(private router: Router, public translate: TranslateService) { }
 
   ngOnInit(): void {
@@ -34,7 +33,7 @@ export class SidebarComponent implements OnInit {
 
   buildMenu(): MenuItem[] {
     const menu: MenuItem[] = [
-      
+
       {
         label: this.translate.instant('locale.sidebar.menu.recommendations'),
         icon: 'menu-item-icon pi pi-star',
@@ -78,16 +77,16 @@ export class SidebarComponent implements OnInit {
         command: () => this.show = false
       },
       {
-        label: this.translate.instant('locale.sidebar.menu.notifications'), 
-        icon: 'menu-icon pi pi-bell', 
+        label: this.translate.instant('locale.sidebar.menu.notifications'),
+        icon: 'menu-icon pi pi-bell',
         routerLink: ['/notifications'],
         routerLinkActiveOptions: { exact: true },
         command: () => this.show = false,
         visible: this.isAdmin()
       },
       {
-        label: this.translate.instant('locale.sidebar.menu.settings'), 
-        icon: 'menu-icon pi pi-cog', 
+        label: this.translate.instant('locale.sidebar.menu.settings'),
+        icon: 'menu-icon pi pi-cog',
         routerLink: ['/settings'],
         routerLinkActiveOptions: { exact: true },
         command: () => this.show = false,
@@ -100,12 +99,12 @@ export class SidebarComponent implements OnInit {
   buildOthers(): MenuItem[] {
     const menu: MenuItem[] = [
       {
-        label: this.translate.instant('locale.header.menu.profile'), 
-        icon: 'menu-icon pi pi-user', 
+        label: this.translate.instant('locale.header.menu.profile'),
+        icon: 'menu-icon pi pi-user',
         routerLink: ['/profile'],
         routerLinkActiveOptions: { exact: true },
         command: () => this.show = false
-      },      
+      },
       {
         label: this.translate.instant('locale.header.menu.logout'), icon: 'menu-icon pi pi-sign-out', command: () => this.logout()
       }    ];

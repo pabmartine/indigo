@@ -20,7 +20,6 @@ import { MailService } from 'src/app/services/mail.service';
 @Component({
   selector: 'app-detail',
   templateUrl: './detail.component.html',
-  styleUrls: ['./detail.component.css'],
   providers: [MessageService, DatePipe]
 
 })
@@ -115,7 +114,7 @@ export class DetailComponent implements OnInit {
 
   getImage(path: string): void {
     this.selectedImage = this.selected.image;
-    
+
     if (path) {
       this.bookService.getImage(path).subscribe({
         next: (data) => {
@@ -130,7 +129,7 @@ export class DetailComponent implements OnInit {
       });
     }
   }
-  
+
 
   getSerie(serie: Serie): void {
     if (serie) {
@@ -148,7 +147,7 @@ export class DetailComponent implements OnInit {
       });
     }
   }
-  
+
 
   getSimilar(similar: string[]): void {
     if (similar) {
@@ -166,7 +165,7 @@ export class DetailComponent implements OnInit {
       });
     }
   }
-  
+
 
 
   getRecommendations(recommendations: string[]): void {
@@ -185,7 +184,7 @@ export class DetailComponent implements OnInit {
       });
     }
   }
-  
+
 
 
 
@@ -247,9 +246,9 @@ export class DetailComponent implements OnInit {
 
   // addNotification(book: string, type: NotificationEnum, status: StatusEnum, error: string): void {
   //   const user = JSON.parse(sessionStorage.user);
-  
+
   //   const notification = new Notification(null, book, user.username, type, status, error, this.datepipe.transform(new Date(), 'dd/MM/yyyy HH:mm:ss'));
-  
+
   //   this.notificationService.save(notification).subscribe({
   //     next: (data) => {
   //       console.log(data);
@@ -259,20 +258,20 @@ export class DetailComponent implements OnInit {
   //     }
   //   });
   // }
-  
+
 
   sendToKindle(): void {
     const book = this.selected.path;
     const user = JSON.parse(sessionStorage.user);
-  
+
     this.messageService.clear();
     this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.kindle.todo'), closable: false, life: 5000 });
-  
+
     this.mailService.sendMail(book, user.kindle).subscribe({
       next: (data) => {
         this.messageService.clear();
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.kindle.ok'), closable: false, life: 5000 });
-  
+
         // Add to notifications table
         // this.addNotification(book, NotificationEnum.KINDLE, StatusEnum.SEND, null);
       },
@@ -280,13 +279,13 @@ export class DetailComponent implements OnInit {
         console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.kindle.error'), closable: false, life: 5000 });
-  
+
         // Add to notifications table
         // this.addNotification(book + '', NotificationEnum.KINDLE, StatusEnum.NOT_SEND, error.error.message);
       }
     });
   }
-  
+
 
 
   getKindle(): void {
@@ -301,11 +300,11 @@ export class DetailComponent implements OnInit {
       }
     });
   }
-  
+
 
   getFavoriteBook(id: string): void {
     const user = JSON.parse(sessionStorage.user);
-  
+
     this.bookService.getFavorite(id, user.username).subscribe({
       next: (data) => {
         if (data) {
@@ -317,7 +316,7 @@ export class DetailComponent implements OnInit {
       }
     });
   }
-  
+
 
   view(id: string) {
     const user = JSON.parse(sessionStorage.user);
@@ -330,7 +329,7 @@ export class DetailComponent implements OnInit {
 
   addFavoriteBook(): void {
     const user = JSON.parse(sessionStorage.user);
-  
+
     this.bookService.addFavorite(this.selected.path, user.username).subscribe({
       next: (data) => {
         this.favoriteBook = true;
@@ -344,13 +343,13 @@ export class DetailComponent implements OnInit {
       }
     });
   }
-  
+
 
 
 
   deleteFavoriteBook(): void {
     const user = JSON.parse(sessionStorage.user);
-  
+
     this.bookService.deleteFavorite(this.selected.path, user.username).subscribe({
       next: (data) => {
         this.favoriteBook = false;
@@ -364,7 +363,7 @@ export class DetailComponent implements OnInit {
       }
     });
   }
-  
+
 
   viewEpub() {
 
@@ -417,7 +416,7 @@ export class DetailComponent implements OnInit {
       }
     });
   }
-  
+
 
   isAdmin() {
     return JSON.parse(sessionStorage.user).role == 'ADMIN';
@@ -426,18 +425,18 @@ export class DetailComponent implements OnInit {
   refreshBook(): void {
     this.messageService.clear();
     this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.refresh.process'), closable: false, life: 5000 });
-  
+
     this.metadataService.findBook(this.selected.path, "es").subscribe({
       next: (data) => {
         this.selected = data;
-  
+
         if (data.image) {
           let objectURL = 'data:image/jpeg;base64,' + data.image;
           this.selected.image = objectURL;
         }
-  
+
         this.eventBook.emit(this.selected);
-  
+
         this.messageService.clear();
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.refresh.result.ok'), closable: false, life: 5000 });
       },
@@ -448,7 +447,7 @@ export class DetailComponent implements OnInit {
       }
     });
   }
-  
+
 
   showDialogMaximized(dialog: Dialog) {
     dialog.maximize();
@@ -496,7 +495,7 @@ export class DetailComponent implements OnInit {
       }
     });
   }
-  
+
 
   editBook() {
     this.editedBook = this.selected;
@@ -518,7 +517,7 @@ export class DetailComponent implements OnInit {
       }
     });
   }
-  
+
 
   checkOverflowRecommendations() {
     let row = document.getElementById('inlineRecommendations');
