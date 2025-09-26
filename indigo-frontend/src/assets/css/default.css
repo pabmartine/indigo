@@ -3934,7 +3934,7 @@ app-detail::-webkit-scrollbar-thumb:hover {
   .header .header-title,
   .header .header-title-message {
     font-size: 18px;
-    margin: 0 0.25rem;
+    margin: 9px 0.25rem;
   }
 
   .header .button-menu,

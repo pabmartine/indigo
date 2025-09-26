@@ -51,6 +51,7 @@
 .header .button-menu,
 .header .button-search,
 .header .button-messages {
+  display: none;
   background-color: transparent !important;
   border: 1px solid transparent !important;
   font-size: 24px !important;
@@ -61,14 +62,14 @@
 
 .header .button-menu {
   float: left;
-  left: -15px;
-  bottom: 7px;
+  left: 5px;
+  bottom: 5px;
 }
 
 .header .button-search {
   float: right;
-  right: -20px;
-  bottom: 7px;
+  right: -15px;
+  bottom: 5px;
 }
 
 .header .button-messages {
