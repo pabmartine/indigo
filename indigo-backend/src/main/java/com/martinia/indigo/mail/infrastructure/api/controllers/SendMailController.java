@@ -24,7 +24,7 @@ public class SendMailController {
 
 		final String error = useCase.mail(path, address);
 
-		if (StringUtils.isEmpty(error)) {
+		if (StringUtils.isBlank(error)) {
 			return new ResponseEntity<>(HttpStatus.OK);
 		}
 		else {

@@ -28,7 +28,9 @@ public class Http401UnauthorizedEntryPoint implements AuthenticationEntryPoint {
 	public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)
 			throws IOException {
 
-		log.error(exception.getMessage());
+		if (exception != null) {
+			log.error(exception.getMessage());
+		}
 
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

@@ -205,6 +205,12 @@
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
+                        <configuration>
+                            <excludes>
+                                <exclude>com/gargoylesoftware/**/*</exclude>
+                                <exclude>net/sourceforge/htmlunit/**/*</exclude>
+                            </excludes>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>check</id>
@@ -234,6 +240,8 @@
                 <configuration>
                     <excludes>
                         <exclude>generated/**/*.class</exclude>
+                        <exclude>com/gargoylesoftware/**/*.class</exclude>
+                        <exclude>net/sourceforge/htmlunit/**/*.class</exclude>
                     </excludes>
                 </configuration>
             </plugin>

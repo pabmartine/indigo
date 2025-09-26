@@ -1,68 +1,24 @@
 package com.martinia.indigo.file.application.events;
 
-import com.martinia.indigo.common.singletons.UploadEpubFilesSingleton;
-import com.martinia.indigo.file.domain.ports.usecases.events.DeleteEpubFileEventUseCase;
+import com.martinia.indigo.file.application.DeleteEpubFileEventUseCase;
+import com.martinia.indigo.file.domain.FileRepository;
+import com.martinia.indigo.file.domain.events.EpubFileDeletedEvent;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
 
-import jakarta.annotation.Resource;
-import org.springframework.transaction.annotation.Transactional;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-@Service
-@Transactional
 @Slf4j
+@Component
+@RequiredArgsConstructor
 public class DeleteEpubFileEventUseCaseImpl implements DeleteEpubFileEventUseCase {
 
-	@Value("${book.library.uploads}")
-	private String uploadsPath;
+    private final FileRepository fileRepository;
 
-	@Resource
-	private UploadEpubFilesSingleton uploadEpubFilesSingleton;
-
-	@Override
-	@Transactional
-	public void delete(final Path path) {
-		try {
-			if (path.toString().contains(uploadsPath) && !path.toString().equals(uploadsPath)) {
-
-				File file = path.toFile();
-				if (file.isDirectory()) {
-					File[] files = file.listFiles();
-					for (File f : files) {
-						if (f.isFile() && !file.toString().endsWith(".epub")) {
-							Files.delete(f.toPath());
-						}
-					}
-				}
-
-				if (isEmptyDirectory(path)) {
-					Files.delete(path);
-				}
-
-				delete(path.getParent());
-
-				uploadEpubFilesSingleton.addDelete();
-			}
-		}
-		catch (Exception e) {
-			log.error(e.getMessage());
-			uploadEpubFilesSingleton.addDeleteError();
-		}
-	}
-
-	private boolean isEmptyDirectory(Path dir) throws IOException {
-		try (var stream = Files.list(dir)) {
-			return !stream.anyMatch(path -> !Files.isDirectory(path) && !path.getFileName().toString().endsWith(".epub"));
-		}
-	}
-
+    @Override
+    @EventListener
+    public void deleteEpubFile(EpubFileDeletedEvent event) {
+        log.debug("Deleting epub file with id {}", event.getFileId());
+        fileRepository.deleteById(event.getFileId());
+    }
 }
-
-
-
-

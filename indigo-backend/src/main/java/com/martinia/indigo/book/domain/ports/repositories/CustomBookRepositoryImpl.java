@@ -58,28 +58,18 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 		if (search != null && !search.isEmpty()) {
 
 			if (StringUtils.isNoneEmpty(search.getPath())) {
-
 				String path = StringUtils.stripAccents(search.getPath());
-				String[] terms = path.split(" ");
-				for (String term : terms) {
-					criterias.add(Criteria.where("path").regex(term, "i"));
-				}
+				criterias.add(Criteria.where("path").regex(path, "i"));
 			}
 
 			if (StringUtils.isNoneEmpty(search.getTitle())) {
 				String title = (search.getTitle());
-				String[] terms = title.split(" ");
-				for (String term : terms) {
-					criterias.add(Criteria.where("title").regex(term, "i"));
-				}
+				criterias.add(Criteria.where("title").regex(title, "i"));
 			}
 
 			if (StringUtils.isNoneEmpty(search.getAuthor())) {
 				String author = (search.getAuthor());
-				String[] terms = author.split(" ");
-				for (String term : terms) {
-					criterias.add(Criteria.where("authors").regex(term, "i"));
-				}
+				criterias.add(Criteria.where("authors").regex(author, "i"));
 			}
 
 			if (null != (search.getIni())) {
@@ -140,26 +130,17 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 			if (StringUtils.isNoneEmpty(search.getPath())) {
 
 				String path = StringUtils.stripAccents(search.getPath());
-				String[] terms = path.split(" ");
-				for (String term : terms) {
-					criterias.add(Criteria.where("path").regex(term, "i"));
-				}
+				criterias.add(Criteria.where("path").regex(path, "i"));
 			}
 
 			if (StringUtils.isNoneEmpty(search.getTitle())) {
 				String title = (search.getTitle());
-				String[] terms = title.split(" ");
-				for (String term : terms) {
-					criterias.add(Criteria.where("title").regex(term, "i"));
-				}
+				criterias.add(Criteria.where("title").regex(title, "i"));
 			}
 
 			if (StringUtils.isNoneEmpty(search.getAuthor())) {
 				String author = (search.getAuthor());
-				String[] terms = author.split(" ");
-				for (String term : terms) {
-					criterias.add(Criteria.where("authors").regex(term, "i"));
-				}
+				criterias.add(Criteria.where("authors").regex(author, "i"));
 			}
 
 			if (null != (search.getIni())) {

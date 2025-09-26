@@ -40,21 +40,26 @@ public class FindAmazonReviewsUseCaseImpl implements FindAmazonReviewsUseCase {
 	@Value("${metadata.amazon.reviews}")
 	private String endpointReviews;
 
+	@Value("${metadata.amazon.skip-ip-check:false}")
+	private boolean skipIpCheck;
+
 	@Resource
 	private WebClient webClient;
 
 	@Override
 	public List<Review> getReviews(String title, List<String> authors) {
 
-		try {
-			InetAddress localhost = InetAddress.getLocalHost();
-			if (!localhost.getHostAddress().equals("127.0.1.1")) {
-				log.error("Tried to obtain reviews from Amazon from a docker container.");
-				return null;
+		if (!skipIpCheck) {
+			try {
+				InetAddress localhost = InetAddress.getLocalHost();
+				if (!localhost.getHostAddress().equals("127.0.1.1")) {
+					log.error("Tried to obtain reviews from Amazon from a docker container.");
+					return null;
+				}
 			}
-		}
-		catch (Exception e) {
-			e.printStackTrace();
+			catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 		List<Review> listReviews = null;
@@ -77,7 +82,9 @@ public class FindAmazonReviewsUseCaseImpl implements FindAmazonReviewsUseCase {
 		String tokenized_title = normalize(title);
 		String tokenized_author = normalize(author);
 
-		HtmlPage page = webClient.getPage(endpointAsin.replace("$title", tokenized_title).replace("$author", tokenized_author));
+		String searchUrl = endpointAsin.replace("$title", tokenized_title).replace("$author", tokenized_author);
+		log.debug("Search URL: " + searchUrl);
+		HtmlPage page = webClient.getPage(searchUrl);
 
 		page.getByXPath("//div[@data-component-type='s-search-result']").stream().forEach(item -> {
 			try {

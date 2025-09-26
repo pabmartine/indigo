@@ -3,12 +3,15 @@ package com.martinia.indigo.common.domain.model;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
 import java.util.List;
 
-@Builder
+@SuperBuilder
 @Data
+@NoArgsConstructor
 public class BookOpf {
 	private String title;
 	private String comment;

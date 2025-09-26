@@ -55,46 +55,53 @@
   width: 1.843em !important;
 }
 
-/* Book cover container */
+.book .content-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+.book-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 200px; /* Set a max-width for the book item */
+}
+
 .book-cover-container {
-  width: 100% !important;
-  max-width: 180px !important;
-  height: 240px !important;
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  margin-bottom: 0.5em !important;
-  overflow: hidden !important;
-  border-radius: var(--border-radius-sm) !important;
-  background-color: var(--bg-secondary) !important;
-  position: relative !important;
-  margin: 0 auto 0.6rem auto !important;
+  position: relative;
+  margin: 0 1.2rem 0.5rem 0.5rem;
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  background-color: var(--bg-secondary);
+  box-shadow: var(--shadow-md);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  min-height: 225px;
+  min-width: 150px;
+}
+
+.book-cover-container:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-lg);
 }
 
 .book-cover {
-  max-width: 100% !important;
-  max-height: 100% !important;
-  width: auto !important;
-  height: auto !important;
-  object-fit: contain !important;
-  object-position: center !important;
-  cursor: pointer !important;
-  min-height: 100% !important;
-  box-shadow: var(--shadow-md) !important;
-  border-radius: 2px !important;
-  transition: box-shadow var(--transition-normal), transform var(--transition-normal) !important;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #f0f0f0; /* A light gray background color */
+  cursor: pointer;
 }
 
-.book-cover:hover {
-  box-shadow: var(--shadow-lg) !important;
-  transform: translateY(-2px) !important;
-}
-
-/* Información del libro */
 .book-info {
-  width: 90%;
-  text-align: left;
-  padding: 0 0.5rem;
+  width: 100%;
 }
 
 .book-info .title {
@@ -422,23 +429,7 @@
   align-items: center !important;
 }
 
-.book .content-body:not(.inline) .p-sm-6 {
-  width: calc(50% - 0.5rem) !important;
-  max-width: 180px !important;
-  min-width: 140px !important;
-}
 
-.book .content-body:not(.inline) .p-md-4 {
-  width: calc(25% - 0.75rem) !important;
-  max-width: 200px !important;
-  min-width: 160px !important;
-}
-
-.book .content-body:not(.inline) .p-lg-2 {
-  width: calc(16.666% - 0.83rem) !important;
-  max-width: 180px !important;
-  min-width: 140px !important;
-}
 
 .book .list-image {
   width: 100% !important;

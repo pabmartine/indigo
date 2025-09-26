@@ -46,4 +46,63 @@ class FindAllBooksUseCaseImplTest extends BaseIndigoTest {
 		assertRecursively(expectedBooks, actualBooks);
 	}
 
+	@Test
+	public void testFindAll_WithNullSearch_ReturnsAllBooks() {
+		// Given
+		Search search = null;
+		int page = 0;
+		int size = 5;
+		String sort = "title";
+		String order = "asc";
+		List<BookMongoEntity> expectedBooks = new ArrayList<>();
+
+		when(bookRepository.findAll(search, page, size, sort, order)).thenReturn(expectedBooks);
+
+		// When
+		List<Book> actualBooks = findAllBooksUseCase.findAll(search, page, size, sort, order);
+
+		// Then
+		assertRecursively(expectedBooks, actualBooks);
+	}
+
+	@Test
+	public void testFindAll_WithDifferentSortOrder_CallsRepository() {
+		// Given
+		Search search = new Search();
+		search.setTitle("fantasy");
+		int page = 2;
+		int size = 20;
+		String sort = "pubDate";
+		String order = "desc";
+		List<BookMongoEntity> expectedBooks = new ArrayList<>();
+
+		when(bookRepository.findAll(search, page, size, sort, order)).thenReturn(expectedBooks);
+
+		// When
+		List<Book> actualBooks = findAllBooksUseCase.findAll(search, page, size, sort, order);
+
+		// Then
+		assertRecursively(expectedBooks, actualBooks);
+	}
+
+	@Test
+	public void testFindAll_WithEmptyResults_ReturnsEmptyList() {
+		// Given
+		Search search = new Search();
+		search.setTitle("nonexistent");
+		int page = 0;
+		int size = 10;
+		String sort = "title";
+		String order = "asc";
+		List<BookMongoEntity> expectedBooks = new ArrayList<>();
+
+		when(bookRepository.findAll(search, page, size, sort, order)).thenReturn(expectedBooks);
+
+		// When
+		List<Book> actualBooks = findAllBooksUseCase.findAll(search, page, size, sort, order);
+
+		// Then
+		assertRecursively(expectedBooks, actualBooks);
+	}
+
 }

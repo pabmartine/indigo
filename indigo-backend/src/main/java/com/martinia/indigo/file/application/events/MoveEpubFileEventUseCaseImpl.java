@@ -1,11 +1,13 @@
 package com.martinia.indigo.file.application.events;
 
-import com.martinia.indigo.common.bus.event.domain.ports.EventBus;
 import com.martinia.indigo.common.singletons.UploadEpubFilesSingleton;
-import com.martinia.indigo.file.domain.model.events.FileMovedEvent;
+import com.martinia.indigo.file.domain.FileRepository;
+import com.martinia.indigo.file.domain.events.EpubFileDeletedEvent;
+import com.martinia.indigo.file.domain.model.File;
 import com.martinia.indigo.file.domain.ports.usecases.events.MoveEpubFileEventUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
@@ -14,6 +16,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -24,8 +27,9 @@ public class MoveEpubFileEventUseCaseImpl implements MoveEpubFileEventUseCase {
 	@Value("${book.library.uploads}")
 	private String uploadsPath;
 	@Resource
-	private EventBus eventBus;
-
+	private ApplicationEventPublisher eventPublisher;
+	@Resource
+	private FileRepository fileRepository;
 	@Resource
 	private UploadEpubFilesSingleton uploadEpubFilesSingleton;
 
@@ -38,6 +42,8 @@ public class MoveEpubFileEventUseCaseImpl implements MoveEpubFileEventUseCase {
 			final Path sourceCoverPath = Path.of(sourcePath.getParent() + FileSystems.getDefault().getSeparator() + IMAGE);
 			final Path targetCoverPath = Path.of(targetPath + FileSystems.getDefault().getSeparator() + IMAGE);
 
+			final Optional<File> file = fileRepository.findByPath(sourcePath);
+
 			if (Files.exists(sourcePath) && Files.exists(sourceCoverPath)) {
 
 				if (!Files.exists(targetPath)) {
@@ -47,8 +53,13 @@ public class MoveEpubFileEventUseCaseImpl implements MoveEpubFileEventUseCase {
 				Files.move(sourcePath, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
 				Files.move(sourceCoverPath, targetCoverPath, StandardCopyOption.REPLACE_EXISTING);
 
+				if (file.isPresent()) {
+					eventPublisher.publishEvent(new EpubFileDeletedEvent(file.get().getId()));
+				}
+				Files.delete(sourcePath);
+				Files.delete(sourceCoverPath);
+
 				uploadEpubFilesSingleton.addMove();
-				eventBus.publish(FileMovedEvent.builder().sourcePath(sourcePath.getParent()).build());
 			}
 			else {
 				log.error("File {} or Image {} does not exist", sourcePath, sourceCoverPath);

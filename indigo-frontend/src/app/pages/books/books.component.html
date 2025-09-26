@@ -11,15 +11,9 @@
     </div>
 
     <div class="content-body p-grid" infiniteScroll [infiniteScrollDistance]="2" (scrolled)="onScroll()">
-      <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of favorites; trackBy: trackByBookId">
+      <div class="book-item" *ngFor="let book of favorites; trackBy: trackByBookId">
         <div class="book-cover-container">
-          <img [src]="book.image || './assets/images/book-placeholder.jpg'"
-               class="list-image book-cover"
-               (click)="showDetails(book)"
-               style="cursor: pointer;"
-               loading="lazy"
-               [alt]="book.title || 'Book'"
-               [class.loading-image]="!book.image" />
+          <div class="book-cover" [style.background-image]="'url(' + (book.image || './assets/images/book-placeholder.jpg') + ')'" (click)="showDetails(book)"></div>
         </div>
         <div class="book-info">
           <span class="title">{{book.title || 'Unknown Title'}}</span>
@@ -65,15 +59,9 @@
     </div>
 
     <div class="content-body p-grid" infiniteScroll [infiniteScrollDistance]="2" (scrolled)="onScroll()">
-      <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of books || []; trackBy: trackByBookId">
+      <div class="book-item" *ngFor="let book of books || []; trackBy: trackByBookId">
         <div class="book-cover-container">
-          <img [src]="book.image || './assets/images/book-placeholder.jpg'"
-               class="list-image book-cover"
-               (click)="showDetails(book)"
-               style="cursor: pointer;"
-               loading="lazy"
-               [alt]="book.title || 'Book'"
-               [class.loading-image]="!book.image" />
+          <div class="book-cover" [style.background-image]="'url(' + (book.image || './assets/images/book-placeholder.jpg') + ')'" (click)="showDetails(book)"></div>
         </div>
         <div class="book-info">
           <span class="title">{{book.title || 'Unknown Title'}}</span>

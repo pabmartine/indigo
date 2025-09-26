@@ -20,6 +20,10 @@ class FindImageTagMetadataCommandHandlerTest extends BaseIndigoTest {
 	@MockBean
 	private FindImageTagMetadataUseCase findImageTagMetadataUseCase;
 
+	// Also mock the application layer interface that the controller needs
+	@MockBean
+	private com.martinia.indigo.metadata.application.commands.FindImageTagMetadataUseCase applicationFindImageTagMetadataUseCase;
+
 	@Test
 	public void testHandle() {
 		// Given

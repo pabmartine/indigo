@@ -35,4 +35,46 @@ class CountAllAuthorsUseCaseImplTest extends BaseIndigoTest {
 		// Then
 		assertEquals(expectedCount, result);
 	}
+
+	@Test
+	void givenEmptyLanguages_whenCountAuthors_thenReturnZero() {
+		// Given
+		List<String> emptyLanguages = Arrays.asList();
+		Long expectedCount = 0L;
+		when(authorRepository.count(emptyLanguages)).thenReturn(expectedCount);
+
+		// When
+		Long result = countAllAuthorsUseCase.count(emptyLanguages);
+
+		// Then
+		assertEquals(expectedCount, result);
+	}
+
+	@Test
+	void givenNullLanguages_whenCountAuthors_thenReturnZero() {
+		// Given
+		List<String> nullLanguages = null;
+		Long expectedCount = 0L;
+		when(authorRepository.count(nullLanguages)).thenReturn(expectedCount);
+
+		// When
+		Long result = countAllAuthorsUseCase.count(nullLanguages);
+
+		// Then
+		assertEquals(expectedCount, result);
+	}
+
+	@Test
+	void givenSingleLanguage_whenCountAuthors_thenReturnCount() {
+		// Given
+		List<String> singleLanguage = Arrays.asList("English");
+		Long expectedCount = 15L;
+		when(authorRepository.count(singleLanguage)).thenReturn(expectedCount);
+
+		// When
+		Long result = countAllAuthorsUseCase.count(singleLanguage);
+
+		// Then
+		assertEquals(expectedCount, result);
+	}
 }

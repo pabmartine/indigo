@@ -53,4 +53,64 @@ public class FindBookCoverByPathUseCaseImplTest extends BaseIndigoTest {
 		// Then
 		assertFalse(imageOptional.isPresent());
 	}
+
+	@Test
+	public void testGetImage_WithNullPath() {
+		// Given
+		String nullPath = null;
+
+		when(imageUtils.getBase64Cover(nullPath, false)).thenReturn(null);
+
+		// When
+		Optional<String> imageOptional = findBookCoverByPathUseCase.getImage(nullPath);
+
+		// Then
+		assertFalse(imageOptional.isPresent());
+	}
+
+	@Test
+	public void testGetImage_WithEmptyPath() {
+		// Given
+		String emptyPath = "";
+
+		when(imageUtils.getBase64Cover(emptyPath, false)).thenReturn(null);
+
+		// When
+		Optional<String> imageOptional = findBookCoverByPathUseCase.getImage(emptyPath);
+
+		// Then
+		assertFalse(imageOptional.isPresent());
+	}
+
+	@Test
+	public void testGetImage_WithAbsolutePath() {
+		// Given
+		String absolutePath = "/home/user/books/cover.jpg";
+		String base64Image = "absolutePathImageBase64";
+
+		when(imageUtils.getBase64Cover(absolutePath, false)).thenReturn(base64Image);
+
+		// When
+		Optional<String> imageOptional = findBookCoverByPathUseCase.getImage(absolutePath);
+
+		// Then
+		assertTrue(imageOptional.isPresent());
+		assertEquals(base64Image, imageOptional.get());
+	}
+
+	@Test
+	public void testGetImage_WithRelativePath() {
+		// Given
+		String relativePath = "books/fiction/cover.png";
+		String base64Image = "relativePathImageBase64";
+
+		when(imageUtils.getBase64Cover(relativePath, false)).thenReturn(base64Image);
+
+		// When
+		Optional<String> imageOptional = findBookCoverByPathUseCase.getImage(relativePath);
+
+		// Then
+		assertTrue(imageOptional.isPresent());
+		assertEquals(base64Image, imageOptional.get());
+	}
 }

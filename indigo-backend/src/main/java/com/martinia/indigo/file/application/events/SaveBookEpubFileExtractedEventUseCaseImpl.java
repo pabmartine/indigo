@@ -6,6 +6,8 @@ import com.martinia.indigo.book.infrastructure.mongo.entities.SerieMongo;
 import com.martinia.indigo.common.bus.event.domain.ports.EventBus;
 import com.martinia.indigo.common.domain.model.BookOpf;
 import com.martinia.indigo.common.singletons.UploadEpubFilesSingleton;
+import com.martinia.indigo.file.domain.FileRepository;
+import com.martinia.indigo.file.domain.model.File;
 import com.martinia.indigo.file.domain.model.events.EpubFileAddedEvent;
 import com.martinia.indigo.file.domain.ports.usecases.events.SaveBookEpubFileExtractedEventUseCase;
 import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
@@ -20,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -39,6 +42,9 @@ public class SaveBookEpubFileExtractedEventUseCaseImpl implements SaveBookEpubFi
 
 	@Resource
 	private UploadEpubFilesSingleton uploadEpubFilesSingleton;
+
+	@Resource
+	private FileRepository fileRepository;
 
 	@Override
 	@Transactional
@@ -85,11 +91,15 @@ public class SaveBookEpubFileExtractedEventUseCaseImpl implements SaveBookEpubFi
 					.lastMetadataSync(null)
 					.version(bookOpf.getVersion())
 					.build();
-			uploadEpubFilesSingleton.addNewBook();
 			return bookMongoEntity;
 		});
 
-		bookRepository.save(entity);
+		BookMongoEntity savedEntity = bookRepository.save(entity);
+		if (savedEntity == null) {
+			return;
+		}
+		uploadEpubFilesSingleton.addNewBook();
+		fileRepository.save(File.builder().id(UUID.fromString(savedEntity.getId())).path(Paths.get(basePath)).build());
 
 
 		eventBus.publish(EpubFileAddedEvent.builder().bookId(entity.getId()).authorImage(bookOpf.getAuthorImage()).sourcePath(path).targetPath(Paths.get(basePath)).build());

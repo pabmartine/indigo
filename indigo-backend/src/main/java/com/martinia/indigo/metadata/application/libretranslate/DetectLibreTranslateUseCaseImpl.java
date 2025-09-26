@@ -34,8 +34,13 @@ public class DetectLibreTranslateUseCaseImpl implements DetectLibreTranslateUseC
 			MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
 			map.add("q", text);
 
-			List list = (ArrayList) restTemplate.postForObject(url, map, Object.class);
-			ret = ((LinkedHashMap) list.get(0)).get("language").toString();
+			Object responseObject = restTemplate.postForObject(url, map, Object.class);
+			if (responseObject instanceof List) {
+				List<?> list = (List<?>) responseObject;
+				if (!list.isEmpty() && list.get(0) instanceof LinkedHashMap) {
+					ret = ((LinkedHashMap<?, ?>) list.get(0)).get("language").toString();
+				}
+			}
 		}
 		catch (Exception e) {
 			e.printStackTrace();

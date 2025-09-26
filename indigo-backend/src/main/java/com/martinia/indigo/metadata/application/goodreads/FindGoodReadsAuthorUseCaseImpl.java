@@ -59,21 +59,35 @@ public class FindGoodReadsAuthorUseCaseImpl implements FindGoodReadsAuthorUseCas
 	@Override
 	public String[] findAuthor(String key, String subject) {
 
+		if (StringUtils.isAnyEmpty(key, subject)) {
+			return null;
+		}
+
 		String[] ret = null;
 
 		try {
 
-			subject = StringUtils.stripAccents(subject).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ");
+			subject = StringUtils.stripAccents(subject).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\s+", " ");
 
 			String url = endpointAuthor.replace("$subject", subject.replace(" ", "+")).replace("$key", key);
 			String xml = dataUtils.getData(url);
 
 			if (StringUtils.isNoneEmpty(xml)) {
-				Document doc = Jsoup.parse(xml, "", Parser.xmlParser());
-				if (doc.select("author").first() != null) {
-					String name = doc.select("author").select("name").get(0).text();
-					String id = doc.select("author").select("id").get(0).text();
-
+				Document doc = null;
+				try {
+					doc = Jsoup.parse(xml, "", Parser.xmlParser());
+				} catch (Exception e) {
+					log.error(e.getMessage());
+				}
+								String name = null;
+				String id = null;
+				if (doc != null && doc.select("author").first() != null && !doc.select("author").isEmpty()) {
+					if (!doc.select("author").select("name").isEmpty()) {
+						name = doc.select("author").select("name").get(0).text();
+					}
+					if (!doc.select("author").select("id").isEmpty()) {
+						id = doc.select("author").select("id").get(0).text();
+					}
 					if (name != null && id != null) {
 
 						String filterName = StringUtils.stripAccents(name)
@@ -109,6 +123,10 @@ public class FindGoodReadsAuthorUseCaseImpl implements FindGoodReadsAuthorUseCas
 
 	private String[] getAuthorInfo(String key, String id) {
 
+		if (StringUtils.isAnyEmpty(key, id)) {
+			return null;
+		}
+
 		String[] ret = null;
 
 		try {
@@ -117,15 +135,20 @@ public class FindGoodReadsAuthorUseCaseImpl implements FindGoodReadsAuthorUseCas
 
 			if (xml != null) {
 				Document doc = Jsoup.parse(xml, "", Parser.xmlParser());
-				if (doc.select("author").first() != null) {
-					String name = doc.select("author").select("name").get(0).text();
-					String description = doc.select("author").select("about").text();
-					String image = doc.select("author").select("image_url").get(0).text();
-
-					if (StringUtils.isNotEmpty(name)) {
-						ret = new String[] { description, image, ProviderEnum.GOODREADS.name() };
-					}
-				}
+				                				String name = null;
+				                				String description = null;
+				                				String image = null;
+				                				if (doc.select("author").first() != null && !doc.select("author").isEmpty()) {
+									if (!doc.select("author").select("name").isEmpty()) {
+										name = doc.select("author").select("name").get(0).text();
+									}
+				                					description = doc.select("author").select("about").text();
+									if (!doc.select("author").select("image_url").isEmpty()) {
+										image = doc.select("author").select("image_url").get(0).text();
+									}
+					                					if (StringUtils.isNotEmpty(name) && StringUtils.isNotEmpty(description) && StringUtils.isNotEmpty(image)) {
+					                    		ret = new String[] { description, image, ProviderEnum.GOODREADS.name() };
+					                					}				}
 			}
 
 		}

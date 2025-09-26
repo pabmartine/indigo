@@ -47,6 +47,8 @@ public class SaveAuthorEpubFileEventUseCaseImpl implements SaveAuthorEpubFileEve
 				final AuthorMongoEntity entity = authorRepository.findByName(author).stream().findFirst().map(authorMongoEntity -> {
 					authorMongoEntity.setImage(authorImage);
 					authorMongoEntity.getNumBooks().setTotal(authorMongoEntity.getNumBooks().getTotal() + 1);
+
+					// Update existing languages count
 					authorMongoEntity.getNumBooks().getLanguages().keySet().forEach(key -> {
 						if (authorMongoEntity.getNumBooks().getLanguages().get(key) != null) {
 							authorMongoEntity.getNumBooks()
@@ -57,6 +59,14 @@ public class SaveAuthorEpubFileEventUseCaseImpl implements SaveAuthorEpubFileEve
 							authorMongoEntity.getNumBooks().getLanguages().put(key, 1);
 						}
 					});
+
+					// Add new languages from the book if they don't exist
+					bookMongoEntity.getLanguages().forEach(bookLanguage -> {
+						if (!authorMongoEntity.getNumBooks().getLanguages().containsKey(bookLanguage)) {
+							authorMongoEntity.getNumBooks().getLanguages().put(bookLanguage, 1);
+						}
+					});
+
 					return authorMongoEntity;
 				}).orElseGet(() -> {
 					uploadEpubFilesSingleton.addAuthor();

@@ -35,4 +35,51 @@ class CountAllBooksUseCaseImplTest extends BaseIndigoTest {
 		assertEquals(expectedCount, actualCount);
 	}
 
+	@Test
+	public void testCount_WithNullSearch_ReturnsZero() {
+		// Given
+		Search nullSearch = null;
+		long expectedCount = 0L;
+
+		when(bookRepository.count(nullSearch)).thenReturn(expectedCount);
+
+		// When
+		long actualCount = countAllUseCase.count(nullSearch);
+
+		// Then
+		assertEquals(expectedCount, actualCount);
+	}
+
+	@Test
+	public void testCount_WithSearchText_ReturnsFilteredCount() {
+		// Given
+		Search searchWithText = new Search();
+		searchWithText.setTitle("fantasy");
+		long expectedCount = 15L;
+
+		when(bookRepository.count(searchWithText)).thenReturn(expectedCount);
+
+		// When
+		long actualCount = countAllUseCase.count(searchWithText);
+
+		// Then
+		assertEquals(expectedCount, actualCount);
+	}
+
+	@Test
+	public void testCount_WithNoResults_ReturnsZero() {
+		// Given
+		Search searchWithNoResults = new Search();
+		searchWithNoResults.setTitle("nonexistent");
+		long expectedCount = 0L;
+
+		when(bookRepository.count(searchWithNoResults)).thenReturn(expectedCount);
+
+		// When
+		long actualCount = countAllUseCase.count(searchWithNoResults);
+
+		// Then
+		assertEquals(expectedCount, actualCount);
+	}
+
 }

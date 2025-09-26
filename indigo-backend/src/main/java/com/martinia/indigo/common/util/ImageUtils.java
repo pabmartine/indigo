@@ -207,6 +207,7 @@ public class ImageUtils {
 				}
 				catch (Exception e) {
 					log.error(image + " --> " + e.getMessage());
+					return null;
 				}
 
 			}

@@ -1,5 +1,6 @@
 package com.martinia.indigo.config;
 
+import com.gargoylesoftware.htmlunit.WebClient;
 import org.mockito.Mockito;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +22,12 @@ public class BeanDefinitionConfigTest {
 	@Primary
 	public JavaMailSender javaMailSenderMock() {
 		return Mockito.mock(JavaMailSenderImpl.class);
+	}
+
+	@Bean
+	@Primary
+	public WebClient webClientMock() {
+		return Mockito.mock(WebClient.class);
 	}
 
 
