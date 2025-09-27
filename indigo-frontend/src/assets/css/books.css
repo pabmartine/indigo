@@ -55,19 +55,31 @@
   width: 1.843em !important;
 }
 
+
+
 .book .content-body {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  justify-items: center;
   gap: 1.5rem;
   padding: 1.5rem;
 }
+
+@media (max-width: 576px) {
+  .book .content-body {
+    padding: 1rem;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+}
+
 
 .book-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  max-width: 200px; /* Set a max-width for the book item */
+  max-width: 180px; /* Set a max-width for the book item */
 }
 
 .book-cover-container {
@@ -577,15 +589,7 @@
   min-width: 140px !important;
 }
 
-.book .content-body {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 1rem !important;
-  justify-content: flex-start !important;
-  align-items: flex-start !important;
-  margin: 0 !important;
-  padding: 1.5rem !important;
-}
+
 
 /* RESPONSIVE ESPECÍFICO PARA SCROLL HORIZONTAL EN MODALES */
 @media (max-width: 1200px) {
