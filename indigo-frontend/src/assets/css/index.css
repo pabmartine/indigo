@@ -23,6 +23,7 @@
 @import url('./layout.css');
 
 /* 3. COMPONENTES ESPECÍFICOS */
+@import url('./book-item.css');
 @import url('./books.css');
 @import url('./authors.css');
 @import url('./series.css');

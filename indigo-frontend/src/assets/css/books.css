@@ -57,21 +57,7 @@
 
 
 
-.book .content-body {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  justify-items: center;
-  gap: 1.5rem;
-  padding: 1.5rem;
-}
 
-@media (max-width: 576px) {
-  .book .content-body {
-    padding: 1rem;
-    gap: 1rem;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  }
-}
 
 
 .book-item {
@@ -268,7 +254,7 @@
 .metadata-item {
   width: 33% !important;
   padding: 0 1rem !important;
-  min-width: 120px !important;
+  min-width: 120px !importan;
   flex: 1 !important;
 }
 
@@ -650,7 +636,7 @@
 @media (max-width: 768px) {
   .book .content-body.inline .list-image {
     width: 120px !important;
-    max-width: 120px !important;
+    max-width: 120px !importan;
     min-width: 120px !important;
     height: 170px !important;
   }
