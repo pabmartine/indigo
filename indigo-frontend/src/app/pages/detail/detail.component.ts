@@ -20,6 +20,7 @@ import { MailService } from 'src/app/services/mail.service';
 @Component({
   selector: 'app-detail',
   templateUrl: './detail.component.html',
+  styleUrls: ['./detail.component.css'],
   providers: [MessageService, DatePipe]
 
 })

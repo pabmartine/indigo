@@ -349,9 +349,8 @@
 .book .content-body .p-lg-2 > div:not(:first-child) {
   width: 100% !important;
   max-width: 160px !important;
-  padding: 0 0.25rem !important;
   box-sizing: border-box !important;
-  text-align: center !important;
+  text-align: left !important;
   overflow: hidden !important;
 }
 
@@ -382,14 +381,14 @@
   text-overflow: ellipsis !important;
   overflow: hidden !important;
   font-size: 0.85rem !important;
-  text-align: center !important;
+  text-align: left !important;
   flex-shrink: 0 !important;
   line-height: 1.2 !important;
   -webkit-line-clamp: 2 !important;
   -webkit-box-orient: vertical !important;
   word-wrap: break-word !important;
   word-break: break-word !important;
-  padding: 0 0.25rem !important;
+  padding: 0 0.25rem 0 0.25rem !important;
   box-sizing: border-box !important;
 }
 
@@ -407,11 +406,11 @@
   text-overflow: ellipsis !important;
   overflow: hidden !important;
   white-space: nowrap !important;
-  text-align: center !important;
+  text-align: left !important;
   flex-shrink: 0 !important;
   word-wrap: break-word !important;
   word-break: break-word !important;
-  padding: 0 0.25rem !important;
+  padding: 0 0.25rem 0 0.25rem !important;
   box-sizing: border-box !important;
 }
 
@@ -494,11 +493,13 @@
 .book .content-body .p-rating {
   justify-content: center !important;
   margin-top: 0.3rem !important;
+  margin-left: 0.25rem !important;
   flex-shrink: 0 !important;
 }
 
 .book .content-body .pi-comments {
   margin-top: 0.5rem !important;
+  margin-right: 0.25rem !important;
   font-size: 0.9rem !important;
 }
 

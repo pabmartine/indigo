@@ -108,7 +108,8 @@
             [draggable]="false"
             [resizable]="false"
             [transitionOptions]="'150ms'"
-            [closeOnEscape]="true">
+            [closeOnEscape]="true"
+            appendTo="body">
     <app-author (eventClose)="closeDetails()"
                 (eventOpen)="openDetails()"
                 (eventBook)="openBook($event)"
@@ -120,7 +121,8 @@
             [draggable]="false"
             [resizable]="false"
             [transitionOptions]="'150ms'"
-            [closeOnEscape]="true">
+            [closeOnEscape]="true"
+            appendTo="body">
     <app-detail (eventClose)="closeBookDetails()"
                 (eventOpen)="openBookDetails()"
                 (eventAuthor)="openAuthor($event)"></app-detail>

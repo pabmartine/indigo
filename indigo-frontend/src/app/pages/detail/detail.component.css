@@ -1,0 +1,25 @@
+.book-detail-title {
+  text-align: left;
+  width: 100%;
+}
+
+.book-detail-subtitle {
+  text-align: left;
+  width: 100%;
+}
+
+.content-body.inline .title {
+  text-align: left;
+  width: 100%;
+  display: block; /* Ensure it takes full width */
+}
+
+.content-body.inline .subtitle {
+  text-align: left;
+  width: 100%;
+  display: block; /* Ensure it takes full width */
+}
+
+.content-body.inline .rating-container {
+  text-align: left;
+}
