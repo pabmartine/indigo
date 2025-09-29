@@ -16,6 +16,7 @@ import { ConfigService } from 'src/app/services/config.service';
 import { MetadataService } from 'src/app/services/metadata.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { MailService } from 'src/app/services/mail.service';
+declare var ePub: any;
 
 @Component({
   selector: 'app-detail',
@@ -367,8 +368,6 @@ export class DetailComponent implements OnInit {
 
 
   viewEpub() {
-
-    /*
     this.showEpub = true;
 
     this.bookService.getEpub(this.selected.path).subscribe(
@@ -402,7 +401,6 @@ export class DetailComponent implements OnInit {
         console.log(error);
       }
     );
-*/
   }
 
   downloadEpub(): void {

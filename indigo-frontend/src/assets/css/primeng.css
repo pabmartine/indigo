@@ -129,6 +129,16 @@ body.p-overflow-hidden {
   overflow: hidden !important;
 }
 
+.p-dialog-maximized {
+    transition: none;
+    transform: none;
+    width: 100vw !important;
+    height: 100vh !important;
+    top: 0px !important;
+    max-height: 100%;
+    height: 100%;
+}
+
 /* CONFIGURACIÓN CRÍTICA PARA APP-DETAIL - DEBE FUNCIONAR EN TODOS LOS MODALES */
 .p-dialog app-detail,
 .p-dialog .p-dialog-content > *:not(.p-dialog-header) {

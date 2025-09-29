@@ -410,7 +410,7 @@
 
     </div>
 
-    <p-dialog (onShow)="showDialogMaximized(dialDetail)" #dialDetail [style]="{width: '500px'}" [(visible)]="showEpub"
+    <p-dialog #dialDetail [(visible)]="showEpub" [maximizable]="true" [maximizable]="true"
       [modal]="true" [baseZIndex]="10000" [draggable]="false" [closable]="true" [resizable]="false"
       [focusOnShow]="false">
       <p-card>
