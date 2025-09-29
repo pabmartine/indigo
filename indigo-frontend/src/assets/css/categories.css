@@ -1,14 +1,14 @@
 /** CATEGORIES **/
 .categories-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Increased minimum width for grid items */
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 1rem;
   padding: 1rem 0.5rem;
   justify-items: center; /* Center items in the grid */
 }
 
 .category-item {
-  height: 180px;
+  height: 200px;
   position: relative;
   box-shadow: var(--shadow-lg);
   cursor: pointer;
@@ -16,7 +16,7 @@
   overflow: hidden;
   transition: transform var(--transition-normal), box-shadow var(--transition-normal);
   width: 100%;
-  max-width: 220px; /* Increased maximum width for category items */
+  max-width: 220px;
 }
 
 .category-item:hover {
@@ -200,8 +200,13 @@
 
 /* RESPONSIVE ESPECÍFICO PARA CATEGORIES */
 @media (max-width: 480px) {
+  .categories-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+
   .category-item {
-    height: 160px;
+    height: 180px;
+    max-width: 140px;
   }
 
   .category-item .category-info-top,

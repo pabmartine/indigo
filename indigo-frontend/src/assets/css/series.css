@@ -1,7 +1,7 @@
 /** SERIES **/
 .series-grid {
   display: grid; /* Changed to grid */
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Similar to categories, adjusted min width */
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 1rem; /* Adjust as needed */
   padding: 1rem 0.5rem;
   justify-items: center; /* Center items within their grid cells */
@@ -9,7 +9,7 @@
 
 .serie-item {
   flex: 0 0 auto;
-  max-width: 180px; /* Consistent with book-item */
+  max-width: 140px;
   width: 100%;
   display: flex; /* Make serie-item a flex container */
   flex-direction: column; /* Stack children vertically */
