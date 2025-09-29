@@ -1,7 +1,7 @@
 export const environment = {
   production: false,
-  //endpoint: 'http://krahen.synology.me:8081/api/',
-  endpoint: 'http://localhost:8123/api/',
+  endpoint: 'http://krahen.synology.me:8081/api/',
+  //endpoint: 'http://localhost:8123/api/',
   whiteList: ["localhost:8080", "localhost:8081", "localhost:8123", "127.0.0.1:8081", "192.168.1.40:8081", "krahen.synology.me:8081"],
   blackList: []
 };
