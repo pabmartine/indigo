@@ -62,6 +62,10 @@
     background: #4e5159;
   }
 
+  .header .header-search-container {
+    display: none;
+  }
+
   .header #topbar-menu-button,
   .header #sidebar-menu-button,
   .header #messages-menu-button {

@@ -13,67 +13,64 @@
     </div>
 
     <div class="content-body p-grid">
-      <div class="p-col-12 p-md-6  p-fluid">
+      <div class="p-col-12 p-md-12  p-fluid">
         <div class="account">
           <span class="page-subtitle">{{'locale.profile.account.title' | translate:param}}</span>
-          <div class="p-field">
-            <label for="username">{{'locale.profile.account.username' | translate}}</label>
-            <input id="username" type="text" pInputText [readonly]="readOnly()"
-                   [(ngModel)]="user.username" />
-          </div>
-          <div class="p-field">
-            <label for="password">{{'locale.profile.account.password' | translate}}</label>
-            <input id="password" type="password" pInputText [readonly]="isUser()"
-                   [(ngModel)]="user.password" />
-          </div>
-          <div class="p-field">
-            <label for="language">{{'locale.profile.account.language' | translate}}</label>
-            <p-dropdown id="language" [options]="languages" [(ngModel)]="user.language"
-                        placeholder="Seleccione un idioma">
-              <ng-template let-item pTemplate="item">
-                <img src="./assets/images/flags/{{item.value}}.svg" class="flag" />
-                <span>{{item.label}}</span>
-              </ng-template>
-            </p-dropdown>
-
-          </div>
-          <div class="p-field">
-            <label for="kindle">{{'locale.profile.account.kindle' | translate}}</label>
-            <input id="kindle" type="text" pInputText [(ngModel)]="user.kindle" />
-          </div>
-          <div class="p-field">
-            <label for="languages">{{'locale.profile.account.languages' | translate}}</label>
-            <p-multiSelect [options]="languageBooks" [(ngModel)]="user.languageBooks" [filter]="true"
-                           [showToggleAll]="true" [showHeader]="true" [placeholder]="chooseLanguageBooks">
-              <ng-template let-value pTemplate="selectedItems">
-                <div *ngFor="let val of user.languageBooks" class="multiselected-item-token ui-corner-all">
-                  <span>{{'locale.languages.' + val | translate}}</span>
-                </div>
-                <span *ngIf="!user.languageBooks || user.languageBooks.length === 0"
-                      class="multiselected-empty-token ui-corner-all"> </span>
-
-
-              </ng-template>
-              <ng-template let-lang pTemplate="item">
-                <span style="font-size:14px;margin-top:4px">{{lang.label}}</span>
-              </ng-template>
-            </p-multiSelect>
-
-          </div>
-        </div>
-      </div>
-      <div class="p-col-12 p-md-6  p-fluid">
-        <div class="permissions">
-          <span class="page-subtitle">{{'locale.profile.permissions.title' | translate:param}}</span>
-
-          <div class="p-field">
-            <!-- <p-checkbox name="group" value="show_random_books"
-                label="{{'locale.profile.permissions.show_random_books' | translate}}"
-                [(ngModel)]="permissions">
-            </p-checkbox> -->
+          <div class="p-grid">
+            <div class="p-col-12 p-md-6">
+              <div class="p-field">
+                <label for="username">{{'locale.profile.account.username' | translate}}</label>
+                <input id="username" type="text" pInputText [readonly]="readOnly()"
+                       [(ngModel)]="user.username" />
+              </div>
+            </div>
+            <div class="p-col-12 p-md-6">
+              <div class="p-field">
+                <label for="password">{{'locale.profile.account.password' | translate}}</label>
+                <input id="password" type="password" pInputText [readonly]="isUser()"
+                       [(ngModel)]="user.password" />
+              </div>
+            </div>
+            <div class="p-col-12">
+              <div class="p-field">
+                <label for="kindle">{{'locale.profile.account.kindle' | translate}}</label>
+                <input id="kindle" type="text" pInputText [(ngModel)]="user.kindle" />
+              </div>
+            </div>
+            <div class="p-col-12 p-md-6">
+              <div class="p-field">
+                <label for="language">{{'locale.profile.account.language' | translate}}</label>
+                <p-dropdown id="language" [options]="languages" [(ngModel)]="user.language"
+                            placeholder="Seleccione un idioma">
+                  <ng-template let-item pTemplate="item">
+                    <img src="./assets/images/flags/{{item.value}}.svg" class="flag" />
+                    <span>{{item.label}}</span>
+                  </ng-template>
+                </p-dropdown>
+              </div>
+            </div>
+            <div class="p-col-12 p-md-6">
+              <div class="p-field">
+                <label for="languages">{{'locale.profile.account.languages' | translate}}</label>
+                <p-multiSelect [options]="languageBooks" [(ngModel)]="user.languageBooks" [filter]="true"
+                               [showToggleAll]="true" [showHeader]="true" [placeholder]="chooseLanguageBooks">
+                  <ng-template let-value pTemplate="selectedItems">
+                    <div *ngFor="let val of user.languageBooks" class="multiselected-item-token ui-corner-all">
+                      <span>{{'locale.languages.' + val | translate}}</span>
+                    </div>
+                    <span *ngIf="!user.languageBooks || user.languageBooks.length === 0"
+                          class="multiselected-empty-token ui-corner-all"> </span>
+                  </ng-template>
+                  <ng-template let-lang pTemplate="item">
+                    <span style="font-size:14px;margin-top:4px">{{lang.label}}</span>
+                  </ng-template>
+                </p-multiSelect>
+              </div>
+            </div>
           </div>
         </div>
       </div>
+
 
       <div class="p-col-12 page-buttons">
         <button type="button" pButton label="{{'locale.buttons.save' | translate}}"
@@ -96,7 +93,7 @@
       </div>
     </div>
 
-    <div class="content-body p-grid">
+    <div class="content-body p-grid inline">
       <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of books">
         <div class="book-cover-container">
           <img [src]="book.image || './assets/images/book-placeholder.jpg'"
@@ -108,8 +105,8 @@
                [class.loading-image]="!book.image" />
         </div>
         <div class="book-info">
-          <span class="title">{{book.title || 'Unknown Title'}}</span>
-          <span class="subtitle">
+          <div class="title">{{book.title || 'Unknown Title'}}</div>
+          <div class="subtitle">
                         <a href="javascript:;"
                            (click)="searchBookByAuthor(getFirstAuthor(book))"
                            *ngIf="getFirstAuthor(book) !== 'Unknown Author'">
@@ -118,7 +115,7 @@
                         <span *ngIf="getFirstAuthor(book) === 'Unknown Author'">
                             {{getFirstAuthor(book)}}
                         </span>
-                    </span>
+                    </div>
           <div *ngIf="book.rating" class="rating-container">
             <p-rating [ngModel]="book.rating"
                       readonly="true"

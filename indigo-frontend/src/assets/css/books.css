@@ -1,4 +1,3 @@
-/** BOOKS **/
 .book .p-card .p-card-content {
   padding: 0.9rem 0 0.5rem 0;
 }
@@ -260,12 +259,12 @@
 
 .metadata-title {
   display: block !important;
-  font-size: 0.8rem !important;
+  font-size: 0.9rem !important;
   line-height: 1.4 !important;
-  font-weight: 600 !important;
+  font-weight: 800 !important;
   letter-spacing: 0.02em !important;
   margin-bottom: 0.5rem !important;
-  color: var(--text-secondary) !important;
+  color: #fff;
   text-transform: uppercase !important;
 }
 
@@ -396,7 +395,7 @@
 .book .content-body.inline .subtitle {
   font-weight: 500 !important;
   font-size: 0.75rem !important;
-  color: var(--text-secondary) !important;
+  color: var(--primary-color) !important;
   opacity: 0.8 !important;
   margin-bottom: 0.3rem !important;
   display: block !important;
@@ -725,4 +724,29 @@ app-detail::-webkit-scrollbar-thumb {
 
 app-detail::-webkit-scrollbar-thumb:hover {
   background: var(--primary-hover) !important;
+}
+.profile .book-info .title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.profile .book-info .subtitle {
+  color: var(--text-secondary);
+  opacity: 0.8;
+}
+
+.profile .book-info .rating-container {
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile .book-info .p-rating {
+  justify-content: flex-start;
+}
+
+.profile .book-info .pi-comments {
+  color: var(--primary-color);
+  font-size: 1.1rem;
 }

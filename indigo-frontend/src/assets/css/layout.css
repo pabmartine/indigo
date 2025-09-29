@@ -85,57 +85,65 @@
 }
 
 /* Iconos del header para desktop */
+.header .header-search-container {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: block;
+}
+
 .header #header-icons {
   float: right;
   display: block;
   animation-duration: 0.5s;
+  margin-top: 0px;
 }
 
-.header #header-icons .header-search {
+.header .header-search-container .header-search {
   padding: 0;
   position: relative;
   display: inline-block;
-  top: -4px;
 }
 
-.header #header-icons .header-search input {
+.header .header-search-container .header-search input {
   display: inline-block;
-  border: 0 none;
+  border: 1px solid var(--text-primary);
   font-size: 14px;
   background: transparent;
-  border-bottom: 2px solid var(--text-primary);
   outline: 0 none;
   color: var(--text-primary);
-  width: 250px;
-  padding: 1px 20px 1px 1px;
+  width: 33vw;
+  padding: 6px 15px 6px 35px;
   margin: 0px;
-  border-radius: 2px;
+  border-radius: 20px;
   transition: border-color var(--transition-normal);
 }
 
-.header #header-icons .header-search input:focus {
-  border-bottom-color: var(--primary-color);
+.header .header-search-container .header-search input:focus {
+  border-color: var(--primary-color);
   background: rgba(248, 249, 250, 0.8);
 }
 
-.header #header-icons .header-search input::placeholder {
+.header .header-search-container .header-search input::placeholder {
   color: var(--text-primary);
   opacity: 0.7;
   transition: opacity var(--transition-normal);
 }
 
-.header #header-icons .header-search .header-search-icon {
+.header .header-search-container .header-search .header-search-icon {
   font-size: 16px;
   position: absolute;
-  top: -2px;
-  right: 0px;
-  font-weight: 800;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  font-weight: normal;
   transition: color var(--transition-normal);
 }
 
-.header #header-icons .header-search:hover input,
-.header #header-icons .header-search:hover .header-search-icon {
-  border-bottom-color: var(--primary-color);
+.header .header-search-container .header-search:hover input,
+.header .header-search-container .header-search:hover .header-search-icon {
+  border-color: var(--primary-color);
   color: var(--primary-color);
 }
 

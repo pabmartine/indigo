@@ -6,11 +6,14 @@
     <button id="topbar-menu-button" pButton type="button" icon="pi pi-ellipsis-v" class="button-search no-shadow" (click)="toggleTopBar($event)"></button>
     <button id="messages-menu-button" pButton type="button" icon="pi pi-envelope" class="button-messages no-shadow" (click)="msg.toggle($event)" [ngClass]="{ 'active': messages.length > 0 }" *ngIf="messages.length>0"></button>
 
-    <div id="header-icons">
+
+    <div class="header-search-container">
         <span class="header-search">
-            <input type="text" placeholder="{{'locale.header.search' | translate}}" [(ngModel)]="search" (keyup.enter)="doSearch()"/>
             <span class="header-search-icon pi pi-search" (click)="doSearch()" onmouseover="this.style.cursor='pointer'"></span>
+            <input type="text" placeholder="Buscar título o autor..." [(ngModel)]="search" (keyup.enter)="doSearch()"/>
         </span>
+    </div>
+    <div id="header-icons">
         <a href="javascript:;" (click)="msg.toggle($event)" *ngIf="messages.length > 0">
             <span class="header-icon pi pi-envelope" [ngClass]="{ 'active': messages.length > 0 }"></span>
         </a>

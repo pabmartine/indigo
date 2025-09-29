@@ -121,7 +121,7 @@ export class AuthorComponent implements OnInit {
   }
 
   addFavoriteAuthor(): void {
-    this.authorService.addFavorite(this.selected.sort, this.user.username).subscribe({
+    this.authorService.addFavorite(this.selected.name, this.user.username).subscribe({
       next: (data) => {
         this.favoriteAuthor = true;
         this.messageService.clear();
@@ -149,7 +149,7 @@ export class AuthorComponent implements OnInit {
   }
 
   deleteFavoriteAuthor(): void {
-    this.authorService.deleteFavorite(this.selected.sort, this.user.username).subscribe({
+    this.authorService.deleteFavorite(this.selected.name, this.user.username).subscribe({
       next: (data) => {
         this.favoriteAuthor = false;
         this.messageService.clear();
@@ -177,7 +177,7 @@ export class AuthorComponent implements OnInit {
   }
 
   getFavoriteAuthor(): void {
-    this.authorService.getFavorite(this.selected.sort, this.user.username).subscribe({
+    this.authorService.getFavorite(this.selected.name, this.user.username).subscribe({
       next: (data) => {
         if (data) {
           this.favoriteAuthor = true;

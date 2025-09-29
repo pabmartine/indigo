@@ -15,6 +15,7 @@ import { AuthorService } from 'src/app/services/author.service';
 @Component({
   selector: 'app-authors',
   templateUrl: './authors.component.html',
+  styleUrls: ['./authors.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [MessageService]
 })
@@ -312,6 +313,16 @@ export class AuthorsComponent implements OnInit, OnDestroy {
 
   private getFavoritesAsync(): Promise<void> {
     return new Promise((resolve, reject) => {
+      // Si el usuario no está logueado, no hay favoritos que cargar
+      if (!this.user || !this.user.username) {
+        console.log('User or username not available, not fetching favorites.');
+        this.favorites = [];
+        this.cdr.detectChanges();
+        resolve();
+        return;
+      }
+
+      console.log('Fetching author favorites for user:', this.user.username);
       // Usar cache si está disponible
       if (this.favoritesCache) {
         this.favorites = [...this.favoritesCache];
