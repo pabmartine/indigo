@@ -29,12 +29,7 @@
 
 /* Individual book item card */
 .book-item {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-
-  display: flex;
+   display: flex;
   flex-direction: column;
   cursor: pointer;
 }
@@ -43,6 +38,7 @@
 
 /* Container for the book cover image */
 .book-cover-container {
+  border-radius: 8px;
   width: 100%;
   padding-top: 150%; /* Aspect ratio for the cover */
   position: relative;
@@ -60,7 +56,7 @@
 
 /* Information section below the cover */
 .book-info {
-  padding: 1rem;
+  padding-bottom: 1rem;
   display: flex;
   flex-direction: column;
   flex-grow: 1; /* Allows this section to fill available space */
@@ -80,7 +76,6 @@
 .book-info .subtitle {
   font-size: 0.875rem;
   color: #666;
-  margin-bottom: 0.5rem;
 }
 
 .book-info .subtitle a {
