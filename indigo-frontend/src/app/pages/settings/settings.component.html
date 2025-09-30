@@ -312,22 +312,24 @@
 
                         <div class="p-col-12"></div>
 
-                        <div class="p-col-12 p-md-4">{{'locale.settings.panel.file.uploads.path' | translate}}
+                        <div class="p-col-12 p-md-6">{{'locale.settings.panel.file.uploads.path' | translate}}
                         </div>
-                        <div class="p-col-12 p-md-7">
+                        <div class="p-col-12 p-md-6">
+                            <div class="p-grid">
+                                <div class="p-col-10">
+                                    <input type="text" pInputText autocomplete="off" [(ngModel)]="uploadsPath" disabled="true"
+                                        *ngIf="uploadsProgress==0" />
 
-                            <input type="text" pInputText autocomplete="off" [(ngModel)]="uploadsPath" disabled="true"
-                                *ngIf="uploadsProgress==0" />
-
-                            <div class="uploadsProgress" *ngIf="uploadsProgress>0">
-                                <p-progressBar [value]="uploadsProgress" ></p-progressBar>
+                                    <div class="uploadsProgress" *ngIf="uploadsProgress>0">
+                                        <p-progressBar [value]="uploadsProgress" ></p-progressBar>
+                                    </div>
+                                </div>
+                                <div class="p-col-2">
+                                    <p-confirmDialog class="confirmDialog"></p-confirmDialog>
+                                    <p-button label="{{'locale.buttons.detect' | translate}}" icon="pi pi-refresh"
+                                        class="settings-button" (click)="detect()"></p-button>
+                                </div>
                             </div>
-
-                        </div>
-                        <div class="p-col-12 p-md-1">
-                            <p-confirmDialog class="confirmDialog"></p-confirmDialog>
-                            <p-button label="{{'locale.buttons.detect' | translate}}" icon="pi pi-refresh"
-                                class="settings-button" (click)="detect()"></p-button>
                         </div>
                     </div>
                 </p-panel>

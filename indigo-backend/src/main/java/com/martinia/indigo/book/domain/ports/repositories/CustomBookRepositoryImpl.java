@@ -22,6 +22,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
@@ -51,27 +52,21 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 	public long count(Search search) {
 
-		Query query = new Query();
-
-		List<Criteria> criterias = new ArrayList<>();
-
-		if (search != null && !search.isEmpty()) {
-
-			if (StringUtils.isNoneEmpty(search.getPath())) {
-				String path = StringUtils.stripAccents(search.getPath());
-				criterias.add(Criteria.where("path").regex(path, "i"));
-			}
-
-			if (StringUtils.isNoneEmpty(search.getTitle())) {
-				String title = (search.getTitle());
-				criterias.add(Criteria.where("title").regex(title, "i"));
-			}
-
-			if (StringUtils.isNoneEmpty(search.getAuthor())) {
-				String author = (search.getAuthor());
-				criterias.add(Criteria.where("authors").regex(author, "i"));
-			}
-
+		        Query query = new Query();
+		
+		        List<Criteria> criterias = new ArrayList<>();
+		
+		        if (search != null && !search.isEmpty()) {
+		
+		            if (StringUtils.isNoneEmpty(search.getPath())) {
+		                String path = StringUtils.stripAccents(search.getPath());
+		                criterias.add(Criteria.where("path").regex(path, "i"));
+		            }
+		
+		            if (StringUtils.isNoneEmpty(search.getTitle()) || StringUtils.isNoneEmpty(search.getAuthor())) {
+		                String textToSearch = Optional.ofNullable(search.getTitle()).orElse("") + " " + Optional.ofNullable(search.getAuthor()).orElse("");
+		                query.addCriteria(TextCriteria.forDefaultLanguage().matching(textToSearch));
+		            }
 			if (null != (search.getIni())) {
 				criterias.add(Criteria.where("pubDate").gte(search.getIni()));
 			}
@@ -133,14 +128,9 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 				criterias.add(Criteria.where("path").regex(path, "i"));
 			}
 
-			if (StringUtils.isNoneEmpty(search.getTitle())) {
-				String title = (search.getTitle());
-				criterias.add(Criteria.where("title").regex(title, "i"));
-			}
-
-			if (StringUtils.isNoneEmpty(search.getAuthor())) {
-				String author = (search.getAuthor());
-				criterias.add(Criteria.where("authors").regex(author, "i"));
+			if (StringUtils.isNoneEmpty(search.getTitle()) || StringUtils.isNoneEmpty(search.getAuthor())) {
+				String textToSearch = Optional.ofNullable(search.getTitle()).orElse("") + " " + Optional.ofNullable(search.getAuthor()).orElse("");
+				query.addCriteria(TextCriteria.forDefaultLanguage().matching(textToSearch));
 			}
 
 			if (null != (search.getIni())) {

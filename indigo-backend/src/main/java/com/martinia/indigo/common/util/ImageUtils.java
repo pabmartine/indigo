@@ -244,29 +244,55 @@ public class ImageUtils {
 	}
 
 	public Resource getEpub(String path) {
-
 		Resource epub = null;
 
 		try {
-			if (!libraryPath.endsWith(File.separator)) {
-				libraryPath += File.separator;
+			// Normalizar libraryPath para que termine con separador
+			String normalizedLibraryPath = libraryPath;
+			if (!normalizedLibraryPath.endsWith(File.separator)) {
+				normalizedLibraryPath += File.separator;
 			}
 
-			String basePath = libraryPath + path;
+			// Limpiar path: eliminar separadores al inicio
+			String normalizedPath = path;
+			while (normalizedPath.startsWith(File.separator)) {
+				normalizedPath = normalizedPath.substring(1);
+			}
 
-			File file = new File(basePath);
-			if (file.exists()) {
-				File[] files = file.listFiles();
-				for (File f : files) {
-					if (f.getName().endsWith(".epub")) {
-						epub = new UrlResource(f.toPath().toUri());
-						break;
-					}
+			// Extraer el nombre del último directorio de libraryPath
+			String libraryPathWithoutSeparator = libraryPath.endsWith(File.separator)
+					? libraryPath.substring(0, libraryPath.length() - 1)
+					: libraryPath;
 
+			String lastDirOfLibrary = libraryPathWithoutSeparator.substring(
+					libraryPathWithoutSeparator.lastIndexOf(File.separator) + 1
+			);
+
+			// Si normalizedPath comienza con el último directorio de libraryPath, eliminarlo
+			if (normalizedPath.startsWith(lastDirOfLibrary + File.separator) ||
+					normalizedPath.startsWith(lastDirOfLibrary)) {
+				normalizedPath = normalizedPath.substring(lastDirOfLibrary.length());
+				while (normalizedPath.startsWith(File.separator)) {
+					normalizedPath = normalizedPath.substring(1);
 				}
 			}
-		}
-		catch (IOException e) {
+
+			// Construir la ruta final
+			String basePath = normalizedLibraryPath + normalizedPath;
+
+			File file = new File(basePath);
+			if (file.exists() && file.isDirectory()) {
+				File[] files = file.listFiles();
+				if (files != null) {
+					for (File f : files) {
+						if (f.getName().endsWith(".epub")) {
+							epub = new UrlResource(f.toPath().toUri());
+							break;
+						}
+					}
+				}
+			}
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
