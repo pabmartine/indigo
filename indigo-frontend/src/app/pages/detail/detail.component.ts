@@ -126,7 +126,6 @@ export class DetailComponent implements OnInit {
           }
         },
         error: (error) => {
-          console.log(error);
         }
       });
     }
@@ -136,15 +135,7 @@ export class DetailComponent implements OnInit {
   getSerie(serie: Serie): void {
     if (serie) {
       this.bookService.getSerie(serie.name, this.user.languageBooks).subscribe({
-        next: (data) => {
-          data.forEach((book) => {
-            let objectURL = 'data:image/jpeg;base64,' + book.image;
-            book.image = objectURL;
-          });
-          Array.prototype.push.apply(this.serie, data);
-        },
         error: (error) => {
-          console.log(error);
         }
       });
     }
@@ -162,7 +153,6 @@ export class DetailComponent implements OnInit {
           Array.prototype.push.apply(this.similar, data);
         },
         error: (error) => {
-          console.log(error);
         }
       });
     }
@@ -181,7 +171,6 @@ export class DetailComponent implements OnInit {
           Array.prototype.push.apply(this.recommendations, data);
         },
         error: (error) => {
-          console.log(error);
         }
       });
     }
@@ -246,20 +235,6 @@ export class DetailComponent implements OnInit {
   }
 
 
-  // addNotification(book: string, type: NotificationEnum, status: StatusEnum, error: string): void {
-  //   const user = JSON.parse(sessionStorage.user);
-
-  //   const notification = new Notification(null, book, user.username, type, status, error, this.datepipe.transform(new Date(), 'dd/MM/yyyy HH:mm:ss'));
-
-  //   this.notificationService.save(notification).subscribe({
-  //     next: (data) => {
-  //       console.log(data);
-  //     },
-  //     error: (error) => {
-  //       console.log(error);
-  //     }
-  //   });
-  // }
 
 
   sendToKindle(): void {
@@ -274,16 +249,13 @@ export class DetailComponent implements OnInit {
         this.messageService.clear();
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.kindle.ok'), closable: false, life: 5000 });
 
-        // Add to notifications table
-        // this.addNotification(book, NotificationEnum.KINDLE, StatusEnum.SEND, null);
+
       },
       error: (error) => {
-        console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.kindle.error'), closable: false, life: 5000 });
 
-        // Add to notifications table
-        // this.addNotification(book + '', NotificationEnum.KINDLE, StatusEnum.NOT_SEND, error.error.message);
+
       }
     });
   }
@@ -298,7 +270,6 @@ export class DetailComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.log(error);
       }
     });
   }
@@ -314,7 +285,6 @@ export class DetailComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.log(error);
       }
     });
   }
@@ -324,7 +294,6 @@ export class DetailComponent implements OnInit {
     const user = JSON.parse(sessionStorage.user);
     this.bookService.view(id, user.username).subscribe(
       error => {
-        console.log(error);
       }
     );
   }
@@ -339,7 +308,6 @@ export class DetailComponent implements OnInit {
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.favorite.add.ok'), closable: false, life: 5000 });
       },
       error: (error) => {
-        console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.favorite.add.error'), closable: false, life: 5000 });
       }
@@ -359,7 +327,6 @@ export class DetailComponent implements OnInit {
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.favorite.delete.ok'), closable: false, life: 5000 });
       },
       error: (error) => {
-        console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.favorite.delete.error'), closable: false, life: 5000 });
       }
@@ -381,7 +348,6 @@ export class DetailComponent implements OnInit {
           this.displayed = this.rendition.display();
 
           this.displayed.then((renderer) => {
-            console.log(this.rendition);
           });
 
           this.book.ready.then(() => {
@@ -398,7 +364,6 @@ export class DetailComponent implements OnInit {
         }
       },
       error => {
-        console.log(error);
       }
     );
   }
@@ -409,7 +374,6 @@ export class DetailComponent implements OnInit {
         saveAs(data, this.selected.title);
       },
       error: (error) => {
-        console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.download.error'), closable: false, life: 5000 });
       }
@@ -440,7 +404,6 @@ export class DetailComponent implements OnInit {
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.refresh.result.ok'), closable: false, life: 5000 });
       },
       error: (error) => {
-        console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.refresh.result.error'), closable: false, life: 5000 });
       }
@@ -488,7 +451,6 @@ export class DetailComponent implements OnInit {
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.delete.ok'), closable: false, life: 5000 });
       },
       error: (error) => {
-        console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.delete.error'), closable: false, life: 5000 });
       }
@@ -510,7 +472,6 @@ export class DetailComponent implements OnInit {
         this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.edit.ok'), closable: false, life: 5000 });
       },
       error: (error) => {
-        console.log(error);
         this.messageService.clear();
         this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.edit.error'), closable: false, life: 5000 });
       }

@@ -10,7 +10,7 @@ public interface CustomBookRepository {
 
 	List<BookMongoEntity> findAll(Search search, int page, int size, String sort, String order);
 
-	long count(Search search);
+	long countBooks(Search search);
 
 	Map<String, Long> getNumBooksBySerie(List<String> languages, int page, int size, String sort, String order);
 

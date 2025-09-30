@@ -8,6 +8,8 @@ import com.martinia.indigo.common.domain.model.Search;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
@@ -16,12 +18,16 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.shaded.com.fasterxml.jackson.core.type.TypeReference;
 
 import java.text.SimpleDateFormat;
+import org.springframework.data.mongodb.core.index.TextIndexDefinition;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
 class FindAllBooksControllerIntegrationTest extends BaseIndigoIntegrationTest {
+
+	@Autowired
+	private MongoTemplate mongoTemplate;
 
 	private BookMongoEntity bookMongoEntity;
 
@@ -34,6 +40,7 @@ class FindAllBooksControllerIntegrationTest extends BaseIndigoIntegrationTest {
 	@BeforeEach
 	@SneakyThrows
 	public void init() {
+		mongoTemplate.indexOps(BookMongoEntity.class).ensureIndex(new TextIndexDefinition.TextIndexDefinitionBuilder().onField("title").onField("authors").build());
 		bookMongoEntity = BookMongoEntity.builder()
 				.id("64dce11b1520b348ff4b96ae")
 				.title("title")

@@ -17,7 +17,7 @@ public class CountAllBooksUseCaseImpl implements CountAllBooksUseCase {
 
 	@Override
 	public Long count(Search search) {
-		return bookRepository.count(search);
+		return bookRepository.countBooks(search);
 	}
 
 }

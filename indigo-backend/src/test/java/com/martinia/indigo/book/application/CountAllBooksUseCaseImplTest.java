@@ -26,7 +26,7 @@ class CountAllBooksUseCaseImplTest extends BaseIndigoTest {
 		long expectedCount = 10L;
 
 		// Mock the behavior of the bookRepository
-		when(bookRepository.count(search)).thenReturn(expectedCount);
+		when(bookRepository.countBooks(search)).thenReturn(expectedCount);
 
 		// When
 		long actualCount = countAllUseCase.count(search);
@@ -41,7 +41,7 @@ class CountAllBooksUseCaseImplTest extends BaseIndigoTest {
 		Search nullSearch = null;
 		long expectedCount = 0L;
 
-		when(bookRepository.count(nullSearch)).thenReturn(expectedCount);
+		when(bookRepository.countBooks(nullSearch)).thenReturn(expectedCount);
 
 		// When
 		long actualCount = countAllUseCase.count(nullSearch);
@@ -57,7 +57,7 @@ class CountAllBooksUseCaseImplTest extends BaseIndigoTest {
 		searchWithText.setTitle("fantasy");
 		long expectedCount = 15L;
 
-		when(bookRepository.count(searchWithText)).thenReturn(expectedCount);
+		when(bookRepository.countBooks(searchWithText)).thenReturn(expectedCount);
 
 		// When
 		long actualCount = countAllUseCase.count(searchWithText);
@@ -73,7 +73,7 @@ class CountAllBooksUseCaseImplTest extends BaseIndigoTest {
 		searchWithNoResults.setTitle("nonexistent");
 		long expectedCount = 0L;
 
-		when(bookRepository.count(searchWithNoResults)).thenReturn(expectedCount);
+		when(bookRepository.countBooks(searchWithNoResults)).thenReturn(expectedCount);
 
 		// When
 		long actualCount = countAllUseCase.count(searchWithNoResults);

@@ -12,11 +12,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.TextCriteria;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
@@ -52,21 +54,9 @@ class CustomBookRepositoryImplTest {
 
 		List<Criteria> criterias = new ArrayList<>();
 
-		String[] pathTerms = search.getPath().split(" ");
-		for (String term : pathTerms) {
-			criterias.add(Criteria.where("path").regex(term, "i"));
-		}
-
-		String[] titleTerms = search.getTitle().split(" ");
-		for (String term : titleTerms) {
-			criterias.add(Criteria.where("title").regex(term, "i"));
-		}
-
-		String[] authorTerms = search.getAuthor().split(" ");
-		for (String term : authorTerms) {
-			criterias.add(Criteria.where("authors").regex(term, "i"));
-		}
-
+		criterias.add(Criteria.where("path").regex(search.getPath(), "i"));
+        String textToSearch = Optional.ofNullable(search.getTitle()).orElse("") + " " + Optional.ofNullable(search.getAuthor()).orElse("");
+        query.addCriteria(TextCriteria.forDefaultLanguage().matching(textToSearch));
 		criterias.add(Criteria.where("pubDate").gte(search.getIni()));
 
 		Calendar cEnd = Calendar.getInstance();
@@ -89,7 +79,7 @@ class CustomBookRepositoryImplTest {
 		long expectedCount = 10;
 		when(mongoTemplate.count(query, BookMongoEntity.class)).thenReturn(expectedCount);
 
-		long count = customBookRepository.count(search);
+		long count = customBookRepository.countBooks(search);
 
 		assertEquals(expectedCount, count);
 		verify(mongoTemplate).count(query, BookMongoEntity.class);
@@ -119,20 +109,9 @@ class CustomBookRepositoryImplTest {
 
 		List<Criteria> criterias = new ArrayList<>();
 
-		String[] pathTerms = search.getPath().split(" ");
-		for (String term : pathTerms) {
-			criterias.add(Criteria.where("path").regex(term, "i"));
-		}
-
-		String[] titleTerms = search.getTitle().split(" ");
-		for (String term : titleTerms) {
-			criterias.add(Criteria.where("title").regex(term, "i"));
-		}
-
-		String[] authorTerms = search.getAuthor().split(" ");
-		for (String term : authorTerms) {
-			criterias.add(Criteria.where("authors").regex(term, "i"));
-		}
+		criterias.add(Criteria.where("path").regex(search.getPath(), "i"));
+        String textToSearch = Optional.ofNullable(search.getTitle()).orElse("") + " " + Optional.ofNullable(search.getAuthor()).orElse("");
+        query.addCriteria(TextCriteria.forDefaultLanguage().matching(textToSearch));
 
 		criterias.add(Criteria.where("pubDate").gte(search.getIni()));
 
@@ -227,7 +206,7 @@ class CustomBookRepositoryImplTest {
 		List<BookMongoEntity> books = customBookRepository.getSerie(serie, languages);
 
 		assertEquals(expectedBooks, books);
-		verify(mongoTemplate).find(query, BookMongoEntity.class);
+verify(mongoTemplate).find(query, BookMongoEntity.class);
 	}
 
 }

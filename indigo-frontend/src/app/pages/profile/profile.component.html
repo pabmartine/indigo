@@ -43,7 +43,7 @@
                 <p-dropdown id="language" [options]="languages" [(ngModel)]="user.language"
                             placeholder="Seleccione un idioma">
                   <ng-template let-item pTemplate="item">
-                    <img src="./assets/images/flags/{{item.value}}.svg" class="flag" />
+                    <img src="./assets/images/flags/{{item.value}}.svg" style="width: 1.5em; height: 1.5em; margin-right: 0.5rem; vertical-align: middle;" />
                     <span>{{item.label}}</span>
                   </ng-template>
                 </p-dropdown>

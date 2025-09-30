@@ -116,7 +116,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
       { label: this.translate.instant('locale.languages.en'), value: 'en-GB' },
       { label: this.translate.instant('locale.languages.fr'), value: 'fr-FR' },
       { label: this.translate.instant('locale.languages.pt'), value: 'pt-PT' },
-      { label: this.translate.instant('locale.languages.de'), value: 'de-DE' }
+      { label: this.translate.instant('locale.languages.de'), value: 'de-DE' },
+      { label: this.translate.instant('locale.languages.it'), value: 'it-IT' },
+      { label: this.translate.instant('locale.languages.sv'), value: 'sv-SE' }
     ];
   }
 
@@ -124,8 +126,29 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.languageBooks.length = 0;
     this.bookService.getLanguages().subscribe(
       data => {
-        data.forEach((lang) => {
-          this.languageBooks.push({ label: this.translate.instant('locale.languages.' + lang), value: lang });
+        const uniqueLangs = [...new Set(data)];
+        const labels = new Set<string>();
+        this.translate.get('locale.languages').subscribe(translations => {
+          const supportedLanguages = Object.keys(translations);
+          uniqueLangs.forEach((lang: string) => {
+            if (lang) {
+              let normalizedLang = lang.toLowerCase();
+              if (normalizedLang.includes('-')) {
+                normalizedLang = normalizedLang.split('-')[0];
+              }
+              if (normalizedLang.includes('_')) {
+                normalizedLang = normalizedLang.split('_')[0];
+              }
+
+              if (supportedLanguages.includes(normalizedLang)) {
+                const label = translations[normalizedLang];
+                if (label && !labels.has(label)) {
+                  this.languageBooks.push({ label: label, value: lang });
+                  labels.add(label);
+                }
+              }
+            }
+          });
         });
       }
     );

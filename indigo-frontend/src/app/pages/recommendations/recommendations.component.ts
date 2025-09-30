@@ -187,7 +187,6 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
           this.cdr.detectChanges();
         },
         error: (error) => {
-          console.log('Error in count():', error);
           this.total = 0;
           this.title = this.translate.instant('locale.books.recommendations.title2') + " (0)";
           this.messageService.clear();
@@ -227,11 +226,7 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
-          console.log('Received recommendations data:', data, 'Type:', typeof data, 'Is Array:', Array.isArray(data));
-
-          // Validar que data existe y es un array
           if (!data || !Array.isArray(data)) {
-            console.warn('Received invalid data from getRecommendationsByUser:', data);
             // Si no hay datos válidos, marcar como completado
             this.isLoading = false;
             this.cdr.detectChanges();
@@ -240,7 +235,6 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
 
           // Si el array está vacío, no hay más datos
           if (data.length === 0) {
-            console.log('No more recommendations available');
             this.isLoading = false;
             this.cdr.detectChanges();
             return;
@@ -269,7 +263,6 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
           });
         },
         error: (error) => {
-          console.error('Error getting recommendations:', error);
           this.isLoading = false;
           this.messageService.clear();
           this.messageService.add({
@@ -287,7 +280,6 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
     return new Promise((resolve) => {
       // Validar que data existe y es un array
       if (!data || !Array.isArray(data)) {
-        console.warn('Invalid data in processBooks:', data);
         resolve([]);
         return;
       }
@@ -316,7 +308,6 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
   private processImagesAsync(books: BookWithTempImage[], startIndex: number): void {
     // Validar que books existe y es un array
     if (!books || !Array.isArray(books) || books.length === 0) {
-      console.warn('Invalid books array in processImagesAsync:', books);
       return;
     }
 
@@ -401,7 +392,6 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
           this.cdr.detectChanges();
         },
         error: (error) => {
-          console.log(error);
         }
       });
   }
@@ -429,7 +419,6 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
           }
         },
         error: (error) => {
-          console.log('Error counting recommendations:', error);
           this.total = 0;
           this.title = this.translate.instant('locale.books.recommendations.title2') + " (0)";
           this.isLoading = false;

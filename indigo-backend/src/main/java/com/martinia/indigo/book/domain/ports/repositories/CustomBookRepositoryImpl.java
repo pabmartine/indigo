@@ -50,7 +50,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 	private String collectionName = BookMongoEntity.class.getAnnotation(org.springframework.data.mongodb.core.mapping.Document.class)
 			.collection();
 
-	public long count(Search search) {
+	public long countBooks(Search search) {
 
 		        Query query = new Query();
 		
@@ -64,8 +64,10 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 		            }
 		
 		            if (StringUtils.isNoneEmpty(search.getTitle()) || StringUtils.isNoneEmpty(search.getAuthor())) {
-		                String textToSearch = Optional.ofNullable(search.getTitle()).orElse("") + " " + Optional.ofNullable(search.getAuthor()).orElse("");
-		                query.addCriteria(TextCriteria.forDefaultLanguage().matching(textToSearch));
+		                String textToSearch = (Optional.ofNullable(search.getTitle()).orElse("") + " " + Optional.ofNullable(search.getAuthor()).orElse("")).trim();
+		                if (StringUtils.isNotBlank(textToSearch)) {
+		                    query.addCriteria(TextCriteria.forDefaultLanguage().matchingAny(textToSearch));
+		                }
 		            }
 			if (null != (search.getIni())) {
 				criterias.add(Criteria.where("pubDate").gte(search.getIni()));
@@ -100,18 +102,15 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 		}
 
-		if (search != null) {//TODO: mejorar esto
-			if (!CollectionUtils.isEmpty(search.getLanguages())) {
-				criterias.add(Criteria.where("languages").in(search.getLanguages()));
-			}
-			else {
-				criterias.add(Criteria.where("languages").in(Arrays.asList("none")));
-			}
-			query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
-		}
-
+		        if (search != null) {//TODO: mejorar esto
+		            if (!CollectionUtils.isEmpty(search.getLanguages())) {
+		                criterias.add(Criteria.where("languages").in(search.getLanguages()));
+		            }
+		            if (!criterias.isEmpty()) {
+		                query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
+		            }
+		        }
 		return mongoTemplate.count(query, BookMongoEntity.class);
-
 	}
 
 	public List<BookMongoEntity> findAll(Search search, int page, int size, String sort, String order) {
@@ -129,8 +128,10 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 			}
 
 			if (StringUtils.isNoneEmpty(search.getTitle()) || StringUtils.isNoneEmpty(search.getAuthor())) {
-				String textToSearch = Optional.ofNullable(search.getTitle()).orElse("") + " " + Optional.ofNullable(search.getAuthor()).orElse("");
-				query.addCriteria(TextCriteria.forDefaultLanguage().matching(textToSearch));
+				String textToSearch = (Optional.ofNullable(search.getTitle()).orElse("") + " " + Optional.ofNullable(search.getAuthor()).orElse("")).trim();
+				if (StringUtils.isNotBlank(textToSearch)) {
+					query.addCriteria(TextCriteria.forDefaultLanguage().matchingAny(textToSearch));
+				}
 			}
 
 			if (null != (search.getIni())) {
@@ -170,7 +171,9 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 			if (!CollectionUtils.isEmpty(search.getLanguages())) {
 				criterias.add(Criteria.where("languages").in(search.getLanguages()));
 			}
-			query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
+			if (!criterias.isEmpty()) {
+				query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
+			}
 		}
 
 		return mongoTemplate.find(query, BookMongoEntity.class);
@@ -274,9 +277,6 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 		if (!CollectionUtils.isEmpty(languages)) {
 			criterias.add(Criteria.where("languages").in(languages));
-		}
-		else {
-			criterias.add(Criteria.where("languages").in(Arrays.asList("none")));
 		}
 		query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
 
