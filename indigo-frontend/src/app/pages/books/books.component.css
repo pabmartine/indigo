@@ -160,3 +160,101 @@
     grid-template-columns: repeat(2, 1fr); /* 2 columns on very small screens */
   }
 }
+
+.view-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* List View Styles */
+.books-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.book-list-item {
+  display: flex;
+  gap: 1.5rem;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1.5rem;
+}
+
+.book-list-item:last-child {
+  border-bottom: none;
+}
+
+.book-list-cover {
+  width: 100px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.book-list-info {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.book-list-info .description {
+  font-size: 0.875rem;
+  color: #555;
+  margin-top: 0.5rem;
+  line-height: 1.4;
+}
+
+.title-container {
+  display: flex;
+  align-items: center;
+  padding-bottom: 5px; /* Changed from margin-bottom */
+}
+
+.title-container .pi-comments {
+  font-size: 1.1rem;
+  color: burlywood;
+  margin-left: 0.75rem; /* Replaced gap with margin */
+}
+
+.book-meta {
+  font-size: 0.8rem;
+  color: #666;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* Increased gap between meta items */
+}
+
+.meta-item {
+  display: flex;
+}
+
+.meta-value {
+  font-weight: 600; 
+  color: #6c757d;
+}
+
+.book-list-item .rating-container {
+    margin-top: 0.5rem;
+}
+
+.book-list-item .title {
+  width: auto;
+  white-space: normal;
+}
+
+@media (max-width: 576px) {
+  .view-controls .sortBy {
+    order: 1; /* Dropdown appears first */
+  }
+
+  .view-controls button[pButton] {
+    order: 2; /* View switcher button appears second */
+    margin-top: 1rem;
+  }
+}
+
+

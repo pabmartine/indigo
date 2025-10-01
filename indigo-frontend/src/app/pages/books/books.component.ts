@@ -81,6 +81,7 @@ export class BooksComponent implements OnInit, OnDestroy {
 
   showDetail = false
   showAuthorDetail = false
+  isListView = false
 
   constructor(
     private bookService: BookService,
@@ -861,5 +862,10 @@ export class BooksComponent implements OnInit, OnDestroy {
 
   close(): void {
     this.location.back()
+  }
+
+  setView(isList: boolean): void {
+    this.isListView = isList;
+    this.cdr.detectChanges();
   }
 }
