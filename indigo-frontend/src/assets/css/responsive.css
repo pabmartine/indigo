@@ -25,8 +25,8 @@
   }
 
   .header .header-title {
-    font-size: 23px;
-    margin: 0px 0 0 0px;
+    font-size: 26px;
+    margin: 4px 0 0 0px;
   }
 
   .header .header-title-message {
@@ -83,6 +83,10 @@
   .header #sidebar-menu-button:hover,
   .header #messages-menu-button:hover {
     color: var(--primary-color);
+  }
+
+  .header #sidebar-menu-button .pi, .header #topbar-menu-button .pi {
+    font-size: 28px !important;
   }
 
   .sidebar {
@@ -236,14 +240,18 @@
 
   .header .header-title,
   .header .header-title-message {
-    font-size: 18px;
-    margin: 9px 0.25rem;
+    font-size: 26px;
+    margin: 4px 0.25rem;
   }
 
   .header .button-menu,
   .header .button-search,
   .header .button-messages {
     font-size: 20px !important;
+  }
+
+  .header .button-menu .pi, .header .button-search .pi {
+    font-size: 26px !important;
   }
 
   .footer {
@@ -328,14 +336,18 @@
 
   .header .header-title,
   .header .header-title-message {
-    font-size: 16px;
-    margin: 10px 0 0 0;
+    font-size: 26px;
+    margin: 4px 0 0 0;
   }
 
   .header .button-menu,
   .header .button-search,
   .header .button-messages {
     font-size: 18px !important;
+  }
+
+  .header .button-menu .pi, .header .button-search .pi {
+    font-size: 24px !important;
   }
 
   .footer {
