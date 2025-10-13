@@ -65,3 +65,15 @@
   overflow: auto !important;
   -webkit-line-clamp: unset !important;
 }
+
+@media (max-width: 767px) {
+  .book .content-body.inline {
+    flex-wrap: wrap !important;
+    overflow-x: hidden !important;
+  }
+
+  .book .content-body.inline > .p-col-12 {
+    flex: 1 0 100% !important;
+    max-width: 100% !important;
+  }
+}

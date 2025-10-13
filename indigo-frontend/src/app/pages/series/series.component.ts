@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 import { Search } from 'src/app/domain/search';
-import { Subject } from 'rxjs';
+import { forkJoin, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 // Interfaz para series con imagen temporal
@@ -42,6 +42,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
 
   // Estado de carga
   isLoading: boolean = false;
+  isScrolling: boolean = false;
 
   user = JSON.parse(sessionStorage.user);
 
@@ -65,7 +66,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.showGoUpButton = false;
     this.reset();
-    this.loadData();
+    this.loadInitialDataInParallel();
   }
 
   ngOnDestroy(): void {
@@ -94,10 +95,51 @@ export class SeriesComponent implements OnInit, OnDestroy {
     ];
   }
 
-  private loadData(): void {
+  private loadInitialDataInParallel(): void {
     this.isLoading = true;
     this.cdr.detectChanges();
-    this.count();
+
+    const count$ = this.serieService.count(this.user.languageBooks);
+    const series$ = this.serieService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order);
+
+    forkJoin({ count: count$, series: series$ })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: ({ count, series }) => {
+          // Process Count
+          this.total = count;
+          this.lastPage = this.total / this.size;
+          this.title = this.translate.instant('locale.series.title') + " (" + this.total + ")";
+
+          // Process Series
+          const cacheKey = `${this.page}-${this.size}-${this.sort}-${this.order}-${this.user.languageBooks?.join(',')}`;
+          const seriesWithoutImages: SerieWithTempImage[] = series.map(serie => ({
+            ...serie,
+            image: null,
+            originalImageRequested: false
+          }));
+          Array.prototype.push.apply(this.series, seriesWithoutImages);
+          this.page++;
+          this.cdr.detectChanges();
+          this.requestCoversAsync(seriesWithoutImages, 0);
+          this.seriesCache.set(cacheKey, series);
+
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('Error loading initial series data in parallel:', error);
+          this.isLoading = false;
+          this.messageService.clear();
+          this.messageService.add({
+            severity: 'error',
+            detail: this.translate.instant('locale.series.error.data'),
+            closable: false,
+            life: 5000
+          });
+          this.cdr.detectChanges();
+        }
+      });
   }
 
   // Método para trackBy en ngFor
@@ -135,7 +177,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
   }
 
   onScroll(): void {
-    if (this.series.length < this.total) {
+    if (this.series.length < this.total && !this.isScrolling) {
       this.getAll();
     }
   }
@@ -143,33 +185,6 @@ export class SeriesComponent implements OnInit, OnDestroy {
   scrollTop(): void {
     document.body.scrollTop = 0; // Safari
     document.documentElement.scrollTop = 0; // Other
-  }
-
-  count(): void {
-    this.serieService.count(this.user.languageBooks)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (data) => {
-          this.total = data;
-          this.lastPage = this.total / this.size;
-          this.title = this.translate.instant('locale.series.title') + " (" + this.total + ")";
-          this.isLoading = false;
-          this.cdr.detectChanges();
-          this.getAll();
-        },
-        error: (error) => {
-          console.log(error);
-          this.isLoading = false;
-          this.messageService.clear();
-          this.messageService.add({
-            severity: 'error',
-            detail: this.translate.instant('locale.series.error.data'),
-            closable: false,
-            life: 5000
-          });
-          this.cdr.detectChanges();
-        }
-      });
   }
 
   getAll(): void {
@@ -184,6 +199,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.isScrolling = true;
     this.serieService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -203,6 +219,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
           // Solicitar covers de forma asíncrona
           this.requestCoversAsync(seriesWithoutImages, this.series.length - seriesWithoutImages.length);
 
+          this.isScrolling = false;
           // Las imágenes se guardarán en cache cuando se reciban
         },
         error: (error) => {
@@ -214,6 +231,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
             closable: false,
             life: 5000
           });
+          this.isScrolling = false;
         }
       });
   }

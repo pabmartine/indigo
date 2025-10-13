@@ -105,6 +105,10 @@
   color: #ffc107; /* Make filled stars yellow */
 }
 
+.p-rating .p-rating-icon.pi-star {
+	color: #698ebf
+}
+
 .pi-comments {
   color: burlywood;
   font-size: 1.0rem;

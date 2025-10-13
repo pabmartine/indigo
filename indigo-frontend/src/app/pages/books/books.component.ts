@@ -82,6 +82,7 @@ export class BooksComponent implements OnInit, OnDestroy {
   showDetail = false
   showAuthorDetail = false
   isListView = false
+  isScrolling = false
 
   constructor(
     private bookService: BookService,
@@ -358,7 +359,7 @@ export class BooksComponent implements OnInit, OnDestroy {
   }
 
   onScroll(): void {
-    if (this.total > 0 && this.books.length < this.total && this.page > 0) {
+    if (this.total > 0 && this.books.length < this.total && this.page > 0 && !this.isScrolling) {
       this.getAll()
     }
   }
@@ -455,6 +456,7 @@ export class BooksComponent implements OnInit, OnDestroy {
       return
     }
 
+    this.isScrolling = true
     this.bookService
       .getAll(this.adv_search, this.page, this.size, this.sort, this.order)
       .pipe(takeUntil(this.destroy$))
@@ -465,6 +467,7 @@ export class BooksComponent implements OnInit, OnDestroy {
           if (!data || (data.length === 0 && this.page === 0)) {
             if (this.page === 0) this.books = []
             this.cdr.detectChanges()
+            this.isScrolling = false
             return
           }
 
@@ -492,6 +495,7 @@ export class BooksComponent implements OnInit, OnDestroy {
           this.cdr.detectChanges()
 
           this.bookCache.set(cacheKey, [...booksWithTempData])
+          this.isScrolling = false
         },
         error: (error) => {
           console.error("Error fetching books:", error)
@@ -503,6 +507,7 @@ export class BooksComponent implements OnInit, OnDestroy {
             closable: true,
             life: 5000,
           })
+          this.isScrolling = false
         },
       })
   }

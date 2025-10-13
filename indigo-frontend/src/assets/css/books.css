@@ -55,90 +55,6 @@
 }
 
 
-
-
-
-
-.book-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  max-width: 180px; /* Set a max-width for the book item */
-}
-
-.book-cover-container {
-  position: relative;
-  margin: 0 1.2rem 0.5rem 0.5rem;
-  border-radius: var(--border-radius-sm);
-  overflow: hidden;
-  background-color: var(--bg-secondary);
-  box-shadow: var(--shadow-md);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  min-height: 225px;
-  min-width: 150px;
-}
-
-.book-cover-container:hover {
-  transform: scale(1.05);
-  box-shadow: var(--shadow-lg);
-}
-
-.book-cover {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-color: #f0f0f0; /* A light gray background color */
-  cursor: pointer;
-}
-
-.book-info {
-  width: 100%;
-}
-
-.book-info .title {
-  display: block;
-  font-weight: 600;
-  font-size: 0.9rem;
-  line-height: 1.2;
-  margin-bottom: 0.3rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  color: var(--text-primary);
-}
-
-.book-info .subtitle {
-  display: block;
-  font-size: 0.8rem;
-  color: var(--primary-color);
-  margin-bottom: 0.3rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.book-info .subtitle a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.book-info .subtitle a:hover {
-  text-decoration: underline;
-}
-
-.book-info .p-rating {
-  justify-content: center;
-  margin-top: 0.3rem;
-}
-
 /* Botones de acciones específicos */
 .book #addFavoriteAuthor span,
 .book #deleteFavoriteAuthor span,
@@ -425,8 +341,6 @@
   align-items: center !important;
 }
 
-
-
 .book .list-image {
   width: 100% !important;
   height: 225px !important;
@@ -446,19 +360,19 @@
 }
 
 .book .title {
+  color: #495057 !important;
   color: var(--text-primary) !important;
   font-weight: 600 !important;
-  margin-bottom: 0.3rem !important;
+  margin-bottom: .3rem !important;
   display: block !important;
   width: 100% !important;
-  max-width: 160px !important; /* CRÍTICO: Limitar ancho del título */
+  max-width: 160px !important;
   text-overflow: ellipsis !important;
   overflow: hidden !important;
-  font-size: 0.9rem !important;
-  text-align: center !important;
+  font-size: .9rem !important;
+  text-align: left !important;
   flex-shrink: 0 !important;
   line-height: 1.2 !important;
-  /* CRÍTICO: Limitar a 2 líneas y luego ellipsis */
   display: -webkit-box !important;
   -webkit-line-clamp: 2 !important;
   -webkit-box-orient: vertical !important;
@@ -478,7 +392,7 @@
   text-overflow: ellipsis !important;
   overflow: hidden !important;
   white-space: nowrap !important;
-  text-align: center !important;
+  text-align: left !important;
   flex-shrink: 0 !important;
   word-wrap: break-word !important;
   word-break: break-word !important;
@@ -724,29 +638,4 @@ app-detail::-webkit-scrollbar-thumb {
 
 app-detail::-webkit-scrollbar-thumb:hover {
   background: var(--primary-hover) !important;
-}
-.profile .book-info .title {
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
-.profile .book-info .subtitle {
-  color: var(--text-secondary);
-  opacity: 0.8;
-}
-
-.profile .book-info .rating-container {
-  margin-top: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.profile .book-info .p-rating {
-  justify-content: flex-start;
-}
-
-.profile .book-info .pi-comments {
-  color: var(--primary-color);
-  font-size: 1.1rem;
 }

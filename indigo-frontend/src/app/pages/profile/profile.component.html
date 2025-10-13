@@ -88,43 +88,41 @@
   <p-card>
     <div class="content-header p-grid">
       <div class="p-col-12">
-                <span class="page-title">
-                    {{'locale.profile.books.title' | translate}} </span>
+        <span class="page-title">
+            {{'locale.profile.books.title' | translate}}
+        </span>
       </div>
     </div>
 
-    <div class="content-body p-grid inline">
-      <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of books">
+    <div class="books-grid">
+      <div class="book-item" *ngFor="let book of books" (click)="showBookDetails(book)">
         <div class="book-cover-container">
           <img [src]="book.image || './assets/images/book-placeholder.jpg'"
-               class="list-image book-cover"
-               (click)="showBookDetails(book)"
-               style="cursor: pointer;"
+               class="book-cover"
                loading="lazy"
                [alt]="book.title || 'Book'"
                [class.loading-image]="!book.image" />
         </div>
         <div class="book-info">
-          <div class="title">{{book.title || 'Unknown Title'}}</div>
-          <div class="subtitle">
-                        <a href="javascript:;"
-                           (click)="searchBookByAuthor(getFirstAuthor(book))"
-                           *ngIf="getFirstAuthor(book) !== 'Unknown Author'">
-                            {{getFirstAuthor(book)}}
-                        </a>
-                        <span *ngIf="getFirstAuthor(book) === 'Unknown Author'">
-                            {{getFirstAuthor(book)}}
-                        </span>
-                    </div>
+          <span class="title" title="{{ book.title }}">{{book.title || 'Unknown Title'}}</span>
+          <span class="subtitle">
+            <a href="javascript:;"
+               (click)="searchBookByAuthor(getFirstAuthor(book)); $event.stopPropagation();"
+               *ngIf="getFirstAuthor(book) !== 'Unknown Author'">
+                {{getFirstAuthor(book)}}
+            </a>
+            <span *ngIf="getFirstAuthor(book) === 'Unknown Author'">
+                {{getFirstAuthor(book)}}
+            </span>
+          </span>
           <div *ngIf="book.rating" class="rating-container">
             <p-rating [ngModel]="book.rating"
                       readonly="true"
                       stars="5"
-                      [cancel]="false"
-                      style="display: inline-block;"></p-rating>
+                      [cancel]="false"></p-rating>
             <i class="pi pi-comments"
-               style="float: right; color: burlywood; margin-top: 2px;"
-               *ngIf="book.reviews"></i>
+               *ngIf="book.reviews"
+               (click)="showBookDetails(book); $event.stopPropagation();"></i>
           </div>
         </div>
       </div>

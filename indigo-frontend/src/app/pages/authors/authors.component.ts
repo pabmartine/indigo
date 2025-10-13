@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
 import { SelectItem } from 'primeng/api/selectitem';
-import { Subject } from 'rxjs';
+import { forkJoin, of, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Author } from 'src/app/domain/author';
 import { Book } from 'src/app/domain/book';
@@ -60,6 +60,7 @@ export class AuthorsComponent implements OnInit, OnDestroy {
 
   // Estado de carga
   isLoading: boolean = false;
+  isScrolling: boolean = false;
 
   constructor(
     private authorService: AuthorService,
@@ -74,7 +75,7 @@ export class AuthorsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.reset();
-    this.loadInitialData();
+    this.loadInitialDataInParallel();
   }
 
   ngOnDestroy(): void {
@@ -103,22 +104,68 @@ export class AuthorsComponent implements OnInit, OnDestroy {
     ];
   }
 
-  private loadInitialData(): void {
+  private loadInitialDataInParallel(): void {
     this.isLoading = true;
     this.cdr.detectChanges();
 
-    // Cargar datos en paralelo para mejor rendimiento
-    Promise.all([
-      this.countAsync(),
-      this.getFavoritesAsync()
-    ]).then(() => {
-      this.isLoading = false;
-      this.cdr.detectChanges();
-    }).catch(error => {
-      console.error('Error loading initial data:', error);
-      this.isLoading = false;
-      this.cdr.detectChanges();
-    });
+    const count$ = this.authorService.count(this.user.languageBooks);
+    const authors$ = this.authorService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order);
+    const favorites$ = (this.user && this.user.username)
+      ? this.authorService.getFavorites(this.user.username)
+      : of([]);
+
+    forkJoin({ count: count$, authors: authors$, favorites: favorites$ })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: ({ count, authors, favorites }) => {
+          // Process Count
+          this.total = count;
+          this.lastPage = this.total / this.size;
+          this.title = this.translate.instant('locale.authors.title') + " (" + this.total + ")";
+
+          // Process Authors
+          const cacheKey = `${this.page}-${this.size}-${this.sort}-${this.order}-${this.user.languageBooks?.join(',')}`;
+          const authorsWithoutImages = authors.map(author => ({
+            ...author,
+            image: null,
+            originalImage: author.image
+          }));
+          Array.prototype.push.apply(this.authors, authorsWithoutImages);
+          this.page++;
+          this.cdr.detectChanges();
+          this.processAuthorsImagesAsync(authorsWithoutImages, 0);
+          const processedData = this.processAuthors(authors);
+          this.authorsCache.set(cacheKey, processedData);
+
+          // Process Favorites
+          if (favorites && favorites.length > 0) {
+            const favoritesWithoutImages = favorites.map(author => ({
+              ...author,
+              image: null,
+              originalImage: author.image
+            }));
+            this.favorites = favoritesWithoutImages;
+            this.processFavoritesImagesAsync(favoritesWithoutImages);
+            const processedFavorites = this.processAuthors(favorites);
+            this.favoritesCache = [...processedFavorites];
+          }
+
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.error('Error loading initial data in parallel:', error);
+          this.isLoading = false;
+          this.messageService.clear();
+          this.messageService.add({
+            severity: 'error',
+            detail: this.translate.instant('locale.authors.error.data'),
+            closable: false,
+            life: 5000
+          });
+          this.cdr.detectChanges();
+        }
+      });
   }
 
   // Método para trackBy en ngFor
@@ -156,7 +203,7 @@ export class AuthorsComponent implements OnInit, OnDestroy {
   }
 
   onScroll(): void {
-    if (this.authors.length < this.total) {
+    if (this.authors.length < this.total && !this.isScrolling) {
       this.getAll();
     }
   }
@@ -164,37 +211,6 @@ export class AuthorsComponent implements OnInit, OnDestroy {
   scrollTop(): void {
     document.body.scrollTop = 0; // Safari
     document.documentElement.scrollTop = 0; // Other
-  }
-
-  private countAsync(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.authorService.count(this.user.languageBooks)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (data) => {
-            this.total = data;
-            this.lastPage = this.total / this.size;
-            this.title = this.translate.instant('locale.authors.title') + " (" + this.total + ")";
-            this.getAll();
-            resolve();
-          },
-          error: (error) => {
-            console.log(error);
-            this.messageService.clear();
-            this.messageService.add({
-              severity: 'error',
-              detail: this.translate.instant('locale.authors.error.data'),
-              closable: false,
-              life: 5000
-            });
-            reject(error);
-          }
-        });
-    });
-  }
-
-  count(): void {
-    this.countAsync();
   }
 
   getAll(): void {
@@ -209,6 +225,7 @@ export class AuthorsComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.isScrolling = true;
     this.authorService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -231,6 +248,7 @@ export class AuthorsComponent implements OnInit, OnDestroy {
           // Guardar en cache con imágenes procesadas para futuras cargas
           const processedData = this.processAuthors(data);
           this.authorsCache.set(cacheKey, processedData);
+          this.isScrolling = false;
         },
         error: (error) => {
           console.log(error);
@@ -241,6 +259,7 @@ export class AuthorsComponent implements OnInit, OnDestroy {
             closable: false,
             life: 5000
           });
+          this.isScrolling = false;
         }
       });
   }

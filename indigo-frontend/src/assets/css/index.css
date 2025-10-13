@@ -75,3 +75,102 @@
   margin-top: -0.5rem;
   overflow: auto;
 }
+
+/* === ESTILOS GLOBALES PARA BOOK ITEM === */
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem 0.5rem;
+  justify-items: center;
+}
+
+.book-item {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 175px;
+}
+
+.book-cover-container {
+  position: relative;
+  margin-bottom: 0.5rem;
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  background-color: var(--bg-secondary);
+  box-shadow: var(--shadow-md);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 175px;
+  height: 250px;
+}
+
+.book-cover-container:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-lg);
+}
+
+.book-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+.book-info {
+  width: 100%;
+  padding-top: 0.5rem;
+  padding-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  text-align: left;
+}
+
+.book-info .title {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1.2;
+  margin-bottom: 0.3rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  color: var(--text-primary);
+}
+
+.book-info .subtitle {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--primary-color);
+  margin-bottom: 0.3rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.book-info .subtitle a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.book-info .subtitle a:hover {
+  text-decoration: underline;
+}
+
+.rating-container {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+}
+
+.book-info .p-rating {
+  justify-content: flex-start;
+}

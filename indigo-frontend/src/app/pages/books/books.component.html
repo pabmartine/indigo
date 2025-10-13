@@ -79,7 +79,7 @@
             </a>
             <span *ngIf="getFirstAuthor(book) === 'Unknown Author'">{{getFirstAuthor(book)}}</span>
           </span>
-          <p class="description">{{ book.comment | slice:0:250 }}{{ (book.comment && book.comment.length > 250) ? '...' : '' }}</p>
+          <p class="description" [innerHTML]="book.comment"></p>
           <div class="book-meta" *ngIf="(book.tags && book.tags.length > 0) || book.pubDate">
             <div *ngIf="book.tags && book.tags.length > 0" class="meta-item">
               <span class="meta-value">{{ book.tags.join(', ') }}</span>
