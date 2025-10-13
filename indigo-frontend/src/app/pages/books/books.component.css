@@ -238,7 +238,7 @@
 }
 
 .meta-value {
-  font-weight: 600;
+  font-weight: 600; 
   color: #6c757d;
 }
 
@@ -261,5 +261,4 @@
     margin-top: 1rem;
   }
 }
-
 
