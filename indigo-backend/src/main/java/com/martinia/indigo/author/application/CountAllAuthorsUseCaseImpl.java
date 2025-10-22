@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -18,6 +19,11 @@ public class CountAllAuthorsUseCaseImpl implements CountAllAuthorsUseCase {
 	@Override
 	public Long count(List<String> languages) {
 		return authorRepository.count(languages);
+	}
+
+	@Override
+	public Long countAllAuthors() {
+		return authorRepository.count(Collections.emptyList());
 	}
 
 }

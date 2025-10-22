@@ -163,6 +163,13 @@
             <version>4.2.1</version>
         </dependency>
 
+        <!-- OpenAPI / Swagger -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.5.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -192,6 +199,9 @@
                             <version>1.5.5.Final</version> <!-- Actualizado -->
                         </path>
                     </annotationProcessorPaths>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
 
@@ -244,6 +254,30 @@
                         <exclude>net/sourceforge/htmlunit/**/*.class</exclude>
                     </excludes>
                 </configuration>
+            </plugin>
+
+            <!-- Plugin para generar la especificación OpenAPI -->
+            <plugin>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-maven-plugin</artifactId>
+                <version>1.4</version>
+                <!--
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <outputFileName>openapi.json</outputFileName>
+                            <outputDir>${project.build.directory}</outputDir>
+                            <apiDocsUrl>http://localhost:8123/v3/api-docs</apiDocsUrl>
+                            <server>http://localhost:8123</server>
+                            <waitMs>10000</waitMs>
+                        </configuration>
+                    </execution>
+                </executions>
+                -->
             </plugin>
         </plugins>
     </build>

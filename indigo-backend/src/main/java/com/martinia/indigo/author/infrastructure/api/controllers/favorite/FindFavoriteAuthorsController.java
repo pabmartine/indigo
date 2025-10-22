@@ -4,6 +4,12 @@ import com.martinia.indigo.author.infrastructure.api.model.AuthorDto;
 import com.martinia.indigo.author.infrastructure.api.mappers.AuthorDtoMapper;
 import com.martinia.indigo.author.domain.model.Author;
 import com.martinia.indigo.author.domain.ports.usecases.favorite.FindFavoriteAuthorsUseCase;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +23,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/author")
+@Tag(name = "Authors", description = "API for author management")
 public class FindFavoriteAuthorsController {
 
 	@Resource
@@ -25,8 +32,16 @@ public class FindFavoriteAuthorsController {
 	@Resource
 	protected AuthorDtoMapper mapper;
 
+	@Operation(summary = "Find favorite authors",
+			description = "Retrieves a list of favorite authors for a given user.",
+			responses = {
+					@ApiResponse(responseCode = "200", description = "Successfully retrieved the list of favorite authors",
+							content = @Content(mediaType = "application/json",
+									schema = @Schema(implementation = AuthorDto.class)))
+			})
 	@GetMapping(value = "/favorites", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<AuthorDto>> getFavoriteAuthors(@RequestParam String user) {
+	public ResponseEntity<List<AuthorDto>> getFavoriteAuthors(
+			@Parameter(description = "The username of the user", example = "john.doe") @RequestParam String user) {
 		List<Author> authors = useCase.getFavoriteAuthors(user);
 		List<AuthorDto> authorsDto = mapper.domains2Dtos(authors);
 		return new ResponseEntity<>(authorsDto, HttpStatus.OK);

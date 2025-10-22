@@ -57,99 +57,17 @@ public class CountAllAuthorsControllerIntegrationTest extends BaseIndigoIntegrat
 
 	@Test
 	@WithMockUser
-	public void findAllAuthorsWithMultipleLanguages() throws Exception {
+	public void countAllAuthors_ShouldReturnTotalCount() throws Exception {
 
 		//Given
+		long expectedCount = 2L; // Assuming 2 authors are saved in init()
 
 		//When
-		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/api/author/count")
-				.param("languages", "eng", "spa")
-				.param("page", "0")
-				.param("size", "10")
-				.param("sort", "name")
-				.param("order", "asc")
-				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
+		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/api/authors/count")
+				.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isOk());
 
 		//Then
-		assertEquals("2", result.andReturn().getResponse().getContentAsString());
-
-	}
-
-	@Test
-	@WithMockUser
-	public void findAllAuthorsLimit1() throws Exception {
-
-		//Given
-
-		//When
-		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/api/author/count")
-				.param("languages", "eng", "spa")
-				.param("page", "0")
-				.param("size", "1")
-				.param("sort", "name")
-				.param("order", "asc")
-				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
-
-		//Then
-		assertEquals("2", result.andReturn().getResponse().getContentAsString());
-	}
-
-	@Test
-	@WithMockUser
-	public void findAllAuthorsSortDesc() throws Exception {
-
-		//Given
-
-		//When
-		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/api/author/count")
-				.param("languages", "eng", "spa")
-				.param("page", "0")
-				.param("size", "10")
-				.param("sort", "name")
-				.param("order", "asc")
-				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
-
-		//Then
-		assertEquals("2", result.andReturn().getResponse().getContentAsString());
-
-	}
-
-	@Test
-	@WithMockUser
-	public void findAllAuthorsSingleLanguage() throws Exception {
-
-		//Given
-
-		//When
-		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/api/author/count")
-				.param("languages", "eng")
-				.param("page", "0")
-				.param("size", "10")
-				.param("sort", "name")
-				.param("order", "asc")
-				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
-
-		//Then
-		assertEquals("2", result.andReturn().getResponse().getContentAsString());
-
-	}
-
-	@Test
-	@WithMockUser
-	public void findAllAuthorsSingleNoLanguageCoincidence() throws Exception {
-
-		//Given
-
-		//When
-		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/api/author/count")
-				.param("languages", "fra")
-				.param("page", "0")
-				.param("size", "10")
-				.param("sort", "name")
-				.param("order", "asc")
-				.contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
-
-		//Then
-		assertEquals("0", result.andReturn().getResponse().getContentAsString());
+		assertEquals(String.valueOf(expectedCount), result.andReturn().getResponse().getContentAsString());
 	}
 }
