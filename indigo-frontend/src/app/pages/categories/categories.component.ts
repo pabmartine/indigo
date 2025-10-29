@@ -66,10 +66,10 @@ export class CategoriesComponent implements OnInit, OnDestroy {
     public translate: TranslateService,
     private cdr: ChangeDetectorRef
   ) {
-    this.initializeSortOptions();
   }
 
   ngOnInit(): void {
+    this.initializeSortOptions();
     this.initializeMenuItems();
     this.reset();
     this.loadData();

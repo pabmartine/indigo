@@ -60,10 +60,10 @@ export class SeriesComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef
   ) {
     this.initializeScreenSize();
-    this.initializeSortOptions();
   }
 
   ngOnInit(): void {
+    this.initializeSortOptions();
     this.showGoUpButton = false;
     this.reset();
     this.loadInitialDataInParallel();

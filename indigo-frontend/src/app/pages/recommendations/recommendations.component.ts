@@ -71,12 +71,11 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef
   ) {
     this.initializeScreenSize();
-    this.initializeSortOptions();
     this.initializeNavigation();
   }
 
   ngOnInit(): void {
-    // La inicialización se maneja en el constructor para evitar múltiples llamadas
+    this.initializeSortOptions();
   }
 
   ngAfterViewChecked(): void {

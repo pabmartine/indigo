@@ -70,10 +70,10 @@ export class AuthorsComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef
   ) {
     this.initializeScreenSize();
-    this.initializeSortOptions();
   }
 
   ngOnInit(): void {
+    this.initializeSortOptions();
     this.reset();
     this.loadInitialDataInParallel();
   }
