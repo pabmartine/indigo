@@ -116,7 +116,6 @@
       }
     }
   },
-  "defaultProject": "indigo-client",
   "cli": {
     "analytics": false
   }
