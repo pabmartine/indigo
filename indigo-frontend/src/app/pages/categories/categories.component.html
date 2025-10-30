@@ -8,9 +8,12 @@
       </span>
     </div>
     <div class="p-col-12 p-md-6" style="text-align: right;">
-      <p-dropdown [options]="sorts" [(ngModel)]="selectedSort" (onChange)="onChange($event)"  class="sortBy">
+      <p-dropdown [options]="sorts" [(ngModel)]="selectedSort" (onChange)="onChange($event)"  class="sortBy" *ngIf="sorts && sorts.length > 0">
         <ng-template let-item pTemplate="selectedItem">
-          <span style="vertical-align:middle">{{item.label}}</span>
+          <span style="vertical-align:middle">{{item?.label || 'Sort Option'}}</span>
+        </ng-template>
+        <ng-template let-item pTemplate="item">
+          <span>{{item?.label || 'Unknown'}}</span>
         </ng-template>
       </p-dropdown>
     </div>

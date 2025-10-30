@@ -22,8 +22,9 @@
 .authors-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1.5rem; /* Space between author items */
+  gap: 1rem; /* Space between author items */
   margin-bottom: 2rem;
+  justify-items: center;
 }
 
 /* Go-up button */
@@ -44,6 +45,15 @@
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 1rem;
   }
+
+  .author-item {
+    max-width: 150px;
+  }
+
+  .user_avatar .avatar {
+    width: 100px;
+    height: 100px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -58,7 +68,16 @@
   }
 
   .authors-grid {
-    grid-template-columns: repeat(2, 1fr); /* 2 columns on very small screens */
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+
+  .author-item {
+    max-width: 140px;
+  }
+
+  .user_avatar .avatar {
+    width: 80px;
+    height: 80px;
   }
 }
 
@@ -113,8 +132,9 @@
   background-color: #fff;
   border-radius: 8px;
   overflow: hidden;
-
   display: flex;
   flex-direction: column;
   cursor: pointer;
+  width: 100%;
+  max-width: 220px;
 }

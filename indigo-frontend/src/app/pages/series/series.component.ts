@@ -33,7 +33,12 @@ export class SeriesComponent implements OnInit, OnDestroy {
   private sort: string;
   private order: string;
 
-  sorts: SelectItem[] = [];
+  sorts: SelectItem[] = [
+    { label: 'Total (Desc)', value: 'numBooks,desc' },
+    { label: 'Total (Asc)', value: 'numBooks,asc' },
+    { label: 'Name (Asc)', value: '_id,asc' },
+    { label: 'Name (Desc)', value: '_id,desc' }
+  ];
   selectedSort: string;
 
   showGoUpButton: boolean;
@@ -87,12 +92,31 @@ export class SeriesComponent implements OnInit, OnDestroy {
   }
 
   private initializeSortOptions(): void {
-    this.sorts = [
-      { label: this.translate.instant('locale.series.order_by.total.desc'), value: 'numBooks,desc' },
-      { label: this.translate.instant('locale.series.order_by.total.asc'), value: 'numBooks,asc' },
-      { label: this.translate.instant('locale.series.order_by.sort.asc'), value: '_id,asc' },
-      { label: this.translate.instant('locale.series.order_by.sort.desc'), value: '_id,desc' }
+    const translationKeys = [
+      'locale.series.order_by.total.desc',
+      'locale.series.order_by.total.asc',
+      'locale.series.order_by.sort.asc',
+      'locale.series.order_by.sort.desc'
     ];
+
+    this.translate.get(translationKeys)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (translations) => {
+          if (translations && Object.keys(translations).length > 0) {
+            this.sorts = [
+              { label: translations['locale.series.order_by.total.desc'] || 'Total (Desc)', value: 'numBooks,desc' },
+              { label: translations['locale.series.order_by.total.asc'] || 'Total (Asc)', value: 'numBooks,asc' },
+              { label: translations['locale.series.order_by.sort.asc'] || 'Name (Asc)', value: '_id,asc' },
+              { label: translations['locale.series.order_by.sort.desc'] || 'Name (Desc)', value: '_id,desc' }
+            ];
+            this.cdr.detectChanges();
+          }
+        },
+        error: (error) => {
+          console.error('Error loading translations for sorts:', error);
+        }
+      });
   }
 
   private loadInitialDataInParallel(): void {

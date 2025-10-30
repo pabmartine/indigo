@@ -37,7 +37,12 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   private sort: string;
   private order: string;
 
-  sorts: SelectItem[] = [];
+  sorts: SelectItem[] = [
+    { label: 'Total (Desc)', value: 'numBooks,desc' },
+    { label: 'Total (Asc)', value: 'numBooks,asc' },
+    { label: 'Name (Asc)', value: 'name,asc' },
+    { label: 'Name (Desc)', value: 'name,desc' }
+  ];
   selectedSort: string;
 
   rename: boolean;
@@ -81,12 +86,31 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   }
 
   private initializeSortOptions(): void {
-    this.sorts = [
-      { label: this.translate.instant('locale.tags.order_by.total.desc'), value: 'numBooks,desc' },
-      { label: this.translate.instant('locale.tags.order_by.total.asc'), value: 'numBooks,asc' },
-      { label: this.translate.instant('locale.tags.order_by.name.asc'), value: 'name,asc' },
-      { label: this.translate.instant('locale.tags.order_by.name.desc'), value: 'name,desc' }
+    const translationKeys = [
+      'locale.tags.order_by.total.desc',
+      'locale.tags.order_by.total.asc',
+      'locale.tags.order_by.name.asc',
+      'locale.tags.order_by.name.desc'
     ];
+
+    this.translate.get(translationKeys)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (translations) => {
+          if (translations && Object.keys(translations).length > 0) {
+            this.sorts = [
+              { label: translations['locale.tags.order_by.total.desc'] || 'Total (Desc)', value: 'numBooks,desc' },
+              { label: translations['locale.tags.order_by.total.asc'] || 'Total (Asc)', value: 'numBooks,asc' },
+              { label: translations['locale.tags.order_by.name.asc'] || 'Name (Asc)', value: 'name,asc' },
+              { label: translations['locale.tags.order_by.name.desc'] || 'Name (Desc)', value: 'name,desc' }
+            ];
+            this.cdr.detectChanges();
+          }
+        },
+        error: (error) => {
+          console.error('Error loading translations for sorts:', error);
+        }
+      });
   }
 
   private initializeMenuItems(): void {

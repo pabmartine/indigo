@@ -353,3 +353,117 @@ body a:hover {
   background-size: 200% 100%;
   animation: skeleton-loading 1.5s infinite;
 }
+
+/** SESSION EXPIRED DIALOG **/
+::ng-deep .session-expired-dialog .p-dialog-header {
+  background: linear-gradient(135deg, #d32f2f 0%, #f44336 100%);
+  color: #ffffff;
+  padding: 1.5rem 2rem;
+  border-bottom: none;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}
+
+::ng-deep .session-expired-dialog .p-dialog-header .p-dialog-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+::ng-deep .session-expired-dialog .p-dialog-content {
+  padding: 2rem;
+  background: #ffffff;
+}
+
+::ng-deep .session-expired-dialog .p-dialog-footer {
+  padding: 1.25rem 2rem;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  text-align: right;
+}
+
+.session-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+.session-icon {
+  font-size: 4rem;
+  color: #ff9800;
+  animation: pulse-warning 2s ease-in-out infinite;
+}
+
+@keyframes pulse-warning {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+.session-message {
+  font-size: 1rem;
+  color: #495057;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 350px;
+}
+
+.session-button {
+  min-width: 120px;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  background: linear-gradient(135deg, #5e81ac 0%, #81a1c1 100%);
+  border: none;
+  box-shadow: 0 2px 8px rgba(94, 129, 172, 0.3);
+  transition: all 0.3s ease;
+}
+
+::ng-deep .session-button:hover {
+  background: linear-gradient(135deg, #4c6a8e 0%, #6a89ab 100%);
+  box-shadow: 0 4px 12px rgba(94, 129, 172, 0.4);
+  transform: translateY(-1px);
+}
+
+::ng-deep .session-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(94, 129, 172, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  ::ng-deep .session-expired-dialog .p-dialog-header {
+    padding: 1.25rem 1.5rem;
+  }
+
+  ::ng-deep .session-expired-dialog .p-dialog-content {
+    padding: 1.5rem;
+  }
+
+  ::ng-deep .session-expired-dialog .p-dialog-footer {
+    padding: 1rem 1.5rem;
+  }
+
+  .session-icon {
+    font-size: 3rem;
+  }
+
+  .session-message {
+    font-size: 0.95rem;
+  }
+
+  .session-button {
+    width: 100%;
+    padding: 0.75rem 1.5rem;
+  }
+}

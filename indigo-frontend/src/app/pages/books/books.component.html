@@ -39,6 +39,9 @@
           <ng-template let-item pTemplate="selectedItem">
             <span>{{item?.label || 'Sort Option'}}</span>
           </ng-template>
+          <ng-template let-item pTemplate="item">
+            <span>{{item?.label || 'Unknown'}}</span>
+          </ng-template>
         </p-dropdown>
       </div>
     </div>

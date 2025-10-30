@@ -770,9 +770,9 @@ export class BooksComponent implements OnInit, OnDestroy {
     this.page = 0
 
     const storedSort = sessionStorage.getItem("books_order")
-    if (storedSort && this.sorts && this.sorts.length > 0 && this.sorts.some((s) => s.value === storedSort)) {
+    if (storedSort && this.sorts && this.sorts.length > 0 && this.sorts.some((s) => s && s.value === storedSort)) {
       this.selectedSort = storedSort
-    } else if (this.sorts && this.sorts.length > 0) {
+    } else if (this.sorts && this.sorts.length > 0 && this.sorts[0] && this.sorts[0].value) {
       this.selectedSort = this.sorts[0].value
     } else {
       this.selectedSort = "id,desc"
