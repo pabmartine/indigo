@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/authors")
+@RequestMapping("/api/author")
 @Tag(name = "Authors", description = "API for author management")
 public class CountAllAuthorsController {
 

@@ -87,6 +87,155 @@
   padding-left: 34px;
 }
 
+/* LAYOUT DE DOS COLUMNAS PARA MODAL DE AUTOR */
+/* Asegurar que content-header (botones) ocupe TODO el ancho y esté separado del grid */
+.author .pc > .content-header,
+.author .mobile > .content-header,
+app-author .book .pc > .content-header,
+app-author .book .mobile > .content-header {
+  width: 100% !important;
+  max-width: 100% !important;
+  flex: 0 0 100% !important;
+  display: block !important;
+  margin-bottom: 1rem !important;
+}
+
+.author .content-header .book-title-buttons,
+app-author .book .content-header .book-title-buttons {
+  width: 100% !important;
+  display: block !important;
+}
+
+/* Asegurar que el contenedor principal del detalle de autor use flexbox correctamente */
+.author .pc .content-body.p-grid:not(.inline),
+.author .mobile .content-body.p-grid:first-of-type,
+app-author .book .pc .content-body.p-grid:not(.inline),
+app-author .book .mobile .content-body.p-grid:first-of-type {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 1.5rem !important;
+  padding: 1rem !important;
+  margin: 0 !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+}
+
+/* Resetear COMPLETAMENTE los estilos de base.css que interfieren con el layout del modal */
+.author .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+.author .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+.author .mobile > .content-body.p-grid:first-of-type > .p-col-12,
+app-author .author .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+app-author .author .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+app-author .book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+app-author .book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+app-author .book .mobile > .content-body.p-grid:first-of-type > .p-col-12,
+.pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+.pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+app-author .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+app-author .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8 {
+  flex: 0 0 100% !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: unset !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* En desktop, layout de dos columnas: imagen 33% + contenido 67% */
+@media screen and (min-width: 768px) {
+  .author .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+  app-author .author .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+  app-author .book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+  .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+  app-author .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4 {
+    flex: 0 0 calc(33.333% - 0.75rem) !important;
+    width: calc(33.333% - 0.75rem) !important;
+    max-width: calc(33.333% - 0.75rem) !important;
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+  }
+
+  .author .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+  app-author .author .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+  app-author .book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+  .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+  app-author .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8 {
+    flex: 1 1 calc(66.667% - 0.75rem) !important;
+    width: calc(66.667% - 0.75rem) !important;
+    max-width: calc(66.667% - 0.75rem) !important;
+    flex-shrink: 0 !important;
+    flex-grow: 1 !important;
+    min-width: 0 !important;
+  }
+}
+
+/* Columna de contenido debe ser flex column y ocupar TODO el ancho */
+.author .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+app-author .author .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+app-author .book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+.pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+app-author .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8 {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.5rem !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Asegurar que título y descripción ocupen todo el ancho */
+.author .book-detail-title,
+.author .book-detail-comment,
+app-author .book .book-detail-title,
+app-author .book .book-detail-comment,
+.book-detail-title,
+.book-detail-comment {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  text-align: left !important;
+  display: block !important;
+  margin: 0 !important;
+  padding-right: 0 !important;
+  padding-left: 0 !important;
+}
+
+/* Lo mismo para mobile */
+.author .mobile .content-body.p-grid:first-of-type > .p-col-12 .book-detail-title,
+.author .mobile .content-body.p-grid:first-of-type > .p-col-12 .book-detail-comment,
+app-author .book .mobile .content-body.p-grid:first-of-type > .p-col-12 .book-detail-title,
+app-author .book .mobile .content-body.p-grid:first-of-type > .p-col-12 .book-detail-comment {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Asegurar que la imagen se ajuste correctamente */
+.author .book-title-image,
+app-author .book .book-title-image {
+  width: 100% !important;
+  text-align: center !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+}
+
+/* Corregir word wrap en descripción de autor */
+.author .book-detail-comment,
+app-author .book .book-detail-comment {
+  padding-top: 15px;
+  text-align: justify;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
 /* RESPONSIVE ESPECÍFICO PARA AUTORES */
 @media (max-width: 480px) {
   .author .user_avatar {
@@ -109,4 +258,34 @@
   .author .user_avatar .subtitle {
     font-size: 0.75rem !important;
   }
+}
+
+/* CONFIGURACIÓN UNIFICADA GLOBAL PARA APP-AUTHOR */
+app-author {
+  display: block !important;
+  height: 100% !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 20px !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: var(--primary-color) #f1f1f1 !important;
+  box-sizing: border-box !important;
+}
+
+app-author::-webkit-scrollbar {
+  width: 8px !important;
+}
+
+app-author::-webkit-scrollbar-track {
+  background: #f1f1f1 !important;
+}
+
+app-author::-webkit-scrollbar-thumb {
+  background: var(--primary-color) !important;
+  border-radius: 4px !important;
+}
+
+app-author::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color-dark) !important;
 }

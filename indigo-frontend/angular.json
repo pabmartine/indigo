@@ -29,6 +29,8 @@
               "node_modules/primeng/resources/primeng.min.css",
               "node_modules/primeflex/primeflex.css",
               "src/assets/css/theme.css",
+              "src/assets/css/search.css",
+              "src/assets/css/settings.css",
               "src/assets/css/index.css"
             ],
             "scripts": [

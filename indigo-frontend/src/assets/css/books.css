@@ -219,6 +219,14 @@
 .book .book-detail-comment {
   padding-top: 15px;
   text-align: justify;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .book .book-detail-buttons {
@@ -325,7 +333,8 @@
   transform: translateZ(0);
 }
 
-.book .content-body.p-grid:not(.inline) {
+/* Grid para libros relacionados (NO aplicar al header principal en .pc o .mobile) */
+.book :not(.pc):not(.mobile) > .content-body.p-grid:not(.inline) {
   display: flex !important;
   flex-wrap: wrap !important;
   gap: 1rem !important;
@@ -335,9 +344,10 @@
   overflow: visible !important;
 }
 
-.book .content-body .p-sm-6,
-.book .content-body .p-md-4,
-.book .content-body .p-lg-2 {
+/* Solo aplicar a libros relacionados, no al header principal en .pc o .mobile */
+.book :not(.pc):not(.mobile) .content-body .p-sm-6,
+.book :not(.pc):not(.mobile) .content-body .p-md-4,
+.book :not(.pc):not(.mobile) .content-body .p-lg-2 {
   flex: 0 0 auto !important;
   padding: 0 !important;
   margin: 0 !important;
@@ -350,10 +360,10 @@
   position: relative !important;
 }
 
-/* CONTENEDOR DE INFORMACIÓN DEL LIBRO - CRÍTICO PARA EVITAR SOLAPAMIENTO */
-.book .content-body .p-sm-6 > div:not(:first-child),
-.book .content-body .p-md-4 > div:not(:first-child),
-.book .content-body .p-lg-2 > div:not(:first-child) {
+/* CONTENEDOR DE INFORMACIÓN DEL LIBRO - Solo para libros relacionados */
+.book :not(.pc):not(.mobile) .content-body .p-sm-6 > div:not(:first-child),
+.book :not(.pc):not(.mobile) .content-body .p-md-4 > div:not(:first-child),
+.book :not(.pc):not(.mobile) .content-body .p-lg-2 > div:not(:first-child) {
   width: 100% !important;
   max-width: 160px !important;
   box-sizing: border-box !important;
@@ -568,8 +578,8 @@
   padding-top: 60px !important;
 }
 
-/* CORRECCIÓN ESPECÍFICA PARA LIBROS EN PERFIL - UNIFICAR COMPORTAMIENTO */
-.book .content-body > div {
+/* CORRECCIÓN ESPECÍFICA PARA LIBROS EN PERFIL - Solo para secciones de libros relacionados */
+.book :not(.pc):not(.mobile) .content-body > div {
   flex: 0 0 auto !important;
   padding: 0 !important;
   margin: 0 !important;
@@ -699,6 +709,137 @@
     max-width: 110px !important;
     width: 110px !important;
   }
+}
+
+/* LAYOUT DE DOS COLUMNAS PARA MODAL DE DETALLE DE LIBRO */
+/* Asegurar que content-header (botones) ocupe TODO el ancho y esté separado del grid */
+.book .pc > .content-header,
+.book .mobile > .content-header,
+app-detail .book .pc > .content-header,
+app-detail .book .mobile > .content-header {
+  width: 100% !important;
+  max-width: 100% !important;
+  flex: 0 0 100% !important;
+  display: block !important;
+  margin-bottom: 1rem !important;
+}
+
+.book .content-header .book-title-buttons,
+app-detail .book .content-header .book-title-buttons {
+  width: 100% !important;
+  display: block !important;
+}
+
+/* Asegurar que el contenedor principal del detalle use flexbox correctamente */
+.book .pc .content-body.p-grid:not(.inline),
+.book .mobile .content-body.p-grid:first-of-type,
+app-detail .book .pc .content-body.p-grid:not(.inline),
+app-detail .book .mobile .content-body.p-grid:first-of-type {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 1.5rem !important;
+  padding: 1rem !important;
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+}
+
+/* Resetear COMPLETAMENTE los estilos de base.css que interfieren con el layout del modal */
+.book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+.book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+.book .mobile > .content-body.p-grid:first-of-type > .p-col-12,
+app-detail .book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+app-detail .book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+.pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+.pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+app-detail .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+app-detail .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8 {
+  flex: 0 0 100% !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: unset !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* En desktop, layout de dos columnas: imagen 33% + contenido 67% */
+@media screen and (min-width: 768px) {
+  .book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+  app-detail .book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+  .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+  app-detail .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4 {
+    flex: 0 0 calc(33.333% - 0.75rem) !important;
+    width: calc(33.333% - 0.75rem) !important;
+    max-width: calc(33.333% - 0.75rem) !important;
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+  }
+
+  .book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+  app-detail .book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+  .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+  app-detail .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8 {
+    flex: 1 1 calc(66.667% - 0.75rem) !important;
+    width: calc(66.667% - 0.75rem) !important;
+    max-width: calc(66.667% - 0.75rem) !important;
+    flex-shrink: 0 !important;
+    flex-grow: 1 !important;
+    min-width: 0 !important;
+  }
+}
+
+/* Columna de contenido debe ser flex column y ocupar TODO el ancho */
+.book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+app-detail .book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+.pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+app-detail .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8 {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.5rem !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Asegurar que título, subtítulo y descripción ocupen todo el ancho */
+.book .book-detail-title,
+.book .book-detail-subtitle,
+.book .book-detail-comment,
+.book .book-detail-series,
+.book-detail-title,
+.book-detail-subtitle,
+.book-detail-comment,
+.book-detail-series {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  text-align: left !important;
+  display: block !important;
+  margin: 0 !important;
+  padding-right: 0 !important;
+  padding-left: 0 !important;
+}
+
+/* Lo mismo para mobile */
+.book .mobile .content-body.p-grid:first-of-type > .p-col-12 .book-detail-title,
+.book .mobile .content-body.p-grid:first-of-type > .p-col-12 .book-detail-subtitle,
+.book .mobile .content-body.p-grid:first-of-type > .p-col-12 .book-detail-comment,
+.book .mobile .content-body.p-grid:first-of-type > .p-col-12 .book-detail-series {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Asegurar que la imagen se ajuste correctamente */
+.book .book-title-image {
+  width: 100% !important;
+  text-align: center !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
 }
 
 /* CONFIGURACIÓN UNIFICADA GLOBAL PARA APP-DETAIL */

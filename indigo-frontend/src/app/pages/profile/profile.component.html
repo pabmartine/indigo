@@ -1,83 +1,71 @@
 <p-toast position="top-center" [showTransformOptions]="'translateY(-100%)'"></p-toast>
-<div class="profile">
+<div class="search">
   <p-card>
     <div class="content-header p-grid">
       <div class="p-col-12">
-                <span class="page-title" *ngIf="user.id">
-                    {{'locale.profile.title' | translate:param}}
-                </span>
+        <span class="page-title" *ngIf="user.id">
+          {{'locale.profile.title' | translate:param}}
+        </span>
         <span class="page-title" *ngIf="!user.id">
-                    Nuevo usuario
-                </span>
+          Nuevo usuario
+        </span>
       </div>
     </div>
 
-    <div class="content-body p-grid">
-      <div class="p-col-12 p-md-12  p-fluid">
-        <div class="account">
-          <span class="page-subtitle">{{'locale.profile.account.title' | translate:param}}</span>
-          <div class="p-grid">
-            <div class="p-col-12 p-md-6">
-              <div class="p-field">
-                <label for="username">{{'locale.profile.account.username' | translate}}</label>
-                <input id="username" type="text" pInputText [readonly]="readOnly()"
-                       [(ngModel)]="user.username" />
+    <div class="content-body">
+      <div class="p-grid p-fluid">
+
+        <div class="p-col-12 p-md-6 p-field">
+          <label for="username">{{'locale.profile.account.username' | translate}}</label>
+          <input id="username" type="text" pInputText [readonly]="readOnly()"
+                 [(ngModel)]="user.username" />
+        </div>
+
+        <div class="p-col-12 p-md-6 p-field">
+          <label for="password">{{'locale.profile.account.password' | translate}}</label>
+          <input id="password" type="password" pInputText [readonly]="isUser()"
+                 [(ngModel)]="user.password" />
+        </div>
+
+        <div class="p-col-12 p-field">
+          <label for="kindle">{{'locale.profile.account.kindle' | translate}}</label>
+          <input id="kindle" type="text" pInputText [(ngModel)]="user.kindle" />
+        </div>
+
+        <div class="p-col-12 p-md-6 p-field">
+          <label for="language">{{'locale.profile.account.language' | translate}}</label>
+          <p-dropdown id="language" [options]="languages" [(ngModel)]="user.language"
+                      placeholder="Seleccione un idioma">
+            <ng-template let-item pTemplate="item">
+              <img src="./assets/images/flags/{{item.value}}.svg" style="width: 1.5em; height: 1.5em; margin-right: 0.5rem; vertical-align: middle;" />
+              <span>{{item.label}}</span>
+            </ng-template>
+          </p-dropdown>
+        </div>
+
+        <div class="p-col-12 p-md-6 p-field">
+          <label for="languages">{{'locale.profile.account.languages' | translate}}</label>
+          <p-multiSelect [options]="languageBooks" [(ngModel)]="user.languageBooks" [filter]="true"
+                         [showToggleAll]="true" [showHeader]="true" [placeholder]="chooseLanguageBooks">
+            <ng-template let-value pTemplate="selectedItems">
+              <div *ngFor="let val of user.languageBooks" class="multiselected-item-token ui-corner-all">
+                <span>{{'locale.languages.' + val | translate}}</span>
               </div>
-            </div>
-            <div class="p-col-12 p-md-6">
-              <div class="p-field">
-                <label for="password">{{'locale.profile.account.password' | translate}}</label>
-                <input id="password" type="password" pInputText [readonly]="isUser()"
-                       [(ngModel)]="user.password" />
-              </div>
-            </div>
-            <div class="p-col-12">
-              <div class="p-field">
-                <label for="kindle">{{'locale.profile.account.kindle' | translate}}</label>
-                <input id="kindle" type="text" pInputText [(ngModel)]="user.kindle" />
-              </div>
-            </div>
-            <div class="p-col-12 p-md-6">
-              <div class="p-field">
-                <label for="language">{{'locale.profile.account.language' | translate}}</label>
-                <p-dropdown id="language" [options]="languages" [(ngModel)]="user.language"
-                            placeholder="Seleccione un idioma">
-                  <ng-template let-item pTemplate="item">
-                    <img src="./assets/images/flags/{{item.value}}.svg" style="width: 1.5em; height: 1.5em; margin-right: 0.5rem; vertical-align: middle;" />
-                    <span>{{item.label}}</span>
-                  </ng-template>
-                </p-dropdown>
-              </div>
-            </div>
-            <div class="p-col-12 p-md-6">
-              <div class="p-field">
-                <label for="languages">{{'locale.profile.account.languages' | translate}}</label>
-                <p-multiSelect [options]="languageBooks" [(ngModel)]="user.languageBooks" [filter]="true"
-                               [showToggleAll]="true" [showHeader]="true" [placeholder]="chooseLanguageBooks">
-                  <ng-template let-value pTemplate="selectedItems">
-                    <div *ngFor="let val of user.languageBooks" class="multiselected-item-token ui-corner-all">
-                      <span>{{'locale.languages.' + val | translate}}</span>
-                    </div>
-                    <span *ngIf="!user.languageBooks || user.languageBooks.length === 0"
-                          class="multiselected-empty-token ui-corner-all"> </span>
-                  </ng-template>
-                  <ng-template let-lang pTemplate="item">
-                    <span style="font-size:14px;margin-top:4px">{{lang.label}}</span>
-                  </ng-template>
-                </p-multiSelect>
-              </div>
-            </div>
-          </div>
+              <span *ngIf="!user.languageBooks || user.languageBooks.length === 0"
+                    class="multiselected-empty-token ui-corner-all"> </span>
+            </ng-template>
+            <ng-template let-lang pTemplate="item">
+              <span style="font-size:14px;margin-top:4px">{{lang.label}}</span>
+            </ng-template>
+          </p-multiSelect>
         </div>
       </div>
 
-
-      <div class="p-col-12 page-buttons">
+      <div class="p-col-12 right">
         <button type="button" pButton label="{{'locale.buttons.save' | translate}}"
-                (click)="doTranslate();update()" *ngIf="user.id" class="page-button"></button>
+                (click)="doTranslate();update()" *ngIf="user.id" class="search-button"></button>
         <button type="button" pButton label="{{'locale.buttons.save' | translate}}" (click)="save()"
-                *ngIf="!user.id" [disabled]="!isValid()" class="page-button"></button>
-
+                *ngIf="!user.id" [disabled]="!isValid()" class="search-button"></button>
       </div>
     </div>
   </p-card>
