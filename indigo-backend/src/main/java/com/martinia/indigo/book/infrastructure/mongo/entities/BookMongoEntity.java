@@ -24,6 +24,10 @@ import java.util.List;
 @NoArgsConstructor
 @Document(collection = "books")
 @CompoundIndex(name = "serie_language_idx", def = "{'serie.name': 1, 'languages': 1}")
+@CompoundIndex(name = "languages_rating_idx", def = "{'languages': 1, 'rating': -1}")
+@CompoundIndex(name = "languages_pubdate_idx", def = "{'languages': 1, 'pubDate': -1}")
+@CompoundIndex(name = "authors_languages_idx", def = "{'authors': 1, 'languages': 1}")
+@CompoundIndex(name = "tags_languages_idx", def = "{'tags': 1, 'languages': 1}")
 public class BookMongoEntity implements Serializable {
 
 	@BsonRepresentation(BsonType.OBJECT_ID)

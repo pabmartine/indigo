@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService, TranslationChangeEvent } from '@ngx-translate/core';
 import { MessageService, SelectItem } from 'primeng/api';
@@ -24,7 +24,8 @@ interface BookWithTempImage extends Book {
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
-    styleUrls: ["./profile.component.css"],
+  styleUrls: ["./profile.component.css"],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [MessageService]
 })
 export class ProfileComponent implements OnInit, OnDestroy {
@@ -68,20 +69,22 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
     this.user = new User();
 
-    this.route.queryParams.subscribe(params => {
-      if (params['type']) {
-        if (params['type'] == 'new') {
-        } else if (params['type'] == 'update') {
-          this.getUser(params['user']);
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        if (params['type']) {
+          if (params['type'] == 'new') {
+          } else if (params['type'] == 'update') {
+            this.getUser(params['user']);
+          }
+        } else {
+          const currentUser = this.authState.getCurrentUser();
+          if (currentUser) {
+            this.param = { username: currentUser.username };
+            this.user = currentUser;
+          }
         }
-      } else {
-        const currentUser = this.authState.getCurrentUser();
-        if (currentUser) {
-          this.param = { username: currentUser.username };
-          this.user = currentUser;
-        }
-      }
-    });
+      });
     this.getBooks();
   }
 
@@ -259,7 +262,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       },
       error: (error) => {
-        console.log(error);
+        console.error('[Profile] Error loading books:', error);
+        this.messageService.add({
+          severity: 'error',
+          detail: this.translate.instant('locale.profile.error.books') || 'Error loading books',
+          closable: false,
+          life: 5000
+        });
       }
     });
   }

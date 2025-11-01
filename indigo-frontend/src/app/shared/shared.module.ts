@@ -36,6 +36,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 // Shared Components
 import { DetailComponent } from '../pages/detail/detail.component';
 import { AuthorComponent } from '../pages/author/author.component';
+import { BookGridComponent } from './book-grid/book-grid.component';
 
 /**
  * Shared Module
@@ -46,7 +47,8 @@ import { AuthorComponent } from '../pages/author/author.component';
 @NgModule({
   declarations: [
     DetailComponent,
-    AuthorComponent
+    AuthorComponent,
+    BookGridComponent
   ],
   imports: [
     CommonModule,
@@ -117,7 +119,8 @@ import { AuthorComponent } from '../pages/author/author.component';
     ConfirmDialogModule,
     // Shared components
     DetailComponent,
-    AuthorComponent
+    AuthorComponent,
+    BookGridComponent
   ]
 })
 export class SharedModule { }

@@ -20,7 +20,9 @@ import org.springframework.util.CollectionUtils;
 import jakarta.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
 import java.text.Normalizer;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -38,7 +40,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseCase {
 
-	private static SimpleDateFormat SDF = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.ENGLISH);
 
 	@Value("${metadata.goodreads.reviews}")
 	private String endpoint;
@@ -144,7 +146,8 @@ public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseC
 					String title = "";
 					String strDate = Optional.ofNullable(htmlArticle.getFirstByXPath(".//a[contains(@class, 'ReviewCard__timestamp')]"))
 						.map(node -> ((DomNode) node).asNormalizedText()).orElse(null);
-					Date date = SDF.parse(strDate);
+					LocalDate localDate = LocalDate.parse(strDate, DATE_FORMATTER);
+					Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 					final String comment = Optional.ofNullable(htmlArticle.getFirstByXPath(".//section[contains(@class, 'ReviewText__content')]//div[contains(@class, 'Formatted')]"))
 						.map(node -> ((DomNode) node).asNormalizedText()).orElse(null);
 

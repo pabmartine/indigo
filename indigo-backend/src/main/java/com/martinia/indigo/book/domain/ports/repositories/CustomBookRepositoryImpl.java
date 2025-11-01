@@ -257,7 +257,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 						new Document("serie.name", new Document("$ne", new BsonNull())).append("languages", new Document("$in", languages))),
 				new Document("$project", new Document("serie.name", 1L)),
 				new Document("$group", new Document("_id", "$serie.name").append("count", new Document("$sum", 1L))),
-				new Document("$group", new Document("_id", "$serie.name").append("count", new Document("$sum", 1L))));
+				new Document("$count", "count"));
 
 		AggregateIterable<Document> data = mongoTemplate.getCollection(collectionName).aggregate(list);
 		if (data.iterator().hasNext()) {

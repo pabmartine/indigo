@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnDestroy, OnInit, SimpleChanges, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ConfirmationService, MessageService, SelectItem } from 'primeng/api';
@@ -17,6 +17,7 @@ import { AuthStateService } from 'src/app/services/auth-state.service';
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [MessageService, ConfirmationService]
 })
 export class SettingsComponent implements OnInit, OnDestroy {
@@ -65,6 +66,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   panelStates = new Map();
 
   private destroy$ = new Subject<void>();
+  private statusInterval: any;
 
   constructor(private messageService: MessageService,
     public translate: TranslateService,
@@ -76,7 +78,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     public userService: UserService,
     private router: Router,
     private confirmationService: ConfirmationService,
-    private authState: AuthStateService) {
+    private authState: AuthStateService,
+    private cdr: ChangeDetectorRef) {
 
 
   }
@@ -94,14 +97,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     this.getData();
 
-    let interval = setInterval(() => {
+    this.statusInterval = setInterval(() => {
       this.getDataStatus();
     }, 5000);
 
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    console.log(changes)
+    // Removed console.log for production
   }
 
   getDataStatus(): void {
@@ -125,9 +128,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
           if (this.total !== 0) {
             this.progressBar = Math.round((this.current * 100) / this.total);
           }
+          this.cdr.markForCheck();
         },
         error: (error) => {
-          console.log(error);
+          console.error('[Settings] Error fetching data status:', error);
         }
       });
   }
@@ -456,6 +460,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    if (this.statusInterval) {
+      clearInterval(this.statusInterval);
+    }
     this.destroy$.next();
     this.destroy$.complete();
   }
