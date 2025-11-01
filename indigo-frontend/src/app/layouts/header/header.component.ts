@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, OnDestroy, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService, TranslationChangeEvent } from '@ngx-translate/core';
 import { MenuItem } from 'primeng/api/menuitem';
@@ -10,13 +10,16 @@ import { NotificationEnum } from 'src/app/enums/notification.enum.';
 import { BookService } from 'src/app/services/book.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { UserService } from 'src/app/services/user.service';
+import { AuthStateService } from 'src/app/services/auth-state.service';
+import { Subject } from 'rxjs';
+import { debounceTime, takeUntil } from 'rxjs/operators';
 
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html'
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
 
 
 
@@ -31,6 +34,8 @@ export class HeaderComponent implements OnInit {
   messages: Notification[] = [];
 
   search: string;
+  private searchSubject = new Subject<string>();
+  private destroy$ = new Subject<void>();
 
 
   constructor(
@@ -38,7 +43,8 @@ export class HeaderComponent implements OnInit {
     public translate: TranslateService,
     private notificationService: NotificationService,
     private bookService: BookService,
-    private userService: UserService,) {
+    private userService: UserService,
+    private authState: AuthStateService) {
   }
 
   ngOnInit(): void {
@@ -52,6 +58,19 @@ export class HeaderComponent implements OnInit {
     this.items = this.buildMenu();
     this.getMessages();
 
+    // Configurar búsqueda en tiempo real con debounce
+    this.searchSubject.pipe(
+      debounceTime(300), // Espera 300ms después de que el usuario deja de escribir
+      takeUntil(this.destroy$)
+    ).subscribe(searchTerm => {
+      this.performSearch(searchTerm);
+    });
+
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   buildMenu(): MenuItem[] {
@@ -71,7 +90,8 @@ export class HeaderComponent implements OnInit {
   }
 
   getMessages() {
-    const user = JSON.parse(sessionStorage.user);
+    const user = this.authState.getCurrentUser();
+    if (!user) return;
 
     const successCallback = (data) => {
       console.log(data);
@@ -143,12 +163,36 @@ export class HeaderComponent implements OnInit {
     });
   }
 
+  onSearchInput() {
+    // Emite el valor de búsqueda al Subject para activar el debounce
+    if (this.search && this.search.trim().length > 0) {
+      this.searchSubject.next(this.search);
+    } else if (!this.search || this.search.trim().length === 0) {
+      // Si se borra la búsqueda, navegar a books sin parámetros
+      this.router.navigate(["books"]);
+    }
+  }
+
   doSearch() {
+    // Búsqueda inmediata al presionar Enter
+    if (this.search && this.search.trim().length > 0) {
+      this.performSearch(this.search);
+    }
+  }
+
+  private performSearch(searchTerm: string) {
+    if (!searchTerm || searchTerm.trim().length === 0) {
+      return;
+    }
 
     let search: Search = new Search();
-    search.path = this.search;
+    search.path = searchTerm.trim();
     this.router.navigate(["books"], { queryParams: { adv_search: JSON.stringify(search) } });
+  }
+
+  clearSearch() {
     this.search = "";
+    this.router.navigate(["books"]);
   }
 
 
@@ -178,16 +222,18 @@ export class HeaderComponent implements OnInit {
 
 
   logout() {
-    sessionStorage.removeItem('user');
+    this.authState.clearUser();
     this.router.navigate(['/login']);
   }
 
   isAdmin() {
-    return JSON.parse(sessionStorage.user).role == 'ADMIN';
+    return this.authState.isAdmin();
   }
 
   markMessageAsRead(id: string) {
-    const user = JSON.parse(sessionStorage.user);
+    const user = this.authState.getCurrentUser();
+    if (!user?.id) return;
+
     this.notificationService.read(id, user.id).subscribe(
       data => {
         this.messages = this.messages.filter(obj => obj.id !== id);

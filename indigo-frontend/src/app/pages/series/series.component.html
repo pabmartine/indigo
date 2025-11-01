@@ -26,9 +26,6 @@
 
   <!-- Series grid -->
   <div class="series-grid"
-       infiniteScroll
-       [infiniteScrollDistance]="2"
-       (scrolled)="onScroll()"
        *ngIf="!isLoading">
     <div class="serie-item"
          *ngFor="let serie of series; trackBy: trackBySerieId">

@@ -358,30 +358,32 @@ body a:hover {
 ::ng-deep .session-expired-dialog .p-dialog-header {
   background: linear-gradient(135deg, #d32f2f 0%, #f44336 100%);
   color: #ffffff;
-  padding: 1.5rem 2rem;
+  padding: 1rem 1.5rem;
   border-bottom: none;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
 }
 
 ::ng-deep .session-expired-dialog .p-dialog-header .p-dialog-title {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: #ffffff;
 }
 
 ::ng-deep .session-expired-dialog .p-dialog-content {
-  padding: 2rem;
+  padding: 1.5rem;
   background: #ffffff;
 }
 
 ::ng-deep .session-expired-dialog .p-dialog-footer {
-  padding: 1.25rem 2rem;
+  padding: 1rem 1.5rem;
   background: #f8f9fa;
   border-top: 1px solid #e9ecef;
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
-  text-align: right;
+  text-align: center;
+  display: flex;
+  justify-content: center;
 }
 
 .session-content {
@@ -389,12 +391,12 @@ body a:hover {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 1.5rem;
-  padding: 1rem 0;
+  gap: 1rem;
+  padding: 0.5rem 0;
 }
 
 .session-icon {
-  font-size: 4rem;
+  font-size: 3rem;
   color: #ff9800;
   animation: pulse-warning 2s ease-in-out infinite;
 }
@@ -411,17 +413,17 @@ body a:hover {
 }
 
 .session-message {
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #495057;
-  line-height: 1.6;
+  line-height: 1.5;
   margin: 0;
-  max-width: 350px;
+  padding: 0 0.5rem;
 }
 
 .session-button {
-  min-width: 120px;
-  padding: 0.75rem 2rem;
-  font-size: 1rem;
+  min-width: 100px;
+  padding: 0.625rem 1.5rem;
+  font-size: 0.95rem;
   font-weight: 500;
   background: linear-gradient(135deg, #5e81ac 0%, #81a1c1 100%);
   border: none;
@@ -443,27 +445,29 @@ body a:hover {
 /* Responsive adjustments */
 @media (max-width: 480px) {
   ::ng-deep .session-expired-dialog .p-dialog-header {
-    padding: 1.25rem 1.5rem;
+    padding: 0.875rem 1.25rem;
   }
 
   ::ng-deep .session-expired-dialog .p-dialog-content {
-    padding: 1.5rem;
+    padding: 1.25rem 1rem;
   }
 
   ::ng-deep .session-expired-dialog .p-dialog-footer {
-    padding: 1rem 1.5rem;
+    padding: 0.875rem 1.25rem;
   }
 
   .session-icon {
-    font-size: 3rem;
+    font-size: 2.5rem;
   }
 
   .session-message {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    padding: 0 0.25rem;
   }
 
   .session-button {
     width: 100%;
-    padding: 0.75rem 1.5rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9rem;
   }
 }

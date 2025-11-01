@@ -11,6 +11,9 @@ import { Search } from 'src/app/domain/search';
 import { AuthorComponent } from 'src/app/pages/author/author.component';
 import { DetailComponent } from 'src/app/pages/detail/detail.component';
 import { AuthorService } from 'src/app/services/author.service';
+import { AuthStateService } from 'src/app/services/auth-state.service';
+import { User } from 'src/app/domain/user';
+import { ImageService } from 'src/app/utils/image.service';
 
 @Component({
   selector: 'app-authors',
@@ -50,7 +53,7 @@ export class AuthorsComponent implements OnInit, OnDestroy {
   private showScrollHeight = 400;
   private hideScrollHeight = 200;
 
-  user = JSON.parse(sessionStorage.user);
+  user: User;
 
   // Cache para optimizar rendimiento
   private authorsCache = new Map<string, Author[]>();
@@ -72,8 +75,15 @@ export class AuthorsComponent implements OnInit, OnDestroy {
     private router: Router,
     private messageService: MessageService,
     public translate: TranslateService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authState: AuthStateService,
+    private imageService: ImageService
   ) {
+    this.user = this.authState.getCurrentUser() || { languageBooks: ['en'], role: 'USER', username: '' } as User;
+    // Ensure languageBooks is always initialized
+    if (!this.user.languageBooks || this.user.languageBooks.length === 0) {
+      this.user.languageBooks = this.authState.getLanguageBooks();
+    }
     this.initializeScreenSize();
   }
 
@@ -213,17 +223,25 @@ export class AuthorsComponent implements OnInit, OnDestroy {
 
   @HostListener('window:scroll', [])
   onWindowScroll(): void {
-    if ((window.pageYOffset ||
-      document.documentElement.scrollTop ||
-      document.body.scrollTop) > this.showScrollHeight) {
+    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
+
+    // Show/hide scroll to top button
+    if (scrollPosition > this.showScrollHeight) {
       this.showGoUpButton = true;
-    } else if (this.showGoUpButton &&
-      (window.pageYOffset ||
-        document.documentElement.scrollTop ||
-        document.body.scrollTop)
-      < this.hideScrollHeight) {
+    } else if (this.showGoUpButton && scrollPosition < this.hideScrollHeight) {
       this.showGoUpButton = false;
     }
+
+    // Infinite scroll detection - trigger when user is near bottom
+    const windowHeight = window.innerHeight
+    const documentHeight = document.documentElement.scrollHeight
+    const scrollThreshold = 300 // pixels from bottom to trigger load
+
+    if (scrollPosition + windowHeight >= documentHeight - scrollThreshold) {
+      this.onScroll()
+    }
+
+    this.cdr.detectChanges()
   }
 
   onScroll(): void {
@@ -291,7 +309,7 @@ export class AuthorsComponent implements OnInit, OnDestroy {
   private processAuthors(data: Author[]): Author[] {
     return data.map(author => {
       if (author.image) {
-        author.image = 'data:image/jpeg;base64,' + author.image;
+        author.image = this.imageService.toDataUrlSafe(author.image);
       }
       return author;
     });
@@ -312,7 +330,7 @@ export class AuthorsComponent implements OnInit, OnDestroy {
         if (author.originalImage && targetIndex < this.authors.length) {
           // Procesar imagen de forma asíncrona
           setTimeout(() => {
-            this.authors[targetIndex].image = 'data:image/jpeg;base64,' + author.originalImage;
+            this.authors[targetIndex].image = this.imageService.toDataUrlSafe(author.originalImage);
             this.cdr.detectChanges();
           }, i * 15); // Pequeño delay entre imágenes
         }
@@ -334,7 +352,7 @@ export class AuthorsComponent implements OnInit, OnDestroy {
     favorites.forEach((author, index) => {
       if (author.originalImage) {
         setTimeout(() => {
-          this.favorites[index].image = 'data:image/jpeg;base64,' + author.originalImage;
+          this.favorites[index].image = this.imageService.toDataUrlSafe(author.originalImage);
           this.cdr.detectChanges();
         }, index * 75); // Delay progresivo para suavizar la carga
       }
@@ -394,7 +412,7 @@ export class AuthorsComponent implements OnInit, OnDestroy {
             // Guardar en cache con imágenes procesadas para futuras cargas
             const processedFavorites = data.map(author => {
               if (author.image) {
-                author.image = 'data:image/jpeg;base64,' + author.image;
+                author.image = this.imageService.toDataUrlSafe(author.image);
               }
               return author;
             });
@@ -466,7 +484,7 @@ export class AuthorsComponent implements OnInit, OnDestroy {
         next: (data) => {
           if (data) {
             if (data.image) {
-              data.image = 'data:image/jpeg;base64,' + data.image;
+              data.image = this.imageService.toDataUrlSafe(data.image);
             }
             this.authorComponent.showDetails(data);
             this.showDetail = true;

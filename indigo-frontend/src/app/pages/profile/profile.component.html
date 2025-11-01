@@ -85,7 +85,7 @@
     <div class="books-grid">
       <div class="book-item" *ngFor="let book of books" (click)="showBookDetails(book)">
         <div class="book-cover-container">
-          <img [src]="book.image || './assets/images/book-placeholder.jpg'"
+          <img [src]="book.image || './assets/images/unknown.jpg'"
                class="book-cover"
                loading="lazy"
                [alt]="book.title || 'Book'"

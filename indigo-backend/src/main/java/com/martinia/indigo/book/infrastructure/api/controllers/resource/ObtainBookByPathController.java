@@ -43,11 +43,20 @@ public class ObtainBookByPathController {
 
 		org.springframework.core.io.Resource epub = useCase.getEpub(path);
 
+		if (epub == null || !epub.exists()) {
+			return ResponseEntity.notFound().build();
+		}
+
+		String contentType = Files.probeContentType(epub.getFile().toPath());
+		if (contentType == null) {
+			contentType = "application/epub+zip";
+		}
+
 		return ResponseEntity.ok()
-				.header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(epub.getFile().toPath()))
+				.header(HttpHeaders.CONTENT_TYPE, contentType)
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + epub.getFilename() + "\"")
 				.body(epub);
-		
+
 	}
 
 }

@@ -247,56 +247,112 @@ public class ImageUtils {
 		Resource epub = null;
 
 		try {
+			String basePath;
+
 			// Normalizar libraryPath para que termine con separador
 			String normalizedLibraryPath = libraryPath;
 			if (!normalizedLibraryPath.endsWith(File.separator)) {
 				normalizedLibraryPath += File.separator;
 			}
 
-			// Limpiar path: eliminar separadores al inicio
-			String normalizedPath = path;
-			while (normalizedPath.startsWith(File.separator)) {
-				normalizedPath = normalizedPath.substring(1);
-			}
+			// Verificar si el path es absoluto y ya contiene libraryPath
+			File absoluteFile = new File(path);
+			if (absoluteFile.isAbsolute()) {
+				// Si el path es absoluto y está dentro de libraryPath, usarlo directamente
+				String absolutePath = absoluteFile.getAbsolutePath();
+				String normalizedLibraryPathNoSep = normalizedLibraryPath.substring(0, normalizedLibraryPath.length() - 1);
 
-			// Extraer el nombre del último directorio de libraryPath
-			String libraryPathWithoutSeparator = libraryPath.endsWith(File.separator)
-					? libraryPath.substring(0, libraryPath.length() - 1)
-					: libraryPath;
-
-			String lastDirOfLibrary = libraryPathWithoutSeparator.substring(
-					libraryPathWithoutSeparator.lastIndexOf(File.separator) + 1
-			);
-
-			// Si normalizedPath comienza con el último directorio de libraryPath, eliminarlo
-			if (normalizedPath.startsWith(lastDirOfLibrary + File.separator) ||
-					normalizedPath.startsWith(lastDirOfLibrary)) {
-				normalizedPath = normalizedPath.substring(lastDirOfLibrary.length());
+				if (absolutePath.startsWith(normalizedLibraryPathNoSep)) {
+					// El path ya contiene libraryPath, usarlo tal cual
+					basePath = absolutePath;
+					log.debug("Using absolute path: {}", basePath);
+				} else {
+					// El path es absoluto pero no está dentro de libraryPath
+					// Intentar extraer la parte relativa
+					String relativePath = extractRelativePath(path, normalizedLibraryPath);
+					basePath = normalizedLibraryPath + relativePath;
+					log.debug("Extracted relative path from absolute: {} -> {}", path, basePath);
+				}
+			} else {
+				// Path es relativo, concatenar con libraryPath
+				String normalizedPath = path;
 				while (normalizedPath.startsWith(File.separator)) {
 					normalizedPath = normalizedPath.substring(1);
 				}
+
+				// Extraer el nombre del último directorio de libraryPath
+				String libraryPathWithoutSeparator = libraryPath.endsWith(File.separator)
+						? libraryPath.substring(0, libraryPath.length() - 1)
+						: libraryPath;
+
+				String lastDirOfLibrary = libraryPathWithoutSeparator.substring(
+						libraryPathWithoutSeparator.lastIndexOf(File.separator) + 1
+				);
+
+				// Si normalizedPath comienza con el último directorio de libraryPath, eliminarlo
+				if (normalizedPath.startsWith(lastDirOfLibrary + File.separator) ||
+						normalizedPath.startsWith(lastDirOfLibrary)) {
+					normalizedPath = normalizedPath.substring(lastDirOfLibrary.length());
+					while (normalizedPath.startsWith(File.separator)) {
+						normalizedPath = normalizedPath.substring(1);
+					}
+				}
+
+				basePath = normalizedLibraryPath + normalizedPath;
+				log.debug("Using relative path: {} -> {}", path, basePath);
 			}
 
-			// Construir la ruta final
-			String basePath = normalizedLibraryPath + normalizedPath;
-
 			File file = new File(basePath);
+			log.debug("Checking path: {} (exists: {}, isDirectory: {})", basePath, file.exists(), file.isDirectory());
+
 			if (file.exists() && file.isDirectory()) {
 				File[] files = file.listFiles();
 				if (files != null) {
 					for (File f : files) {
 						if (f.getName().endsWith(".epub")) {
 							epub = new UrlResource(f.toPath().toUri());
+							log.info("Found epub file: {}", f.getAbsolutePath());
 							break;
 						}
 					}
 				}
+				if (epub == null) {
+					log.warn("No epub file found in directory: {}", basePath);
+				}
+			} else {
+				log.warn("Directory does not exist or is not a directory: {}", basePath);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Error while getting epub from path: {}", path, e);
 		}
 
 		return epub;
+	}
+
+	private String extractRelativePath(String path, String libraryPath) {
+		// Intentar extraer la parte relativa del path
+		String normalizedPath = path;
+		while (normalizedPath.startsWith(File.separator)) {
+			normalizedPath = normalizedPath.substring(1);
+		}
+
+		String libraryPathWithoutSeparator = libraryPath.endsWith(File.separator)
+				? libraryPath.substring(0, libraryPath.length() - 1)
+				: libraryPath;
+
+		String lastDirOfLibrary = libraryPathWithoutSeparator.substring(
+				libraryPathWithoutSeparator.lastIndexOf(File.separator) + 1
+		);
+
+		if (normalizedPath.startsWith(lastDirOfLibrary + File.separator) ||
+				normalizedPath.startsWith(lastDirOfLibrary)) {
+			normalizedPath = normalizedPath.substring(lastDirOfLibrary.length());
+			while (normalizedPath.startsWith(File.separator)) {
+				normalizedPath = normalizedPath.substring(1);
+			}
+		}
+
+		return normalizedPath;
 	}
 
 }

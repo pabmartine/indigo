@@ -405,8 +405,8 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 		MongoCollection<Document> collection = mongoTemplate.getCollection("notifications").withCodecRegistry(pojoCodecRegistry);
 
-		AggregateIterable<BookMongoEntity> data = collection.aggregate(Arrays.asList(new Document("$match", new Document("user", user)),
-				new Document("$project", new Document("_id", 0L).append("book", 1L)), new Document("$lookup",
+		AggregateIterable<BookMongoEntity> data = collection.aggregate(Arrays.asList(new Document("$match", new Document("user", user).append("type", "KINDLE")),
+				new Document("$project", new Document("_id", 0L).append("book", "$kindle.book")), new Document("$lookup",
 						new Document("from", collectionName).append("localField", "book")
 								.append("foreignField", "path")
 								.append("as", "typeCategory")),
@@ -422,7 +422,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 						new Document("$mergeObjects", Arrays.asList(new Document("$arrayElemAt", Arrays.asList("$book", 0L)), "$$ROOT")))),
 				new Document("$match", new Document("languages", new Document("$in", languages))),
 				new Document("$sort", new Document(sort, (order.equals("asc") ? 1 : -1)).append("_id", -1L)),
-				new Document("$skip", page * size), new Document("$limit", size - 1)), BookMongoEntity.class);
+				new Document("$skip", page * size), new Document("$limit", size)), BookMongoEntity.class);
 
 		data.iterator().forEachRemaining(ret::add);
 

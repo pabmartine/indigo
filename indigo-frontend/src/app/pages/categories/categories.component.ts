@@ -9,6 +9,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { Search } from 'src/app/domain/search';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { AuthStateService } from 'src/app/services/auth-state.service';
+import { User } from 'src/app/domain/user';
 
 // Interfaz para tags con imagen temporal
 interface TagWithTempImage extends Tag {
@@ -56,7 +58,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   // Estado de carga
   isLoading: boolean = false;
 
-  user = JSON.parse(sessionStorage.user);
+  user: User;
 
   // Subject para manejar la destrucción del componente
   private destroy$ = new Subject<void>();
@@ -69,8 +71,10 @@ export class CategoriesComponent implements OnInit, OnDestroy {
     private router: Router,
     private messageService: MessageService,
     public translate: TranslateService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authState: AuthStateService
   ) {
+    this.user = this.authState.getCurrentUser() || { languageBooks: ['en'], role: 'USER', username: '' } as User;
   }
 
   ngOnInit(): void {
@@ -265,7 +269,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   }
 
   showMenu(): boolean {
-    return this.title && JSON.parse(sessionStorage.user).role == 'ADMIN';
+    return this.title && this.user?.role === 'ADMIN';
   }
 
   showRename(): void {

@@ -65,9 +65,6 @@
 
         <!-- Authors grid -->
         <div class="authors-grid"
-             infiniteScroll
-             [infiniteScrollDistance]="2"
-             (scrolled)="onScroll()"
              *ngIf="!isLoading">
           <div *ngFor="let author of authors; trackBy: trackByAuthorId" class="author-item" (click)="showDetails(author)">
 

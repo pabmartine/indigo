@@ -8,10 +8,10 @@
     <div class="books-header">
       <span class="page-title">{{'locale.books.favorites.title' | translate}}</span>
     </div>
-    <div class="books-grid" infiniteScroll [infiniteScrollDistance]="2" (scrolled)="onScroll()">
+    <div class="books-grid">
       <div *ngFor="let book of favorites; trackBy: trackByBookId" class="book-item" (click)="showDetails(book)">
         <div class="book-cover-container">
-          <img [src]="book.image || './assets/images/book-placeholder.jpg'" class="book-cover" alt="{{ book.title }}"/>
+          <img [src]="book.image || './assets/images/unknown.jpg'" class="book-cover" alt="{{ book.title }}"/>
         </div>
         <div class="book-info">
           <span class="title" title="{{ book.title }}">{{book.title || 'Unknown Title'}}</span>
@@ -47,10 +47,10 @@
     </div>
 
     <!-- Grid View -->
-    <div *ngIf="!isListView" class="books-grid" infiniteScroll [infiniteScrollDistance]="2" (scrolled)="onScroll()">
+    <div *ngIf="!isListView" class="books-grid">
       <div *ngFor="let book of books || []; trackBy: trackByBookId" class="book-item" (click)="showDetails(book)">
         <div class="book-cover-container">
-          <img [src]="book.image || './assets/images/book-placeholder.jpg'" class="book-cover" alt="{{ book.title }}"/>
+          <img [src]="book.image || './assets/images/unknown.jpg'" class="book-cover" alt="{{ book.title }}"/>
         </div>
         <div class="book-info">
           <span class="title" title="{{ book.title }}">{{book.title || 'Unknown Title'}}</span>
@@ -69,7 +69,7 @@
     </div>
 
     <!-- List View -->
-    <div *ngIf="isListView" class="books-list" infiniteScroll [infiniteScrollDistance]="2" (scrolled)="onScroll()">
+    <div *ngIf="isListView" class="books-list">
       <div *ngFor="let book of books || []; trackBy: trackByBookId" class="book-list-item" (click)="showDetails(book)">
         <img [src]="book.image || './assets/images/book-placeholder.jpg'" class="book-list-cover" alt="{{ book.title }}"/>
         <div class="book-list-info">

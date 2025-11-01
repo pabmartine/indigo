@@ -11,6 +11,9 @@ import { AuthorService } from 'src/app/services/author.service';
 import { BookService } from 'src/app/services/book.service';
 import { AuthorComponent } from '../author/author.component';
 import { DetailComponent } from '../detail/detail.component';
+import { AuthStateService } from 'src/app/services/auth-state.service';
+import { User } from 'src/app/domain/user';
+import { ImageService } from 'src/app/utils/image.service';
 
 // Interfaz para libros con imagen temporal
 interface BookWithTempImage extends Book {
@@ -20,6 +23,7 @@ interface BookWithTempImage extends Book {
 @Component({
   selector: 'app-recommendations',
   templateUrl: './recommendations.component.html',
+  styleUrls: ['./recommendations.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [MessageService]
 })
@@ -59,7 +63,7 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
   // Cache para optimizar rendimiento
   private booksCache = new Map<string, Book[]>();
 
-  private user = JSON.parse(sessionStorage.user);
+  private user: User;
 
   constructor(
     private bookService: BookService,
@@ -68,14 +72,23 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
     private authorService: AuthorService,
     private messageService: MessageService,
     public translate: TranslateService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authState: AuthStateService,
+    private imageService: ImageService
   ) {
+    this.user = this.authState.getCurrentUser() || { languageBooks: ['en'], role: 'USER', username: '' } as User;
+    // Ensure languageBooks is always initialized
+    if (!this.user.languageBooks || this.user.languageBooks.length === 0) {
+      this.user.languageBooks = this.authState.getLanguageBooks();
+    }
     this.initializeScreenSize();
     this.initializeNavigation();
   }
 
   ngOnInit(): void {
     this.initializeSortOptions();
+    // Ejecutar búsqueda inicial
+    this.doSearch();
   }
 
   ngAfterViewChecked(): void {
@@ -135,17 +148,25 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
 
   @HostListener('window:scroll', [])
   onWindowScroll(): void {
-    if ((window.pageYOffset ||
-      document.documentElement.scrollTop ||
-      document.body.scrollTop) > this.showScrollHeight) {
+    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
+
+    // Show/hide scroll to top button
+    if (scrollPosition > this.showScrollHeight) {
       this.showGoUpButton = true;
-    } else if (this.showGoUpButton &&
-      (window.pageYOffset ||
-        document.documentElement.scrollTop ||
-        document.body.scrollTop)
-      < this.hideScrollHeight) {
+    } else if (this.showGoUpButton && scrollPosition < this.hideScrollHeight) {
       this.showGoUpButton = false;
     }
+
+    // Infinite scroll detection - trigger when user is near bottom
+    const windowHeight = window.innerHeight
+    const documentHeight = document.documentElement.scrollHeight
+    const scrollThreshold = 300 // pixels from bottom to trigger load
+
+    if (scrollPosition + windowHeight >= documentHeight - scrollThreshold) {
+      this.onScroll()
+    }
+
+    this.cdr.detectChanges()
   }
 
   onChange(event): void {
@@ -290,7 +311,7 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
 
         // Procesar imagen de forma síncrona para cache
         if (book.image) {
-          processedBook.image = 'data:image/jpeg;base64,' + book.image;
+          processedBook.image = this.imageService.toDataUrlSafe(book.image);
         }
 
         if (book.rating) {
@@ -325,7 +346,7 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
           // Procesar imagen de forma asíncrona
           setTimeout(() => {
             if (targetIndex < this.books.length && this.books[targetIndex]) {
-              this.books[targetIndex].image = 'data:image/jpeg;base64,' + book.originalImage;
+              this.books[targetIndex].image = this.imageService.toDataUrlSafe(book.originalImage);
               this.cdr.detectChanges();
             }
           }, i * 10); // Pequeño delay entre imágenes para suavizar la carga
@@ -383,7 +404,7 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (data) => {
           if (data && data.image) {
-            const objectURL = 'data:image/jpeg;base64,' + data.image;
+            const objectURL = this.imageService.toDataUrlSafe(data.image);
             data.image = objectURL;
           }
           this.authorComponent.showDetails(data);

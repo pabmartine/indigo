@@ -10,7 +10,8 @@
     <div class="header-search-container">
         <span class="header-search">
             <span class="header-search-icon pi pi-search" (click)="doSearch()" onmouseover="this.style.cursor='pointer'"></span>
-            <input type="text" placeholder="Buscar título o autor..." [(ngModel)]="search" (keyup.enter)="doSearch()"/>
+            <input type="text" placeholder="Buscar título o autor..." [(ngModel)]="search" (keyup.enter)="doSearch()" (input)="onSearchInput()"/>
+            <span *ngIf="search && search.length > 0" class="pi pi-times" (click)="clearSearch()" style="cursor: pointer; margin-left: 5px; color: #888;"></span>
         </span>
     </div>
     <div id="header-icons">

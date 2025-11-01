@@ -1,27 +1,47 @@
 import { Routes } from "@angular/router";
-import { BooksComponent } from 'src/app/pages/books/books.component';
-import { AuthGuard } from 'src/app/utils/auth.guard';
-import { AuthorsComponent } from 'src/app/pages/authors/authors.component';
-import { CategoriesComponent } from 'src/app/pages/categories/categories.component';
-import { SeriesComponent } from 'src/app/pages/series/series.component';
-import { ProfileComponent } from 'src/app/pages/profile/profile.component';
-import { SettingsComponent } from 'src/app/pages/settings/settings.component';
-import { SearchComponent } from 'src/app/pages/search/search.component';
-import { NotificationsComponent } from 'src/app/pages/notifications/notifications.component';
-import { DetailComponent } from 'src/app/pages/detail/detail.component';
-import { RecommendationsComponent } from "src/app/pages/recommendations/recommendations.component";
 
+/**
+ * Layout Routes with Lazy Loading
+ *
+ * Each feature module is loaded on-demand when the user navigates to that route.
+ * This improves initial load time by splitting the application into smaller chunks.
+ */
 export const LayoutRoutes: Routes = [
-    { path: "recommendations", component: RecommendationsComponent, canActivate: [AuthGuard]},
-    { path: "books", component: BooksComponent, canActivate: [AuthGuard]},
-    { path: "authors", component: AuthorsComponent, canActivate: [AuthGuard]},
-    { path: "categories", component: CategoriesComponent, canActivate: [AuthGuard]},
-    { path: "series", component: SeriesComponent, canActivate: [AuthGuard]},
-    { path: "profile", component: ProfileComponent, canActivate: [AuthGuard]},
-    { path: "settings", component: SettingsComponent, canActivate: [AuthGuard]},
-    { path: "notifications", component: NotificationsComponent, canActivate: [AuthGuard]},
-    { path: "search", component: SearchComponent, canActivate: [AuthGuard]},
-    { path: "detail", component: DetailComponent, canActivate: [AuthGuard]}
-
+    {
+        path: "recommendations",
+        loadChildren: () => import('../../pages/recommendations/recommendations.module').then(m => m.RecommendationsModule)
+    },
+    {
+        path: "books",
+        loadChildren: () => import('../../pages/books/books.module').then(m => m.BooksModule)
+    },
+    {
+        path: "authors",
+        loadChildren: () => import('../../pages/authors/authors.module').then(m => m.AuthorsModule)
+    },
+    {
+        path: "categories",
+        loadChildren: () => import('../../pages/categories/categories.module').then(m => m.CategoriesModule)
+    },
+    {
+        path: "series",
+        loadChildren: () => import('../../pages/series/series.module').then(m => m.SeriesModule)
+    },
+    {
+        path: "profile",
+        loadChildren: () => import('../../pages/profile/profile.module').then(m => m.ProfileModule)
+    },
+    {
+        path: "settings",
+        loadChildren: () => import('../../pages/settings/settings.module').then(m => m.SettingsModule)
+    },
+    {
+        path: "notifications",
+        loadChildren: () => import('../../pages/notifications/notifications.module').then(m => m.NotificationsModule)
+    },
+    {
+        path: "search",
+        loadChildren: () => import('../../pages/search/search.module').then(m => m.SearchModule)
+    }
 ];
 

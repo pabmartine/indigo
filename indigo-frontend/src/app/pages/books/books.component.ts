@@ -22,6 +22,8 @@ import { BookService } from "src/app/services/book.service"
 import { DetailComponent } from "src/app/pages/detail/detail.component"
 import { AuthorComponent } from "../author/author.component"
 import { AuthorService } from "src/app/services/author.service"
+import { AuthStateService } from "src/app/services/auth-state.service"
+import { ImageService } from 'src/app/utils/image.service'
 
 // Interfaz para libros con imagen temporal
 interface BookWithTempImage extends Book {
@@ -93,6 +95,8 @@ export class BooksComponent implements OnInit, OnDestroy {
     public translate: TranslateService,
     private location: Location,
     private cdr: ChangeDetectorRef,
+    private authState: AuthStateService,
+    private imageService: ImageService,
   ) {
     this.initializeUser()
     this.initializeScreenSize()
@@ -130,15 +134,14 @@ export class BooksComponent implements OnInit, OnDestroy {
   }
 
   private initializeUser(): void {
-    try {
-      const userSession = sessionStorage.getItem('user')
-      if (userSession) {
-        this.user = JSON.parse(userSession)
-      } else {
-        this.user = { languageBooks: ['en'], role: 'USER', username: '' }
+    const currentUser = this.authState.getCurrentUser()
+    if (currentUser) {
+      this.user = currentUser
+      // Ensure languageBooks is always initialized
+      if (!this.user.languageBooks || this.user.languageBooks.length === 0) {
+        this.user.languageBooks = ['en']
       }
-    } catch (error) {
-      console.error('Error parsing user session:', error)
+    } else {
       this.user = { languageBooks: ['en'], role: 'USER', username: '' }
     }
   }
@@ -220,7 +223,7 @@ export class BooksComponent implements OnInit, OnDestroy {
       this.router.events.pipe(filter((e) => e instanceof NavigationEnd)),
       this.route.queryParams
     ])
-      .pipe(debounceTime(100), takeUntil(this.destroy$))
+      .pipe(debounceTime(50), takeUntil(this.destroy$))
       .subscribe(([navigationEvent, params]) => {
         this.handleRouteChange(navigationEvent as NavigationEnd, params)
       })
@@ -331,14 +334,24 @@ export class BooksComponent implements OnInit, OnDestroy {
 
   @HostListener("window:scroll", [])
   onWindowScroll() {
-    if ((window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop) > this.showScrollHeight) {
+    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
+
+    // Show/hide scroll to top button
+    if (scrollPosition > this.showScrollHeight) {
       this.showGoUpButton = true
-    } else if (
-      this.showGoUpButton &&
-      (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop) < this.hideScrollHeight
-    ) {
+    } else if (this.showGoUpButton && scrollPosition < this.hideScrollHeight) {
       this.showGoUpButton = false
     }
+
+    // Infinite scroll detection - trigger when user is near bottom
+    const windowHeight = window.innerHeight
+    const documentHeight = document.documentElement.scrollHeight
+    const scrollThreshold = 300 // pixels from bottom to trigger load
+
+    if (scrollPosition + windowHeight >= documentHeight - scrollThreshold) {
+      this.onScroll()
+    }
+
     this.cdr.detectChanges()
   }
 
@@ -374,14 +387,12 @@ export class BooksComponent implements OnInit, OnDestroy {
       this.adv_search = new Search()
     }
 
-    // CRUCIAL: Asegurar que los idiomas estén configurados
-    if (this.user && this.user.languageBooks) {
-      this.adv_search.languages = this.user.languageBooks
-    } else {
-      this.adv_search.languages = ['en']
-    }
+    // CRUCIAL: Asegurar que los idiomas estén configurados - use fallback chain
+    const languages = this.user?.languageBooks || this.authState.getLanguageBooks()
+    this.adv_search.languages = languages.length > 0 ? languages : ['en']
 
-    console.log('Fetching count with search object:', this.adv_search) // Debug
+    console.log('Fetching count with search object:', JSON.stringify(this.adv_search)) // Debug
+    console.log('Count languages being used:', this.adv_search.languages) // Debug
 
     this.bookService
       .count(this.adv_search)
@@ -437,14 +448,12 @@ export class BooksComponent implements OnInit, OnDestroy {
       this.adv_search = new Search()
     }
 
-    // CRUCIAL: Asegurar que los idiomas estén configurados
-    if (this.user && this.user.languageBooks) {
-      this.adv_search.languages = this.user.languageBooks
-    } else {
-      this.adv_search.languages = ['en']
-    }
+    // CRUCIAL: Asegurar que los idiomas estén configurados - use fallback chain
+    const languages = this.user?.languageBooks || this.authState.getLanguageBooks()
+    this.adv_search.languages = languages.length > 0 ? languages : ['en']
 
-    console.log('Getting books with search object:', this.adv_search) // Debug
+    console.log('Getting books with search object:', JSON.stringify(this.adv_search)) // Debug
+    console.log('GetAll languages being used:', this.adv_search.languages) // Debug
 
     const cacheKey = `${this.page}-${this.size}-${this.sort}-${this.order}-${JSON.stringify(this.adv_search)}`
 
@@ -475,7 +484,7 @@ export class BooksComponent implements OnInit, OnDestroy {
             const processedBook: BookWithTempImage = { ...book }
 
             if (book.image) {
-              processedBook.image = book.image.startsWith("data:") ? book.image : "data:image/jpeg;base64," + book.image
+              processedBook.image = this.imageService.toDataUrlSafe(book.image)
               processedBook.originalImage = book.image
             }
 
@@ -580,9 +589,7 @@ export class BooksComponent implements OnInit, OnDestroy {
           if (data) {
             const authorData = { ...data }
             if (authorData.image) {
-              authorData.image = authorData.image.startsWith("data:")
-                ? authorData.image
-                : "data:image/jpeg;base64," + authorData.image
+              authorData.image = this.imageService.toDataUrlSafe(authorData.image)
             }
             this.showAuthorDetails(authorData)
           }
@@ -600,9 +607,7 @@ export class BooksComponent implements OnInit, OnDestroy {
       this.books[index] = {
         ...book,
         image: book.image
-          ? book.image.startsWith("data:")
-            ? book.image
-            : "data:image/jpeg;base64," + book.image
+          ? this.imageService.toDataUrlSafe(book.image)
           : originalBookData.image,
         originalImage: book.image || originalBookData.originalImage,
         authors: book.authors || []
@@ -623,9 +628,7 @@ export class BooksComponent implements OnInit, OnDestroy {
       this.favorites[favIndex] = {
         ...book,
         image: book.image
-          ? book.image.startsWith("data:")
-            ? book.image
-            : "data:image/jpeg;base64," + book.image
+          ? this.imageService.toDataUrlSafe(book.image)
           : originalFavData.image,
         originalImage: book.image || originalFavData.originalImage,
         authors: book.authors || []
@@ -671,6 +674,15 @@ export class BooksComponent implements OnInit, OnDestroy {
 
   private doSearch(): void {
     console.log('Starting search with:', this.adv_search) // Debug
+
+    // Ensure user is properly initialized BEFORE reset
+    if (!this.user || !this.user.languageBooks || this.user.languageBooks.length === 0) {
+      console.warn('User languageBooks not initialized, re-initializing user')
+      this.initializeUser()
+    }
+
+    console.log('User languageBooks:', this.user?.languageBooks) // Debug
+
     this.reset()
     this.searched = true
 
@@ -684,12 +696,11 @@ export class BooksComponent implements OnInit, OnDestroy {
       this.favoritesCache = null
     }
 
-    // CRUCIAL: Configurar idiomas
-    if (this.user && this.user.languageBooks) {
-      this.adv_search.languages = this.user.languageBooks
-    } else {
-      this.adv_search.languages = ['en']
-    }
+    // CRUCIAL: Configurar idiomas - ALWAYS ensure languages are set
+    const languages = this.user?.languageBooks || this.authState.getLanguageBooks()
+    this.adv_search.languages = languages.length > 0 ? languages : ['en']
+
+    console.log('Final adv_search before API calls:', JSON.stringify(this.adv_search)) // Debug
 
     this.getAll()
     this.fetchCountAndUpdateTitle()
@@ -736,7 +747,7 @@ export class BooksComponent implements OnInit, OnDestroy {
             const processedBook: BookWithTempImage = { ...book }
 
             if (book.image) {
-              processedBook.image = book.image.startsWith("data:") ? book.image : "data:image/jpeg;base64," + book.image
+              processedBook.image = this.imageService.toDataUrlSafe(book.image)
               processedBook.originalImage = book.image
             }
 

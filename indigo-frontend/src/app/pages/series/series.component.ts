@@ -8,6 +8,9 @@ import { TranslateService } from '@ngx-translate/core';
 import { Search } from 'src/app/domain/search';
 import { forkJoin, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { AuthStateService } from 'src/app/services/auth-state.service';
+import { User } from 'src/app/domain/user';
+import { ImageService } from 'src/app/utils/image.service';
 
 // Interfaz para series con imagen temporal
 interface SerieWithTempImage extends Serie {
@@ -17,6 +20,7 @@ interface SerieWithTempImage extends Serie {
 @Component({
   selector: 'app-series',
   templateUrl: './series.component.html',
+  styleUrls: ['./series.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [MessageService]
 })
@@ -49,7 +53,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
   isScrolling: boolean = false;
 
-  user = JSON.parse(sessionStorage.user);
+  user: User;
 
   // Subject para manejar la destrucción del componente
   private destroy$ = new Subject<void>();
@@ -62,8 +66,15 @@ export class SeriesComponent implements OnInit, OnDestroy {
     private router: Router,
     private messageService: MessageService,
     public translate: TranslateService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authState: AuthStateService,
+    private imageService: ImageService
   ) {
+    this.user = this.authState.getCurrentUser() || { languageBooks: ['en'], role: 'USER', username: '' } as User;
+    // Ensure languageBooks is always initialized
+    if (!this.user.languageBooks || this.user.languageBooks.length === 0) {
+      this.user.languageBooks = this.authState.getLanguageBooks();
+    }
     this.initializeScreenSize();
   }
 
@@ -187,17 +198,25 @@ export class SeriesComponent implements OnInit, OnDestroy {
 
   @HostListener('window:scroll', [])
   onWindowScroll(): void {
-    if ((window.pageYOffset ||
-      document.documentElement.scrollTop ||
-      document.body.scrollTop) > this.showScrollHeight) {
+    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
+
+    // Show/hide scroll to top button
+    if (scrollPosition > this.showScrollHeight) {
       this.showGoUpButton = true;
-    } else if (this.showGoUpButton &&
-      (window.pageYOffset ||
-        document.documentElement.scrollTop ||
-        document.body.scrollTop)
-      < this.hideScrollHeight) {
+    } else if (this.showGoUpButton && scrollPosition < this.hideScrollHeight) {
       this.showGoUpButton = false;
     }
+
+    // Infinite scroll detection - trigger when user is near bottom
+    const windowHeight = window.innerHeight
+    const documentHeight = document.documentElement.scrollHeight
+    const scrollThreshold = 300 // pixels from bottom to trigger load
+
+    if (scrollPosition + windowHeight >= documentHeight - scrollThreshold) {
+      this.onScroll()
+    }
+
+    this.cdr.detectChanges()
   }
 
   onScroll(): void {
@@ -300,12 +319,11 @@ export class SeriesComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (data) => {
           if (serieIndex < this.series.length && this.series[serieIndex].name === serieName) {
-            const objectURL = 'data:image/jpeg;base64,' + data.image;
-            this.series[serieIndex].image = objectURL;
+            this.series[serieIndex].image = this.imageService.toDataUrlSafe(data.image);
             this.cdr.detectChanges();
 
             // Actualizar cache con la imagen procesada
-            this.updateCacheWithImage(serieName, objectURL);
+            this.updateCacheWithImage(serieName, this.series[serieIndex].image);
           }
         },
         error: (error) => {

@@ -13,6 +13,8 @@ import { UserService } from 'src/app/services/user.service';
 import { AuthorService } from 'src/app/services/author.service';
 import { DetailComponent } from 'src/app/pages/detail/detail.component';
 import { AuthorComponent } from '../author/author.component';
+import { AuthStateService } from 'src/app/services/auth-state.service';
+import { ImageService } from 'src/app/utils/image.service';
 
 // Interfaz para libros con imagen temporal
 interface BookWithTempImage extends Book {
@@ -52,7 +54,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private router: Router,
     private bookService: BookService,
     private authorService: AuthorService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authState: AuthStateService,
+    private imageService: ImageService
   ) {
 
   }
@@ -70,10 +74,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
         } else if (params['type'] == 'update') {
           this.getUser(params['user']);
         }
-      } else if (sessionStorage.user) {
-        const user = JSON.parse(sessionStorage.user);
-        this.param = { username: user.username };
-        this.user = user;
+      } else {
+        const currentUser = this.authState.getCurrentUser();
+        if (currentUser) {
+          this.param = { username: currentUser.username };
+          this.user = currentUser;
+        }
       }
     });
     this.getBooks();
@@ -85,11 +91,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   readOnly() {
-    return JSON.parse(sessionStorage.user).role == 'USER' || (JSON.parse(sessionStorage.user).role == 'ADMIN' && JSON.parse(sessionStorage.user).username == this.user.username);
+    const currentUser = this.authState.getCurrentUser();
+    if (!currentUser) return false;
+    return currentUser.role === 'USER' || (currentUser.role === 'ADMIN' && currentUser.username === this.user?.username);
   }
 
   isUser() {
-    return JSON.parse(sessionStorage.user).role == 'USER';
+    return this.authState.getCurrentUser()?.role === 'USER';
   }
 
   isValid() {
@@ -161,7 +169,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
     this.userService.update(this.user).subscribe({
       next: (data) => {
-        if (JSON.parse(sessionStorage.user).id !== this.user.id) {
+        const currentUser = this.authState.getCurrentUser();
+        if (currentUser && currentUser.id !== this.user.id) {
           this.router.navigate(["settings"]);
         } else {
           if (this.changedLang) {
@@ -173,8 +182,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
             });
           }
 
-          // Store user in session
-          sessionStorage.setItem('user', JSON.stringify(this.user));
+          // Store user in session via AuthStateService
+          this.authState.setUser(this.user);
 
           this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.profile.ok.update'), closable: false, life: 5000 });
         }
@@ -222,14 +231,16 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   getBooks(): void {
-    const user = JSON.parse(sessionStorage.user);
-    this.bookService.getSent(user.username).subscribe({
+    const currentUser = this.authState.getCurrentUser();
+    if (!currentUser?.username) return;
+
+    this.bookService.getSent(currentUser.username).subscribe({
       next: (data) => {
         const booksWithTempData: BookWithTempImage[] = data.map((book) => {
           const processedBook: BookWithTempImage = { ...book };
 
           if (book.image) {
-            processedBook.image = book.image.startsWith("data:") ? book.image : "data:image/jpeg;base64," + book.image;
+            processedBook.image = this.imageService.toDataUrlSafe(book.image);
             processedBook.originalImage = book.image;
           }
 
@@ -358,9 +369,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
           if (data) {
             const authorData = { ...data };
             if (authorData.image) {
-              authorData.image = authorData.image.startsWith("data:")
-                ? authorData.image
-                : "data:image/jpeg;base64," + authorData.image;
+              authorData.image = this.imageService.toDataUrlSafe(authorData.image);
             }
 
             // Esperar un poco para que se complete el scroll
@@ -382,9 +391,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       this.books[index] = {
         ...book,
         image: book.image
-          ? book.image.startsWith("data:")
-            ? book.image
-            : "data:image/jpeg;base64," + book.image
+          ? this.imageService.toDataUrlSafe(book.image)
           : originalBookData.image,
         originalImage: book.image || originalBookData.originalImage,
         authors: book.authors || []

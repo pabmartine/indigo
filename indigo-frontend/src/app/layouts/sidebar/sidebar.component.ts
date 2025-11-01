@@ -1,28 +1,39 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService, TranslationChangeEvent } from '@ngx-translate/core';
 import { MenuItem } from 'primeng/api/menuitem';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { AuthStateService } from 'src/app/services/auth-state.service';
 
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html'
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnDestroy {
 
   @Input() show: boolean;
 
   items: MenuItem[];
   others: MenuItem[];
 
-  constructor(private router: Router, public translate: TranslateService) { }
+  private destroy$ = new Subject<void>();
+
+  constructor(
+    private router: Router,
+    public translate: TranslateService,
+    private authState: AuthStateService
+  ) { }
 
   ngOnInit(): void {
-    this.translate.onTranslationChange.subscribe(
-      (event: TranslationChangeEvent) => {
-        this.items = this.buildMenu();
-        this.others = this.buildOthers();
-      },
-    );
+    this.translate.onTranslationChange
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(
+        (event: TranslationChangeEvent) => {
+          this.items = this.buildMenu();
+          this.others = this.buildOthers();
+        },
+      );
 
     this.items = this.buildMenu();
     this.others = this.buildOthers();
@@ -112,12 +123,17 @@ export class SidebarComponent implements OnInit {
   }
 
   logout(){
-    sessionStorage.removeItem('user');
+    this.authState.clearUser();
     this.router.navigate(['/login']);
   }
 
   isAdmin(){
-    return JSON.parse(sessionStorage.user).role == 'ADMIN';
+    return this.authState.isAdmin();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
 }

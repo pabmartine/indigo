@@ -1,8 +1,9 @@
-import { Component, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ConfirmationService, MessageService, SelectItem } from 'primeng/api';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { Config } from 'src/app/domain/config';
 import { User } from 'src/app/domain/user';
 import { AuthorService } from 'src/app/services/author.service';
@@ -11,13 +12,14 @@ import { MailService } from 'src/app/services/mail.service';
 import { MetadataService } from 'src/app/services/metadata.service';
 import { UserService } from 'src/app/services/user.service';
 import { FileService } from 'src/app/services/file.service';
+import { AuthStateService } from 'src/app/services/auth-state.service';
 
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.component.html',
   providers: [MessageService, ConfirmationService]
 })
-export class SettingsComponent implements OnInit {
+export class SettingsComponent implements OnInit, OnDestroy {
 
   type: string;
   entity: string;
@@ -62,6 +64,7 @@ export class SettingsComponent implements OnInit {
 
   panelStates = new Map();
 
+  private destroy$ = new Subject<void>();
 
   constructor(private messageService: MessageService,
     public translate: TranslateService,
@@ -72,7 +75,8 @@ export class SettingsComponent implements OnInit {
     public mailService: MailService,
     public userService: UserService,
     private router: Router,
-    private confirmationService: ConfirmationService) {
+    private confirmationService: ConfirmationService,
+    private authState: AuthStateService) {
 
 
   }
@@ -101,84 +105,94 @@ export class SettingsComponent implements OnInit {
   }
 
   getDataStatus(): void {
-    this.metadataService.getDataStatus().subscribe({
-      next: (data) => {
-        this.type = data.type;
-        this.entity = data.entity;
-        this.current = data.current;
-        this.total = data.total;
-        this.message = data.message;
+    this.metadataService.getDataStatus()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.type = data.type;
+          this.entity = data.entity;
+          this.current = data.current;
+          this.total = data.total;
+          this.message = data.message;
 
-        this.uploads = data.uploadsTotal;
-        this.uploadsProgress = data.uploadsCurrent;
+          this.uploads = data.uploadsTotal;
+          this.uploadsProgress = data.uploadsCurrent;
 
-        if (this.message) {
-          this.message = this.translate.instant('locale.settings.panel.metadata.' + this.message);
+          if (this.message) {
+            this.message = this.translate.instant('locale.settings.panel.metadata.' + this.message);
+          }
+
+          if (this.total !== 0) {
+            this.progressBar = Math.round((this.current * 100) / this.total);
+          }
+        },
+        error: (error) => {
+          console.log(error);
         }
-
-        if (this.total !== 0) {
-          this.progressBar = Math.round((this.current * 100) / this.total);
-        }
-      },
-      error: (error) => {
-        console.log(error);
-      }
-    });
+      });
   }
 
 
   getUsers(): void {
-    this.userService.getAll().subscribe({
-      next: (data) => {
-        if (data) {
-          this.userList = data;
+    this.userService.getAll()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          if (data) {
+            this.userList = data;
+          }
+        },
+        error: (error) => {
+          console.log(error);
         }
-      },
-      error: (error) => {
-        console.log(error);
-      }
-    });
+      });
   }
 
 
   getGlobal(): void {
-    this.configService.get("books.recommendations").subscribe({
-      next: (data) => {
-        if (data) {
-          this.booksRecommendations = Number(data.value);
+    this.configService.get("books.recommendations")
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          if (data) {
+            this.booksRecommendations = Number(data.value);
+          }
+        },
+        error: (error) => {
+          console.log(error);
         }
-      },
-      error: (error) => {
-        console.log(error);
-      }
-    });
+      });
   }
 
   getUploads(): void {
-    this.fileService.getUploadsPath().subscribe({
-      next: (data) => {
-        if (data) {
-          this.uploadsPath = data.path;
+    this.fileService.getUploadsPath()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          if (data) {
+            this.uploadsPath = data.path;
+          }
+        },
+        error: (error) => {
+          console.log(error);
         }
-      },
-      error: (error) => {
-        console.log(error);
-      }
-    });
+      });
   }
 
 
   getMetadata(): void {
-    this.configService.get("goodreads.key").subscribe({
-      next: (data) => {
-        if (data) {
-          this.goodReadsKey = data.value;
+    this.configService.get("goodreads.key")
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          if (data) {
+            this.goodReadsKey = data.value;
+          }
+        },
+        error: (error) => {
+          console.log(error);
         }
-      },
-      error: (error) => {
-        console.log(error);
-      }
-    });
+      });
   }
 
 
@@ -193,20 +207,22 @@ export class SettingsComponent implements OnInit {
       this.configService.get("smtp.status")
     ];
 
-    forkJoin(observables).subscribe({
-      next: ([provider, host, port, encryption, username, password, status]) => {
-        this.smtpProvider = provider?.value || 'other';
-        this.smtpHost = host?.value || '';
-        this.smtpPort = port?.value || '';
-        this.smtpEncryption = encryption?.value || '';
-        this.smtpUsername = username?.value || '';
-        this.smtpPassword = password?.value || '';
-        this.smtpStatus = status?.value || 'unknown';
-      },
-      error: (error) => {
-        console.log(error);
-      }
-    });
+    forkJoin(observables)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: ([provider, host, port, encryption, username, password, status]) => {
+          this.smtpProvider = provider?.value || 'other';
+          this.smtpHost = host?.value || '';
+          this.smtpPort = port?.value || '';
+          this.smtpEncryption = encryption?.value || '';
+          this.smtpUsername = username?.value || '';
+          this.smtpPassword = password?.value || '';
+          this.smtpStatus = status?.value || 'unknown';
+        },
+        error: (error) => {
+          console.log(error);
+        }
+      });
 
   }
 
@@ -222,32 +238,36 @@ export class SettingsComponent implements OnInit {
       new Config("books.recommendations", String(this.booksRecommendations))
     ];
 
-    this.configService.save(configs).subscribe({
-      next: () => {
-        this.messageService.clear();
-        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.settings.actions.save.ok'), closable: false, life: 5000 });
-      },
-      error: (error) => {
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.save.error'), closable: false, life: 5000 });
-        console.error(error);
-      }
-    });
+    this.configService.save(configs)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.messageService.clear();
+          this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.settings.actions.save.ok'), closable: false, life: 5000 });
+        },
+        error: (error) => {
+          this.messageService.clear();
+          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.save.error'), closable: false, life: 5000 });
+          console.error(error);
+        }
+      });
   }
 
 
 
   upload(data:number): void {
-    this.fileService.upload(data).subscribe({
-      next: (data) => {
-        if (data) {
-          console.log(data);
+    this.fileService.upload(data)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          if (data) {
+            console.log(data);
+          }
+        },
+        error: (error) => {
+          console.log(error);
         }
-      },
-      error: (error) => {
-        console.log(error);
-      }
-    });
+      });
   }
 
   isBooksFull() {
@@ -278,27 +298,31 @@ export class SettingsComponent implements OnInit {
 
   doExecuteMetadata(type: string, entity: string): void {
     const startMetadataService = () => {
-      this.metadataService.start("es", type, entity).subscribe({
-        next: () => {
-          console.log("Arrancado servicio data");
-        },
-        error: (error) => {
-          console.log(error);
-          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.start.error'), closable: false, life: 5000 });
-        }
-      });
+      this.metadataService.start("es", type, entity)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            console.log("Arrancado servicio data");
+          },
+          error: (error) => {
+            console.log(error);
+            this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.start.error'), closable: false, life: 5000 });
+          }
+        });
     };
 
     const stopAndStartMetadataService = () => {
-      this.metadataService.stop().subscribe({
-        next: () => {
-          startMetadataService();
-        },
-        error: (error) => {
-          console.log(error);
-          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.stop.error'), closable: false, life: 5000 });
-        }
-      });
+      this.metadataService.stop()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            startMetadataService();
+          },
+          error: (error) => {
+            console.log(error);
+            this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.stop.error'), closable: false, life: 5000 });
+          }
+        });
     };
 
     if (
@@ -309,16 +333,18 @@ export class SettingsComponent implements OnInit {
       (type === 'FULL' && entity === 'BOOKS' && this.isBooksFull()) ||
       (type === 'PARTIAL' && entity === 'BOOKS' && this.isBooksPartial())
     ) {
-      this.metadataService.stop().subscribe({
-        next: () => {
-          this.type = null;
-          this.entity = null;
-        },
-        error: (error) => {
-          console.log(error);
-          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.stop.error'), closable: false, life: 5000 });
-        }
-      });
+      this.metadataService.stop()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.type = null;
+            this.entity = null;
+          },
+          error: (error) => {
+            console.log(error);
+            this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.stop.error'), closable: false, life: 5000 });
+          }
+        });
     } else {
       stopAndStartMetadataService();
     }
@@ -330,17 +356,25 @@ export class SettingsComponent implements OnInit {
   doSendTestMail() {
     this.isSendTestMail = true;
 
-    const user = JSON.parse(sessionStorage.user);
-    this.mailService.sendTestMail(user.kindle).subscribe({
-      next: (data) => {
-        this.getSmtp();
-        this.isSendTestMail = false;
-      },
-      error: (error) => {
-        console.log(error);
-        this.isSendTestMail = false;
-      }
-    });
+    const user = this.authState.getCurrentUser();
+    if (!user?.kindle) {
+      this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.panel.smtp.error.kindle'), closable: false, life: 5000 });
+      this.isSendTestMail = false;
+      return;
+    }
+
+    this.mailService.sendTestMail(user.kindle)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.getSmtp();
+          this.isSendTestMail = false;
+        },
+        error: (error) => {
+          console.log(error);
+          this.isSendTestMail = false;
+        }
+      });
   }
 
 
@@ -354,15 +388,17 @@ export class SettingsComponent implements OnInit {
 
 
   deleteUser(id: string) {
-    this.userService.delete(id).subscribe({
-      next: (data) => {
-        this.getUsers();
-      },
-      error: (error) => {
-        console.log(error);
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.delete.error'), closable: false, life: 5000 });
-      }
-    });
+    this.userService.delete(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.getUsers();
+        },
+        error: (error) => {
+          console.log(error);
+          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.delete.error'), closable: false, life: 5000 });
+        }
+      });
   }
 
 
@@ -389,33 +425,39 @@ export class SettingsComponent implements OnInit {
 
   detect(){
 
-    this.fileService.count().subscribe({
-      next: (data) => {
-        console.log(data);
-        if (data>0) {
-          this.confirmationService.confirm({
-            message: 'Se han detectado ' + data + ' libros nuevos. ¿Desea añadirlos a su biblioteca?',
-            header: 'Añadir libros',
-            acceptLabel: 'Aceptar',
-            rejectLabel: 'Cancelar',
-            accept: () => {
-              this.upload(data);
-            },
-          });
-         } else {
-          this.confirmationService.confirm({
-            message: 'No se han detectado libros nuevos en ' + this.uploadsPath,
-            header: 'Añadir libros',
-            acceptLabel: 'Cerrar',
-            rejectVisible: false
-          });
-         }
-      },
-      error: (error) => {
-        console.log(error);
-      }
-    });
+    this.fileService.count()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          console.log(data);
+          if (data>0) {
+            this.confirmationService.confirm({
+              message: 'Se han detectado ' + data + ' libros nuevos. ¿Desea añadirlos a su biblioteca?',
+              header: 'Añadir libros',
+              acceptLabel: 'Aceptar',
+              rejectLabel: 'Cancelar',
+              accept: () => {
+                this.upload(data);
+              },
+            });
+           } else {
+            this.confirmationService.confirm({
+              message: 'No se han detectado libros nuevos en ' + this.uploadsPath,
+              header: 'Añadir libros',
+              acceptLabel: 'Cerrar',
+              rejectVisible: false
+            });
+           }
+        },
+        error: (error) => {
+          console.log(error);
+        }
+      });
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
 }

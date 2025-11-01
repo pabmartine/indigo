@@ -1,10 +1,12 @@
 import { DatePipe, Location } from '@angular/common';
-import { Component, ElementRef, EventEmitter, HostListener, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { saveAs } from 'file-saver';
 import { MenuItem, MessageService } from 'primeng/api';
 import { Dialog } from 'primeng/dialog';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { Book } from 'src/app/domain/book';
 import { Notification } from 'src/app/domain/notification';
 import { Search } from 'src/app/domain/search';
@@ -16,6 +18,9 @@ import { ConfigService } from 'src/app/services/config.service';
 import { MetadataService } from 'src/app/services/metadata.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { MailService } from 'src/app/services/mail.service';
+import { AuthStateService } from 'src/app/services/auth-state.service';
+import { ImageService } from 'src/app/utils/image.service';
+import { User } from 'src/app/domain/user';
 declare var ePub: any;
 
 @Component({
@@ -25,7 +30,7 @@ declare var ePub: any;
   providers: [MessageService, DatePipe]
 
 })
-export class DetailComponent implements OnInit {
+export class DetailComponent implements OnInit, OnDestroy {
 
   @Output() eventAuthor: EventEmitter<String> = new EventEmitter<String>();
   @Output() eventBook: EventEmitter<Book> = new EventEmitter<Book>();
@@ -65,7 +70,9 @@ export class DetailComponent implements OnInit {
   editDialog: boolean = false;
   editedBook: Book;
 
-  user = JSON.parse(sessionStorage.user);
+  user: User;
+
+  private destroy$ = new Subject<void>();
 
   @ViewChild('viewer') viewer: ElementRef;
 
@@ -80,14 +87,19 @@ export class DetailComponent implements OnInit {
     public translate: TranslateService,
     public notificationService: NotificationService,
     private location: Location,
-    public datepipe: DatePipe) {
+    public datepipe: DatePipe,
+    private authState: AuthStateService,
+    private imageService: ImageService) {
 
-    this.route.queryParams.subscribe(params => {
+    this.user = this.authState.getCurrentUser() || { languageBooks: ['en'], role: 'USER', username: '' } as User;
 
-      if (params['book']) {
-        this.showDetails(JSON.parse(params['book']));
-      }
-    });
+    this.route.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => {
+        if (params['book']) {
+          this.showDetails(JSON.parse(params['book']));
+        }
+      });
 
   }
 
@@ -118,43 +130,47 @@ export class DetailComponent implements OnInit {
     this.selectedImage = this.selected.image;
 
     if (path) {
-      this.bookService.getImage(path).subscribe({
-        next: (data) => {
-          if (data) {
-            let objectURL = 'data:image/jpeg;base64,' + data.image;
-            this.selectedImage = objectURL;
+      this.bookService.getImage(path)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (data) => {
+            if (data) {
+              this.selectedImage = this.imageService.toDataUrlSafe(data.image, this.selected.image);
+            }
+          },
+          error: (error) => {
           }
-        },
-        error: (error) => {
-        }
-      });
+        });
     }
   }
 
 
   getSerie(serie: Serie): void {
     if (serie) {
-      this.bookService.getSerie(serie.name, this.user.languageBooks).subscribe({
-        error: (error) => {
-        }
-      });
+      this.bookService.getSerie(serie.name, this.user.languageBooks)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          error: (error) => {
+          }
+        });
     }
   }
 
 
   getSimilar(similar: string[]): void {
     if (similar) {
-      this.bookService.getSimilar(similar, this.user.languageBooks).subscribe({
-        next: (data) => {
-          data.forEach((book) => {
-            let objectURL = 'data:image/jpeg;base64,' + book.image;
-            book.image = objectURL;
-          });
-          Array.prototype.push.apply(this.similar, data);
-        },
-        error: (error) => {
-        }
-      });
+      this.bookService.getSimilar(similar, this.user.languageBooks)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (data) => {
+            data.forEach((book) => {
+              book.image = this.imageService.toDataUrlSafe(book.image);
+            });
+            Array.prototype.push.apply(this.similar, data);
+          },
+          error: (error) => {
+          }
+        });
     }
   }
 
@@ -162,17 +178,18 @@ export class DetailComponent implements OnInit {
 
   getRecommendations(recommendations: string[]): void {
     if (recommendations) {
-      this.bookService.getRecommendationsByBook(recommendations, this.user.languageBooks).subscribe({
-        next: (data) => {
-          data.forEach((book) => {
-            let objectURL = 'data:image/jpeg;base64,' + book.image;
-            book.image = objectURL;
-          });
-          Array.prototype.push.apply(this.recommendations, data);
-        },
-        error: (error) => {
-        }
-      });
+      this.bookService.getRecommendationsByBook(recommendations, this.user.languageBooks)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (data) => {
+            data.forEach((book) => {
+              book.image = this.imageService.toDataUrlSafe(book.image);
+            });
+            Array.prototype.push.apply(this.recommendations, data);
+          },
+          error: (error) => {
+          }
+        });
     }
   }
 
@@ -239,175 +256,217 @@ export class DetailComponent implements OnInit {
 
   sendToKindle(): void {
     const book = this.selected.path;
-    const user = JSON.parse(sessionStorage.user);
 
     this.messageService.clear();
     this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.kindle.todo'), closable: false, life: 5000 });
 
-    this.mailService.sendMail(book, user.kindle).subscribe({
-      next: (data) => {
-        this.messageService.clear();
-        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.kindle.ok'), closable: false, life: 5000 });
+    this.mailService.sendMail(book, this.user.kindle)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.messageService.clear();
+          this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.kindle.ok'), closable: false, life: 5000 });
 
 
-      },
-      error: (error) => {
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.kindle.error'), closable: false, life: 5000 });
+        },
+        error: (error) => {
+          this.messageService.clear();
+          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.kindle.error'), closable: false, life: 5000 });
 
 
-      }
-    });
+        }
+      });
   }
 
 
 
   getKindle(): void {
-    this.configService.get("smtp.status").subscribe({
-      next: (data) => {
-        if (data.value == 'ok') {
-          this.kindle = true;
+    this.configService.get("smtp.status")
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          if (data.value == 'ok') {
+            this.kindle = true;
+          }
+        },
+        error: (error) => {
         }
-      },
-      error: (error) => {
-      }
-    });
+      });
   }
 
 
   getFavoriteBook(id: string): void {
-    const user = JSON.parse(sessionStorage.user);
-
-    this.bookService.getFavorite(id, user.username).subscribe({
-      next: (data) => {
-        if (data) {
-          this.favoriteBook = true;
+    this.bookService.getFavorite(id, this.user.username)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          if (data) {
+            this.favoriteBook = true;
+          }
+        },
+        error: (error) => {
         }
-      },
-      error: (error) => {
-      }
-    });
+      });
   }
 
 
   view(id: string) {
-    const user = JSON.parse(sessionStorage.user);
-    this.bookService.view(id, user.username).subscribe(
-      error => {
-      }
-    );
+    this.bookService.view(id, this.user.username)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(
+        error => {
+        }
+      );
   }
 
   addFavoriteBook(): void {
-    const user = JSON.parse(sessionStorage.user);
-
-    this.bookService.addFavorite(this.selected.path, user.username).subscribe({
-      next: (data) => {
-        this.favoriteBook = true;
-        this.messageService.clear();
-        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.favorite.add.ok'), closable: false, life: 5000 });
-      },
-      error: (error) => {
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.favorite.add.error'), closable: false, life: 5000 });
-      }
-    });
+    this.bookService.addFavorite(this.selected.path, this.user.username)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.favoriteBook = true;
+          this.messageService.clear();
+          this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.favorite.add.ok'), closable: false, life: 5000 });
+        },
+        error: (error) => {
+          this.messageService.clear();
+          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.favorite.add.error'), closable: false, life: 5000 });
+        }
+      });
   }
 
 
 
 
   deleteFavoriteBook(): void {
-    const user = JSON.parse(sessionStorage.user);
-
-    this.bookService.deleteFavorite(this.selected.path, user.username).subscribe({
-      next: (data) => {
-        this.favoriteBook = false;
-        this.messageService.clear();
-        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.favorite.delete.ok'), closable: false, life: 5000 });
-      },
-      error: (error) => {
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.favorite.delete.error'), closable: false, life: 5000 });
-      }
-    });
+    this.bookService.deleteFavorite(this.selected.path, this.user.username)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.favoriteBook = false;
+          this.messageService.clear();
+          this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.favorite.delete.ok'), closable: false, life: 5000 });
+        },
+        error: (error) => {
+          this.messageService.clear();
+          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.favorite.delete.error'), closable: false, life: 5000 });
+        }
+      });
   }
 
 
   viewEpub() {
     this.showEpub = true;
 
-    this.bookService.getEpub(this.selected.path).subscribe(
-      data => {
-        if (data) {
-          var file = new File([data], "name");
-          this.book = new ePub(file);
+    this.bookService.getEpub(this.selected.path)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          if (data) {
+            try {
+              var file = new File([data], "name");
+              this.book = new ePub(file);
 
+              this.rendition = this.book.renderTo("viewer", { flow: "paginated", method: "continuous", width: "100%", height: "97%" });
+              this.displayed = this.rendition.display();
 
-          this.rendition = this.book.renderTo("viewer", { flow: "paginated", method: "continuous", width: "100%", height: "97%" });
-          this.displayed = this.rendition.display();
+              this.displayed.then((renderer) => {
+              }).catch((error) => {
+                console.error('Error displaying epub:', error);
+                this.handleEpubError();
+              });
 
-          this.displayed.then((renderer) => {
-          });
+              this.book.ready.then(() => {
+                this.book.loaded.navigation.then((toc) => {
+                  toc.forEach((chapter) => {
+                    var ch = chapter;
+                    this.chapterList.push(ch);
+                  })
+                }).catch((error) => {
+                  console.error('Error loading navigation:', error);
+                });
 
-          this.book.ready.then(() => {
-            this.book.loaded.navigation.then((toc) => {
-              toc.forEach((chapter) => {
-                var ch = chapter;
-                this.chapterList.push(ch);
-              })
-            })
+                this.book.locations.generate(64);
+              }).catch((error) => {
+                console.error('Error in book.ready:', error);
+                this.handleEpubError();
+              });
 
-            this.book.locations.generate(64);
-          })
-
+            } catch (error) {
+              console.error('Error creating epub:', error);
+              this.handleEpubError();
+            }
+          } else {
+            this.handleEpubError();
+          }
+        },
+        error: (error) => {
+          console.error('Error fetching epub from server:', error);
+          this.handleEpubError();
         }
-      },
-      error => {
-      }
-    );
+      });
+  }
+
+  private handleEpubError(): void {
+    this.showEpub = false;
+    this.messageService.clear();
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: this.translate.instant('locale.books.detail.view.error') || 'Error loading EPUB file',
+      closable: true,
+      life: 5000
+    });
+    // Reset epub-related properties
+    this.book = null;
+    this.rendition = null;
+    this.displayed = null;
+    this.chapterList = [];
   }
 
   downloadEpub(): void {
-    this.bookService.getEpub(this.selected.path).subscribe({
-      next: (data) => {
-        saveAs(data, this.selected.title);
-      },
-      error: (error) => {
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.download.error'), closable: false, life: 5000 });
-      }
-    });
+    this.bookService.getEpub(this.selected.path)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          saveAs(data, this.selected.title);
+        },
+        error: (error) => {
+          this.messageService.clear();
+          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.download.error'), closable: false, life: 5000 });
+        }
+      });
   }
 
 
   isAdmin() {
-    return JSON.parse(sessionStorage.user).role == 'ADMIN';
+    return this.authState.isAdmin();
   }
 
   refreshBook(): void {
     this.messageService.clear();
     this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.refresh.process'), closable: false, life: 5000 });
 
-    this.metadataService.findBook(this.selected.path, "es").subscribe({
-      next: (data) => {
-        this.selected = data;
+    this.metadataService.findBook(this.selected.path, "es")
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.selected = data;
 
-        if (data.image) {
-          let objectURL = 'data:image/jpeg;base64,' + data.image;
-          this.selected.image = objectURL;
+          if (data.image) {
+            this.selected.image = this.imageService.toDataUrlSafe(data.image);
+          }
+
+          this.eventBook.emit(this.selected);
+
+          this.messageService.clear();
+          this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.refresh.result.ok'), closable: false, life: 5000 });
+        },
+        error: (error) => {
+          this.messageService.clear();
+          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.refresh.result.error'), closable: false, life: 5000 });
         }
-
-        this.eventBook.emit(this.selected);
-
-        this.messageService.clear();
-        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.refresh.result.ok'), closable: false, life: 5000 });
-      },
-      error: (error) => {
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.refresh.result.error'), closable: false, life: 5000 });
-      }
-    });
+      });
   }
 
 
@@ -416,17 +475,27 @@ export class DetailComponent implements OnInit {
   }
 
   public prev() {
-    this.rendition.prev().then(() => {
-    })
+    if (this.rendition) {
+      this.rendition.prev().then(() => {
+      }).catch((error) => {
+        console.error('Error navigating to previous page:', error);
+      });
+    }
   }
   public next() {
-    this.rendition.next().then(() => {
-    })
+    if (this.rendition) {
+      this.rendition.next().then(() => {
+      }).catch((error) => {
+        console.error('Error navigating to next page:', error);
+      });
+    }
   }
 
 
   public changeChapter(url) {
-    this.rendition.display(url);
+    if (this.rendition) {
+      this.rendition.display(url);
+    }
     return false;
   }
 
@@ -444,17 +513,19 @@ export class DetailComponent implements OnInit {
   }
 
   deleteBook(): void {
-    this.bookService.deleteBook(this.selected.id).subscribe({
-      next: (data) => {
-        this.deleteBookEvent.emit(this.selected.id);
-        this.messageService.clear();
-        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.delete.ok'), closable: false, life: 5000 });
-      },
-      error: (error) => {
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.delete.error'), closable: false, life: 5000 });
-      }
-    });
+    this.bookService.deleteBook(this.selected.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.deleteBookEvent.emit(this.selected.id);
+          this.messageService.clear();
+          this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.delete.ok'), closable: false, life: 5000 });
+        },
+        error: (error) => {
+          this.messageService.clear();
+          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.delete.error'), closable: false, life: 5000 });
+        }
+      });
   }
 
 
@@ -465,17 +536,19 @@ export class DetailComponent implements OnInit {
   }
 
   saveBook(): void {
-    this.bookService.editBook(this.editedBook).subscribe({
-      next: (data) => {
-        this.eventBook.emit(this.editedBook);
-        this.messageService.clear();
-        this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.edit.ok'), closable: false, life: 5000 });
-      },
-      error: (error) => {
-        this.messageService.clear();
-        this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.edit.error'), closable: false, life: 5000 });
-      }
-    });
+    this.bookService.editBook(this.editedBook)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.eventBook.emit(this.editedBook);
+          this.messageService.clear();
+          this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.edit.ok'), closable: false, life: 5000 });
+        },
+        error: (error) => {
+          this.messageService.clear();
+          this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.edit.error'), closable: false, life: 5000 });
+        }
+      });
   }
 
 
@@ -522,6 +595,11 @@ export class DetailComponent implements OnInit {
     let d = date.split("/");
     let dat = new Date(d[2] + '/' + d[1] + '/' + d[0]);
     return dat;
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
 }

@@ -107,9 +107,15 @@
 }
 
 /* Password specific */
+.login .p-password-wrapper {
+  flex: 1;
+  display: flex;
+}
+
 .login .p-password {
   width: 100%;
   display: flex;
+  flex: 1;
 }
 
 .login .p-password .p-password-input {
@@ -382,7 +388,7 @@
 }
 
 .login .p-inputgroup-addon i {
-  color: var(--text-secondary);
+  color: #6c757d !important;
   font-size: 1.1rem;
   transition: color var(--transition-normal);
 }

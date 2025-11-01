@@ -8,6 +8,8 @@ import { User } from 'src/app/domain/user';
 import { Book } from 'src/app/domain/book';
 import { Search } from 'src/app/domain/search';
 import { BookService } from 'src/app/services/book.service';
+import { AuthStateService } from 'src/app/services/auth-state.service';
+import { ImageService } from 'src/app/utils/image.service';
 
 @Component({
   selector: 'app-author',
@@ -40,7 +42,9 @@ export class AuthorComponent implements OnInit {
     private metadataService: MetadataService,
     private authorService: AuthorService,
     public translate: TranslateService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authState: AuthStateService,
+    private imageService: ImageService
   ) { }
 
   ngOnInit(): void {
@@ -53,7 +57,7 @@ export class AuthorComponent implements OnInit {
   showDetails(author: Author) {
     this.close();
     this.selected = author;
-    this.user = JSON.parse(sessionStorage.user);
+    this.user = this.authState.getCurrentUser() || { languageBooks: ['en'], role: 'USER', username: '' } as User;
     this.getFavoriteAuthor();
     this.doSearch();
     setTimeout(() => {
@@ -87,8 +91,7 @@ export class AuthorComponent implements OnInit {
         this.selected = data;
 
         if (data.image && !data.image.startsWith('http')) {
-          let objectURL = 'data:image/jpeg;base64,' + data.image;
-          this.selected.image = objectURL;
+          this.selected.image = this.imageService.toDataUrlSafe(data.image);
         }
         if (data.image && data.image.startsWith('http')) {
           this.selected.image = "./assets/images/avatar3.jpg";
@@ -254,7 +257,7 @@ export class AuthorComponent implements OnInit {
         // Procesar las imágenes de los libros
         const processedBooks = data.map(book => ({
           ...book,
-          image: 'data:image/jpeg;base64,' + book.image
+          image: this.imageService.toDataUrlSafe(book.image)
         }));
 
         // Agregar los libros procesados al array existente
