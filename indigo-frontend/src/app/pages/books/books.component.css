@@ -266,8 +266,15 @@
 }
 
 @media (max-width: 576px) {
+  .view-controls {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
   .view-controls .sortBy {
     order: 1; /* Dropdown appears first */
+    width: 85%;
+    margin-top: 1rem;
   }
 
   .view-controls button[pButton] {
