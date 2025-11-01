@@ -12,8 +12,8 @@ import { ActivatedRoute, NavigationEnd, Router } from "@angular/router"
 import { TranslateService } from "@ngx-translate/core"
 import { MessageService } from "primeng/api"
 import { SelectItem } from "primeng/api/selectitem"
-import { combineLatest, Subject } from "rxjs"
-import { debounceTime, filter, takeUntil, catchError } from "rxjs/operators"
+import { combineLatest, Observable, Subject } from "rxjs"
+import { catchError, debounceTime, filter, takeUntil, tap } from "rxjs/operators"
 import { of } from "rxjs"
 import { Author } from "src/app/domain/author"
 import { Book } from "src/app/domain/book"
@@ -367,8 +367,9 @@ export class BooksComponent implements OnInit, OnDestroy {
     this.books.length = 0
     this.bookCache.clear()
 
-    this.getAll()
-    this.fetchCountAndUpdateTitle()
+    this.fetchCountAndUpdateTitle().subscribe(() => {
+      this.getAll()
+    })
   }
 
   onScroll(): void {
@@ -382,7 +383,7 @@ export class BooksComponent implements OnInit, OnDestroy {
     document.documentElement.scrollTop = 0
   }
 
-  private fetchCountAndUpdateTitle(): void {
+  private fetchCountAndUpdateTitle(): Observable<any> {
     if (!this.adv_search) {
       this.adv_search = new Search()
     }
@@ -394,28 +395,27 @@ export class BooksComponent implements OnInit, OnDestroy {
     console.log('Fetching count with search object:', JSON.stringify(this.adv_search)) // Debug
     console.log('Count languages being used:', this.adv_search.languages) // Debug
 
-    this.bookService
-      .count(this.adv_search)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (data) => {
-          console.log('Count result:', data) // Debug
-          this.total = data
-          this.updateTitle()
-          this.cdr.detectChanges()
-        },
-        error: (error) => {
-          console.error("Error fetching count:", error)
-          this.messageService.clear()
-          this.messageService.add({
-            severity: "error",
-            summary: "Error",
-            detail: "Error loading book count",
-            closable: true,
-            life: 5000,
-          })
-        },
-      })
+    return this.bookService.count(this.adv_search).pipe(
+      tap((data) => {
+        console.log('Count result:', data) // Debug
+        this.total = data
+        this.updateTitle()
+        this.cdr.detectChanges()
+      }),
+      catchError((error) => {
+        console.error('Error fetching count:', error)
+        this.messageService.clear()
+        this.messageService.add({
+          severity: "error",
+          summary: "Error",
+          detail: "Error loading book count",
+          closable: true,
+          life: 5000,
+        })
+        return of(null) // Retornar null en caso de error
+      }),
+      takeUntil(this.destroy$)
+    )
   }
 
   private updateTitle(): void {
@@ -702,8 +702,9 @@ export class BooksComponent implements OnInit, OnDestroy {
 
     console.log('Final adv_search before API calls:', JSON.stringify(this.adv_search)) // Debug
 
-    this.getAll()
-    this.fetchCountAndUpdateTitle()
+    this.fetchCountAndUpdateTitle().subscribe(() => {
+      this.getAll()
+    })
   }
 
   private shouldLoadFavorites(): boolean {
