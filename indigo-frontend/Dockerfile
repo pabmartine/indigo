@@ -1,5 +1,5 @@
 ### STAGE 1:BUILD ###
-FROM node:16.13.0 AS node
+FROM node:18.10.0 AS node
 WORKDIR /app
 RUN npm cache clean --force
 COPY . .
