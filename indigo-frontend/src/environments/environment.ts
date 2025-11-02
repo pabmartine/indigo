@@ -1,7 +1,14 @@
+// environment.ts
+declare const process: any;
+
 export const environment = {
   production: false,
-  endpoint: 'http://krahen.synology.me:8081/api/',
-  //endpoint: 'http://localhost:8123/api/',
-  whiteList: ["localhost:8080", "localhost:8081", "localhost:8123", "127.0.0.1:8081", "192.168.1.40:8081", "krahen.synology.me:8081"],
-  blackList: []
+  endpoint: process.env['NG_APP_API_ENDPOINT'],
+  internalEndpoint: process.env['NG_APP_INTERNAL_ENDPOINT'],
+  whiteList: process.env['NG_APP_WHITELIST']
+    ? process.env['NG_APP_WHITELIST'].split(',').map(item => item.trim())
+    : [],
+  blackList: process.env['NG_APP_BLACKLIST']
+    ? process.env['NG_APP_BLACKLIST'].split(',').map(item => item.trim())
+    : []
 };
