@@ -36,7 +36,7 @@
             "scripts": [
               "node_modules/jszip/dist/jszip.min.js",
               "node_modules/epubjs/dist/epub.min.js"
-              ]
+            ]
           },
           "configurations": {
             "production": {
@@ -65,6 +65,20 @@
                   "maximumError": "10kb"
                 }
               ]
+            },
+            "development": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.dev.ts"
+                }
+              ],
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
             }
           }
         },
@@ -76,6 +90,9 @@
           "configurations": {
             "production": {
               "browserTarget": "indigo-client:build:production"
+            },
+            "development": {
+              "browserTarget": "indigo-client:build:development"
             }
           }
         },
