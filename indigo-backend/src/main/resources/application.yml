@@ -24,7 +24,7 @@ jwt:
 
 server:
   max-http-header-size: ${SERVER_MAX_HTTP_HEADER_SIZE:40KB}
-  port: ${SERVER_PORT:8123}
+  port: ${SERVER_PORT:8080}
 
 spring:
   main:
