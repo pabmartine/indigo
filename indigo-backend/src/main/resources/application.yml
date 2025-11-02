@@ -63,7 +63,7 @@ metadata:
     reviews: ${METADATA_GOODREADS_REVIEWS:${metadata.goodreads.url}/search?q=$title+$author&search_type=books}
     author: ${METADATA_GOODREADS_AUTHOR:${metadata.goodreads.url}/search.xml?q=$subject&key=$key}
     author-info: ${METADATA_GOODREADS_AUTHOR_INFO:${metadata.goodreads.url}/author/show/$id?format=xml&key=$key}
-    book: ${METADATA_GOODREADS_BOOK:${metadata.goodreadS.url}/book/title.xml?title=$title&key=$key}
+    book: ${METADATA_GOODREADS_BOOK:${metadata.goodreads.url}/book/title.xml?title=$title&key=$key}
     book-authors: ${METADATA_GOODREADS_BOOK_AUTHORS:${metadata.goodreads.url}/book/title.xml?title=$title&key=$key&authors=$authors}
   google:
     url: ${METADATA_GOOGLE_URL:https://www.googleapis.com/books/v1/volumes?q=intitle:$title}
