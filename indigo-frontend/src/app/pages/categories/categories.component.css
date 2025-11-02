@@ -1,0 +1,26 @@
+/* Header section for titles and controls */
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap; /* Allows wrapping on smaller screens */
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .content-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .content-header .p-col-12.p-md-6 {
+    width: 100%;
+    text-align: left;
+    margin-top: 1rem; /* Add margin-top here */
+  }
+
+  .sortBy {
+    width: 100%;
+  }
+}

@@ -1,3 +1,95 @@
+book:
+  library:
+    path: ${BOOK_LIBRARY_PATH}
+    uploads: ${BOOK_LIBRARY_UPLOADS:-${book.library.path}/uploads}
+
+logging.level:
+  root: ${LOGGING_LEVEL_ROOT:-INFO}
+  com.martinia.indigo: ${LOGGING_LEVEL_APP:-DEBUG}
+
+data:
+  initializer:
+    books:
+      recommendations: ${DATA_INITIALIZER_BOOKS_RECOMMENDATIONS:-20}
+    user:
+      admin:
+        password: ${DATA_INITIALIZER_USER_ADMIN_PASSWORD:-$2a$10$U47NDeBbqVmBHQsYXh8HI.IpxGiopQ0cWgXTkwU/AwFmGRf5l9lfq}
+        username: ${DATA_INITIALIZER_USER_ADMIN_USERNAME:-admin}
+  author:
+    default-image: ${DATA_AUTHOR_DEFAULT_IMAGE:-https://s.gr-assets.com/assets/nophoto/user/u_200x266-e183445fd1a1b5cc7075bb1cf7043306.png}
+
+jwt:
+  criptKey: ${JWT_CRIPT_KEY:-'u7N!fXr#5QeB@3yZpWcLm9DvTgHsKxRq'}
+  expiration: ${JWT_EXPIRATION:-36000000}
+
+server:
+  max-http-header-size: ${SERVER_MAX_HTTP_HEADER_SIZE:-40KB}
+  port: ${SERVER_PORT:-8123}
+
 spring:
-    profiles:
-        active: dev
+  main:
+    allow-circular-references: ${SPRING_MAIN_ALLOW_CIRCULAR_REFERENCES:-true}
+  data:
+    mongodb:
+      authentication-database: ${SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE}
+      auto-index-creation: ${SPRING_DATA_MONGODB_AUTO_INDEX_CREATION:-true}
+      database: ${SPRING_DATA_MONGODB_DATABASE}
+      host: ${SPRING_DATA_MONGODB_HOST}
+      password: ${SPRING_DATA_MONGODB_PASSWORD}
+      port: ${SPRING_DATA_MONGODB_PORT}
+      username: ${SPRING_DATA_MONGODB_USERNAME}
+  mail:
+    properties:
+      mail:
+        smtp:
+          auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH:-true}
+          connectiontimeout: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_CONNECTIONTIMEOUT:-5000}
+          starttls:
+            enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE:-true}
+          timeout: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_TIMEOUT:-5000}
+          writetimeout: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_WRITETIMEOUT:-5000}
+
+flags:
+  amazon: ${FLAGS_AMAZON:-false}
+  goodreads: ${FLAGS_GOODREADS:-true}
+  wikipedia: ${FLAGS_WIKIPEDIA:-true}
+  google: ${FLAGS_GOOGLE:-true}
+  libretranslate: ${FLAGS_LIBRETRANSLATE:-true}
+
+metadata:
+  goodreads:
+    pull: ${METADATA_GOODREADS_PULL:-1000}
+    url: ${METADATA_GOODREADS_URL:-https://www.goodreads.com}
+    reviews: ${METADATA_GOODREADS_REVIEWS:-${metadata.goodreads.url}/search?q=$title+$author&search_type=books}
+    author: ${METADATA_GOODREADS_AUTHOR:-${metadata.goodreads.url}/search.xml?q=$subject&key=$key}
+    author-info: ${METADATA_GOODREADS_AUTHOR_INFO:-${metadata.goodreads.url}/author/show/$id?format=xml&key=$key}
+    book: ${METADATA_GOODREADS_BOOK:-${metadata.goodreadS.url}/book/title.xml?title=$title&key=$key}
+    book-authors: ${METADATA_GOODREADS_BOOK_AUTHORS:-${metadata.goodreads.url}/book/title.xml?title=$title&key=$key&authors=$authors}
+  google:
+    url: ${METADATA_GOOGLE_URL:-https://www.googleapis.com/books/v1/volumes?q=intitle:$title}
+  libretranslate:
+    url: ${METADATA_LIBRETRANSLATE_URL}
+  amazon:
+    url: ${METADATA_AMAZON_URL:-https://www.amazon.es}
+    asin: ${METADATA_AMAZON_ASIN:-${metadata.amazon.url}/s?k=$title+$author&i=stripbooks}
+    reviews: ${METADATA_AMAZON_REVIEWS:-${metadata.amazon.url}/product-reviews/$asin/?showViewpoints=0&sortBy=byRankDescending&pageNumber=$numPage}
+  wikipedia:
+    url: ${METADATA_WIKIPEDIA_URL:-https://$lang.wikipedia.org}
+    author: ${METADATA_WIKIPEDIA_AUTHOR:-${metadata.wikipedia.url}/w/api.php?action=query&format=json&list=search&utf8=1&origin=*&srsearch=$subject}
+    author-info: ${METADATA_WIKIPEDIA_AUTHOR_INFO:-${metadata.wikipedia.url}/w/api.php?format=json&action=query&prop=extracts|pageimages&exintro&explaintext&generator=search&gsrlimit=1&redirects=1&piprop=original&gsrsearch=$subject}
+  unsplash:
+    url: ${METADATA_UNSPLASH_URL:-https://unsplash.com/es/s/fotos/$term}
+
+retries:
+  maxAttempts:
+    commands: ${RETRIES_MAXATTEMPTS_COMMANDS:-3}
+    events: ${RETRIES_MAXATTEMPTS_EVENTS:-3}
+  delay:
+    commands: ${RETRIES_DELAY_COMMANDS:-1000}
+    events: ${RETRIES_DELAY_EVENTS:-1000}
+  multiplier:
+    commands: ${RETRIES_MULTIPLIER_COMMANDS:-2}
+    events: ${RETRIES_MULTIPLIER_EVENTS:-2}
+  maxDelay:
+    commands: ${RETRIES_MAXDELAY_COMMANDS:-0}
+    events: ${RETRIES_MAXDELAY_EVENTS:-0}

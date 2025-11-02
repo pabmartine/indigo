@@ -20,6 +20,7 @@ interface TagWithTempImage extends Tag {
 @Component({
   selector: 'app-categories',
   templateUrl: './categories.component.html',
+  styleUrls: ['./categories.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [MessageService]
 })
