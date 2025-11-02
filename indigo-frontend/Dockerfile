@@ -17,8 +17,14 @@ ENV NG_APP_BLACKLIST=$NG_APP_BLACKLIST
 RUN npm cache clean --force
 COPY . .
 RUN npm install
-RUN npm run build --omit=dev
 
+# Debug: Mostrar variables durante el build
+RUN echo "Variables durante build:"
+RUN echo "NG_APP_API_ENDPOINT: $NG_APP_API_ENDPOINT"
+RUN echo "NG_APP_WHITELIST: $NG_APP_WHITELIST"
+
+# Build explícitamente para producción
+RUN npm run build -- --configuration=production
 
 ### STAGE 2:RUN ###
 FROM nginx:latest AS nginx
