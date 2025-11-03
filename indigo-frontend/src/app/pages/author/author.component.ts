@@ -14,6 +14,7 @@ import { ImageService } from 'src/app/utils/image.service';
 @Component({
   selector: 'app-author',
   templateUrl: './author.component.html',
+  styleUrls: ['./author.component.css'],
   providers: [MessageService]
 })
 export class AuthorComponent implements OnInit {

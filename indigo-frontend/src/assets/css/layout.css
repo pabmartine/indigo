@@ -288,7 +288,7 @@
 }
 
 .p-sidebar .p-sidebar-header + .p-sidebar-content {
-  padding-top: 10px;
+  padding-top: 0px;
 }
 
 /** FOOTER **/
@@ -386,16 +386,15 @@
 
 .topbar #topbar-icons .topbar-search input {
   display: inline-block;
-  border: 0 none;
-  font-size: 14px;
-  background: transparent;
-  border-bottom: 2px solid var(--text-primary);
+  border: 1px solid var(--text-primary);
+  font-size: 15px;
+  background: var(--bg-primary);
   outline: 0 none;
   color: var(--text-primary);
   width: 100%;
-  padding: 1px 20px 1px 1px;
+  padding: 6px 15px 6px 15px;
   margin: 0px;
-  border-radius: 2px;
+  border-radius: 20px;
 }
 
 .topbar #topbar-icons .topbar-search input::placeholder {
@@ -407,8 +406,8 @@
 .topbar #topbar-icons .topbar-search .topbar-search-icon {
   font-size: 16px;
   position: absolute;
-  top: -2px;
-  right: 0px;
+  top: 7px;
+  right: 10px;
   font-weight: 800;
 }
 
@@ -506,4 +505,8 @@
 .layout .main:focus-visible {
   outline: 2px solid var(--primary-color);
   outline-offset: -2px;
+}
+
+.p-sidebar .p-sidebar-footer {
+  display: none;
 }

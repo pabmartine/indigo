@@ -194,21 +194,10 @@ app-author .book .book-detail-comment,
   max-width: none !important;
   min-width: 0 !important;
   box-sizing: border-box !important;
-  text-align: left !important;
   display: block !important;
   margin: 0 !important;
   padding-right: 0 !important;
   padding-left: 0 !important;
-}
-
-/* Lo mismo para mobile */
-.author .mobile .content-body.p-grid:first-of-type > .p-col-12 .book-detail-title,
-.author .mobile .content-body.p-grid:first-of-type > .p-col-12 .book-detail-comment,
-app-author .book .mobile .content-body.p-grid:first-of-type > .p-col-12 .book-detail-title,
-app-author .book .mobile .content-body.p-grid:first-of-type > .p-col-12 .book-detail-comment {
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
 }
 
 /* Asegurar que la imagen se ajuste correctamente */
