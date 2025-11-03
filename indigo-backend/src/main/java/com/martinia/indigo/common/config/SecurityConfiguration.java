@@ -73,7 +73,7 @@ public class SecurityConfiguration {
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowCredentials(true);
-		configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+		configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:4200", "http://krahen.synology.me:8080"));
 		configuration.addAllowedHeader("*");
 		configuration.addExposedHeader("Authorization");
 		configuration.addAllowedMethod("*");
