@@ -1,0 +1,285 @@
+
+/* Container for the entire books page */
+.books-page-container {
+  padding: 1rem;
+}
+
+/* Header section for titles and controls */
+.books-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap; /* Allows wrapping on smaller screens */
+}
+
+.page-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Grid container for the list of books */
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem; /* Space between book items */
+  margin-bottom: 2rem;
+  justify-items: center;
+}
+
+/* Individual book item card */
+.book-item {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  width: 100%;
+  max-width: 220px;
+}
+
+
+
+/* Container for the book cover image */
+.book-cover-container {
+  border-radius: 8px;
+  width: 100%;
+  height: 300px;
+  position: relative;
+  overflow: hidden;
+}
+
+.book-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures the image covers the container without distortion */
+}
+
+/* Information section below the cover */
+.book-info {
+  padding-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; /* Allows this section to fill available space */
+  text-align: left;
+}
+
+.book-info .title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.book-info .subtitle {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.book-info .subtitle a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.book-info .subtitle a:hover {
+  text-decoration: underline;
+}
+
+/* Rating and comments section */
+.rating-container {
+  margin-top: auto; /* Pushes the rating to the bottom */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* Adds space between rating and comments icon */
+}
+
+/* Style the PrimeNG rating component */
+::ng-deep .p-rating .p-rating-icon:not(.p-rating-cancel) {
+  font-size: 1rem; /* Make stars smaller */
+}
+
+::ng-deep .p-rating .p-rating-icon.pi-star-fill {
+  color: #ffc107; /* Make filled stars yellow */
+}
+
+.pi-comments {
+  color: burlywood;
+  font-size: 1.0rem;
+  margin-left: auto; /* Pushes the icon to the right */
+  cursor: pointer;
+  padding-top: 5px;
+}
+
+/* Section titles like "Favorites" */
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 0.5rem;
+}
+
+/* Go-up button */
+.up-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 100;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .books-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+  }
+
+  .book-info {
+    padding: 0.75rem;
+  }
+
+  .book-item {
+    max-width: 150px;
+  }
+
+  .book-cover-container {
+    height: 225px;
+  }
+}
+
+@media (max-width: 480px) {
+  .books-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .sortBy {
+    margin-top: 1rem;
+    width: 100%;
+  }
+
+  .books-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+
+  .book-item {
+    max-width: 140px;
+  }
+
+  .book-cover-container {
+    height: 200px;
+  }
+}
+
+.view-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* List View Styles */
+.books-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.book-list-item {
+  display: flex;
+  gap: 1.5rem;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 1.5rem;
+}
+
+.book-list-item:last-child {
+  border-bottom: none;
+}
+
+.book-list-cover {
+  width: 100px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.book-list-info {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.book-list-info .description {
+  font-size: 0.875rem;
+  color: #555;
+  margin-top: 0.5rem;
+  line-height: 1.4;
+}
+
+.title-container {
+  display: flex;
+  align-items: center;
+  padding-bottom: 5px; /* Changed from margin-bottom */
+}
+
+.title-container .pi-comments {
+  font-size: 1.1rem;
+  color: burlywood;
+  margin-left: 0.75rem; /* Replaced gap with margin */
+}
+
+.book-meta {
+  font-size: 0.8rem;
+  color: #666;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* Increased gap between meta items */
+}
+
+.meta-item {
+  display: flex;
+}
+
+.meta-value {
+  font-weight: 600; 
+  color: #6c757d;
+}
+
+.book-list-item .rating-container {
+    margin-top: 0.5rem;
+}
+
+.book-list-item .title {
+  width: auto;
+  white-space: normal;
+}
+
+@media (max-width: 576px) {
+  .view-controls {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .view-controls .sortBy {
+    order: 1; /* Dropdown appears first */
+    width: 85%;
+    margin-top: 1rem;
+  }
+
+  .view-controls button[pButton] {
+    order: 2; /* View switcher button appears second */
+    margin-top: 1rem;
+  }
+}
+

@@ -1,0 +1,156 @@
+/** SERIES **/
+.series-grid {
+  display: grid; /* Changed to grid */
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem; /* Adjust as needed */
+  padding: 1rem 0.5rem;
+  justify-items: center; /* Center items within their grid cells */
+}
+
+.serie-item {
+  flex: 0 0 auto;
+  max-width: 140px;
+  width: 100%;
+  display: flex; /* Make serie-item a flex container */
+  flex-direction: column; /* Stack children vertically */
+  align-items: center; /* Center children horizontally */
+}
+
+.serie-item .stack { /* Re-scoped */
+  position: relative !important;
+  z-index: 10 !important;
+  width: 140px !important;
+  height: 200px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  transition: transform var(--transition-normal) !important;
+  margin-bottom: 0.5rem !important; /* Added margin-bottom */
+}
+
+.serie-item .stack:hover {
+  transform: translateY(-2px) !important;
+}
+
+.serie-item .stack.twisted:before {
+  transform: rotate(4deg) !important;
+}
+
+.serie-item .stack.twisted:after {
+  transform: rotate(-4deg) !important;
+}
+
+.serie-item .stack img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  vertical-align: bottom !important;
+  border: 3px solid #fff !important;
+  border-radius: var(--border-radius) !important;
+  box-sizing: border-box !important;
+  cursor: pointer !important;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal) !important;
+  position: relative !important;
+  z-index: 15 !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+.serie-item .stack img:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: var(--shadow-lg) !important;
+  z-index: 20 !important;
+}
+
+.serie-item .stack:before,
+.serie-item .stack:after {
+  content: "" !important;
+  border-radius: var(--border-radius) !important;
+  width: 100% !important;
+  height: 100% !important;
+  position: absolute !important;
+  border: 3px solid #fff !important;
+  left: 0 !important;
+  top: 0 !important;
+  box-sizing: border-box !important;
+  box-shadow: var(--shadow-sm) !important;
+  transition: var(--transition-normal) all ease-out !important;
+  background: linear-gradient(135deg, var(--bg-light) 0%, var(--border-light) 100%);
+}
+
+.serie-item .stack:before {
+  top: -4px !important;
+  z-index: -10 !important;
+}
+
+.serie-item .stack:after {
+  top: -8px !important;
+  z-index: -20 !important;
+  background: linear-gradient(135deg, var(--border-light) 0%, var(--border-dark) 100%);
+}
+
+.serie-item .stack:hover:before {
+  top: -2px !important;
+  transform: rotate(2deg) !important;
+}
+
+.serie-item .stack:hover:after {
+  top: -6px !important;
+  transform: rotate(-2deg) !important;
+}
+
+.serie-item .center { /* Re-scoped */
+  text-align: center !important;
+  width: 100% !important;
+  padding-bottom: 0.5rem !important;
+  border-radius: var(--border-radius);
+  transition: background-color var(--transition-fast));
+}
+
+.serie-item .center:hover {
+  background-color: rgba(105, 142, 191, 0.05));
+}
+
+.serie-item .center a {
+  text-decoration: none !important;
+  color: inherit !important;
+  display: block !important;
+  width: 100% !important;
+  transition: transform var(--transition-fast) !important;
+}
+
+.serie-item .center a:hover {
+  transform: translateY(-1px) !important;
+}
+
+/* Estados especiales */
+.serie-item .stack.no-image { /* Re-scoped */
+  background: var(--bg-light);
+  border: 2px dashed var(--border-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.serie-item .stack.no-image:before,
+.serie-item .stack.no-image:after {
+  display: none;
+}
+
+/* RESPONSIVE ESPECÍFICO PARA SERIES */
+@media (max-width: 480px) {
+  .serie-item .stack { /* Re-scoped */
+    width: 110px !important;
+    height: 160px !important;
+    margin-bottom: 1rem !important;
+  }
+
+  .serie-item .center .title { /* Re-scoped */
+    font-size: 0.85rem !important;
+  }
+
+  .serie-item .center .subtitle { /* Re-scoped */
+    font-size: 0.75rem !important;
+  }
+}

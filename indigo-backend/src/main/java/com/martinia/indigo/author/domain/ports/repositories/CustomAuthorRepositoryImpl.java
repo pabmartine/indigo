@@ -3,6 +3,7 @@ package com.martinia.indigo.author.domain.ports.repositories;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -12,7 +13,7 @@ import org.springframework.util.CollectionUtils;
 
 import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @Repository
 public class CustomAuthorRepositoryImpl implements CustomAuthorRepository {
@@ -28,8 +29,8 @@ public class CustomAuthorRepositoryImpl implements CustomAuthorRepository {
 			for (String lang : languages)
 				criterias.add(Criteria.where("numBooks.languages." + lang)
 						.exists(true));
+			query.addCriteria(new Criteria().orOperator(criterias.toArray(new Criteria[criterias.size()])));
 		}
-		query.addCriteria(new Criteria().orOperator(criterias.toArray(new Criteria[criterias.size()])));
 
 		return mongoTemplate.count(query, AuthorMongoEntity.class);
 	}

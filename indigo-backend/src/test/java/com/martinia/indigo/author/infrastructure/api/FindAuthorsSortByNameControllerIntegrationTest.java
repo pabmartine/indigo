@@ -13,7 +13,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -47,7 +47,7 @@ public class FindAuthorsSortByNameControllerIntegrationTest extends BaseIndigoIn
 	public void findAuthorsSortByName() throws Exception {
 
 		//Given
-		final String sort = "sort";
+		final String sort = "name";
 
 		//When
 		ResultActions result = mockMvc.perform(

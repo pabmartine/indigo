@@ -6,11 +6,11 @@ import com.martinia.indigo.metadata.domain.ports.usecases.commands.FindAuthorMet
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @Slf4j
 @Component
-public class FindAuthorMetadataCommandHandler implements CommandHandler<FindAuthorMetadataCommand, Void> {
+public class FindAuthorMetadataCommandHandler extends CommandHandler<FindAuthorMetadataCommand, Void> {
 
 	@Resource
 	private FindAuthorMetadataUseCase findAuthorMetadataUseCase;

@@ -1,0 +1,276 @@
+/** SEARCH **/
+.search .p-card {
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.search .content-header {
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 0;
+}
+
+.search .page-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: block;
+}
+
+.search .content-body {
+  padding: 1.5rem;
+}
+
+.search .p-field {
+  margin-bottom: 1.5rem;
+}
+
+.search .p-field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.search .p-inputtext {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--border-radius-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  background: var(--bg-secondary);
+}
+
+.search .p-inputtext:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(105, 142, 191, 0.25);
+}
+
+.search .p-calendar {
+  width: 100%;
+}
+
+.search .p-calendar .p-inputtext {
+  width: 100%;
+  padding-right: 2.5rem;
+}
+
+.search .p-calendar .p-datepicker-trigger {
+  right: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.search .p-inputnumber {
+  width: 100%;
+}
+
+.search .p-inputnumber .p-inputtext {
+  width: 100%;
+}
+
+.search .p-multiselect-panel {
+  min-width: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.search .p-multiselect-panel .p-multiselect-items {
+  padding: 0.5rem 0;
+}
+
+.search .p-multiselect-panel .p-multiselect-item {
+  padding: 0.5rem 0.75rem;
+  margin: 0;
+  border: none;
+  color: var(--text-primary);
+  background: transparent;
+  transition: background-color var(--transition-fast);
+  border-radius: 0;
+}
+
+.search .p-multiselect-panel .p-multiselect-item:hover {
+  background: var(--border-light);
+  color: var(--text-primary);
+}
+
+.search .p-multiselect-panel .p-multiselect-item.p-highlight {
+  background: var(--primary-color);
+  color: #fff;
+}
+
+.search .right {
+  text-align: right;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.search .search-button {
+  background: var(--primary-color);
+  border: 1px solid var(--primary-color);
+  color: #fff;
+  padding: 0.75rem 2rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: var(--border-radius-sm);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  min-width: 120px;
+}
+
+.search .search-button:hover {
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.search .search-button:active {
+  background: var(--primary-active);
+  border-color: var(--primary-active);
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(105, 142, 191, 0.3);
+}
+
+.search .search-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(105, 142, 191, 0.5);
+}
+
+/* MultiSelect tokens */
+.search .p-multiselect,
+.search .p-multiselect {
+  width: 100%;
+  min-height: 2.5rem;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--border-radius-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.search .p-multiselect:not(.p-disabled):hover {
+  border-color: var(--primary-color);
+}
+
+.search .p-multiselect:not(.p-disabled).p-focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(105, 142, 191, 0.25);
+}
+
+.search .p-multiselect .p-multiselect-label {
+  padding: 0.75rem;
+  min-height: auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.search .multiselected-item-token {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  margin: 0.125rem 0.25rem 0.125rem 0;
+  background: var(--primary-color);
+  color: #fff;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.search .multiselected-empty-token {
+  display: inline-block;
+  padding: 0.25rem 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* RESPONSIVE ESPECÍFICO PARA SEARCH */
+@media (max-width: 992px) {
+  .search .content-header,
+  .search .content-body {
+    padding: 1rem;
+  }
+
+  .search .page-title {
+    font-size: 1.3rem;
+  }
+
+  .search .p-field {
+    margin-bottom: 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .search .content-header,
+  .search .content-body {
+    padding: 0.75rem;
+  }
+
+  .search .page-title {
+    font-size: 1.2rem;
+  }
+
+  .search .p-field {
+    margin-bottom: 1rem;
+  }
+
+  .search .p-field label {
+    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .search .p-inputtext {
+    padding: 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .search .search-button {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.85rem;
+    width: 100%;
+  }
+
+  .search .right {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+  }
+
+  .search .multiselected-item-token {
+    padding: 0.2rem 0.4rem;
+    margin: 0.1rem 0.2rem 0.1rem 0;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .search .content-header,
+  .search .content-body {
+    padding: 0.5rem;
+  }
+
+  .search .page-title {
+    font-size: 1.1rem;
+  }
+
+  .search .p-field {
+    margin-bottom: 0.75rem;
+  }
+
+  .search .p-inputtext {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .search .search-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+}

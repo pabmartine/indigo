@@ -1,47 +1,43 @@
 <p-toast position="top-center" [showTransformOptions]="'translateY(-100%)'"></p-toast>
 
-<div class="tag">
-  <p-card>
-    <div class="content-header p-grid">
-      <div class="p-col-12 p-md-6">
-        <span class="page-title">
-          {{title}}
-        </span>
+<p-card>
+  <div class="content-header p-grid">
+    <div class="p-col-12 p-md-6">
+      <span class="page-title">
+        {{title}}
+      </span>
+    </div>
+    <div class="p-col-12 p-md-6" style="text-align: right;">
+      <p-dropdown [options]="sorts" [(ngModel)]="selectedSort" (onChange)="onChange($event)"  class="sortBy" *ngIf="sorts && sorts.length > 0">
+        <ng-template let-item pTemplate="selectedItem">
+          <span style="vertical-align:middle">{{item?.label || 'Sort Option'}}</span>
+        </ng-template>
+        <ng-template let-item pTemplate="item">
+          <span>{{item?.label || 'Unknown'}}</span>
+        </ng-template>
+      </p-dropdown>
+    </div>
+  </div>
+
+  <div class="categories-grid">
+    <div *ngFor="let tag of tags" class="category-item" (click)="getBooksByTag(tag)">
+      <div class="category-cover-container">
+        <img [src]="tag.image || './assets/images/unknown.jpg'" class="category-cover" alt="{{ tag.name }}"/>
       </div>
-      <div class="p-col-12 p-md-6" style="text-align: right;">
-        <p-dropdown [options]="sorts" [(ngModel)]="selectedSort" (onChange)="onChange($event)"  class="sortBy">
-          <ng-template let-item pTemplate="selectedItem">
-            <span style="vertical-align:middle">{{item.label}}</span>
-          </ng-template>
-        </p-dropdown>
+      <div class="category-info-top">
+        <span class="title" title="{{ tag.name }}">{{tag.name}}</span>
+        <a href="javascript:;" (click)="sourceTag = tag; menu.toggle($event); $event.stopPropagation();" *ngIf="showMenu()">
+          <span class="category-list-icon pi pi-ellipsis-v"></span>
+        </a>
+      </div>
+      <div class="category-info-bottom">
+        <span class="subtitle">{{tag.numBooks}} {{'locale.tags.total' | translate}}</span>
       </div>
     </div>
+  </div>
+</p-card>
 
-    <div class="content-body p-grid">
-      <div class="p-sm-6 p-md-4 p-lg-3 p-xl-2" *ngFor="let tag of tags">
-        <div class="container">
-          <img [src]="tag.image" class="tag-list-image" (click)="getBooksByTag(tag)" *ngIf="tag.image">
-          <img src="./assets/images/unknown.jpg" class="tag-list-image" (click)="getBooksByTag(tag)" *ngIf="!tag.image">
-          <div class="tag1">
-            <div class="tag-title" (click)="getBooksByTag(tag)">{{tag.name}}</div>
-
-            <a href="javascript:;" (click)="sourceTag = tag; menu.toggle($event)" *ngIf="showMenu()">
-              <span class="tag-list-icon pi pi-ellipsis-v"></span>
-            </a>
-
-          </div>
-          <div class="tag2" (click)="getBooksByTag(tag)">
-            <div class="tag-subtitle">{{tag.numBooks}} {{'locale.tags.total' | translate}}</div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-  </p-card>
-
-  <p-tieredMenu #menu [model]="items" [popup]="true"></p-tieredMenu>
-
-</div>
+<p-tieredMenu #menu [model]="items" [popup]="true"></p-tieredMenu>
 
 <div class="tag-dialogs">
   <p-dialog header="{{'locale.tags.actions.rename.title' | translate}}" [(visible)]="rename" [style]="{width: '720px'}"

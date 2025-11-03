@@ -1,6 +1,8 @@
+// environment.prod.ts - Para producción
 export const environment = {
   production: true,
-  endpoint: 'http://krahen.synology.me:8081/api/',
-  whiteList: ["localhost:8081", "127.0.0.1:8081", "192.168.1.40:8081", "krahen.synology.me:8081"],
-  blackList: []
+  endpoint: '__NG_APP_API_ENDPOINT__',
+  internalEndpoint: '__NG_APP_INTERNAL_ENDPOINT__',
+  whiteList: '__NG_APP_WHITELIST__'.split(',').map(item => item.trim()).filter(item => item.length > 0),
+  blackList: '__NG_APP_BLACKLIST__'.split(',').map(item => item.trim()).filter(item => item.length > 0)
 };

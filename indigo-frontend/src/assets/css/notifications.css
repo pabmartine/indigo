@@ -1,0 +1,217 @@
+/** NOTIFICATIONS **/
+.notification .p-datatable {
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.notification .p-datatable .p-datatable-wrapper {
+  overflow: auto;
+}
+
+.notification .p-datatable table {
+  width: 100% !important;
+}
+
+.notification .p-datatable .p-datatable-thead > tr > th {
+  text-align: center;
+  padding: 0.9rem 0.5rem;
+  border: 1px solid var(--border-light);
+  border-width: 0 0 1px 0;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--bg-light);
+  white-space: nowrap;
+}
+
+.notification .p-datatable .p-datatable-tbody > tr > td {
+  text-align: center;
+  border: 1px solid var(--border-light);
+  border-width: 0 0 1px 0;
+  padding: 0.9rem 0.5rem;
+  vertical-align: middle;
+}
+
+.notification .table-buttons {
+  width: 4em;
+  text-align: center;
+}
+
+.notification .table-buttons .p-button {
+  background-color: var(--error-color) !important;
+  border-color: var(--error-color) !important;
+  color: #fff !important;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  padding: 0;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.notification .table-buttons .p-button:hover {
+  background-color: #cd6262 !important;
+  border-color: #cd6262 !important;
+}
+
+.notification .table-buttons .p-button:focus {
+  outline: 0 none;
+  box-shadow: 0 0 0 0.2rem rgba(213, 124, 124, 0.5);
+}
+
+.notification .column-overflow {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+  cursor: pointer;
+}
+
+.notification .column-overflow:hover {
+  background-color: var(--bg-light);
+}
+
+.notification .detail-image {
+  max-height: 260px;
+  max-width: 100%;
+  object-fit: cover;
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.notification .p-column-filter {
+  width: 100%;
+  font-size: 0.875rem;
+}
+
+.notification .p-dropdown.p-column-filter {
+  width: 100% !important;
+  min-width: 120px;
+}
+
+.notification .p-overlaypanel {
+  max-width: 300px;
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-lg);
+}
+
+.notification .p-overlaypanel .p-overlaypanel-content {
+  padding: 1rem !important;
+}
+
+.notification .p-overlaypanel.no-border {
+  border: none;
+}
+
+.notification .p-overlaypanel p {
+  margin: 0.5rem 0;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.notification .p-overlaypanel p:first-child {
+  margin-top: 0;
+}
+
+.notification .p-overlaypanel p:last-child {
+  margin-bottom: 0;
+}
+
+.notification .status-send {
+  color: var(--success-color);
+  font-weight: 500;
+}
+
+.notification .status-not-send {
+  color: var(--warning-color);
+  font-weight: 500;
+}
+
+.notification .status-finished {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.notification .notification-type {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.notification .type-kindle {
+  background-color: #e8f5e8;
+  color: #2e7d32;
+}
+
+.notification .type-upload {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.notification .p-datatable .p-datatable-tbody > tr:hover {
+  background-color: var(--bg-light);
+  transition: background-color var(--transition-fast);
+}
+
+.notification .p-paginator {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-light);
+  padding: 0.75rem;
+}
+
+.notification .p-datatable-loading-overlay {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.notification .p-datatable-loading-icon {
+  color: var(--primary-color);
+  font-size: 2rem;
+}
+
+/* RESPONSIVE ESPECÍFICO PARA NOTIFICATIONS */
+@media (max-width: 1200px) {
+  .notification .column-overflow {
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 992px) {
+  .notification .p-datatable .p-datatable-thead > tr > th,
+  .notification .p-datatable .p-datatable-tbody > tr > td {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.875rem;
+  }
+
+  .notification .column-overflow {
+    max-width: 120px;
+  }
+
+  .notification .p-dropdown.p-column-filter {
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 768px) {
+  .notification .p-datatable .p-datatable-thead > tr > th,
+  .notification .p-datatable .p-datatable-tbody > tr > td {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.8rem;
+  }
+
+  .notification .column-overflow {
+    max-width: 100px;
+  }
+
+  .notification .table-buttons .p-button {
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: 0.8rem;
+  }
+
+  .notification .p-overlaypanel {
+    max-width: 90vw;
+  }
+}

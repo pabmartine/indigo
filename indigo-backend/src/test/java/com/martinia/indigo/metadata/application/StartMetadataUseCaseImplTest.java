@@ -1,108 +1,120 @@
 package com.martinia.indigo.metadata.application;
 
-import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import com.martinia.indigo.common.singletons.MetadataSingleton;
-import com.martinia.indigo.metadata.domain.model.MetadataProcessEnum;
 import com.martinia.indigo.metadata.domain.model.MetadataProcessType;
 import com.martinia.indigo.metadata.domain.model.commands.StartFillAuthorsMetadataCommand;
 import com.martinia.indigo.metadata.domain.model.commands.StartFillBooksMetadataCommand;
 import com.martinia.indigo.metadata.domain.model.commands.StartFillReviewsMetadataCommand;
-import com.martinia.indigo.metadata.domain.model.commands.StartInitialLoadCommand;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.annotation.Resource;
-import java.util.stream.Stream;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.*;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+@ExtendWith(MockitoExtension.class)
+class StartMetadataUseCaseImplTest {
 
-public class StartMetadataUseCaseImplTest extends BaseIndigoTest {
-
-	@MockBean
-	private MetadataSingleton metadataSingleton;
-
-	@MockBean
+	@Mock
 	private CommandBus commandBus;
 
-	@Resource
+	@Mock
+	private MetadataSingleton metadataSingleton;
+
+	@InjectMocks
 	private StartMetadataUseCaseImpl startMetadataUseCase;
 
-	@BeforeEach
-	public void setUp() {
+	@Test
+	void start_WhenFullProcessBooks_ShouldExecuteBooksCommand() {
+		when(metadataSingleton.isRunning()).thenReturn(false);
+
+		startMetadataUseCase.start("en", MetadataProcessType.FULL.name(), "BOOKS");
+
+		verify(metadataSingleton).start(MetadataProcessType.FULL.name(), "BOOKS");
+		verify(commandBus).execute(any(StartFillBooksMetadataCommand.class));
+	}
+
+	@Test
+	void start_WhenFullProcessAuthors_ShouldExecuteAuthorsCommand() {
+		when(metadataSingleton.isRunning()).thenReturn(false);
+
+		startMetadataUseCase.start("es", MetadataProcessType.FULL.name(), "AUTHORS");
+
+		verify(metadataSingleton).start(MetadataProcessType.FULL.name(), "AUTHORS");
+		verify(commandBus).execute(any(StartFillAuthorsMetadataCommand.class));
+	}
+
+	@Test
+	void start_WhenFullProcessReviews_ShouldExecuteReviewsCommand() {
+		when(metadataSingleton.isRunning()).thenReturn(false);
+
+		startMetadataUseCase.start("fr", MetadataProcessType.FULL.name(), "REVIEWS");
+
+		verify(metadataSingleton).start(MetadataProcessType.FULL.name(), "REVIEWS");
+		verify(commandBus).execute(any(StartFillReviewsMetadataCommand.class));
+	}
+
+	@Test
+	void start_WhenPartialProcessBooks_ShouldExecuteBooksCommandWithoutOverride() {
+		when(metadataSingleton.isRunning()).thenReturn(false);
+
+		startMetadataUseCase.start("en", MetadataProcessType.PARTIAL.name(), "BOOKS");
+
+		verify(metadataSingleton).start(MetadataProcessType.PARTIAL.name(), "BOOKS");
+		verify(commandBus).execute(any(StartFillBooksMetadataCommand.class));
+	}
+
+	@Test
+	void start_WhenPartialProcessAuthors_ShouldExecuteAuthorsCommandWithoutOverride() {
+		when(metadataSingleton.isRunning()).thenReturn(false);
+
+		startMetadataUseCase.start("de", MetadataProcessType.PARTIAL.name(), "AUTHORS");
+
+		verify(metadataSingleton).start(MetadataProcessType.PARTIAL.name(), "AUTHORS");
+		verify(commandBus).execute(any(StartFillAuthorsMetadataCommand.class));
+	}
+
+	@Test
+	void start_WhenPartialProcessReviews_ShouldExecuteReviewsCommandWithOverride() {
+		when(metadataSingleton.isRunning()).thenReturn(false);
+
+		startMetadataUseCase.start("it", MetadataProcessType.PARTIAL.name(), "REVIEWS");
+
+		verify(metadataSingleton).start(MetadataProcessType.PARTIAL.name(), "REVIEWS");
+		verify(commandBus).execute(any(StartFillReviewsMetadataCommand.class));
+	}
+
+	@Test
+	void start_WhenSingletonIsRunning_ShouldStopItFirst() {
 		when(metadataSingleton.isRunning()).thenReturn(true);
+
+		startMetadataUseCase.start("en", MetadataProcessType.FULL.name(), "BOOKS");
+
+		verify(metadataSingleton).stop();
+		verify(metadataSingleton).start(MetadataProcessType.FULL.name(), "BOOKS");
+		verify(commandBus).execute(any(StartFillBooksMetadataCommand.class));
 	}
 
-	private static Stream<Arguments> provideStartMetadataParameters() {
-		return Stream.of(Arguments.of(MetadataProcessType.FULL, MetadataProcessEnum.LOAD),
-				Arguments.of(MetadataProcessType.FULL, MetadataProcessEnum.BOOKS),
-				Arguments.of(MetadataProcessType.FULL, MetadataProcessEnum.AUTHORS),
-				Arguments.of(MetadataProcessType.FULL, MetadataProcessEnum.REVIEWS),
-				Arguments.of(MetadataProcessType.PARTIAL, MetadataProcessEnum.LOAD),
-				Arguments.of(MetadataProcessType.PARTIAL, MetadataProcessEnum.BOOKS),
-				Arguments.of(MetadataProcessType.PARTIAL, MetadataProcessEnum.AUTHORS),
-				Arguments.of(MetadataProcessType.PARTIAL, MetadataProcessEnum.REVIEWS));
+	@Test
+	void start_WhenUnknownEntity_ShouldNotExecuteCommand() {
+		when(metadataSingleton.isRunning()).thenReturn(false);
+
+		startMetadataUseCase.start("en", MetadataProcessType.FULL.name(), "UNKNOWN");
+
+		verify(metadataSingleton).start(MetadataProcessType.FULL.name(), "UNKNOWN");
+		verify(commandBus, never()).execute(any());
 	}
 
-	@ParameterizedTest
-	@MethodSource("provideStartMetadataParameters")
-	public void testStart_MetadataProcess(MetadataProcessType type, MetadataProcessEnum entity) {
-		// Given
-		String lang = "en";
+	@Test
+	void start_WhenUnknownProcessType_ShouldNotExecuteCommand() {
+		when(metadataSingleton.isRunning()).thenReturn(false);
 
-		// When
-		startMetadataUseCase.start(lang, type.name(), entity.name());
+		startMetadataUseCase.start("en", "UNKNOWN", "BOOKS");
 
-		// Then
-		verify(metadataSingleton, times(1)).stop();
-		verify(metadataSingleton, times(1)).start(type.name(), entity.name());
-		if (type == MetadataProcessType.FULL) {
-			if (entity == MetadataProcessEnum.LOAD) {
-				verify(commandBus, times(1)).execute(any(StartInitialLoadCommand.class));
-			}
-			else {
-				if (entity == MetadataProcessEnum.BOOKS) {
-					verify(commandBus, times(1)).execute(any(StartFillBooksMetadataCommand.class));
-				}
-				else {
-					if (entity == MetadataProcessEnum.AUTHORS) {
-						verify(commandBus, times(1)).execute(any(StartFillAuthorsMetadataCommand.class));
-					}
-					else {
-						if (entity == MetadataProcessEnum.REVIEWS) {
-							verify(commandBus, times(1)).execute(any(StartFillReviewsMetadataCommand.class));
-						}
-					}
-				}
-			}
-		}
-		else {
-			if (entity == MetadataProcessEnum.LOAD) {
-				verify(commandBus, times(1)).execute(any(StartInitialLoadCommand.class));
-			}
-			else {
-				if (entity == MetadataProcessEnum.BOOKS) {
-					verify(commandBus, times(1)).execute(any(StartFillBooksMetadataCommand.class));
-				}
-				else {
-					if (entity == MetadataProcessEnum.AUTHORS) {
-						verify(commandBus, times(1)).execute(any(StartFillAuthorsMetadataCommand.class));
-					}
-					else {
-						if (entity == MetadataProcessEnum.REVIEWS) {
-							verify(commandBus, times(1)).execute(any(StartFillReviewsMetadataCommand.class));
-						}
-					}
-				}
-			}
-		}
+		verify(metadataSingleton).start("UNKNOWN", "BOOKS");
+		verify(commandBus, never()).execute(any());
 	}
-
 }
-

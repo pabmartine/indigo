@@ -6,11 +6,11 @@ import com.martinia.indigo.metadata.domain.ports.usecases.commands.FindReviewMet
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @Slf4j
 @Component
-public class FindReviewMetadataCommandHandler implements CommandHandler<FindReviewMetadataCommand, Void> {
+public class FindReviewMetadataCommandHandler extends CommandHandler<FindReviewMetadataCommand, Void> {
 
 	@Resource
 	private FindReviewMetadataUseCase findReviewMetadataUseCase;
@@ -18,7 +18,7 @@ public class FindReviewMetadataCommandHandler implements CommandHandler<FindRevi
 	@Override
 	public Void handle(final FindReviewMetadataCommand command) {
 
-		findReviewMetadataUseCase.find(command.getBookId(), command.isOverride(), command.getLastExecution(), command.getLang());
+		findReviewMetadataUseCase.find(command.getBookId(), command.isOverride(), command.getLang());
 
 		return null;
 	}

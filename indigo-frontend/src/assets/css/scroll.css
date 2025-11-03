@@ -1,0 +1,93 @@
+/** SCROLL PERSONALIZADO **/
+/* Scroll horizontal para contenido inline */
+.content-body.inline {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  gap: 1rem !important;
+  padding: 1rem 0.5rem !important;
+  margin: 0 !important;
+  scroll-behavior: smooth !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.content-body.inline::-webkit-scrollbar {
+  height: 8px;
+}
+
+.content-body.inline::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: var(--border-radius);
+}
+
+.content-body.inline::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: var(--border-radius);
+}
+
+.content-body.inline::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover);
+}
+
+/* Para Firefox */
+.content-body.inline {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-color) #f1f1f1;
+}
+
+/* ASEGURAR QUE TODOS LOS COMPONENTES ANGULAR DENTRO DE MODALES TENGAN SCROLL */
+.p-dialog-content app-books,
+.p-dialog-content app-author,
+.p-dialog-content app-detail,
+.p-dialog-content app-serie,
+.p-dialog-content > app-*,
+.p-dialog-content > * {
+  display: block !important;
+  height: 100% !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 20px !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: var(--primary-color) #f1f1f1 !important;
+  box-sizing: border-box !important;
+}
+
+.p-dialog-content app-books::-webkit-scrollbar,
+.p-dialog-content app-author::-webkit-scrollbar,
+.p-dialog-content app-detail::-webkit-scrollbar,
+.p-dialog-content app-serie::-webkit-scrollbar,
+.p-dialog-content > app-*::-webkit-scrollbar,
+.p-dialog-content > *::-webkit-scrollbar {
+  width: 8px !important;
+}
+
+.p-dialog-content app-books::-webkit-scrollbar-track,
+.p-dialog-content app-author::-webkit-scrollbar-track,
+.p-dialog-content app-detail::-webkit-scrollbar-track,
+.p-dialog-content app-serie::-webkit-scrollbar-track,
+.p-dialog-content > app-*::-webkit-scrollbar-track,
+.p-dialog-content > *::-webkit-scrollbar-track {
+  background: #f1f1f1 !important;
+  border-radius: var(--border-radius) !important;
+}
+
+.p-dialog-content app-books::-webkit-scrollbar-thumb,
+.p-dialog-content app-author::-webkit-scrollbar-thumb,
+.p-dialog-content app-detail::-webkit-scrollbar-thumb,
+.p-dialog-content app-serie::-webkit-scrollbar-thumb,
+.p-dialog-content > app-*::-webkit-scrollbar-thumb,
+.p-dialog-content > *::-webkit-scrollbar-thumb {
+  background: var(--primary-color) !important;
+  border-radius: var(--border-radius) !important;
+}
+
+.p-dialog-content app-books::-webkit-scrollbar-thumb:hover,
+.p-dialog-content app-author::-webkit-scrollbar-thumb:hover,
+.p-dialog-content app-detail::-webkit-scrollbar-thumb:hover,
+.p-dialog-content app-serie::-webkit-scrollbar-thumb:hover,
+.p-dialog-content > app-*::-webkit-scrollbar-thumb:hover,
+.p-dialog-content > *::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover) !important;
+}

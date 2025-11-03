@@ -29,12 +29,14 @@
               "node_modules/primeng/resources/primeng.min.css",
               "node_modules/primeflex/primeflex.css",
               "src/assets/css/theme.css",
-              "src/assets/css/default.css"
+              "src/assets/css/search.css",
+              "src/assets/css/settings.css",
+              "src/assets/css/index.css"
             ],
             "scripts": [
-              "node_modules/epubjs/dist/epub.min.js",
-              "node_modules/jquery/dist/jquery.min.js"
-              ]
+              "node_modules/jszip/dist/jszip.min.js",
+              "node_modules/epubjs/dist/epub.min.js"
+            ]
           },
           "configurations": {
             "production": {
@@ -44,13 +46,13 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
-              "optimization": false,
+              "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false,
-              "buildOptimizer": false,
+              "buildOptimizer": true,
               "budgets": [
                 {
                   "type": "initial",
@@ -63,8 +65,23 @@
                   "maximumError": "10kb"
                 }
               ]
+            },
+            "development": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.dev.ts"
+                }
+              ],
+              "buildOptimizer": false,
+              "optimization": false,
+              "vendorChunk": true,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "namedChunks": true
             }
-          }
+          },
+          "defaultConfiguration": "development"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
@@ -74,8 +91,12 @@
           "configurations": {
             "production": {
               "browserTarget": "indigo-client:build:production"
+            },
+            "development": {
+              "browserTarget": "indigo-client:build:development"
             }
-          }
+          },
+          "defaultConfiguration": "development"
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
@@ -115,7 +136,6 @@
       }
     }
   },
-  "defaultProject": "indigo-client",
   "cli": {
     "analytics": false
   }

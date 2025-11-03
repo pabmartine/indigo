@@ -1,6 +1,6 @@
 package com.martinia.indigo.book.domain.ports.usecases.view;
 
-import com.martinia.indigo.common.model.View;
+import com.martinia.indigo.common.domain.model.View;
 
 public interface MarkBookAsViewUseCase {
 	void save(View view);

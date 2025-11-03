@@ -20,8 +20,6 @@ import lombok.Setter;
 @Document(collection = "configurations")
 public class ConfigurationMongoEntity implements Serializable {
 
-	private static final long serialVersionUID = 2964788136769162180L;
-
 	@Id
 	private String id;
 	private String key;

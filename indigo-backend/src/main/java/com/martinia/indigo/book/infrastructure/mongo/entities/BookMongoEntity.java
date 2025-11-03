@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.bson.BsonType;
 import org.bson.codecs.pojo.annotations.BsonRepresentation;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.index.TextIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.Id;
@@ -20,30 +23,41 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "books")
-public class BookMongoEntity implements Serializable {
+@CompoundIndex(name = "serie_language_idx", def = "{'serie.name': 1, 'languages': 1}")
+@CompoundIndex(name = "languages_rating_idx", def = "{'languages': 1, 'rating': -1}")
+@CompoundIndex(name = "languages_pubdate_idx", def = "{'languages': 1, 'pubDate': -1}")
 
-	private static final long serialVersionUID = 7913092341598911896L;
+
+public class BookMongoEntity implements Serializable {
 
 	@BsonRepresentation(BsonType.OBJECT_ID)
 	@Id
 	private String id;
+	@TextIndexed
 	private String title;
+	@Indexed
 	private String path;
 	private String comment;
 	private String provider;
 	private SerieMongo serie;
+	@Indexed
 	private Date pubDate;
 	private Date lastModified;
+	@Indexed
 	private int pages;
 	private float rating;
 	private String image;
+	@TextIndexed
 	private List<String> authors;
+	@Indexed
 	private List<String> tags;
 	private List<String> similar;
 	private List<String> recommendations;
+	@Indexed
 	private List<String> languages;
 	private List<ReviewMongo> reviews;
 
 	private Date lastMetadataSync;
+	private float version;
 
 }

@@ -5,7 +5,7 @@ import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;

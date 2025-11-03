@@ -9,8 +9,8 @@ import com.martinia.indigo.metadata.domain.ports.usecases.RefreshAuthorMetadataU
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.Resource;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Slf4j
@@ -28,10 +28,10 @@ public class RefreshAuthorMetadataUseCaseImpl implements RefreshAuthorMetadataUs
 	@Override
 	public Optional<Author> findAuthorMetadata(String sort, String lang) {
 
-		return authorRepository.findBySort(sort).map(author -> {
+		return authorRepository.findByName(sort).map(author -> {
 			commandBus.executeAndWait(
 					FindAuthorMetadataCommand.builder().authorId(author.getId()).override(true).lastExecution(0).lang(lang).build());
-			return Optional.of(mapper.entity2Domain(authorRepository.findBySort(sort).get()));
+			return Optional.of(mapper.entity2Domain(authorRepository.findByName(sort).get()));
 		}).orElse(Optional.empty());
 
 	}

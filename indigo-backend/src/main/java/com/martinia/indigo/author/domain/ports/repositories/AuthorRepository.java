@@ -12,9 +12,5 @@ import java.util.Optional;
 public interface AuthorRepository extends MongoRepository<AuthorMongoEntity, String>, CustomAuthorRepository {
 
 	@Query("{ 'name' : ?0 }")
-	List<AuthorMongoEntity> findByName(String name);
-
-	@Query("{ 'sort' : ?0 }")
-	Optional<AuthorMongoEntity> findBySort(String sort);
-
+	Optional<AuthorMongoEntity> findByName(String name);
 }

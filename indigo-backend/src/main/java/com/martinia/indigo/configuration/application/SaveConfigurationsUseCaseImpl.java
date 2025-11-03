@@ -6,8 +6,8 @@ import com.martinia.indigo.configuration.domain.ports.usecases.SaveConfiguration
 import com.martinia.indigo.configuration.infrastructure.mongo.mappers.ConfigurationMongoMapper;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.Resource;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 

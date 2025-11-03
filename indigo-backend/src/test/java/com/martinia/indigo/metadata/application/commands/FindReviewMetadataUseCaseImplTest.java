@@ -62,7 +62,7 @@ public class FindReviewMetadataUseCaseImplTest extends BaseIndigoTest {
 		when(findAmazonReviewsPort.getReviews(anyString(), anyList())).thenReturn(Collections.emptyList());
 
 		// When
-		findReviewMetadataUseCase.find(bookId, override, System.currentTimeMillis(), lang);
+		findReviewMetadataUseCase.find(bookId, override, lang);
 
 		// Then
 		// Verificar que se llama al método findById() del bookRepository

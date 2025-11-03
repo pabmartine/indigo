@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
-import com.martinia.indigo.common.model.Search;
+import com.martinia.indigo.common.domain.model.Search;
 
 public interface CustomBookRepository {
 
 	List<BookMongoEntity> findAll(Search search, int page, int size, String sort, String order);
 
-	long count(Search search);
+	long countBooks(Search search);
 
 	Map<String, Long> getNumBooksBySerie(List<String> languages, int page, int size, String sort, String order);
 

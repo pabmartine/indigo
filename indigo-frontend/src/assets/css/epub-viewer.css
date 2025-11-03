@@ -1,0 +1,172 @@
+/** VIEWER DE EPUB **/
+#viewer {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: var(--bg-secondary) !important;
+  border-radius: var(--border-radius) !important;
+}
+
+.viewer-vertical-divider {
+  display: inherit !important;
+}
+
+.viewer-horizontal-divider {
+  display: none !important;
+}
+
+.viewer-content {
+  position: relative !important;
+}
+
+.view-title-buttons {
+  text-align: right !important;
+}
+
+.overlay-left {
+  float: left !important;
+  left: 10px !important;
+  bottom: 50% !important;
+  position: absolute !important;
+  overflow: hidden !important;
+  opacity: 0.8 !important;
+  z-index: 10 !important;
+}
+
+.overlay-right {
+  text-align: right !important;
+  right: 10px !important;
+  bottom: 50% !important;
+  position: absolute !important;
+  overflow: hidden !important;
+  opacity: 0.8 !important;
+  z-index: 10 !important;
+}
+
+.overlay-left:hover,
+.overlay-right:hover {
+  opacity: 1 !important;
+}
+
+.chapters {
+  height: 750px !important;
+  overflow-y: auto !important;
+  padding: 1rem !important;
+  background: var(--bg-light) !important;
+  border-radius: var(--border-radius) !important;
+}
+
+.chapters::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chapters::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: var(--border-radius-sm);
+}
+
+.chapters::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: var(--border-radius-sm);
+}
+
+.chapters::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover);
+}
+
+.ch {
+  cursor: pointer !important;
+  font-size: 0.9rem !important;
+  margin-bottom: 0.5rem !important;
+  padding: 0.5rem !important;
+  border-radius: var(--border-radius-sm) !important;
+  transition: background-color var(--transition-normal) !important;
+}
+
+.ch:hover {
+  background-color: var(--border-light) !important;
+  color: var(--primary-color) !important;
+}
+
+.content {
+  height: 712px !important;
+  border: 1px solid var(--border-dark) !important;
+  border-radius: var(--border-radius) !important;
+  overflow: hidden !important;
+}
+
+#viewer.spreads {
+  position: relative !important;
+  cursor: pointer !important;
+  margin-bottom: 0.5em !important;
+  height: 745px !important;
+  background: var(--bg-secondary) !important;
+  border-radius: var(--border-radius) !important;
+}
+
+.chapter-image {
+  box-shadow: var(--shadow-md) !important;
+  cursor: pointer !important;
+  margin-bottom: 0.5em !important;
+  max-width: 100% !important;
+  height: 200px !important;
+  object-fit: cover !important;
+  border-radius: var(--border-radius) !important;
+}
+
+/* Línea central para modo spreads */
+@media (min-width: 1140px) {
+  #viewer.spreads:after {
+    position: absolute !important;
+    z-index: 1 !important;
+    width: 1px !important;
+    border-right: 1px #000 solid !important;
+    height: 90% !important;
+    left: 50% !important;
+    margin-left: -1px !important;
+    top: 5% !important;
+    opacity: 0.15 !important;
+    box-shadow: -2px 0 15px rgba(0, 0, 0, 1) !important;
+    content: "" !important;
+  }
+
+  #viewer.spreads.single:after {
+    display: none !important;
+  }
+}
+
+/* Responsive para viewer de EPUB */
+@media (max-width: 640px) {
+  .overlay-left {
+    float: left !important;
+    padding-left: 10px !important;
+    position: relative !important;
+    bottom: auto !important;
+  }
+
+  .overlay-right {
+    text-align: right !important;
+    padding-right: 10px !important;
+    position: relative !important;
+    bottom: auto !important;
+  }
+
+  .viewer-vertical-divider {
+    display: none !important;
+  }
+
+  .viewer-horizontal-divider {
+    display: inherit !important;
+    width: 100% !important;
+  }
+
+  .chapters {
+    height: 300px !important;
+  }
+
+  .content {
+    height: 735px !important;
+  }
+}

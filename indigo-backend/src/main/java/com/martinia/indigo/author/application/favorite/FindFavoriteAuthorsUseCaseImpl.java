@@ -8,8 +8,8 @@ import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.Resource;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,7 +42,7 @@ public class FindFavoriteAuthorsUseCaseImpl implements FindFavoriteAuthorsUseCas
 	}
 
 	private Optional<Author> findAuthor(String sort) {
-		return authorRepository.findBySort(sort)
+		return authorRepository.findByName(sort)
 				.map(author -> Optional.of(authorMongoMapper.entity2Domain(author)))
 				.orElse(Optional.empty());
 	}

@@ -1,11 +1,30 @@
 <ngx-loading-bar [color]="'#5e81ac'" [includeSpinner]="false"></ngx-loading-bar>
 
 
-<p-dialog header="{{'locale.session.title'| translate}}" [style]="{width: '500px'}" [(visible)]="sessionDialog" [modal]="true" [baseZIndex]="10000" [draggable]="false" [closable]="false" [resizable]="false" [focusOnShow]="false">
-    <p>{{'locale.session.description'| translate}}</p>
-    <p-footer>
-        <button type="button" pButton (click)="logout(); sessionDialog=false;" label="Aceptar"></button>
-    </p-footer>
+<p-dialog
+    header="{{'locale.session.title' | translate}}"
+    [(visible)]="sessionDialog"
+    [modal]="true"
+    [baseZIndex]="10000"
+    [draggable]="false"
+    [closable]="false"
+    [resizable]="false"
+    [focusOnShow]="false"
+    [style]="{width: '400px', maxWidth: '90vw'}"
+    styleClass="session-expired-dialog">
+    <div class="session-content">
+        <i class="pi pi-exclamation-triangle session-icon"></i>
+        <p class="session-message">{{'locale.session.description' | translate}}</p>
+    </div>
+    <ng-template pTemplate="footer">
+        <button
+            type="button"
+            pButton
+            (click)="logout(); sessionDialog=false;"
+            [label]="'locale.buttons.accept' | translate"
+            class="p-button-raised p-button-primary session-button">
+        </button>
+    </ng-template>
 </p-dialog>
 
 <router-outlet></router-outlet>

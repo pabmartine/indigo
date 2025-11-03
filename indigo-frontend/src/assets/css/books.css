@@ -1,0 +1,880 @@
+.book .p-card .p-card-content {
+  padding: 0.9rem 0 0.5rem 0;
+}
+
+.book .p-card-title {
+  font-weight: 600 !important;
+  padding: 20px !important;
+}
+
+.book .p-card .p-card-body {
+  padding: 0.9rem;
+  margin-bottom: 20px;
+}
+
+/* Rating - Estrellas */
+.book .p-rating .p-rating-icon.pi-star,
+.book .p-rating .p-rating-icon {
+  color: #ebcb8b !important;
+  font-size: 15px !important;
+  margin-left: 0rem !important;
+}
+
+/* Botones de acciones */
+.book .book-title-buttons {
+  text-align: right;
+  width: 100%;
+  position: relative;
+}
+
+.book .book-title-button,
+.book .p-speeddial-button {
+  background-color: transparent !important;
+  border: 1px solid transparent !important;
+  font-size: 24px !important;
+  padding-bottom: -18px;
+  bottom: 7px;
+  float: right;
+  color: var(--primary-color) !important;
+  transition: color var(--transition-normal) !important;
+  box-shadow: none !important;
+  width: 1.8em !important;
+}
+
+.book .book-title-button-favorite {
+  background-color: transparent !important;
+  border: 1px solid transparent !important;
+  font-size: 24px !important;
+  padding-bottom: -18px;
+  bottom: 7px;
+  float: right;
+  color: var(--secondary-color) !important;
+  transition: color var(--transition-normal) !important;
+  box-shadow: none !important;
+  width: 1.843em !important;
+}
+
+
+
+
+
+
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem 0.5rem;
+  justify-items: center;
+}
+
+.book-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  max-width: 175px; /* As requested by user */
+}
+
+.book-cover-container {
+  position: relative;
+  margin-bottom: 0.5rem;
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  background-color: var(--bg-secondary);
+  box-shadow: var(--shadow-md);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 175px;
+  height: 250px;
+}
+
+.book-cover-container:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-lg);
+}
+
+.book-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background-color: #f0f0f0; /* A light gray background color */
+  cursor: pointer;
+}
+
+.book-info {
+  width: 100%;
+  padding-top: 0.5rem;
+}
+
+.book-info .title {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1.2;
+  margin-bottom: 0.3rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  color: var(--text-primary);
+}
+
+.book-info .subtitle {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--primary-color);
+  margin-bottom: 0.3rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.book-info .subtitle a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.book-info .subtitle a:hover {
+  text-decoration: underline;
+}
+
+.book-info .p-rating {
+  justify-content: center;
+  margin-top: 0.3rem;
+}
+
+/* Botones de acciones específicos */
+.book #addFavoriteAuthor span,
+.book #deleteFavoriteAuthor span,
+.book #refreshAuthor span,
+.book #refreshBook span,
+.book #editBook span,
+.book #deleteBook span,
+.book #addFavoriteBook span,
+.book #deleteFavoriteBook span,
+.book #send2Kindle span,
+.book #viewEpub span,
+.book #downloadEpub span,
+.book #closeView span,
+.book #closeBook span,
+.book #optionsBook span {
+  font-size: 24px;
+}
+
+/* Información del libro en detalle */
+.book .book-detail-title {
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.book .book-detail-subtitle {
+  color: var(--primary-color);
+}
+
+.book .book-detail-series {
+  /* Espacio para estilos de series */
+}
+
+.book .book-detail-serie {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.book .book-detail-serie-num {
+  margin: 0;
+  display: inline-flex;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  align-items: center;
+  vertical-align: bottom;
+  text-align: center;
+  overflow: hidden;
+  position: relative;
+  padding: 9px;
+  background-color: var(--secondary-color) !important;
+  border-color: var(--secondary-color) !important;
+  margin-right: 10px !important;
+  color: #ffffff;
+  border-radius: var(--border-radius-sm);
+}
+
+.book .book-detail-tags {
+  padding-top: 5px;
+}
+
+.book .book-detail-tag {
+  margin-right: 10px !important;
+  margin-top: 10px !important;
+}
+
+.book .book-detail-comment {
+  padding-top: 15px;
+  text-align: justify;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  word-break: normal !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.book .book-detail-buttons {
+  padding-top: 15px;
+  width: fit-content;
+  float: right;
+}
+
+.book .book-detail-button {
+  width: auto;
+  float: right;
+  margin-left: 10px;
+}
+
+.book .book-description {
+  text-align: justify;
+}
+
+.book .book-detail-image {
+  max-width: 95% !important;
+  height: auto !important;
+  object-fit: contain !important;
+  box-shadow: var(--shadow-lg) !important;
+  border-radius: var(--border-radius-sm) !important;
+}
+
+/* Metadatos */
+.metadata-container {
+  display: flex !important;
+  text-align: center !important;
+  overflow: auto !important;
+  width: 100% !important;
+  margin: 2rem 0 !important;
+  padding: 1.5rem !important;
+  background: var(--bg-light) !important;
+  border-radius: var(--border-radius-lg) !important;
+  border: 1px solid var(--border-light) !important;
+}
+
+.metadata-item {
+  width: 75% !important;
+  padding: 0 1rem !important;
+  min-width: 120px !importan;
+  flex: 1 !important;
+}
+
+.metadata-title {
+  display: block !important;
+  font-size: 0.9rem !important;
+  line-height: 1.4 !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.02em !important;
+  margin-bottom: 0.5rem !important;
+  color: var(--text-secondary) !important;
+  text-transform: uppercase !important;
+}
+
+.metadata-value {
+  display: block !important;
+  margin-bottom: 0.3rem !important;
+  font-size: 1rem !important;
+  line-height: 1.3 !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+  color: var(--text-primary) !important;
+}
+
+.metadata-value.p-rating {
+  justify-content: center !important;
+}
+
+.metadata-subvalue {
+  display: block !important;
+  text-overflow: ellipsis !important;
+  overflow: hidden !important;
+  white-space: normal !important;
+  font-size: 0.85rem !important;
+  line-height: 1.4 !important;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+  color: var(--text-secondary) !important;
+}
+
+.metadata-subvalue[onmouseover]:hover {
+  color: var(--primary-color) !important;
+  cursor: pointer !important;
+}
+
+/* Secciones de libros relacionados con scroll horizontal */
+.book .content-body.p-grid.inline {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  gap: 1rem !important;
+  padding: 1rem 0.5rem !important;
+  margin: 0 !important;
+  scroll-behavior: smooth !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  -webkit-overflow-scrolling: touch !important;
+  position: relative;
+  will-change: scroll-position;
+  transform: translateZ(0);
+}
+
+/* Grid para libros relacionados (NO aplicar al header principal en .pc o .mobile) */
+.book :not(.pc):not(.mobile) > .content-body.p-grid:not(.inline) {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 1rem !important;
+  justify-content: flex-start !important;
+  padding: 1rem 0.5rem !important;
+  margin: 0 !important;
+  overflow: visible !important;
+}
+
+/* Solo aplicar a libros relacionados, no al header principal en .pc o .mobile */
+.book :not(.pc):not(.mobile) .content-body .p-sm-6,
+.book :not(.pc):not(.mobile) .content-body .p-md-4,
+.book :not(.pc):not(.mobile) .content-body .p-lg-2 {
+  flex: 0 0 auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+  will-change: transform;
+  position: relative !important;
+}
+
+/* CONTENEDOR DE INFORMACIÓN DEL LIBRO - Solo para libros relacionados */
+.book :not(.pc):not(.mobile) .content-body .p-sm-6 > div:not(:first-child),
+.book :not(.pc):not(.mobile) .content-body .p-md-4 > div:not(:first-child),
+.book :not(.pc):not(.mobile) .content-body .p-lg-2 > div:not(:first-child) {
+  width: 100% !important;
+  max-width: 160px !important;
+  box-sizing: border-box !important;
+  text-align: left !important;
+  overflow: hidden !important;
+}
+
+/* ESTILOS ESPECÍFICOS PARA LAS IMÁGENES EN SCROLL HORIZONTAL */
+.book .content-body.inline .list-image {
+  width: 160px !important;
+  height: 225px !important;
+  max-width: 160px !important;
+  min-width: 160px !important;
+  object-fit: cover !important;
+  border-radius: var(--border-radius) !important;
+  cursor: pointer !important;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal) !important;
+  box-shadow: var(--shadow-md) !important;
+  margin-bottom: 0.5rem !important;
+  flex-shrink: 0 !important;
+}
+
+/* ESTILOS ESPECÍFICOS PARA TÍTULOS EN SCROLL HORIZONTAL */
+.book .content-body.inline .title {
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.3rem !important;
+  display: -webkit-box !important;
+  width: 160px !important;
+  max-width: 160px !important;
+  min-width: 160px !important;
+  text-overflow: ellipsis !important;
+  overflow: hidden !important;
+  font-size: 0.85rem !important;
+  text-align: left !important;
+  flex-shrink: 0 !important;
+  line-height: 1.2 !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  word-wrap: break-word !important;
+  word-break: break-word !important;
+  padding: 0 0.25rem 0 0.25rem !important;
+  box-sizing: border-box !important;
+}
+
+/* ESTILOS ESPECÍFICOS PARA SUBTÍTULOS EN SCROLL HORIZONTAL */
+.book .content-body.inline .subtitle {
+  font-weight: 500 !important;
+  font-size: 0.75rem !important;
+  color: var(--primary-color) !important;
+  opacity: 0.8 !important;
+  margin-bottom: 0.3rem !important;
+  display: block !important;
+  width: 160px !important;
+  max-width: 160px !important;
+  min-width: 160px !important;
+  text-overflow: ellipsis !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+  flex-shrink: 0 !important;
+  word-wrap: break-word !important;
+  word-break: break-word !important;
+  padding: 0 0.25rem 0 0.25rem !important;
+  box-sizing: border-box !important;
+}
+
+.book .content-body.inline .p-sm-6,
+.book .content-body.inline .p-md-4,
+.book .content-body.inline .p-lg-2 {
+  min-width: 160px !important;
+  max-width: 160px !important;
+  width: 160px !important;
+  scroll-snap-align: start !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+.book .list-image {
+  width: 100% !important;
+  height: 225px !important;
+  object-fit: cover !important;
+  border-radius: var(--border-radius) !important;
+  cursor: pointer !important;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal) !important;
+  box-shadow: var(--shadow-md) !important;
+  margin-bottom: 0.5rem !important;
+  flex-shrink: 0 !important;
+  max-width: 160px !important; /* CRÍTICO: Limitar ancho de imagen */
+}
+
+.book .list-image:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+.book .title {
+  color: #495057 !important;
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+  margin-bottom: .3rem !important;
+  display: block !important;
+  width: 100% !important;
+  max-width: 160px !important;
+  text-overflow: ellipsis !important;
+  overflow: hidden !important;
+  font-size: .9rem !important;
+  text-align: left !important;
+  flex-shrink: 0 !important;
+  line-height: 1.2 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  word-wrap: break-word !important;
+  word-break: break-word !important;
+}
+
+.book .subtitle {
+  font-weight: 500 !important;
+  font-size: 0.8rem !important;
+  color: var(--text-secondary) !important;
+  opacity: 0.8 !important;
+  margin-bottom: 0.3rem !important;
+  display: block !important;
+  width: 100% !important;
+  max-width: 160px !important; /* CRÍTICO: Limitar ancho del subtítulo */
+  text-overflow: ellipsis !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+  flex-shrink: 0 !important;
+  word-wrap: break-word !important;
+  word-break: break-word !important;
+}
+
+.book .subtitle a:hover {
+  color: var(--primary-color) !important;
+  text-decoration: underline !important;
+}
+
+.book .content-body .p-rating {
+  justify-content: center !important;
+  margin-top: 0.3rem !important;
+  margin-left: 0.25rem !important;
+  flex-shrink: 0 !important;
+}
+
+.book .content-body .pi-comments {
+  margin-top: 0.5rem !important;
+  margin-right: 0.25rem !important;
+  font-size: 0.9rem !important;
+}
+
+/* Indicadores visuales de scroll - SOLO DESHABILITADOS EN MODALES */
+.book .content-body.inline::before,
+.book .content-body.inline::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 20px;
+  pointer-events: none;
+  z-index: 2;
+  transition: opacity var(--transition-normal);
+}
+
+.book .content-body.inline::before {
+  left: 0;
+  background: linear-gradient(to right, rgba(236, 239, 244, 0.8), transparent);
+}
+
+.book .content-body.inline::after {
+  right: 0;
+  background: linear-gradient(to left, rgba(236, 239, 244, 0.8), transparent);
+}
+
+/* SOLO DESHABILITARLOS EN MODALES, MANTENERLOS EN EL RESTO */
+.p-dialog .book .content-body.inline::before,
+.p-dialog .book .content-body.inline::after,
+.p-dialog .content-body.inline::before,
+.p-dialog .content-body.inline::after {
+  display: none !important;
+}
+
+/* Formulario de edición */
+.edit-detail .p-field {
+  margin-bottom: 1rem !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.edit-detail .p-fluid .p-field > label {
+  width: 200px !important;
+  margin-right: 1rem !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+}
+
+.edit-detail .p-field .p-inputtext,
+.edit-detail .p-field .p-inputtextarea,
+.edit-detail .p-field .p-inputnumber {
+  flex: 1 !important;
+}
+
+.edit-detail .p-chips .p-chips-multiple-container {
+  min-height: 2.5rem !important;
+}
+
+.book > body {
+  height: 500px !important;
+  padding-top: 60px !important;
+}
+
+/* CORRECCIÓN ESPECÍFICA PARA LIBROS EN PERFIL - Solo para secciones de libros relacionados */
+.book :not(.pc):not(.mobile) .content-body > div {
+  flex: 0 0 auto !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  position: relative !important;
+  min-width: 140px !important;
+}
+
+
+
+/* RESPONSIVE ESPECÍFICO PARA SCROLL HORIZONTAL EN MODALES */
+@media (max-width: 1200px) {
+  .book .content-body.inline .list-image {
+    width: 140px !important;
+    max-width: 140px !important;
+    min-width: 140px !important;
+    height: 200px !important;
+  }
+
+  .book .content-body.inline .title,
+  .book .content-body.inline .subtitle {
+    width: 140px !important;
+    max-width: 140px !important;
+    min-width: 140px !important;
+  }
+
+  .book .content-body.inline .p-sm-6,
+  .book .content-body.inline .p-md-4,
+  .book .content-body.inline .p-lg-2 {
+    min-width: 140px !important;
+    max-width: 140px !important;
+    width: 140px !important;
+  }
+}
+
+@media (max-width: 992px) {
+  .book .content-body.inline .list-image {
+    width: 130px !important;
+    max-width: 130px !important;
+    min-width: 130px !important;
+    height: 185px !important;
+  }
+
+  .book .content-body.inline .title {
+    width: 130px !important;
+    max-width: 130px !important;
+    min-width: 130px !important;
+    font-size: 0.8rem !important;
+  }
+
+  .book .content-body.inline .subtitle {
+    width: 130px !important;
+    max-width: 130px !important;
+    min-width: 130px !important;
+    font-size: 0.7rem !important;
+  }
+
+  .book .content-body.inline .p-sm-6,
+  .book .content-body.inline .p-md-4,
+  .book .content-body.inline .p-lg-2 {
+    min-width: 130px !important;
+    max-width: 130px !important;
+    width: 130px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .book .content-body.inline .list-image {
+    width: 120px !important;
+    max-width: 120px !importan;
+    min-width: 120px !important;
+    height: 170px !important;
+  }
+
+  .book .content-body.inline .title {
+    width: 120px !important;
+    max-width: 120px !important;
+    min-width: 120px !important;
+    font-size: 0.75rem !important;
+  }
+
+  .book .content-body.inline .subtitle {
+    width: 120px !important;
+    max-width: 120px !important;
+    min-width: 120px !important;
+    font-size: 0.65rem !important;
+  }
+
+  .book .content-body.inline .p-sm-6,
+  .book .content-body.inline .p-md-4,
+  .book .content-body.inline .p-lg-2 {
+    min-width: 120px !important;
+    max-width: 120px !important;
+    width: 120px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .book .content-body.inline .list-image {
+    width: 110px !important;
+    max-width: 110px !important;
+    min-width: 110px !important;
+    height: 155px !important;
+  }
+
+  .book .content-body.inline .title {
+    width: 110px !important;
+    max-width: 110px !important;
+    min-width: 110px !important;
+    font-size: 0.7rem !important;
+  }
+
+  .book .content-body.inline .subtitle {
+    width: 110px !important;
+    max-width: 110px !important;
+    min-width: 110px !important;
+    font-size: 0.6rem !important;
+  }
+
+  .book .content-body.inline .p-sm-6,
+  .book .content-body.inline .p-md-4,
+  .book .content-body.inline .p-lg-2 {
+    min-width: 110px !important;
+    max-width: 110px !important;
+    width: 110px !important;
+  }
+}
+
+/* LAYOUT DE DOS COLUMNAS PARA MODAL DE DETALLE DE LIBRO */
+/* Asegurar que content-header (botones) ocupe TODO el ancho y esté separado del grid */
+.book .pc > .content-header,
+.book .mobile > .content-header,
+app-detail .book .pc > .content-header,
+app-detail .book .mobile > .content-header {
+  width: 100% !important;
+  max-width: 100% !important;
+  flex: 0 0 100% !important;
+  display: block !important;
+  margin-bottom: 1rem !important;
+}
+
+.book .content-header .book-title-buttons,
+app-detail .book .content-header .book-title-buttons {
+  width: 100% !important;
+  display: block !important;
+}
+
+/* Asegurar que el contenedor principal del detalle use flexbox correctamente */
+.book .pc .content-body.p-grid:not(.inline),
+.book .mobile .content-body.p-grid:first-of-type,
+app-detail .book .pc .content-body.p-grid:not(.inline),
+app-detail .book .mobile .content-body.p-grid:first-of-type {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 1.5rem !important;
+  padding: 1rem !important;
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+}
+
+/* Resetear COMPLETAMENTE los estilos de base.css que interfieren con el layout del modal */
+.book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+.book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+.book .mobile > .content-body.p-grid:first-of-type > .p-col-12,
+app-detail .book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+app-detail .book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+.pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+.pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+app-detail .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+app-detail .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8 {
+  flex: 0 0 100% !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: unset !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* En desktop, layout de dos columnas: imagen 33% + contenido 67% */
+@media screen and (min-width: 768px) {
+  .book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+  app-detail .book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+  .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4,
+  app-detail .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-4 {
+    flex: 0 0 calc(33.333% - 0.75rem) !important;
+    width: calc(33.333% - 0.75rem) !important;
+    max-width: calc(33.333% - 0.75rem) !important;
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+  }
+
+  .book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+  app-detail .book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+  .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+  app-detail .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8 {
+    flex: 1 1 calc(66.667% - 0.75rem) !important;
+    width: calc(66.667% - 0.75rem) !important;
+    max-width: calc(66.667% - 0.75rem) !important;
+    flex-shrink: 0 !important;
+    flex-grow: 1 !important;
+    min-width: 0 !important;
+  }
+}
+
+/* Columna de contenido debe ser flex column y ocupar TODO el ancho */
+.book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+app-detail .book .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+.pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8,
+app-detail .pc > .content-body.p-grid:not(.inline) > .p-col-12.p-md-8 {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.5rem !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Asegurar que título, subtítulo y descripción ocupen todo el ancho */
+.book .book-detail-title,
+.book .book-detail-subtitle,
+.book .book-detail-comment,
+.book .book-detail-series,
+.book-detail-title,
+.book-detail-subtitle,
+.book-detail-comment,
+.book-detail-series {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  text-align: left !important;
+  display: block !important;
+  margin: 0 !important;
+  padding-right: 0 !important;
+  padding-left: 0 !important;
+}
+
+/* Lo mismo para mobile */
+.book .mobile .content-body.p-grid:first-of-type > .p-col-12 .book-detail-title,
+.book .mobile .content-body.p-grid:first-of-type > .p-col-12 .book-detail-subtitle,
+.book .mobile .content-body.p-grid:first-of-type > .p-col-12 .book-detail-comment,
+.book .mobile .content-body.p-grid:first-of-type > .p-col-12 .book-detail-series {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Asegurar que la imagen se ajuste correctamente */
+.book .book-title-image {
+  width: 100% !important;
+  text-align: center !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+}
+
+/* CONFIGURACIÓN UNIFICADA GLOBAL PARA APP-DETAIL */
+app-detail {
+  display: block !important;
+  height: 100% !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 20px !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: var(--primary-color) #f1f1f1 !important;
+  box-sizing: border-box !important;
+}
+
+app-detail::-webkit-scrollbar {
+  width: 8px !important;
+}
+
+app-detail::-webkit-scrollbar-track {
+  background: #f1f1f1 !important;
+  border-radius: var(--border-radius) !important;
+}
+
+app-detail::-webkit-scrollbar-thumb {
+  background: var(--primary-color) !important;
+  border-radius: var(--border-radius) !important;
+}
+
+app-detail::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-hover) !important;
+}
+
+@media (max-width: 576px) {
+  .book .content-body.p-grid.inline {
+    gap: 2.5rem !important;
+  }
+}

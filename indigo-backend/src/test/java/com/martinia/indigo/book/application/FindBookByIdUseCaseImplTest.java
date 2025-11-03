@@ -9,7 +9,7 @@ import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -56,6 +56,34 @@ public class FindBookByIdUseCaseImplTest extends BaseIndigoTest {
 
 		// When
 		Optional<Book> result = findBookByIdUseCase.findById(bookId);
+
+		// Then
+		assertFalse(result.isPresent());
+	}
+
+	@Test
+	public void testFindById_WithNullId_ReturnsEmptyOptional() {
+		// Given
+		String nullBookId = null;
+
+		when(bookRepository.findById(nullBookId)).thenReturn(Optional.empty());
+
+		// When
+		Optional<Book> result = findBookByIdUseCase.findById(nullBookId);
+
+		// Then
+		assertFalse(result.isPresent());
+	}
+
+	@Test
+	public void testFindById_WithEmptyId_ReturnsEmptyOptional() {
+		// Given
+		String emptyBookId = "";
+
+		when(bookRepository.findById(emptyBookId)).thenReturn(Optional.empty());
+
+		// When
+		Optional<Book> result = findBookByIdUseCase.findById(emptyBookId);
 
 		// Then
 		assertFalse(result.isPresent());

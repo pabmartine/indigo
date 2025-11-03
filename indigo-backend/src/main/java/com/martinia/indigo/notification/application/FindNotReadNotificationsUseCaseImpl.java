@@ -6,8 +6,8 @@ import com.martinia.indigo.notification.domain.ports.usecases.FindNotReadNotific
 import com.martinia.indigo.notification.infrastructure.mongo.mappers.NotificationMongoMapper;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.Resource;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service

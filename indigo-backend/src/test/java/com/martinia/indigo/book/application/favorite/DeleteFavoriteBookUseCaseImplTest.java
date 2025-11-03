@@ -5,7 +5,7 @@ import com.martinia.indigo.book.domain.ports.usecases.favorite.DeleteFavoriteBoo
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;

@@ -6,8 +6,8 @@ import com.martinia.indigo.book.domain.ports.usecases.recommendation.FindBookRec
 import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.Resource;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

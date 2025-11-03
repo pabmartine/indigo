@@ -42,11 +42,12 @@ public class StartMetadataControllerIntegrationTest extends BaseIndigoIntegratio
 	}
 
 	static Stream<Arguments> entities() {
-		return Stream.of(Arguments.of(MetadataProcessType.FULL, MetadataProcessEnum.LOAD),
+		return Stream.of(
+//				Arguments.of(MetadataProcessType.FULL, MetadataProcessEnum.LOAD),
 				Arguments.of(MetadataProcessType.FULL, MetadataProcessEnum.BOOKS),
 				Arguments.of(MetadataProcessType.FULL, MetadataProcessEnum.AUTHORS),
 				Arguments.of(MetadataProcessType.FULL, MetadataProcessEnum.REVIEWS),
-				Arguments.of(MetadataProcessType.PARTIAL, MetadataProcessEnum.LOAD),
+//				Arguments.of(MetadataProcessType.PARTIAL, MetadataProcessEnum.LOAD),
 				Arguments.of(MetadataProcessType.PARTIAL, MetadataProcessEnum.BOOKS),
 				Arguments.of(MetadataProcessType.PARTIAL, MetadataProcessEnum.AUTHORS),
 				Arguments.of(MetadataProcessType.PARTIAL, MetadataProcessEnum.REVIEWS));

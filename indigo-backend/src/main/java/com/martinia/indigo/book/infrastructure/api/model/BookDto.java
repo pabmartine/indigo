@@ -7,8 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 
@@ -18,8 +18,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookDto implements Serializable {
-
-	private static final long serialVersionUID = 3010775368721977810L;
 
 	@NotEmpty
 	private String id;

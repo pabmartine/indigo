@@ -1,6 +1,9 @@
+
+
 book:
     library:
         path: /tmp
+        uploads: ${book.library.path}/uploads
 
 logging.level:
     root: INFO
@@ -28,6 +31,8 @@ server:
     port: 8080
 
 spring:
+    main:
+        allow-circular-references: true
     data:
         mongodb:
             auto-index-creation: true

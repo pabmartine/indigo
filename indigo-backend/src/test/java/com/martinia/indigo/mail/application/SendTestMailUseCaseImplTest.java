@@ -11,8 +11,8 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
-import javax.annotation.Resource;
-import javax.mail.MessagingException;
+import jakarta.annotation.Resource;
+import jakarta.mail.MessagingException;
 import java.util.Optional;
 
 class SendTestMailUseCaseImplTest extends BaseIndigoTest {

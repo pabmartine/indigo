@@ -9,7 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -30,7 +30,6 @@ public class FindAllNotificationsControllerIntegrationTest extends BaseIndigoTes
 	public void init() {
 		notificationEntity = NotificationMongoEntity.builder()
 				.id("1")
-				.book("book")
 				.user("user")
 				.type(NotificationEnum.KINDLE.name())
 				.build();
@@ -38,7 +37,6 @@ public class FindAllNotificationsControllerIntegrationTest extends BaseIndigoTes
 
 		notificationEntity2 = NotificationMongoEntity.builder()
 				.id("2")
-				.book("book2")
 				.user("user")
 				.type(NotificationEnum.KINDLE.name())
 				.build();

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class TestCommandHandler implements CommandHandler<TestCommand, String> {
+public class TestCommandHandler extends CommandHandler<TestCommand, String> {
 
 	@Override
 	public String handle(final TestCommand command) throws Exception {

@@ -1,0 +1,167 @@
+/** ANIMACIONES GLOBALES **/
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes focusPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(105, 142, 191, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 0.5rem rgba(105, 142, 191, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(105, 142, 191, 0);
+  }
+}
+
+/** APLICACIÓN DE ANIMACIONES **/
+.book .content-body > div:nth-child(1) { animation-delay: 0.05s; }
+.book .content-body > div:nth-child(2) { animation-delay: 0.1s; }
+.book .content-body > div:nth-child(3) { animation-delay: 0.15s; }
+.book .content-body > div:nth-child(4) { animation-delay: 0.2s; }
+.book .content-body > div:nth-child(5) { animation-delay: 0.25s; }
+.book .content-body > div:nth-child(6) { animation-delay: 0.3s; }
+
+.profile .account,
+.profile .permissions {
+  animation: slideInUp 0.3s ease-out;
+}
+
+.book .content-body > div {
+  animation: fadeInScale 0.3s ease-out;
+  animation-fill-mode: both;
+}
+
+.search .p-field {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.login .p-inputgroup .p-inputtext:focus,
+.login .p-inputgroup .p-password input:focus {
+  animation: focusPulse 0.3s ease-out;
+}
+
+/** PERFORMANCE OPTIMIZATIONS **/
+.layout,
+.layout .main,
+.content-body,
+.book-cover,
+.author .avatar,
+.serie .stack,
+.tag .container {
+  will-change: transform;
+  backface-visibility: hidden;
+  perspective: 1000px;
+  transform: translateZ(0);
+}
+
+/* TOUCH DEVICES SUPPORT */
+@media (hover: none) and (pointer: coarse) {
+  .book .content-body.inline {
+    -webkit-overflow-scrolling: touch !important;
+    scroll-snap-type: x proximity !important;
+  }
+
+  .book .content-body.inline > div {
+    scroll-snap-align: start !important;
+  }
+}
+
+/* Reducir animaciones para usuarios que prefieren movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -13,7 +13,7 @@ import org.springframework.util.CollectionUtils;
 
 import com.martinia.indigo.tag.infrastructure.mongo.entities.TagMongoEntity;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @Repository
 public class CustomTagRepositoryImpl implements CustomTagRepository {

@@ -5,8 +5,8 @@ import com.martinia.indigo.book.domain.ports.usecases.language.FindBookLanguages
 import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.Resource;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service

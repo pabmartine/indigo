@@ -1,7 +1,7 @@
 package com.martinia.indigo.book.domain.ports.repositories;
 
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
-import com.martinia.indigo.common.model.Search;
+import com.martinia.indigo.common.domain.model.Search;
 import com.martinia.indigo.notification.infrastructure.mongo.entities.NotificationMongoEntity;
 import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
 import com.mongodb.MongoClientSettings;
@@ -22,10 +22,11 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -46,39 +47,28 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 	@Resource
 	private MongoTemplate mongoTemplate;
 
-	public long count(Search search) {
+	private String collectionName = BookMongoEntity.class.getAnnotation(org.springframework.data.mongodb.core.mapping.Document.class)
+			.collection();
 
-		Query query = new Query();
+	public long countBooks(Search search) {
 
-		List<Criteria> criterias = new ArrayList<>();
-
-		if (search != null && !search.isEmpty()) {
-
-			if (StringUtils.isNoneEmpty(search.getPath())) {
-
-				String path = StringUtils.stripAccents(search.getPath());
-				String[] terms = path.split(" ");
-				for (String term : terms) {
-					criterias.add(Criteria.where("path").regex(term, "i"));
-				}
-			}
-
-			if (StringUtils.isNoneEmpty(search.getTitle())) {
-				String title = (search.getTitle());
-				String[] terms = title.split(" ");
-				for (String term : terms) {
-					criterias.add(Criteria.where("title").regex(term, "i"));
-				}
-			}
-
-			if (StringUtils.isNoneEmpty(search.getAuthor())) {
-				String author = (search.getAuthor());
-				String[] terms = author.split(" ");
-				for (String term : terms) {
-					criterias.add(Criteria.where("authors").regex(term, "i"));
-				}
-			}
-
+		        Query query = new Query();
+		
+		        List<Criteria> criterias = new ArrayList<>();
+		
+		        if (search != null && !search.isEmpty()) {
+		
+		            if (StringUtils.isNoneEmpty(search.getPath())) {
+		                String path = StringUtils.stripAccents(search.getPath());
+		                criterias.add(Criteria.where("path").regex(path, "i"));
+		            }
+		
+		            if (StringUtils.isNoneEmpty(search.getTitle()) || StringUtils.isNoneEmpty(search.getAuthor())) {
+		                String textToSearch = (Optional.ofNullable(search.getTitle()).orElse("") + " " + Optional.ofNullable(search.getAuthor()).orElse("")).trim();
+		                if (StringUtils.isNotBlank(textToSearch)) {
+		                    query.addCriteria(TextCriteria.forDefaultLanguage().matchingAny(textToSearch));
+		                }
+		            }
 			if (null != (search.getIni())) {
 				criterias.add(Criteria.where("pubDate").gte(search.getIni()));
 			}
@@ -112,18 +102,15 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 		}
 
-		if (search != null) {//TODO: mejorar esto
-			if (!CollectionUtils.isEmpty(search.getLanguages())) {
-				criterias.add(Criteria.where("languages").in(search.getLanguages()));
-			}
-			else {
-				criterias.add(Criteria.where("languages").in(Arrays.asList("none")));
-			}
-			query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
-		}
-
+		        if (search != null) {//TODO: mejorar esto
+		            if (!CollectionUtils.isEmpty(search.getLanguages())) {
+		                criterias.add(Criteria.where("languages").in(search.getLanguages()));
+		            }
+		            if (!criterias.isEmpty()) {
+		                query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
+		            }
+		        }
 		return mongoTemplate.count(query, BookMongoEntity.class);
-
 	}
 
 	public List<BookMongoEntity> findAll(Search search, int page, int size, String sort, String order) {
@@ -137,25 +124,13 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 			if (StringUtils.isNoneEmpty(search.getPath())) {
 
 				String path = StringUtils.stripAccents(search.getPath());
-				String[] terms = path.split(" ");
-				for (String term : terms) {
-					criterias.add(Criteria.where("path").regex(term, "i"));
-				}
+				criterias.add(Criteria.where("path").regex(path, "i"));
 			}
 
-			if (StringUtils.isNoneEmpty(search.getTitle())) {
-				String title = (search.getTitle());
-				String[] terms = title.split(" ");
-				for (String term : terms) {
-					criterias.add(Criteria.where("title").regex(term, "i"));
-				}
-			}
-
-			if (StringUtils.isNoneEmpty(search.getAuthor())) {
-				String author = (search.getAuthor());
-				String[] terms = author.split(" ");
-				for (String term : terms) {
-					criterias.add(Criteria.where("authors").regex(term, "i"));
+			if (StringUtils.isNoneEmpty(search.getTitle()) || StringUtils.isNoneEmpty(search.getAuthor())) {
+				String textToSearch = (Optional.ofNullable(search.getTitle()).orElse("") + " " + Optional.ofNullable(search.getAuthor()).orElse("")).trim();
+				if (StringUtils.isNotBlank(textToSearch)) {
+					query.addCriteria(TextCriteria.forDefaultLanguage().matchingAny(textToSearch));
 				}
 			}
 
@@ -196,7 +171,9 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 			if (!CollectionUtils.isEmpty(search.getLanguages())) {
 				criterias.add(Criteria.where("languages").in(search.getLanguages()));
 			}
-			query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
+			if (!criterias.isEmpty()) {
+				query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
+			}
 		}
 
 		return mongoTemplate.find(query, BookMongoEntity.class);
@@ -259,7 +236,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 				new Document("$sort", new Document(sort.equals("numBooks") ? "count" : "_id", order.equalsIgnoreCase("asc") ? 1 : -1)),
 				new Document("$skip", page * size), new Document("$limit", size));
 
-		AggregateIterable<Document> data = mongoTemplate.getCollection("books").aggregate(list);
+		AggregateIterable<Document> data = mongoTemplate.getCollection(collectionName).aggregate(list);
 
 		Iterator<Document> it = data.iterator();
 		while (it.hasNext()) {
@@ -280,9 +257,9 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 						new Document("serie.name", new Document("$ne", new BsonNull())).append("languages", new Document("$in", languages))),
 				new Document("$project", new Document("serie.name", 1L)),
 				new Document("$group", new Document("_id", "$serie.name").append("count", new Document("$sum", 1L))),
-				new Document("$group", new Document("_id", "$serie.name").append("count", new Document("$sum", 1L))));
+				new Document("$count", "count"));
 
-		AggregateIterable<Document> data = mongoTemplate.getCollection("books").aggregate(list);
+		AggregateIterable<Document> data = mongoTemplate.getCollection(collectionName).aggregate(list);
 		if (data.iterator().hasNext()) {
 			ret = Long.parseLong(data.iterator().next().get("count").toString());
 		}
@@ -300,9 +277,6 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 		if (!CollectionUtils.isEmpty(languages)) {
 			criterias.add(Criteria.where("languages").in(languages));
-		}
-		else {
-			criterias.add(Criteria.where("languages").in(Arrays.asList("none")));
 		}
 		query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
 
@@ -322,7 +296,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 				MongoClientSettings.getDefaultCodecRegistry(),
 				org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build()));
 
-		FindIterable<BookMongoEntity> data = mongoTemplate.getCollection("books")
+		FindIterable<BookMongoEntity> data = mongoTemplate.getCollection(collectionName)
 				.withCodecRegistry(pojoCodecRegistry)
 				.find(filter, BookMongoEntity.class);
 
@@ -350,7 +324,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 		}
 		Bson filter = in("_id", list);
 
-		FindIterable<BookMongoEntity> books = mongoTemplate.getCollection("books")
+		FindIterable<BookMongoEntity> books = mongoTemplate.getCollection(collectionName)
 				.withCodecRegistry(pojoCodecRegistry)
 				.find(filter, BookMongoEntity.class);
 
@@ -389,17 +363,17 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 			List<String> recommendations = new ArrayList<>();
 
 			for (NotificationMongoEntity notif : notifs) {
+				if (notif.getType()!=null && notif.getType().equals("KINDLE")) {
+					query = new Query();
+					criterias.clear();
+					criterias.add(Criteria.where("path").is(notif.getKindle().getBook()));
+					query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
+					BookMongoEntity book = mongoTemplate.findOne(query, BookMongoEntity.class);
 
-				query = new Query();
-				criterias.clear();
-				criterias.add(Criteria.where("path").is(notif.getBook()));
-				query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
-				BookMongoEntity book = mongoTemplate.findOne(query, BookMongoEntity.class);
-
-				if (book != null && !CollectionUtils.isEmpty(book.getRecommendations())) {
-					recommendations.addAll(book.getRecommendations());
+					if (book != null && !CollectionUtils.isEmpty(book.getRecommendations())) {
+						recommendations.addAll(book.getRecommendations());
+					}
 				}
-
 			}
 
 			if (!CollectionUtils.isEmpty(recommendations)) {
@@ -431,9 +405,9 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 		MongoCollection<Document> collection = mongoTemplate.getCollection("notifications").withCodecRegistry(pojoCodecRegistry);
 
-		AggregateIterable<BookMongoEntity> data = collection.aggregate(Arrays.asList(new Document("$match", new Document("user", user)),
-				new Document("$project", new Document("_id", 0L).append("book", 1L)), new Document("$lookup",
-						new Document("from", "books").append("localField", "book")
+		AggregateIterable<BookMongoEntity> data = collection.aggregate(Arrays.asList(new Document("$match", new Document("user", user).append("type", "KINDLE")),
+				new Document("$project", new Document("_id", 0L).append("book", "$kindle.book")), new Document("$lookup",
+						new Document("from", collectionName).append("localField", "book")
 								.append("foreignField", "path")
 								.append("as", "typeCategory")),
 				new Document("$match", new Document("typeCategory.recommendations", new Document("$ne", new BsonNull()))),
@@ -442,12 +416,13 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 				new Document("$project", new Document("_id", new Document("$toObjectId", "$typeCategory.recommendations"))),
 				new Document("$group", new Document("_id", "$_id").append("count", new Document("$sum", 1L))),
 				new Document("$sort", new Document("count", -1L)), new Document("$lookup",
-						new Document("from", "books").append("localField", "_id").append("foreignField", "_id").append("as", "book")),
-				new Document("$replaceRoot", new Document("newRoot",
+						new Document("from", collectionName).append("localField", "_id")
+								.append("foreignField", "_id")
+								.append("as", "book")), new Document("$replaceRoot", new Document("newRoot",
 						new Document("$mergeObjects", Arrays.asList(new Document("$arrayElemAt", Arrays.asList("$book", 0L)), "$$ROOT")))),
 				new Document("$match", new Document("languages", new Document("$in", languages))),
 				new Document("$sort", new Document(sort, (order.equals("asc") ? 1 : -1)).append("_id", -1L)),
-				new Document("$skip", page * size), new Document("$limit", size - 1)), BookMongoEntity.class);
+				new Document("$skip", page * size), new Document("$limit", size)), BookMongoEntity.class);
 
 		data.iterator().forEachRemaining(ret::add);
 
@@ -462,7 +437,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 				MongoClientSettings.getDefaultCodecRegistry(),
 				org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build()));
 
-		MongoCollection<Document> collection = mongoTemplate.getCollection("books").withCodecRegistry(pojoCodecRegistry);
+		MongoCollection<Document> collection = mongoTemplate.getCollection(collectionName).withCodecRegistry(pojoCodecRegistry);
 
 		AggregateIterable<Document> data = collection.aggregate(Arrays.asList(new Document("$project", new Document("languages", 1L)),
 				new Document("$unwind", new Document("path", "$languages")),

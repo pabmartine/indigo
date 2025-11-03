@@ -7,14 +7,15 @@ import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import com.martinia.indigo.common.singletons.MetadataSingleton;
 import com.martinia.indigo.metadata.domain.model.commands.FindAuthorMetadataCommand;
 import com.martinia.indigo.metadata.domain.ports.usecases.commands.StartFillAuthorsMetadataUseCase;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
 import java.util.List;
 
 @Slf4j
@@ -34,6 +35,7 @@ public class StartFillAuthorsMetadataUseCaseImpl implements StartFillAuthorsMeta
 	protected AuthorRepository authorRepository;
 
 	@Resource
+	@Lazy
 	protected CommandBus commandBus;
 
 	@Override

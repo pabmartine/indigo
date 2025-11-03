@@ -56,7 +56,7 @@ public class FindFavoriteAuthorsControllerIntegrationTest extends BaseIndigoInte
 				.build();
 		authorRepository.save(authorMongoEntity2);
 
-		userMongoEntity = UserMongoEntity.builder().username("test").favoriteAuthors(Arrays.asList(authorMongoEntity.getSort())).build();
+		userMongoEntity = UserMongoEntity.builder().username("test").favoriteAuthors(Arrays.asList(authorMongoEntity.getName())).build();
 		userRepository.save(userMongoEntity);
 
 		userMongoEntity2 = UserMongoEntity.builder().username("test2").build();

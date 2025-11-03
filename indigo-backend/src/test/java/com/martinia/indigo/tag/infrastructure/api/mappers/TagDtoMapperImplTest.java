@@ -1,6 +1,6 @@
 package com.martinia.indigo.tag.infrastructure.api.mappers;
 
-import com.martinia.indigo.common.model.NumBooks;
+import com.martinia.indigo.common.domain.model.NumBooks;
 import com.martinia.indigo.tag.domain.model.Tag;
 import com.martinia.indigo.tag.infrastructure.api.model.TagDto;
 import org.junit.jupiter.api.Test;

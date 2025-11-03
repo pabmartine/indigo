@@ -2,14 +2,12 @@ package com.martinia.indigo.mail.application;
 
 import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
 import com.martinia.indigo.mail.domain.EmailConfiguration;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.Properties;
 
 @Slf4j
@@ -21,9 +19,9 @@ public class BaseMailUseCaseImpl {
 	@Autowired
 	protected JavaMailSender javaMailSender;
 
-	@Value("${book.library.path}")
-	@Setter
-	protected String libraryPath;
+//	@Value("${book.library.path}")
+//	@Setter
+//	protected String libraryPath;
 
 	protected void init(EmailConfiguration emailConfig) {
 
@@ -48,7 +46,7 @@ public class BaseMailUseCaseImpl {
 			if (encryption.equals("ssl/tls")) {
 				props.put("mail.smtp.auth", "true");
 				props.put("mail.smtp.socketFactory.port", "465");
-				props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+				props.put("mail.smtp.socketFactory.class", "jakarta.net.ssl.SSLSocketFactory");
 			}
 		}
 

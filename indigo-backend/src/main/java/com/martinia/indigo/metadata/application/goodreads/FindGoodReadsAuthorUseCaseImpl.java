@@ -2,6 +2,8 @@ package com.martinia.indigo.metadata.application.goodreads;
 
 import com.martinia.indigo.common.util.DataUtils;
 import com.martinia.indigo.metadata.domain.model.ProviderEnum;
+import com.martinia.indigo.metadata.domain.ports.adapters.libretranslate.DetectLibreTranslatePort;
+import com.martinia.indigo.metadata.domain.ports.adapters.libretranslate.TranslateLibreTranslatePort;
 import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsAuthorUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -12,10 +14,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.Resource;
+import org.springframework.transaction.annotation.Transactional;
 import java.text.Normalizer;
 import java.util.Arrays;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -33,36 +36,65 @@ public class FindGoodReadsAuthorUseCaseImpl implements FindGoodReadsAuthorUseCas
 	@Resource
 	private DataUtils dataUtils;
 
+	@Resource
+	private Optional<DetectLibreTranslatePort> detectLibreTranslatePort;
+
+	@Resource
+	private Optional<TranslateLibreTranslatePort> translateLibreTranslatePort;
+
 	private static String normalize(String title) {
 		if (title.contains("(")) {
 			title = title.substring(0, title.indexOf("(")) + title.substring(title.indexOf(")") + 1, title.length());
 		}
-		return Normalizer.normalize(title, Normalizer.Form.NFD).toLowerCase().replaceAll("[^\\p{ASCII}]", "").replaceAll(" ", "+")
-				.replaceAll(",", "").replaceAll("\\.", "+").replaceAll(":", "+").replaceAll("\\+\\+", "+");
+		return Normalizer.normalize(title, Normalizer.Form.NFD)
+				.toLowerCase()
+				.replaceAll("[^\\p{ASCII}]", "")
+				.replaceAll(" ", "+")
+				.replaceAll(",", "")
+				.replaceAll("\\.", "+")
+				.replaceAll(":", "+")
+				.replaceAll("\\+\\+", "+");
 	}
 
 	@Override
 	public String[] findAuthor(String key, String subject) {
 
+		if (StringUtils.isAnyEmpty(key, subject)) {
+			return null;
+		}
+
 		String[] ret = null;
 
 		try {
 
-			subject = StringUtils.stripAccents(subject).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ");
+			subject = StringUtils.stripAccents(subject).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\s+", " ");
 
 			String url = endpointAuthor.replace("$subject", subject.replace(" ", "+")).replace("$key", key);
 			String xml = dataUtils.getData(url);
 
 			if (StringUtils.isNoneEmpty(xml)) {
-				Document doc = Jsoup.parse(xml, "", Parser.xmlParser());
-				if (doc.select("author").first() != null) {
-					String name = doc.select("author").select("name").get(0).text();
-					String id = doc.select("author").select("id").get(0).text();
-
+				Document doc = null;
+				try {
+					doc = Jsoup.parse(xml, "", Parser.xmlParser());
+				} catch (Exception e) {
+					log.error(e.getMessage());
+				}
+								String name = null;
+				String id = null;
+				if (doc != null && doc.select("author").first() != null && !doc.select("author").isEmpty()) {
+					if (!doc.select("author").select("name").isEmpty()) {
+						name = doc.select("author").select("name").get(0).text();
+					}
+					if (!doc.select("author").select("id").isEmpty()) {
+						id = doc.select("author").select("id").get(0).text();
+					}
 					if (name != null && id != null) {
 
-						String filterName = StringUtils.stripAccents(name).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ")
-								.toLowerCase().trim();
+						String filterName = StringUtils.stripAccents(name)
+								.replaceAll("[^a-zA-Z0-9]", " ")
+								.replaceAll("\\s+", " ")
+								.toLowerCase()
+								.trim();
 
 						String[] terms = subject.split(" ");
 
@@ -91,6 +123,10 @@ public class FindGoodReadsAuthorUseCaseImpl implements FindGoodReadsAuthorUseCas
 
 	private String[] getAuthorInfo(String key, String id) {
 
+		if (StringUtils.isAnyEmpty(key, id)) {
+			return null;
+		}
+
 		String[] ret = null;
 
 		try {
@@ -99,20 +135,34 @@ public class FindGoodReadsAuthorUseCaseImpl implements FindGoodReadsAuthorUseCas
 
 			if (xml != null) {
 				Document doc = Jsoup.parse(xml, "", Parser.xmlParser());
-				if (doc.select("author").first() != null) {
-					String name = doc.select("author").select("name").get(0).text();
-					String description = doc.select("author").select("about").text();
-					String image = doc.select("author").select("image_url").get(0).text();
-
-					if (StringUtils.isNotEmpty(name)) {
-						ret = new String[] { description, image, ProviderEnum.GOODREADS.name() };
-					}
-				}
+				                				String name = null;
+				                				String description = null;
+				                				String image = null;
+				                				if (doc.select("author").first() != null && !doc.select("author").isEmpty()) {
+									if (!doc.select("author").select("name").isEmpty()) {
+										name = doc.select("author").select("name").get(0).text();
+									}
+				                					description = doc.select("author").select("about").text();
+									if (!doc.select("author").select("image_url").isEmpty()) {
+										image = doc.select("author").select("image_url").get(0).text();
+									}
+					                					if (StringUtils.isNotEmpty(name) && StringUtils.isNotEmpty(description) && StringUtils.isNotEmpty(image)) {
+					                    		ret = new String[] { description, image, ProviderEnum.GOODREADS.name() };
+					                					}				}
 			}
 
 		}
 		catch (Exception e) {
 			log.error(e.getMessage());
+		}
+
+		if (ret != null && !StringUtils.isEmpty(ret[0])) {
+			final String description = ret[0];
+			String language = detectLibreTranslatePort.map(libreTranslate -> libreTranslate.detect(description)).orElse(null);
+			if (!language.equals("es")) {
+				ret[0] = translateLibreTranslatePort.map(libreTranslate -> libreTranslate.translate(description, "es")).orElse(null);
+			}
+
 		}
 
 		return ret;

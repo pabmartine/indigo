@@ -1,0 +1,189 @@
+/** SETTINGS **/
+.settings .p-dropdown {
+  width: 100%;
+}
+
+.settings .p-panel {
+  margin-bottom: 1rem;
+}
+
+.settings .p-panel .p-panel-header {
+  background: var(--bg-secondary);
+}
+
+.settings .p-datatable .p-datatable-thead > tr > th {
+  background: var(--bg-secondary);
+}
+
+.settings .p-button .p-button-icon-left {
+  margin-right: 0.5rem;
+}
+
+.settings .table-buttons {
+  width: 8em;
+  text-align: center;
+}
+
+.settings .settings-button {
+  margin-right: 5px;
+}
+
+.settings .success {
+  color: var(--success-color);
+}
+
+.settings .error {
+  color: var(--error-color);
+}
+
+.settings .warning {
+  color: var(--warning-color);
+}
+
+.settings .metadata {
+  margin: 0;
+}
+
+.settings .metadata-box {
+  padding-top: 18px;
+  color: #ffffff;
+  background-color: var(--primary-color);
+}
+
+.settings .metadata-title {
+  margin-left: 12px;
+  margin-bottom: 8px;
+  font-size: 20px;
+}
+
+.settings .metadata-subtitle {
+  margin-left: 12px;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+
+.settings .metadata-subinfo {
+  background-color: #E9E9E9;
+  height: 38px;
+  font-size: 13px;
+  border: 1px solid #dedede;
+  margin: 0;
+}
+
+.settings .metadata-subinfo span {
+  color: #585858;
+  width: auto;
+  line-height: 22px;
+}
+
+.settings .progress {
+  height: 10px;
+  background-color: #B3B0B0;
+  border-radius: 5px;
+  padding: 0;
+  margin: 6px 0 0px 10px;
+}
+
+.settings .metadata-icon {
+  float: right;
+  margin-right: 20px;
+  font-size: 50px;
+}
+
+.settings .metadata-action-icon {
+  color: var(--text-secondary) !important;
+}
+
+.settings .p-progressbar {
+  height: 10px;
+  background: #B3B0B0;
+  border-radius: 5px;
+  padding: 0;
+  margin: 0px 0 0px 0;
+}
+
+.uploadsProgress .p-progressbar {
+  height: 100%;
+  background: var(--bg-secondary);
+  border-radius: 0px;
+  padding: 0px;
+  margin: 0;
+}
+
+.settings .p-progressbar-determinate .p-progressbar-label {
+  display: none !important;
+}
+
+.uploadsProgress .p-progressbar-determinate .p-progressbar-label {
+  display: block !important;
+  color: #fff;
+}
+
+.settings .confirmDialog .p-button-icon-left {
+  display: none;
+}
+
+.settings .smtp-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 1rem;
+}
+
+.settings .smtp-status {
+  flex: 1;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.settings .smtp-test-btn {
+  background: transparent;
+  border: 1px solid var(--border-medium);
+  border-radius: var(--border-radius);
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: var(--text-secondary);
+  min-width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.settings .smtp-test-btn:hover:not(:disabled) {
+  background: var(--bg-light);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.settings .smtp-test-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.settings .smtp-test-btn .pi {
+  font-size: 1rem;
+}
+
+.settings .p-inputnumber {
+  height: 2.5rem;
+}
+
+.settings .p-inputnumber-button {
+  width: 1.5rem;
+  border-radius: 0px;
+}
+
+@media (max-width: 992px) {
+  .settings .metadata-icon {
+    font-size: 30px;
+  }
+}
+
+.uploads-path-input-container input {
+  width: auto;
+}
+

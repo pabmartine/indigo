@@ -1,29 +1,39 @@
-import { Component, OnInit, Input} from '@angular/core';
-import { MenuItem } from 'primeng/api/menuitem';
-import { TranslateService, TranslationChangeEvent } from '@ngx-translate/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslateService, TranslationChangeEvent } from '@ngx-translate/core';
+import { MenuItem } from 'primeng/api/menuitem';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { AuthStateService } from 'src/app/services/auth-state.service';
 
 @Component({
   selector: 'app-sidebar',
-  templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.css']
+  templateUrl: './sidebar.component.html'
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnDestroy {
 
   @Input() show: boolean;
 
   items: MenuItem[];
   others: MenuItem[];
-  
-  constructor(private router: Router, public translate: TranslateService) { }
+
+  private destroy$ = new Subject<void>();
+
+  constructor(
+    private router: Router,
+    public translate: TranslateService,
+    private authState: AuthStateService
+  ) { }
 
   ngOnInit(): void {
-    this.translate.onTranslationChange.subscribe(
-      (event: TranslationChangeEvent) => {
-        this.items = this.buildMenu();
-        this.others = this.buildOthers();
-      },
-    );
+    this.translate.onTranslationChange
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(
+        (event: TranslationChangeEvent) => {
+          this.items = this.buildMenu();
+          this.others = this.buildOthers();
+        },
+      );
 
     this.items = this.buildMenu();
     this.others = this.buildOthers();
@@ -34,7 +44,7 @@ export class SidebarComponent implements OnInit {
 
   buildMenu(): MenuItem[] {
     const menu: MenuItem[] = [
-      
+
       {
         label: this.translate.instant('locale.sidebar.menu.recommendations'),
         icon: 'menu-item-icon pi pi-star',
@@ -78,16 +88,16 @@ export class SidebarComponent implements OnInit {
         command: () => this.show = false
       },
       {
-        label: this.translate.instant('locale.sidebar.menu.notifications'), 
-        icon: 'menu-icon pi pi-bell', 
+        label: this.translate.instant('locale.sidebar.menu.notifications'),
+        icon: 'menu-icon pi pi-bell',
         routerLink: ['/notifications'],
         routerLinkActiveOptions: { exact: true },
         command: () => this.show = false,
         visible: this.isAdmin()
       },
       {
-        label: this.translate.instant('locale.sidebar.menu.settings'), 
-        icon: 'menu-icon pi pi-cog', 
+        label: this.translate.instant('locale.sidebar.menu.settings'),
+        icon: 'menu-icon pi pi-cog',
         routerLink: ['/settings'],
         routerLinkActiveOptions: { exact: true },
         command: () => this.show = false,
@@ -100,12 +110,12 @@ export class SidebarComponent implements OnInit {
   buildOthers(): MenuItem[] {
     const menu: MenuItem[] = [
       {
-        label: this.translate.instant('locale.header.menu.profile'), 
-        icon: 'menu-icon pi pi-user', 
+        label: this.translate.instant('locale.header.menu.profile'),
+        icon: 'menu-icon pi pi-user',
         routerLink: ['/profile'],
         routerLinkActiveOptions: { exact: true },
         command: () => this.show = false
-      },      
+      },
       {
         label: this.translate.instant('locale.header.menu.logout'), icon: 'menu-icon pi pi-sign-out', command: () => this.logout()
       }    ];
@@ -113,12 +123,17 @@ export class SidebarComponent implements OnInit {
   }
 
   logout(){
-    sessionStorage.removeItem('user');
+    this.authState.clearUser();
     this.router.navigate(['/login']);
   }
 
   isAdmin(){
-    return JSON.parse(sessionStorage.user).role == 'ADMIN';
+    return this.authState.isAdmin();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
 }

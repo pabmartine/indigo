@@ -1,89 +1,115 @@
 <p-toast position="top-center" [showTransformOptions]="'translateY(-100%)'"></p-toast>
-
-<div class="book" *ngIf="favorites?.length > 0">
-  <p-card>
-    <div class="content-header p-grid">
-      <div class="p-col-12 p-md-6">
-        <span class="page-title">
-          {{'locale.books.favorites.title' | translate}}
-        </span>
-      </div>
-    </div>
-
-    <div class="content-body p-grid" infiniteScroll [infiniteScrollDistance]="2" (scrolled)="onScroll()">
-      <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of favorites">
-
-        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)" style="cursor: pointer;" />
-        <div>
-          <span class="title">{{book.title}}</span>
-        </div>
-        <div>
-          <!--<span class="subtitle" *ngFor="let author of book.authors">
-            <a href="javascript:;" (click)="getBooksByAuthor(author)">{{author}}</a><span
-              *ngIf="author != book.authors[book.authors.length-1]"> & </span></span>-->
-
-          <span class="subtitle">
-            <a href="javascript:;" (click)="openAuthor(book.authors[0])">{{book.authors[0]}}</a></span>
-
-        </div>
-        <div *ngIf="book.rating">
-          <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
-        </div>
-      </div>
-    </div>
-
-  </p-card>
-</div>
-
 <div class="book">
-  <p-card>
-    <div class="content-header p-grid">
-      <div class="p-col-12 p-md-6">
-        <span class="page-title">
-          {{title}}
-        </span>
+<p-card>
+<div class="books-page-container">
+
+  <!-- Favorites Section -->
+  <div *ngIf="favorites && favorites.length > 0">
+    <div class="books-header">
+      <span class="page-title">{{'locale.books.favorites.title' | translate}}</span>
+    </div>
+    <div class="books-grid">
+      <div *ngFor="let book of favorites; trackBy: trackByBookId" class="book-item" (click)="showDetails(book)">
+        <div class="book-cover-container">
+          <img [src]="book.image || './assets/images/unknown.jpg'" class="book-cover" alt="{{ book.title }}"/>
+        </div>
+        <div class="book-info">
+          <span class="title" title="{{ book.title }}">{{book.title || 'Unknown Title'}}</span>
+          <span class="subtitle">
+            <a href="javascript:;" (click)="openAuthor(getFirstAuthor(book)); $event.stopPropagation();" *ngIf="getFirstAuthor(book) !== 'Unknown Author'">
+              {{getFirstAuthor(book)}}
+            </a>
+            <span *ngIf="getFirstAuthor(book) === 'Unknown Author'">{{getFirstAuthor(book)}}</span>
+          </span>
+          <div *ngIf="book.rating" class="rating-container">
+            <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+          </div>
+        </div>
       </div>
-      <div class="p-col-12 p-md-6" style="text-align: right;">
-        <p-dropdown [options]="sorts" [(ngModel)]="selectedSort" (onChange)="onChange($event)" class="sortBy">
+    </div>
+  </div>
+
+  <!-- All Books Section -->
+  <div>
+    <div class="books-header">
+      <span class="page-title">{{title || 'Books'}}</span>
+      <div class="view-controls">
+        <button pButton type="button" [icon]="isListView ? 'pi pi-th-large' : 'pi pi-bars'" (click)="setView(!isListView)" class="p-button-sm p-button-outlined"></button>
+        <p-dropdown [options]="sorts || []" [(ngModel)]="selectedSort" (onChange)="onChange($event)" class="sortBy" *ngIf="sorts && sorts.length > 0">
           <ng-template let-item pTemplate="selectedItem">
-            <span style="vertical-align:middle">{{item.label}}</span>
+            <span>{{item?.label || 'Sort Option'}}</span>
+          </ng-template>
+          <ng-template let-item pTemplate="item">
+            <span>{{item?.label || 'Unknown'}}</span>
           </ng-template>
         </p-dropdown>
       </div>
     </div>
 
-    <div class="content-body p-grid" infiniteScroll [infiniteScrollDistance]="2" (scrolled)="onScroll()">
-      <div class="p-sm-6 p-md-4 p-lg-2 p-xl-1" *ngFor="let book of books">
-
-        <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)" style="cursor: pointer;" />
-        <div>
-          <span class="title">{{book.title}}</span>
+    <!-- Grid View -->
+    <div *ngIf="!isListView" class="books-grid">
+      <div *ngFor="let book of books || []; trackBy: trackByBookId" class="book-item" (click)="showDetails(book)">
+        <div class="book-cover-container">
+          <img [src]="book.image || './assets/images/unknown.jpg'" class="book-cover" alt="{{ book.title }}"/>
         </div>
-        <div>
+        <div class="book-info">
+          <span class="title" title="{{ book.title }}">{{book.title || 'Unknown Title'}}</span>
           <span class="subtitle">
-            <a href="javascript:;" (click)="openAuthor(book.authors[0])">{{book.authors[0]}}</a></span>
-        </div>
-        <div *ngIf="book.rating">
-          <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"
-            style="display: inline-block;"></p-rating>
-          <i class="pi pi-comments" style="float: right; color: burlywood" *ngIf="book.reviews"></i>
+             <a href="javascript:;" (click)="openAuthor(getFirstAuthor(book)); $event.stopPropagation();" *ngIf="getFirstAuthor(book) !== 'Unknown Author'">
+              {{getFirstAuthor(book)}}
+            </a>
+            <span *ngIf="getFirstAuthor(book) === 'Unknown Author'">{{getFirstAuthor(book)}}</span>
+          </span>
+          <div *ngIf="book.rating" class="rating-container">
+            <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+            <i class="pi pi-comments" *ngIf="book.reviews" (click)="showDetails(book); $event.stopPropagation();"></i>
+          </div>
         </div>
       </div>
     </div>
 
-    <button type="button" pButton [ngClass]="'up-button'" *ngIf="showGoUpButton" (click)="scrollTop()"
-      icon="pi pi-arrow-up"></button>
-  </p-card>
-</div>
+    <!-- List View -->
+    <div *ngIf="isListView" class="books-list">
+      <div *ngFor="let book of books || []; trackBy: trackByBookId" class="book-list-item" (click)="showDetails(book)">
+        <img [src]="book.image || './assets/images/book-placeholder.jpg'" class="book-list-cover" alt="{{ book.title }}"/>
+        <div class="book-list-info">
+          <div class="title-container">
+            <span class="title" title="{{ book.title }}">{{book.title || 'Unknown Title'}}</span>
+            <i class="pi pi-comments" *ngIf="book.reviews" (click)="showDetails(book); $event.stopPropagation();"></i>
+          </div>
+          <span class="subtitle">
+            <a href="javascript:;" (click)="openAuthor(getFirstAuthor(book)); $event.stopPropagation();" *ngIf="getFirstAuthor(book) !== 'Unknown Author'">
+              {{getFirstAuthor(book)}}
+            </a>
+            <span *ngIf="getFirstAuthor(book) === 'Unknown Author'">{{getFirstAuthor(book)}}</span>
+          </span>
+          <p class="description" [innerHTML]="book.comment"></p>
+          <div class="book-meta" *ngIf="(book.tags && book.tags.length > 0) || book.pubDate">
+            <div *ngIf="book.tags && book.tags.length > 0" class="meta-item">
+              <span class="meta-value">{{ book.tags.join(', ') }}</span>
+            </div>
+            <div *ngIf="book.pubDate" class="meta-item">
+              <span class="meta-value">{{ book.pubDate | date:'longDate' }}</span>
+            </div>
+          </div>
+          <div *ngIf="book.rating" class="rating-container">
+            <p-rating [ngModel]="book.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<div class="book">
-  <p-dialog [(visible)]="showDetail" [modal]="true" [draggable]="false" [resizable]="false" [transitionOptions]="'0ms'">
-    <app-detail (eventClose)="closeDetails()" (eventOpen)="openDetails()" (eventAuthor)="openAuthor($event)"
-      (eventBook)="refreshBook($event)" (deleteBookEvent)="deleteBook($event)"></app-detail>
-  </p-dialog>
-  <p-dialog [(visible)]="showAuthorDetail" [modal]="true" [draggable]="false" [resizable]="false"
-    [transitionOptions]="'0ms'">
-    <app-author (eventClose)="closeAuthorDetails()" (eventOpen)="openAuthorDetails()"
-      (eventBook)="openBook($event)"></app-author>
-  </p-dialog>
+  <button type="button" pButton [ngClass]="'up-button'" *ngIf="showGoUpButton" (click)="scrollTop()" icon="pi pi-arrow-up" aria-label="Scroll to top"></button>
+
 </div>
+</p-card>
+</div>
+<!-- Dialogs -->
+<p-dialog [(visible)]="showDetail" [modal]="true" [draggable]="false" [resizable]="false" [transitionOptions]="'150ms'" [closeOnEscape]="true" appendTo="body">
+  <app-detail (eventClose)="closeDetails()" (eventOpen)="openDetails()" (eventAuthor)="openAuthor($event)" (eventBook)="refreshBook($event)" (deleteBookEvent)="deleteBook($event)"></app-detail>
+</p-dialog>
+
+<p-dialog [(visible)]="showAuthorDetail" [modal]="true" [draggable]="false" [resizable]="false" [transitionOptions]="'150ms'" [closeOnEscape]="true" appendTo="body">
+  <app-author (eventClose)="closeAuthorDetails()" (eventOpen)="openAuthorDetails()" (eventBook)="openBook($event)"></app-author>
+</p-dialog>

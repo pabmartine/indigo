@@ -3,7 +3,7 @@ package com.martinia.indigo.author.infrastructure.mongo.mappers;
 import com.martinia.indigo.author.domain.model.Author;
 import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
 import com.martinia.indigo.common.infrastructure.mongo.entities.NumBooksMongo;
-import com.martinia.indigo.common.model.NumBooks;
+import com.martinia.indigo.common.domain.model.NumBooks;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

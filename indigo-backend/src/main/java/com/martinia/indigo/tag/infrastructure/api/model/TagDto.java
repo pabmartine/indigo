@@ -13,7 +13,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class TagDto implements Serializable {
 
-	private static final long serialVersionUID = 1372817174744523921L;
 	private String id;
 	private String name;
 	private String image;

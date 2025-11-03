@@ -1,0 +1,87 @@
+/** DARK MODE SUPPORT **/
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-primary: #ecf0f1;
+    --text-secondary: #bdc3c7;
+    --text-muted: #95a5a6;
+    --bg-primary: #2c3e50;
+    --bg-secondary: #34495e;
+    --bg-light: #2c3e50;
+    --border-light: #4a5f7a;
+    --border-medium: #4a5f7a;
+    --border-dark: #34495e;
+  }
+
+  .footer {
+    background-color: var(--bg-dark);
+    box-shadow: 0 2px 1px -1px rgba(0, 0, 0, 0.4), 0 1px 1px 0 rgba(0, 0, 0, 0.24), 0 1px 3px 0 rgba(0, 0, 0, 0.22);
+  }
+
+  .footer .icons .icon:hover {
+    background: rgba(236, 240, 241, 0.1);
+  }
+
+  .login {
+    background: linear-gradient(135deg, var(--bg-dark) 0%, #34495e 100%);
+  }
+
+  .login .p-card {
+    background: #34495e;
+    color: var(--text-light);
+  }
+
+  .login .p-inputgroup .p-inputtext,
+  .login .p-inputgroup .p-password input {
+    background: var(--bg-dark);
+    border-color: var(--border-light);
+    color: var(--text-light);
+  }
+
+  .login .p-inputgroup .p-inputtext::placeholder,
+  .login .p-inputgroup .p-password input::placeholder {
+    color: var(--text-secondary);
+  }
+
+  .login .p-inputgroup-addon {
+    background: var(--bg-dark);
+    border-color: var(--border-light);
+  }
+}
+
+/** PRINT STYLES **/
+@media print {
+  .layout .main {
+    padding: 0;
+    margin: 0;
+    background: white;
+  }
+
+  .layout app-header,
+  .layout app-sidebar,
+  .layout app-topbar,
+  .layout app-footer {
+    display: none !important;
+  }
+
+  .header,
+  .sidebar,
+  .sidebar2,
+  .footer {
+    display: none !important;
+  }
+
+  .content-body,
+  .content-header {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .p-dialog,
+  .p-dialog-mask {
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+}

@@ -4,8 +4,8 @@ import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.serie.domain.ports.usecases.FindNumSeriesUseCase;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.Resource;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service

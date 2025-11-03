@@ -28,7 +28,7 @@ class FindImageTagMetadataCommandHandlerIntegrationTest extends BaseIndigoIntegr
 		HtmlPage page = Mockito.mock(HtmlPage.class);
 		HtmlDivision htmlDivision = Mockito.mock(HtmlDivision.class);
 		final HtmlImage domNode = Mockito.mock(HtmlImage.class);
-		Mockito.when(domNode.getAttribute(anyString())).thenReturn("image");
+		Mockito.when(domNode.getAttribute("src")).thenReturn("image"); // Changed anyString() to "src"
 		Mockito.when(htmlDivision.getFirstChild()).thenReturn(domNode);
 		List list = new ArrayList<>();
 		list.add(htmlDivision);

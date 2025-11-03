@@ -5,7 +5,7 @@ import com.martinia.indigo.metadata.domain.ports.usecases.wikipedia.FindWikipedi
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @Component
 @ConditionalOnProperty(name = "flags.wikipedia", havingValue="true")

@@ -3,7 +3,7 @@ package com.martinia.indigo.book.infrastructure.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.martinia.indigo.BaseIndigoIntegrationTest;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
-import com.martinia.indigo.common.model.Search;
+import com.martinia.indigo.common.domain.model.Search;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

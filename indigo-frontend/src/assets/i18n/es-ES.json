@@ -12,7 +12,7 @@
         },
         "footer": {
             "title": "Indigo",
-            "subtitle": "Interfaz web gratuita para la biblioteca de libros electrónicos Calibre"
+            "subtitle": "Explora, organiza y disfruta de tu colección digital de libros electrónicos"
         },
         "sidebar": {
             "menu": {
@@ -32,6 +32,7 @@
                 "ok": "El libro <strong>{{book}}</strong> se ha enviado al kindle de <strong>{{user}}</strong> correctamente",
                 "error": "Se ha producido un error en el envío del libro <strong>{{book}}</strong> al kindle de <strong>{{user}}</strong>"
             },
+            "upload": "Proceso de subida completado.&nbsp;Se han procesado un total de <strong>{{total}}</strong> libros.",
             "function_not_available": "Esta función no está disponible por el momento"
         },
         "books": {
@@ -327,6 +328,13 @@
                         "outlook": "Outlook",
                         "other": "Otro"
                     }
+                },
+                "file": {
+                    "title": "Subida de nuevos libros",
+                    "uploads": {
+                        "path": "Ruta de la carpeta de subidas",
+                        "info": "En esta ruta se colocarán los libros en formato EPUB que se deseen subir a la aplicación.\nUna vez colocados en esta carpeta, pulsar sobre el botón de refresco, y el sistema indicará si se han encontrado nuevos libros;\nen caso de hacerlo, habilitará un botón para realizar la subida y procesamiento de los mismos."
+                    }
                 }
             },
             "actions": {
@@ -383,7 +391,7 @@
             "sendDate": "Fecha",
             "readUser": "Leido por usuario",
             "readAdmin": "Leido por administrador",
-            "error": "Error",
+            "message": "Mensaje",
             "search": "Buscar por ",
             "select": "Selecciona un ",
             "actions": {
@@ -400,10 +408,12 @@
             },
             "statuses": {
                 "SEND": "Enviado",
-                "NOT_SEND": "No enviado"
+                "NOT_SEND": "No enviado",
+                "FINISHED": "Terminado"
             },
             "types": {
-                "KINDLE": "Kindle"
+                "KINDLE": "Envío a Kindle",
+                "UPLOAD": "Libros subidos"
             }
         },
         "buttons": {
@@ -427,25 +437,33 @@
             "favorite": {
                 "add": "Añadir a favoritos",
                 "delete": "Quitar de favoritos"
-            }
+            },
+            "detect": "Detectar",
+            "upload": "Subir"
         },
         "languages": {
             "es": "Español",
             "en": "Inglés",
+            "ca": "Catalán",
             "fr": "Francés",
             "pt": "Portugués",
             "de": "Alemán",
-            "eus": "Euskera",
-            "glg": "Gallego",
+            "it": "Italiano",
+            "sv": "Sueco",
+            "eu": "Euskera",
+            "gl": "Gallego",
+            "eo": "Esperanto",
+            "spa": "Español",
+            "eng": "Inglés",
+            "cat": "Catalán",
+            "fra": "Francés",
+            "por": "Portugues",
+            "deu": "Alemán",
             "ita": "Italiano",
             "swe": "Sueco",
-            "spa": "Español",
-            "cat": "Catalán",
-            "deu": "Alemán",
-            "por": "Portugues",
-            "eng": "Inglés",
-            "epo": "Esperanto",
-            "fra": "Francés"
+            "eus": "Euskera",
+            "glg": "Gallego",
+            "epo": "Esperanto"
         },
         "session": {
             "title": "Sesión caducada",

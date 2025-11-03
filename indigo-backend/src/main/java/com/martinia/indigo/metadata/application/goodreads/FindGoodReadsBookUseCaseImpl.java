@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.Resource;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -40,6 +40,10 @@ public class FindGoodReadsBookUseCaseImpl implements FindGoodReadsBookUseCase {
 		String[] ret = null;
 
 		try {
+
+			if (StringUtils.isAnyEmpty(key, title) || authors == null || authors.isEmpty()) {
+				return null;
+			}
 
 			String author = String.join(" ", authors);
 
@@ -86,23 +90,25 @@ public class FindGoodReadsBookUseCaseImpl implements FindGoodReadsBookUseCase {
 								return (filterAuthor.contains(StringUtils.stripAccents(term).toLowerCase().trim()));
 							}).count();
 
-							if (terms.length == 1 && hasTerms > 0 || terms.length > 1 && hasTerms > 1) {
-
-								float rating = Float.parseFloat(book.select("average_rating").get(0).text());
-								String similar = book.select("similar_books").select("book").stream().map(similarBook -> {
-									String similar_title = similarBook.select("title").text();
-									String similar_author = similarBook.select("authors").select("author").select("name").text();
-
-									return similar_title + "@;@" + similar_author;
-								}).collect(Collectors.joining("#;#"));
-
-								if (StringUtils.isNoneEmpty(similar)) {
-									return new String[] { String.valueOf(rating), similar, ProviderEnum.GOODREADS.name() };
-								}
-
-							}
-
-						}
+														if (terms.length == 1 && hasTerms > 0 || terms.length > 1 && hasTerms > 1) {
+							
+																if (book.select("average_rating").isEmpty()) {
+																	return null;
+																}
+																float rating = Float.parseFloat(book.select("average_rating").get(0).text());
+																String similar = book.select("similar_books").select("book").stream().map(similarBook -> {
+																	String similar_title = similarBook.select("title").text();
+																	String similar_author = similarBook.select("authors").select("author").select("name").text();
+							
+																	return similar_title + "@;@" + similar_author;
+																}).collect(Collectors.joining("#;#"));
+							
+																if (StringUtils.isNoneEmpty(similar)) {
+																	return new String[] { String.valueOf(rating), similar, ProviderEnum.GOODREADS.name() };
+																}
+							
+															}
+													}
 						return null;
 					}).filter(Objects::nonNull).findFirst().orElse(null);
 

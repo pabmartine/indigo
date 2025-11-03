@@ -1,6 +1,5 @@
 package com.martinia.indigo;
 
-import com.martinia.indigo.adapters.out.sqlite.repository.BookSqliteRepository;
 import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.domain.ports.repositories.ViewRepository;
@@ -18,7 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Import;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
@@ -48,10 +47,6 @@ public class BaseIndigoTest {
 	protected BookRepository bookRepository;
 
 	@Resource
-	protected BookSqliteRepository bookSqliteRepository;
-
-
-	@Resource
 	protected AuthorRepository authorRepository;
 
 	@Resource
@@ -73,8 +68,8 @@ public class BaseIndigoTest {
 		reset(applicationEventPublisher);
 	}
 
-	protected void assertEventPublished(Class event) {
-		verify(applicationEventPublisher, times(1)).publishEvent(any(event));
+	protected void assertEventPublished(Object event) {
+		verify(applicationEventPublisher, times(1)).publishEvent(event);
 	}
 
 	protected void assertRecursively(final Object actualObject, final Object expectedObject, final String... ignoredFields) {
@@ -85,7 +80,7 @@ public class BaseIndigoTest {
 				.isEqualTo(expectedObject);
 	}
 
-	private void deleteCollections(){
+	private void deleteCollections() {
 		configurationRepository.deleteAll();
 		bookRepository.deleteAll();
 		authorRepository.deleteAll();
@@ -94,6 +89,5 @@ public class BaseIndigoTest {
 		userRepository.deleteAll();
 		viewRepository.deleteAll();
 	}
-
 
 }

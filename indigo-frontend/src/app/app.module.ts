@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { APP_INITIALIZER, Injector, NgModule } from '@angular/core';
 import { AppRoutingModule } from './app-routing.module';
 import { RouterModule, RouteReuseStrategy } from '@angular/router';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
@@ -33,6 +33,10 @@ import { CardModule } from 'primeng/card';
 
 //auth
 import { JwtModule } from "@auth0/angular-jwt";
+import { AuthStateService } from './services/auth-state.service';
+
+//interceptors
+import { ErrorInterceptor } from './interceptors/error.interceptor';
 
 //translate
 import { TranslateModule, TranslateLoader, MissingTranslationHandler, MissingTranslationHandlerParams, TranslateService } from '@ngx-translate/core';
@@ -82,12 +86,20 @@ export function appInitializerFactory(translateService: TranslateService, inject
       // Usar el idioma almacenado en el almacenamiento local o el idioma mapeado,
       // y suscribirse al resultado
       translateService.use(localStorage.getItem("language") || mappedLanguage)
-        .pipe(take(1))
-        .subscribe(
-          () => {}, // No se necesita hacer nada en caso de éxito
-          err => console.error(err), // Manejar el error en caso de que ocurra
-          () => resolve(null) // Resolver la promesa una vez que la operación esté completa
-        );
+      .pipe(take(1))
+      .subscribe({
+        next: () => {
+          // No se necesita hacer nada en caso de éxito
+        },
+        error: (err) => {
+          console.error(err); // Manejar el error en caso de que ocurra
+          resolve(null); // Resolver la promesa en caso de error
+        },
+        complete: () => {
+          resolve(null); // Resolver la promesa una vez que la operación esté completa
+        }
+      });
+    
     });
   });
 }
@@ -148,12 +160,17 @@ import { AuthorComponent } from './pages/author/author.component';
     JwtModule.forRoot({
       config: {
         tokenGetter: () => {
-          let token: string;
-          if (sessionStorage.user) {
-            const user = JSON.parse(sessionStorage.user);
-            token = user.token;
+          try {
+            const userJson = sessionStorage.getItem('user');
+            if (userJson) {
+              const user = JSON.parse(userJson);
+              return user?.token || null;
+            }
+            return null;
+          } catch (error) {
+            console.error('Error parsing user token:', error);
+            return null;
           }
-          return token;
         },
         allowedDomains: environment.whiteList,
         disallowedRoutes: environment.blackList,
@@ -168,6 +185,12 @@ import { AuthorComponent } from './pages/author/author.component';
       deps: [TranslateService, Injector],
       multi: true
     }
+    // Temporarily disabled to diagnose issue
+    // {
+    //   provide: HTTP_INTERCEPTORS,
+    //   useClass: ErrorInterceptor,
+    //   multi: true
+    // }
   ],
   exports: [],
   bootstrap: [AppComponent]

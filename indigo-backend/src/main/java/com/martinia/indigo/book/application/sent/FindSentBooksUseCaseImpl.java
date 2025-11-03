@@ -9,8 +9,8 @@ import com.martinia.indigo.notification.domain.ports.repositories.NotificationRe
 import com.martinia.indigo.notification.infrastructure.mongo.entities.NotificationMongoEntity;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.Resource;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,11 +34,11 @@ public class FindSentBooksUseCaseImpl implements FindSentBooksUseCase {
 	public List<Book> getSentBooks(final String user) {
 		Map<String, Book> map = new HashMap<>();
 		List<NotificationMongoEntity> notifications = notificationRepository.findByUser(user);
-		notifications.forEach(notification -> {
-			if (!map.containsKey(notification.getBook())) {
-				Optional<BookMongoEntity> book = bookRepository.findByPath(notification.getBook());
+		notifications.stream().filter(notification -> notification.getType().equals("KINDLE")).forEach(notification -> {
+			if (!map.containsKey(notification.getKindle().getBook())) {
+				Optional<BookMongoEntity> book = bookRepository.findByPath(notification.getKindle().getBook());
 				if (book.isPresent()) {
-					map.put(notification.getBook(), bookMongoMapper.entity2Domain(book.get()));
+					map.put(notification.getKindle().getBook(), bookMongoMapper.entity2Domain(book.get()));
 				}
 			}
 		});

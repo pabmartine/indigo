@@ -11,7 +11,7 @@ import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
 import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import org.junit.jupiter.api.Test;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 import static org.junit.Assert.assertEquals;
 

@@ -18,7 +18,7 @@ public class DeleteNotificationControllerIntegrationTest extends BaseIndigoInteg
 
 	@BeforeEach
 	public void init() {
-		notificationEntity = NotificationMongoEntity.builder().id("1").book("book").user("user").type("type").build();
+		notificationEntity = NotificationMongoEntity.builder().id("1").user("user").type("type").build();
 		notificationRepository.save(notificationEntity);
 	}
 

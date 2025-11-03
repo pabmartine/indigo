@@ -1,0 +1,394 @@
+/** LOGIN **/
+.login {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, #e0e6ed 100%);
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.login .p-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.06);
+  border: none;
+  overflow: hidden;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.login .p-card .p-card-body {
+  padding: 2.5rem 2rem;
+}
+
+.login .p-card .p-card-content {
+  padding: 0;
+}
+
+.login .title {
+  display: block;
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2rem;
+  letter-spacing: -0.01em;
+}
+
+.login .login-data {
+  width: 100%;
+  padding: 0;
+}
+
+.login .login-data .p-col-12 {
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+.login .login-data .p-col-12:last-child {
+  margin-bottom: 0;
+}
+
+/* Input groups */
+.login .p-inputgroup {
+  width: 100%;
+  display: flex;
+  align-items: stretch;
+}
+
+.login .p-inputgroup .p-inputtext,
+.login .p-inputgroup .p-password input {
+  flex: 1;
+  padding: 0.875rem 1rem;
+  font-size: 0.95rem;
+  border: 1px solid var(--border-medium);
+  border-right: none;
+  border-radius: 6px 0 0 6px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: all var(--transition-normal);
+  font-family: inherit;
+}
+
+.login .p-inputgroup .p-inputtext:focus,
+.login .p-inputgroup .p-password input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(105, 142, 191, 0.25);
+  z-index: 2;
+}
+
+.login .p-inputgroup .p-inputtext::placeholder,
+.login .p-inputgroup .p-password input::placeholder {
+  color: #8e9ba8;
+  font-style: italic;
+}
+
+.login .p-inputgroup-addon {
+  background: var(--bg-light);
+  border: 1px solid var(--border-medium);
+  border-left: none;
+  border-radius: 0 6px 6px 0;
+  padding: 0.875rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3rem;
+  transition: all var(--transition-normal);
+}
+
+.login .p-inputgroup:focus-within .p-inputgroup-addon i {
+  color: var(--primary-color);
+}
+
+/* Password specific */
+.login .p-password-wrapper {
+  flex: 1;
+  display: flex;
+}
+
+.login .p-password {
+  width: 100%;
+  display: flex;
+  flex: 1;
+}
+
+.login .p-password .p-password-input {
+  flex: 1;
+}
+
+.login .p-password .p-password-toggle-mask {
+  position: absolute;
+  right: 3.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: color var(--transition-normal);
+  z-index: 3;
+}
+
+.login .p-password .p-password-toggle-mask:hover {
+  color: var(--primary-color);
+}
+
+/* Remember me */
+.login .left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem !important;
+}
+
+.login .remember-me {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  order: 2;
+}
+
+.login .p-checkbox {
+  order: 1;
+  width: 18px;
+  height: 18px;
+}
+
+.login .p-checkbox .p-checkbox-box {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-medium);
+  border-radius: var(--border-radius);
+  background: var(--bg-secondary);
+  transition: all var(--transition-normal);
+}
+
+.login .p-checkbox .p-checkbox-box:not(.p-disabled):hover {
+  border-color: var(--primary-color);
+  background: var(--bg-light);
+}
+
+.login .p-checkbox .p-checkbox-box.p-highlight {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.login .p-checkbox .p-checkbox-box.p-highlight .p-checkbox-icon {
+  color: #fff;
+  font-size: 0.8rem;
+}
+
+.login .p-checkbox .p-checkbox-box:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(105, 142, 191, 0.25);
+}
+
+/* Botón de login */
+.login button[type="button"] {
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+  border: 1px solid var(--primary-color);
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.login button[type="button"]:hover {
+  background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary-active) 100%);
+  border-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(105, 142, 191, 0.4);
+}
+
+.login button[type="button"]:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(105, 142, 191, 0.3);
+}
+
+.login button[type="button"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(105, 142, 191, 0.5);
+}
+
+.login button[type="button"]:disabled {
+  background: var(--border-light);
+  border-color: var(--border-light);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Efecto ripple en el botón */
+.login button[type="button"]::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease;
+}
+
+.login button[type="button"]:active::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Estados de carga */
+.login.loading button[type="button"] {
+  position: relative;
+  color: transparent;
+}
+
+.login.loading button[type="button"]::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Error messages */
+.login .error {
+  width: 100%;
+  max-width: 450px;
+  margin-top: 1.5rem;
+  padding: 0;
+}
+
+.login .error .p-messages {
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.login .error .p-message {
+  border-radius: 6px;
+  margin: 0;
+  animation: slideDown 0.3s ease-out;
+}
+
+.login .error .p-message.p-message-error {
+  background: #fee;
+  border: 1px solid #fcc;
+  color: #c33;
+}
+
+.login .error .p-message .p-message-wrapper {
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+}
+
+.login .error .p-message .p-message-icon {
+  font-size: 1.2rem;
+  margin-right: 0.75rem;
+}
+
+.login .error .p-message .p-message-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+  flex: 1;
+}
+
+/* RESPONSIVE ESPECÍFICO PARA LOGIN */
+@media (max-width: 640px) {
+  .login .p-card {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .login .p-card .p-card-body {
+    padding: 2rem 1.5rem;
+  }
+
+  .login .title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .login .p-inputgroup .p-inputtext,
+  .login .p-inputgroup .p-password input {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.9rem;
+  }
+
+  .login .p-inputgroup-addon {
+    padding: 0.75rem 0.875rem;
+    min-width: 2.75rem;
+  }
+
+  .login button[type="button"] {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .login .p-card .p-card-body {
+    padding: 1.5rem 1rem;
+  }
+
+  .login .title {
+    font-size: 1.3rem;
+  }
+
+  .login .login-data .p-col-12 {
+    margin-bottom: 1.25rem;
+  }
+
+  .login .p-inputgroup .p-inputtext,
+  .login .p-inputgroup .p-password input {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .login .p-inputgroup-addon {
+    padding: 0.625rem 0.75rem;
+    min-width: 2.5rem;
+  }
+
+  .login .p-inputgroup-addon i {
+    font-size: 1rem;
+  }
+
+  .login button[type="button"] {
+    padding: 0.625rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .login .remember-me {
+    font-size: 0.85rem;
+  }
+}focus-within .p-inputgroup-addon {
+  border-color: var(--primary-color);
+  background: #f0f4f8;
+}
+
+.login .p-inputgroup-addon i {
+  color: #6c757d !important;
+  font-size: 1.1rem;
+  transition: color var(--transition-normal);
+}

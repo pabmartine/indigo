@@ -7,8 +7,8 @@ import com.martinia.indigo.notification.infrastructure.mongo.mappers.Notificatio
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.Resource;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
@@ -23,6 +23,6 @@ public class FindAllNotificationsUseCaseImpl implements FindAllNotificationsUseC
 
 	@Override
 	public List<Notification> findAllByOrderBySendDateDesc() {
-		return notificationMongoMapper.entities2Domains(notificationRepository.findAll(Sort.by(Sort.Direction.DESC, "sendDate")));
+		return notificationMongoMapper.entities2Domains(notificationRepository.findAll(Sort.by(Sort.Direction.DESC, "date")));
 	}
 }

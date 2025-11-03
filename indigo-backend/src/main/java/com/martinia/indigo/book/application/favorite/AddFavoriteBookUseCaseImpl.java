@@ -6,8 +6,8 @@ import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.Resource;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional

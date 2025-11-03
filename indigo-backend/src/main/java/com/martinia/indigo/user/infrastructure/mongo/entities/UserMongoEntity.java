@@ -22,8 +22,6 @@ import lombok.Setter;
 @Document(collection = "users")
 public class UserMongoEntity implements Serializable {
 
-	private static final long serialVersionUID = 9011428722737102324L;
-
 	@Id
 	private String id;
 	private String username;

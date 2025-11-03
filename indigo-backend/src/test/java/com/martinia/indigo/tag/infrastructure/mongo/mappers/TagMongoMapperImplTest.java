@@ -1,7 +1,7 @@
 package com.martinia.indigo.tag.infrastructure.mongo.mappers;
 
 import com.martinia.indigo.common.infrastructure.mongo.entities.NumBooksMongo;
-import com.martinia.indigo.common.model.NumBooks;
+import com.martinia.indigo.common.domain.model.NumBooks;
 import com.martinia.indigo.tag.domain.model.Tag;
 import com.martinia.indigo.tag.infrastructure.mongo.entities.TagMongoEntity;
 import org.junit.jupiter.api.Test;

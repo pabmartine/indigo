@@ -6,11 +6,11 @@ import com.martinia.indigo.metadata.domain.ports.usecases.commands.StartFillAuth
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @Slf4j
 @Component
-public class StartFillAuthorsMetadataCommandHandler implements CommandHandler<StartFillAuthorsMetadataCommand, Void> {
+public class StartFillAuthorsMetadataCommandHandler extends CommandHandler<StartFillAuthorsMetadataCommand, Void> {
 
 	@Resource
 	private StartFillAuthorsMetadataUseCase startFillAuthorsMetadataUseCase;

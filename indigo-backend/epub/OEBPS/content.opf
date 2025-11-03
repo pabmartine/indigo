@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package version="2.0" xmlns="http://www.idpf.org/2007/opf" unique-identifier="bookid">
+  <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+    <dc:title>Test Book</dc:title>
+    <dc:creator>Test Author</dc:creator>
+    <dc:identifier id="bookid">12345</dc:identifier>
+    <meta name="cover" content="cover-image" />
+  </metadata>
+  <manifest>
+    <item id="cover-image" href="cover.jpg" media-type="image/jpeg"/>
+  </manifest>
+  <spine toc="ncx">
+    <itemref idref="cover-image" linear="no"/>
+  </spine>
+</package>

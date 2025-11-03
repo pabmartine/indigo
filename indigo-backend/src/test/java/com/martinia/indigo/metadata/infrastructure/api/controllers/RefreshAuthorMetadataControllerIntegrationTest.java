@@ -1,38 +1,25 @@
 package com.martinia.indigo.metadata.infrastructure.api.controllers;
 
 import com.martinia.indigo.BaseIndigoIntegrationTest;
-import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.author.domain.model.Author;
-import com.martinia.indigo.author.infrastructure.api.mappers.AuthorDtoMapper;
-import com.martinia.indigo.author.infrastructure.api.model.AuthorDto;
 import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
 import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import com.martinia.indigo.common.infrastructure.mongo.entities.NumBooksMongo;
 import com.martinia.indigo.metadata.domain.model.commands.FindAuthorMetadataCommand;
-import com.martinia.indigo.metadata.domain.model.commands.LoadBookCommand;
-import com.martinia.indigo.metadata.domain.ports.usecases.RefreshAuthorMetadataUseCase;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.testcontainers.shaded.org.hamcrest.Matchers.any;
-import static org.testcontainers.shaded.org.hamcrest.Matchers.nullValue;
 
 public class RefreshAuthorMetadataControllerIntegrationTest extends BaseIndigoIntegrationTest {
 

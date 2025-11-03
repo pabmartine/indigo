@@ -8,8 +8,8 @@ import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.Resource;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,14 +34,14 @@ public class FindFavoriteBooksUseCaseImpl implements FindFavoriteBooksUseCase {
 			List<String> books = userEntity.getFavoriteBooks();
 			List<Book> ret = new ArrayList<>(books != null ? books.size() : 0);
 			if (!CollectionUtils.isEmpty(books)) {
-				books.forEach(book -> ret.add(findBook(book).get()));
+				books.forEach(book -> ret.add(findBook(book)));
 			}
 			return ret;
 		}).orElse(Collections.emptyList());
 	}
 
-	private Optional<Book> findBook(String path) {
-		return bookRepository.findByPath(path).map(book -> Optional.of(bookMongoMapper.entity2Domain(book))).orElse(Optional.empty());
+	private Book findBook(String path) {
+		return bookRepository.findByPath(path).map(book -> bookMongoMapper.entity2Domain(book)).orElse(null);
 	}
 
 }

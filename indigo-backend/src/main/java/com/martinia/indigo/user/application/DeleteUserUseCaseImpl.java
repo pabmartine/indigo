@@ -5,8 +5,8 @@ import com.martinia.indigo.user.domain.ports.usecases.DeleteUserUseCase;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.Resource;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional

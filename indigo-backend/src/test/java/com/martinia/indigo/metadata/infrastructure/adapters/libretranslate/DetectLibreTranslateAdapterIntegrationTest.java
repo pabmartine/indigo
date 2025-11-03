@@ -5,7 +5,7 @@ import com.martinia.indigo.metadata.domain.ports.adapters.libretranslate.DetectL
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;

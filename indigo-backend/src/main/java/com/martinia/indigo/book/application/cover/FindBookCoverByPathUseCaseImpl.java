@@ -1,11 +1,11 @@
 package com.martinia.indigo.book.application.cover;
 
 import com.martinia.indigo.book.domain.ports.usecases.cover.FindBookCoverByPathUseCase;
-import com.martinia.indigo.common.util.UtilComponent;
+import com.martinia.indigo.common.util.ImageUtils;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import javax.transaction.Transactional;
+import jakarta.annotation.Resource;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Service
@@ -13,10 +13,10 @@ import java.util.Optional;
 public class FindBookCoverByPathUseCaseImpl implements FindBookCoverByPathUseCase {
 
 	@Resource
-	private UtilComponent utilComponent;
+	private ImageUtils imageUtils;
 
 	@Override
 	public Optional<String> getImage(String path) {
-		return Optional.ofNullable(utilComponent.getBase64Cover(path, false));
+		return Optional.ofNullable(imageUtils.getBase64Cover(path, false));
 	}
 }

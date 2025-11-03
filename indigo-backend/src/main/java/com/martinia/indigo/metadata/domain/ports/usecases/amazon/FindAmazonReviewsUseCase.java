@@ -1,6 +1,6 @@
 package com.martinia.indigo.metadata.domain.ports.usecases.amazon;
 
-import com.martinia.indigo.common.model.Review;
+import com.martinia.indigo.common.domain.model.Review;
 
 import java.util.List;
 

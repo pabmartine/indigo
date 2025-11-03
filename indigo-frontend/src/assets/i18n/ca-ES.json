@@ -1,0 +1,470 @@
+{
+    "locale": {
+        "header": {
+            "title": "INDIGO",
+            "user": "Usuari",
+            "messages": "Missatges",
+            "search": "Introdueix títol o autor per buscar",
+            "menu": {
+                "profile": "Perfil",
+                "logout": "Sortir"
+            }
+        },
+        "footer": {
+            "title": "Indigo",
+            "subtitle": "Explora, organitza i gaudeix de la teva col·lecció digital de llibres electrònics"
+        },
+        "sidebar": {
+            "menu": {
+                "books": "Llibres",
+                "recommendations": "Per a tu",
+                "authors": "Autors",
+                "tags": "Categories",
+                "series": "Sèries",
+                "search": "Recerca avançada",
+                "settings": "Configuració",
+                "notifications": "Notificacions"
+            }
+        },
+        "messages": {
+            "none": "No hi ha missatges pendents",
+            "kindle": {
+                "ok": "El llibre <strong>{{book}}</strong> s'ha enviat al kindle de <strong>{{user}}</strong> correctament",
+                "error": "S'ha produït un error en l'enviament del llibre <strong>{{book}}</strong> al kindle de <strong>{{user}}</strong>"
+            },
+            "function_not_available": "Aquesta funció no està disponible de moment"
+        },
+        "books": {
+            "title": "Llibres",
+            "title_of": "Llibres de ",
+            "title_published": "Llibres publicats ",
+            "search_results": "Resultats de la cerca: ",
+            "detail": {
+                "title": "Detalls del llibre",
+                "pubdate": "Data de publicació:",
+                "pages": "pàgines",
+                "delete": {
+                    "ok": "El llibre s'ha eliminat de la biblioteca",
+                    "error": "El llibre no s'ha pogut eliminar de la biblioteca"
+                },
+                "edit": {
+                    "title": "Títol",
+                    "author": "Autor",
+                    "plot": "Argument",
+                    "gender": "Gènere",
+                    "pubdate": "Publicat",
+                    "language": "Idioma",
+                    "pages": "Pàgines",
+                    "rating": "Valoració",
+                    "ok": "El llibre s'ha editat",
+                    "error": "El llibre no s'ha pogut editar"
+                },
+                "kindle": {
+                    "todo": "El llibre s'enviarà al seu dispositiu",
+                    "ok": "El llibre s'ha enviat al seu dispositiu i apareixerà en uns minuts",
+                    "error": "El llibre no ha pogut ser enviat"
+                },
+                "favorite": {
+                    "add": {
+                        "ok": "El llibre s'ha afegit a preferits",
+                        "error": "El llibre no s'ha pogut afegir a preferits"
+                    },
+                    "delete": {
+                        "ok": "El llibre s'ha eliminat de preferits",
+                        "error": "El llibre no s'ha pogut eliminar de preferits"
+                    }
+                },
+                "download": {
+                    "error": "No s'ha pogut descarregar el llibre"
+                },
+                "metadata": {
+                    "rating": "VALORACIÓ",
+                    "genre": "GÈNERE",
+                    "published": "PUBLICAT",
+                    "language": "IDIOMA",
+                    "pages": "EXTENSIÓ"
+                },
+                "expand": {
+                    "more": "Veure'n més",
+                    "less": "Veure'n menys"
+                }
+            },
+            "serie": {
+                "title": "De la mateixa sèrie"
+            },
+            "similar": {
+                "title": "Altres llibres similars"
+            },
+            "recommendations": {
+                "title": "Et poden agradar",
+                "title2": "Seleccionats per a tu"
+            },
+            "favorites": {
+                "title": "Preferits"
+            },
+            "refresh": {
+                "process": "Actualitzant dades",
+                "result": {
+                    "ok": "Dades actualitzades correctament",
+                    "error": "No s'han pogut obtenir les dades"
+                }
+            },
+            "order_by": {
+                "id": {
+                    "asc": "Afegits més antics",
+                    "desc": "Afegits recentment"
+                },
+                "pubdate": {
+                    "asc": "Primers llibres publicats",
+                    "desc": "Últims llibres publicats"
+                },
+                "title": {
+                    "asc": "Títol ascendent",
+                    "desc": "Títol descendent"
+                },
+                "rating": {
+                    "asc": "Pitjor valorats",
+                    "desc": "Millor valorats"
+                },
+                "count": {
+                    "desc": "Més recomanats",
+                    "asc": "Menys recomanats"
+                }
+            },
+            "error": {
+                "data": "No s'han pogut obtenir les dades",
+                "tags": "No s'han pogut recuperar les categories",
+                "serie": "No s'ha pogut recuperar la sèrie",
+                "pages": "No s'ha pogut recuperar les pàgines",
+                "comment": "No s'ha pogut recuperar la descripció",
+                "cover": "No s'ha pogut recuperar la imatge"
+            }
+        },
+        "authors": {
+            "title": "Autors",
+            "order_by": {
+                "total": {
+                    "asc": "Autors amb menys llibres",
+                    "desc": "Autors amb més llibres"
+                },
+                "sort": {
+                    "asc": "Autors per nom ascendent",
+                    "desc": "Autors per nom descendent"
+                }
+            },
+            "favorites": {
+                "title": "Preferits",
+                "add": {
+                    "ok": "L'autor s'ha afegit a preferits",
+                    "error": "L'autor no s'ha pogut afegir a preferits"
+                },
+                "delete": {
+                    "ok": "L'autor s'ha eliminat de preferits",
+                    "error": "L'autor no s'ha pogut eliminar de preferits"
+                }
+            },
+            "refresh": {
+                "process": "Actualitzant dades",
+                "result": {
+                    "ok": "Dades actualitzades correctament",
+                    "error": "No s'han pogut obtenir les dades"
+                }
+            },
+            "total": "llibres a la biblioteca",
+            "error": {
+                "data": "No s'han pogut obtenir les dades"
+            }
+        },
+        "tags": {
+            "title": "Categories",
+            "order_by": {
+                "total": {
+                    "asc": "Categories amb menys llibres",
+                    "desc": "Categories amb més llibres"
+                },
+                "name": {
+                    "asc": "Categories per nom ascendent",
+                    "desc": "Categories per nom descendent"
+                }
+            },
+            "actions": {
+                "settings": {
+                    "title": "Opcions"
+                },
+                "rename": {
+                    "title": "Reanomenar",
+                    "description": {
+                        "source": "Seleccioneu l'etiqueta a reanomenar",
+                        "target": "Introduïu el nou nom"
+                    },
+                    "error": "Ja existeix una categoria amb el nou nom introduït",
+                    "info": "La categoria {{source}} s'anomenarà {{target}}. Voleu continuar?"
+                },
+                "merge": {
+                    "title": "Combinar",
+                    "description": {
+                        "source": "Seleccioneu l'etiqueta d'origen",
+                        "target": "Seleccioneu l'etiqueta de destinació"
+                    },
+                    "error": "Les categories seleccionades han de ser diferents",
+                    "info": "La categoria {{source}} es combinarà a {{target}}. Voleu continuar?"
+                },
+                "image": {
+                    "modify": {
+                        "title": "Modificar imatge"
+                    },
+                    "update": {
+                        "title": "Actualitzar imatge"
+                    },
+                    "description": {
+                        "source": "Seleccioneu l'etiqueta d'origen",
+                        "target": "Introduïu la URL de la nova imatge"
+                    },
+                    "error": "La imatge introduïda no és correcta",
+                    "info": "La imatge introduïda és correcta. Voleu continuar?"
+                }
+            },
+            "total": "llibres a la biblioteca",
+            "error": {
+                "data": "No s'han pogut obtenir les dades",
+                "merge": "No s'ha pogut realitzar l'operació",
+                "rename": "No s'ha pogut realitzar l'operació",
+                "image": "No s'ha pogut realitzar l'operació"
+            }
+        },
+        "series": {
+            "title": "Sèries",
+            "order_by": {
+                "total": {
+                    "asc": "Sèries amb menys llibres",
+                    "desc": "Sèries amb més llibres"
+                },
+                "sort": {
+                    "asc": "Sèries per nom ascendent",
+                    "desc": "Sèries per nom descendent"
+                }
+            },
+            "total": "llibres a la biblioteca",
+            "error": {
+                "data": "No s'han pogut obtenir les dades"
+            }
+        },
+        "profile": {
+            "title": "Perfil de {{username}}",
+            "account": {
+                "title": "Compte",
+                "username": "Usuari",
+                "password": "Contrasenya",
+                "role": "Rol",
+                "language": "Idioma de la interfície",
+                "languages": "Idioma dels llibres",
+                "kindle": "Adreça email del dispositiu Kindle",
+                "kindle_short": "Kindle",
+                "account": "Compte"
+            },
+            "permissions": {
+                "title": "Permisos",
+                "show_random_books": "Mostrar llibres aleatoris"
+            },
+            "books": {
+                "title": "Les meves lectures"
+            },
+            "error": {
+                "get": "No s'ha pogut recuperar el perfil",
+                "update": "No s'ha pogut actualitzar el perfil",
+                "save": "No s'ha pogut desar el perfil",
+                "name": "Ja existeix un usuari amb aquest nom"
+            },
+            "ok": {
+                "update": "Perfil actualitzat correctament"
+            }
+        },
+        "settings": {
+            "title": "Configuració",
+            "panel": {
+                "users": {
+                    "title": "Usuaris"
+                },
+                "global": {
+                    "title": "General",
+                    "recommendations": "Nombre màxim de lectures recomanades per llibre",
+                    "recommendations2": "Nombre màxim de lectures recomanades per usuari"
+                },
+                "metadata": {
+                    "title": "Metadades",
+                    "pull": "Realitzar una sol·licitud cada (segons)",
+                    "goodreadskey": "Clau de desenvolupador de GoodReads",
+                    "all": {
+                        "partial": "Actualitzar totes les metadades (valoracions, comentaris, biografia de l'autor, etc.) per a llibres nous",
+                        "full": "Actualitzar totes les metadades (valoracions, comentaris, biografia de l'autor, etc.) per a tota la biblioteca. Sobreescriure existents."
+                    },
+                    "authors": {
+                        "partial": "Actualitzar les metadades d'autors per a llibres nous",
+                        "full": "Actualitzar les metadades d'autors per a tota la biblioteca. Sobreescriure existents."
+                    },
+                    "indexing_books": "Indexant biblioteca (1/5) ...",
+                    "filling_recommendations": "Generant recomanacions (3/5) ...",
+                    "obtaining_metadata_books": "Obtenint metadades de llibres (4/5) ...",
+                    "obtaining_metadata_authors": "Obtenint metadades d'autors (5/5) ...",
+                    "filling_authors": "Omplint autors (2/5) ..."
+                },
+                "smtp": {
+                    "title": "Servidor de correu",
+                    "host": "Servidor",
+                    "port": "Port",
+                    "encryption": "Xifrat",
+                    "provider": "Proveedor",
+                    "username": "Usuari",
+                    "password": "Contrasenya",
+                    "test": "Comprovar configuració del servidor",
+                    "status": {
+                        "unknown": "Desconegut",
+                        "ok": "Validat",
+                        "error": "Error"
+                    },
+                    "providers": {
+                        "gmail": "Gmail",
+                        "outlook": "Outlook",
+                        "other": "Altre"
+                    }
+                },
+                "file": {
+                    "title": "Pujada de nous llibres",
+                    "uploads": {
+                        "path": "Ruta de la carpeta de pujades",
+                        "info": "En aquesta ruta es col·locaran els llibres en format EPUB que es vulguin pujar a l'aplicació.\nUn cop col·locats en aquesta carpeta, premeu sobre el botó de refresc, i el sistema indicarà si s'han trobat nous llibres;\nEn cas de fer-ho, habilitarà un botó per realitzar la pujada i processament dels mateixos."
+                    }
+                }
+            },
+            "actions": {
+                "save": {
+                    "ok": "Configuració desada correctament",
+                    "error": "No s'ha pogut desar la configuració"
+                },
+                "start": {
+                    "error": "No s'ha pogut iniciar el servei"
+                },
+                "stop": {
+                    "error": "No s'ha pogut aturar el servei"
+                },
+                "delete": {
+                    "error": "No s'ha pogut esborrar l'usuari"
+                }
+            }
+        },
+        "login": {
+            "title": "Inici de sessió",
+            "username": "Usuari",
+            "password": "Contrasenya",
+            "rememberme": "Recorda'm",
+            "username.required": "L'usuari és obligatori",
+            "password.required": "La contrasenya és obligatòria",
+            "userpass.wrong": "Usuari i/o contrasenya incorrectes",
+            "error": "S'ha produït un error en l'accés"
+        },
+        "search": {
+            "title": "Recerca Avançada",
+            "field": {
+                "title": "Títol",
+                "author": "Autor",
+                "serie": "Sèrie",
+                "date": {
+                    "ini": "Data de publicació posterior a",
+                    "end": "Data de publicació anterior a"
+                },
+                "pages": {
+                    "min": "Nombre de pàgines major que",
+                    "max": "Nombre de pàgines menor que"
+                },
+                "tags": "Categories"
+            },
+            "searching": "Buscant..."
+        },
+        "notifications": {
+            "title": "Notificacions",
+            "id": "Id",
+            "user": "Usuari",
+            "book": "Llibre",
+            "type": "Tipus",
+            "status": "Estat",
+            "sendDate": "Data",
+            "readUser": "Llegit per usuari",
+            "readAdmin": "Llegit per administrador",
+            "error": "Error",
+            "search": "Cerca per ",
+            "select": "Selecciona un ",
+            "actions": {
+                "get": {
+                    "error": "No s'ha pogut obtenir les notificacions"
+                },
+                "delete": {
+                    "error": "No s'ha pogut esborrar la notificació"
+                }
+            },
+            "read": {
+                "true": "Sí",
+                "false": "No"
+            },
+            "statuses": {
+                "SEND": "Enviat",
+                "NOT_SEND": "No enviat"
+            },
+            "types": {
+                "KINDLE": "Kindle"
+            }
+        },
+        "buttons": {
+            "login": "Iniciar sessió",
+            "logout": "Sortir",
+            "accept": "Acceptar",
+            "cancel": "Cancel·lar",
+            "close": "Tancar",
+            "save": "Desar",
+            "send": "Enviar a Kindle",
+            "new": "Nou",
+            "add": "Afegir",
+            "search": "Cercar",
+            "next": "Següent",
+            "previous": "Anterior",
+            "view": "Veure llibre",
+            "download": "Descarregar llibre",
+            "refresh": "Actualitzar metadades",
+            "delete": "Esborrar",
+            "edit": "Editar",
+            "favorite": {
+                "add": "Afegir a preferits",
+                "delete": "Treure de preferits"
+            },
+            "detect": "Detectar",
+            "upload": "Puja"
+        },
+        "languages": {
+            "es": "Espanyol",
+            "en": "Anglès",
+            "ca": "Català",
+            "fr": "Francès",
+            "pt": "Portuguès",
+            "de": "Alemany",
+            "it": "Italià",
+            "sv": "Suec",
+            "eu": "Basc",
+            "gl": "Gallec",
+            "eo": "Esperanto",
+            "spa": "Espanyol",
+            "eng": "Anglès",
+            "cat": "Català",
+            "fra": "Francès",
+            "por": "Portuguès",
+            "deu": "Alemany",
+            "ita": "Italià",
+            "swe": "Suec",
+            "eus": "Basc",
+            "glg": "Gallec",
+            "epo": "Esperanto"
+        },
+        "session": {
+            "title": "Sessió caducada",
+            "description": "La sessió ha caducat, torneu a iniciar sessió."
+        }
+    }
+}

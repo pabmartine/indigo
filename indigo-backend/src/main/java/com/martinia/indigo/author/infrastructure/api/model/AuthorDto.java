@@ -13,8 +13,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class AuthorDto implements Serializable {
 
-	private static final long serialVersionUID = -342588061916435330L;
-
 	private String id;
 	private String name;
 	private String sort;
