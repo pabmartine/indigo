@@ -39,17 +39,20 @@ export class AuthStateService {
   /**
    * Set user and persist to sessionStorage
    */
-  public setUser(user: User | null): void {
-    if (user) {
-      try {
-        sessionStorage.setItem(this.USER_STORAGE_KEY, JSON.stringify(user));
-        this.userSubject.next(user);
-      } catch (error) {
-        console.error('Failed to save user to sessionStorage:', error);
+  public setUser(user: User | null): Promise<void> {
+    return new Promise((resolve) => {
+      if (user) {
+        try {
+          sessionStorage.setItem(this.USER_STORAGE_KEY, JSON.stringify(user));
+          this.userSubject.next(user);
+        } catch (error) {
+          console.error('Failed to save user to sessionStorage:', error);
+        }
+      } else {
+        this.clearUser();
       }
-    } else {
-      this.clearUser();
-    }
+      resolve();
+    });
   }
 
   /**

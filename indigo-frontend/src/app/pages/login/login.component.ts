@@ -5,6 +5,7 @@ import { LoginService } from 'src/app/services/login.service';
 import { MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 import { UserService } from 'src/app/services/user.service';
+import { AuthStateService } from 'src/app/services/auth-state.service';
 
 @Component({
   selector: 'app-login',
@@ -22,6 +23,7 @@ export class LoginComponent implements OnInit {
     private messageService: MessageService,
     public translate: TranslateService,
     public userService: UserService,
+    private authState: AuthStateService,
     private changeDetectorRef: ChangeDetectorRef) { }
 
   ngOnInit(): void {
@@ -53,10 +55,11 @@ export class LoginComponent implements OnInit {
               next: (data) => {
                 user = data;
                 user.token = response.headers.get("Authorization").slice(7);
-                sessionStorage.setItem('user', JSON.stringify(user));
-                sessionStorage.setItem('token', user.token);
-                this.translate.use(user.language);
-                this.router.navigate(["books"]);
+                this.authState.setUser(user).then(() => {
+                  sessionStorage.setItem('token', user.token);
+                  this.translate.use(user.language);
+                  this.router.navigate(["books"]);
+                });
               },
               error: () => {
                 this.error = "locale.login.error";

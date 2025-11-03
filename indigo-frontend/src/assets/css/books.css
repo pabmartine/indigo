@@ -267,7 +267,7 @@
 }
 
 .metadata-item {
-  width: 33% !important;
+  width: 75% !important;
   padding: 0 1rem !important;
   min-width: 120px !importan;
   flex: 1 !important;
@@ -871,4 +871,10 @@ app-detail::-webkit-scrollbar-thumb {
 
 app-detail::-webkit-scrollbar-thumb:hover {
   background: var(--primary-hover) !important;
+}
+
+@media (max-width: 576px) {
+  .book .content-body.p-grid.inline {
+    gap: 2.5rem !important;
+  }
 }
