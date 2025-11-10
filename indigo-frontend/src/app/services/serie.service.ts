@@ -28,12 +28,11 @@ export class SerieService {
   }
 
 
-  getCover(serie: string): Observable<any> {
-    serie = serie.replace('&', '@_@');
-    serie = serie.replace('[', '@-@');
-    serie = serie.replace(']', '@¡@');
-    serie = serie.replace('`', '@!@');
-    return this.http.get(this.endpoint + "/cover?serie=" + serie);
+  public buildCoverUrl(serie: string): string {
+    if (!serie) {
+      return null;
+    }
+    return `${this.endpoint}/cover?serie=${encodeURIComponent(serie)}`;
   }
 
 }

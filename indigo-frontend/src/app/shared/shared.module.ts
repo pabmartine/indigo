@@ -37,6 +37,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DetailComponent } from '../pages/detail/detail.component';
 import { AuthorComponent } from '../pages/author/author.component';
 import { BookGridComponent } from './book-grid/book-grid.component';
+import { LazyImageDirective } from './directives/lazy-image.directive';
 
 /**
  * Shared Module
@@ -48,7 +49,8 @@ import { BookGridComponent } from './book-grid/book-grid.component';
   declarations: [
     DetailComponent,
     AuthorComponent,
-    BookGridComponent
+    BookGridComponent,
+    LazyImageDirective
   ],
   imports: [
     CommonModule,
@@ -120,7 +122,8 @@ import { BookGridComponent } from './book-grid/book-grid.component';
     // Shared components
     DetailComponent,
     AuthorComponent,
-    BookGridComponent
+    BookGridComponent,
+    LazyImageDirective
   ]
 })
 export class SharedModule { }

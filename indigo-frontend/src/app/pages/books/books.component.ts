@@ -3,7 +3,7 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
-  HostListener,
+  NgZone,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -12,8 +12,8 @@ import { ActivatedRoute, NavigationEnd, Router } from "@angular/router"
 import { TranslateService } from "@ngx-translate/core"
 import { MessageService } from "primeng/api"
 import { SelectItem } from "primeng/api/selectitem"
-import { combineLatest, Observable, Subject } from "rxjs"
-import { catchError, debounceTime, filter, takeUntil, tap } from "rxjs/operators"
+import { combineLatest, Observable, Subject, fromEvent, Subscription } from "rxjs"
+import { auditTime, catchError, debounceTime, filter, takeUntil, tap } from "rxjs/operators"
 import { of } from "rxjs"
 import { Author } from "src/app/domain/author"
 import { Book } from "src/app/domain/book"
@@ -55,10 +55,6 @@ export class BooksComponent implements OnInit, OnDestroy {
   private sort: string = 'id'
   private order: string = 'desc'
 
-  showGoUpButton: boolean = false
-  private showScrollHeight = 400
-  private hideScrollHeight = 200
-
   sorts: SelectItem[] = [
     { label: 'ID (Desc)', value: 'id,desc' },
     { label: 'ID (Asc)', value: 'id,asc' },
@@ -77,7 +73,11 @@ export class BooksComponent implements OnInit, OnDestroy {
   user: any = {}
 
   private bookCache = new Map<string, BookWithTempImage[]>()
+  private cacheOrder: string[] = []
+  private readonly maxCacheEntries = 5
   private favoritesCache: BookWithTempImage[] | null = null
+  private filtersKey: string = "default"
+  private scrollSubscription: Subscription | null = null
 
   private destroy$ = new Subject<void>()
 
@@ -97,6 +97,7 @@ export class BooksComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private authState: AuthStateService,
     private imageService: ImageService,
+    private ngZone: NgZone,
   ) {
     this.initializeUser()
     this.initializeScreenSize()
@@ -113,6 +114,7 @@ export class BooksComponent implements OnInit, OnDestroy {
       // IMPORTANTE: Procesar parámetros de URL ANTES de las suscripciones
       this.initializeSearch()
       this.initializeSubscriptions()
+      this.setupScrollListener()
       this.isInitialized = true
     }
   }
@@ -127,10 +129,11 @@ export class BooksComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next()
     this.destroy$.complete()
-    this.bookCache.clear()
+    this.resetCache()
     if (this.favoritesCache) {
       this.favoritesCache = null
     }
+    this.scrollSubscription?.unsubscribe()
   }
 
   private initializeUser(): void {
@@ -159,7 +162,6 @@ export class BooksComponent implements OnInit, OnDestroy {
   }
 
   private initializeDefaults(): void {
-    this.showGoUpButton = false
     this.adv_search = null
     this.authorInfo = null
     this.title = 'Books'
@@ -332,16 +334,18 @@ export class BooksComponent implements OnInit, OnDestroy {
     }
   }
 
-  @HostListener("window:scroll", [])
-  onWindowScroll() {
-    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
+  private setupScrollListener(): void {
+    this.ngZone.runOutsideAngular(() => {
+      this.scrollSubscription = fromEvent(window, "scroll")
+        .pipe(auditTime(100), takeUntil(this.destroy$))
+        .subscribe(() => {
+          this.ngZone.run(() => this.handleScroll())
+        })
+    })
+  }
 
-    // Show/hide scroll to top button
-    if (scrollPosition > this.showScrollHeight) {
-      this.showGoUpButton = true
-    } else if (this.showGoUpButton && scrollPosition < this.hideScrollHeight) {
-      this.showGoUpButton = false
-    }
+  private handleScroll(): void {
+    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
 
     // Infinite scroll detection - trigger when user is near bottom
     const windowHeight = window.innerHeight
@@ -351,8 +355,6 @@ export class BooksComponent implements OnInit, OnDestroy {
     if (scrollPosition + windowHeight >= documentHeight - scrollThreshold) {
       this.onScroll()
     }
-
-    this.cdr.detectChanges()
   }
 
   onChange(event: any): void {
@@ -365,7 +367,7 @@ export class BooksComponent implements OnInit, OnDestroy {
 
     this.page = 0
     this.books.length = 0
-    this.bookCache.clear()
+    this.resetCache()
 
     this.fetchCountAndUpdateTitle().subscribe(() => {
       this.getAll()
@@ -378,15 +380,11 @@ export class BooksComponent implements OnInit, OnDestroy {
     }
   }
 
-  scrollTop(): void {
-    document.body.scrollTop = 0
-    document.documentElement.scrollTop = 0
-  }
-
   private fetchCountAndUpdateTitle(): Observable<any> {
     if (!this.adv_search) {
       this.adv_search = new Search()
     }
+    this.filtersKey = this.createFiltersKey(this.adv_search)
 
     // CRUCIAL: Asegurar que los idiomas estén configurados - use fallback chain
     const languages = this.user?.languageBooks || this.authState.getLanguageBooks()
@@ -451,11 +449,12 @@ export class BooksComponent implements OnInit, OnDestroy {
     // CRUCIAL: Asegurar que los idiomas estén configurados - use fallback chain
     const languages = this.user?.languageBooks || this.authState.getLanguageBooks()
     this.adv_search.languages = languages.length > 0 ? languages : ['en']
+    this.filtersKey = this.createFiltersKey(this.adv_search)
 
     console.log('Getting books with search object:', JSON.stringify(this.adv_search)) // Debug
     console.log('GetAll languages being used:', this.adv_search.languages) // Debug
 
-    const cacheKey = `${this.page}-${this.size}-${this.sort}-${this.order}-${JSON.stringify(this.adv_search)}`
+    const cacheKey = this.createPageCacheKey(this.page)
 
     if (this.bookCache.has(cacheKey)) {
       const cachedData = this.bookCache.get(cacheKey)!
@@ -482,11 +481,11 @@ export class BooksComponent implements OnInit, OnDestroy {
 
           const booksWithTempData: BookWithTempImage[] = data.map((book) => {
             const processedBook: BookWithTempImage = { ...book }
+            const coverUrl = this.bookService.buildCoverImageUrl(book.id)
 
-            if (book.image) {
-              processedBook.image = this.imageService.toDataUrlSafe(book.image)
-              processedBook.originalImage = book.image
-            }
+            processedBook.coverUrl = coverUrl || undefined
+            processedBook.image = coverUrl || undefined
+            processedBook.originalImage = coverUrl || undefined
 
             if (book.rating) {
               processedBook.rating = Math.round(book.rating)
@@ -503,7 +502,7 @@ export class BooksComponent implements OnInit, OnDestroy {
           this.page++
           this.cdr.detectChanges()
 
-          this.bookCache.set(cacheKey, [...booksWithTempData])
+          this.storeInCache(cacheKey, booksWithTempData)
           this.isScrolling = false
         },
         error: (error) => {
@@ -604,12 +603,11 @@ export class BooksComponent implements OnInit, OnDestroy {
     const index = this.books.findIndex((b) => b.id === book.id)
     if (index !== -1) {
       const originalBookData = this.books[index]
+      const coverUrl = this.bookService.buildCoverImageUrl(book.id) || originalBookData.image
       this.books[index] = {
         ...book,
-        image: book.image
-          ? this.imageService.toDataUrlSafe(book.image)
-          : originalBookData.image,
-        originalImage: book.image || originalBookData.originalImage,
+        image: coverUrl || originalBookData.image,
+        originalImage: coverUrl || originalBookData.originalImage,
         authors: book.authors || []
       }
 
@@ -625,12 +623,11 @@ export class BooksComponent implements OnInit, OnDestroy {
     const favIndex = this.favorites.findIndex((b) => b.id === book.id)
     if (favIndex !== -1) {
       const originalFavData = this.favorites[favIndex]
+      const coverUrl = this.bookService.buildCoverImageUrl(book.id) || originalFavData.image
       this.favorites[favIndex] = {
         ...book,
-        image: book.image
-          ? this.imageService.toDataUrlSafe(book.image)
-          : originalFavData.image,
-        originalImage: book.image || originalFavData.originalImage,
+        image: coverUrl || originalFavData.image,
+        originalImage: coverUrl || originalFavData.originalImage,
         authors: book.authors || []
       }
       if (this.favoritesCache) {
@@ -746,11 +743,11 @@ export class BooksComponent implements OnInit, OnDestroy {
 
           const favoritesWithTempData: BookWithTempImage[] = data.map((book) => {
             const processedBook: BookWithTempImage = { ...book }
+            const coverUrl = this.bookService.buildCoverImageUrl(book.id)
 
-            if (book.image) {
-              processedBook.image = this.imageService.toDataUrlSafe(book.image)
-              processedBook.originalImage = book.image
-            }
+            processedBook.coverUrl = coverUrl || undefined
+            processedBook.image = coverUrl || undefined
+            processedBook.originalImage = coverUrl || undefined
 
             if (book.rating) {
               processedBook.rating = Math.round(book.rating)
@@ -802,7 +799,7 @@ export class BooksComponent implements OnInit, OnDestroy {
     }
 
     this.books.length = 0
-    this.bookCache.clear()
+    this.resetCache()
     this.cdr.detectChanges()
   }
 
@@ -875,6 +872,50 @@ export class BooksComponent implements OnInit, OnDestroy {
 
   private hasArrayValue(value: any[] | null | undefined): boolean {
     return !!value && Array.isArray(value) && value.length > 0
+  }
+
+  private resetCache(): void {
+    this.bookCache.clear()
+    this.cacheOrder = []
+  }
+
+  private createFiltersKey(search: Search | null): string {
+    if (!search) {
+      return "default"
+    }
+
+    const {
+      path = "",
+      title = "",
+      author = "",
+      serie = "",
+      selectedTags = [],
+      languages = [],
+      ini = "",
+      end = "",
+      min = "",
+      max = "",
+    } = search as any
+
+    const normalizedLanguages = Array.isArray(languages) ? [...languages].sort().join(",") : ""
+    const normalizedTags = Array.isArray(selectedTags) ? [...selectedTags].sort().join(",") : ""
+
+    return [path, title, author, serie, normalizedTags, normalizedLanguages, ini ?? "", end ?? "", min ?? "", max ?? ""].join("|")
+  }
+
+  private createPageCacheKey(page: number): string {
+    return `${this.filtersKey}-${page}-${this.size}-${this.sort}-${this.order}`
+  }
+
+  private storeInCache(key: string, data: BookWithTempImage[]): void {
+    this.bookCache.set(key, data)
+    this.cacheOrder.push(key)
+    if (this.cacheOrder.length > this.maxCacheEntries) {
+      const oldest = this.cacheOrder.shift()
+      if (oldest) {
+        this.bookCache.delete(oldest)
+      }
+    }
   }
 
   close(): void {

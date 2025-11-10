@@ -9,13 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -36,13 +34,21 @@ public class FindCoverSerieControllerTest  extends BaseIndigoTest {
 	public void testGetCover_WithValidSerie_ShouldReturnCoverImage() throws Exception {
 		// Given
 		String serie = "TestSerie";
-		String coverImage = "cover.jpg";
+		byte[] coverImage = "cover".getBytes();
 		when(useCase.getCover(anyString())).thenReturn(coverImage);
 
 		// When
-		ResultActions resultActions = mockMvc.perform(
-				get("/api/serie/cover").param("serie", serie).contentType(MediaType.APPLICATION_JSON));
-		MvcResult mvcResult = resultActions.andExpect(status().isOk()).andExpect(jsonPath("$.image").value(coverImage)).andReturn();
+		mockMvc.perform(get("/api/serie/cover").param("serie", serie))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.IMAGE_JPEG))
+				.andExpect(content().bytes(coverImage));
+	}
 
+	@Test
+	public void testGetCover_NotFound() throws Exception {
+		when(useCase.getCover(anyString())).thenReturn(new byte[0]);
+
+		mockMvc.perform(get("/api/serie/cover").param("serie", "Unknown"))
+				.andExpect(status().isNotFound());
 	}
 }

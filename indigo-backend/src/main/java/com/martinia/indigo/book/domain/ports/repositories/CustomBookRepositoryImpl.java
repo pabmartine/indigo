@@ -8,6 +8,7 @@ import com.mongodb.MongoClientSettings;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.BsonNull;
@@ -35,10 +36,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static com.mongodb.client.model.Filters.in;
 
 @Repository
 @Slf4j
@@ -285,58 +285,73 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 	@Override
 	public List<BookMongoEntity> getSimilar(List<String> similar, List<String> languages) {
-		List<BookMongoEntity> ret = new ArrayList<>(similar.size());
-		List<ObjectId> list = new ArrayList<>(similar.size());
-		for (String s : similar) {
-			list.add(new ObjectId(s));
+		if (CollectionUtils.isEmpty(similar)) {
+			return Collections.emptyList();
 		}
-		Bson filter = in("_id", list);
+
+		List<ObjectId> ids = similar.stream()
+				.filter(Objects::nonNull)
+				.map(ObjectId::new)
+				.collect(Collectors.toList());
+
+		if (ids.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		Bson idFilter = Filters.in("_id", ids);
+		Bson filter = CollectionUtils.isEmpty(languages)
+				? idFilter
+				: Filters.and(idFilter, Filters.in("languages", languages));
 
 		CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
 				MongoClientSettings.getDefaultCodecRegistry(),
 				org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build()));
 
+		List<BookMongoEntity> result = new ArrayList<>(ids.size());
 		FindIterable<BookMongoEntity> data = mongoTemplate.getCollection(collectionName)
 				.withCodecRegistry(pojoCodecRegistry)
 				.find(filter, BookMongoEntity.class);
 
-		data.iterator().forEachRemaining(ret::add);
-
-		ret = ret.stream().filter(b -> !Collections.disjoint(b.getLanguages(), languages)).collect(Collectors.toList());
-		Collections.shuffle(ret);
-		// if (ret.size() > num)
-		// ret = ret.subList(0, num);
-
-		return ret;
+		data.iterator().forEachRemaining(result::add);
+		Collections.shuffle(result);
+		return result;
 	}
 
 	@Override
 	public List<BookMongoEntity> getRecommendationsByBook(List<String> recommendations, List<String> languages, int num) {
+		if (CollectionUtils.isEmpty(recommendations) || num <= 0) {
+			return Collections.emptyList();
+		}
+
+		List<ObjectId> ids = recommendations.stream()
+				.filter(Objects::nonNull)
+				.map(ObjectId::new)
+				.collect(Collectors.toList());
+
+		if (ids.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		Bson idFilter = Filters.in("_id", ids);
+		Bson filter = CollectionUtils.isEmpty(languages)
+				? idFilter
+				: Filters.and(idFilter, Filters.in("languages", languages));
 
 		CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
 				MongoClientSettings.getDefaultCodecRegistry(),
 				org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build()));
 
-		List<BookMongoEntity> ret = new ArrayList<>(recommendations.size());
-		List<ObjectId> list = new ArrayList<>(recommendations.size());
-		for (String s : recommendations) {
-			list.add(new ObjectId(s));
-		}
-		Bson filter = in("_id", list);
-
+		List<BookMongoEntity> result = new ArrayList<>(Math.min(ids.size(), num));
 		FindIterable<BookMongoEntity> books = mongoTemplate.getCollection(collectionName)
 				.withCodecRegistry(pojoCodecRegistry)
 				.find(filter, BookMongoEntity.class);
 
-		books.iterator().forEachRemaining(ret::add);
-
-		ret = ret.stream().filter(b -> !Collections.disjoint(b.getLanguages(), languages)).collect(Collectors.toList());
-		Collections.shuffle(ret);
-		if (ret.size() > num) {
-			ret = ret.subList(0, num);
+		books.iterator().forEachRemaining(result::add);
+		Collections.shuffle(result);
+		if (result.size() > num) {
+			return new ArrayList<>(result.subList(0, num));
 		}
-
-		return ret;
+		return result;
 	}
 
 	@Override

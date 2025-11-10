@@ -258,7 +258,7 @@ export class AuthorComponent implements OnInit {
         // Procesar las imágenes de los libros
         const processedBooks = data.map(book => ({
           ...book,
-          image: this.imageService.toDataUrlSafe(book.image)
+          image: this.bookService.buildCoverImageUrl(book.id) || book.image
         }));
 
         // Agregar los libros procesados al array existente

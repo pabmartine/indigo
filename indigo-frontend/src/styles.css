@@ -1,3 +1,37 @@
 .login .login-error {
   margin-top: 0.5rem;
 }
+
+.global-scroll-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #5e81ac;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border: none;
+  z-index: 1100;
+}
+
+.global-scroll-top .p-scrolltop-icon {
+  font-size: 1.25rem;
+}
+
+/* Session timeout dialog */
+.p-dialog.session-expired-dialog {
+  width: auto !important;
+  min-width: 260px;
+  max-width: 360px;
+  max-height: none !important;
+}
+
+.p-dialog.session-expired-dialog .p-dialog-content {
+  padding: 1.5rem;
+}
+
+.p-dialog.session-expired-dialog .p-dialog-footer {
+  padding: 0.5rem !important;
+}

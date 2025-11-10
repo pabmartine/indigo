@@ -113,14 +113,6 @@
   padding-top: 5px;
 }
 
-/* Go-up button */
-.up-button {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 100;
-}
-
 /* View controls (dropdown and buttons) */
 .view-controls {
   display: flex;

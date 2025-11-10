@@ -354,8 +354,7 @@ body a:hover {
   animation: skeleton-loading 1.5s infinite;
 }
 
-/** SESSION EXPIRED DIALOG **/
-::ng-deep .session-expired-dialog .p-dialog-header {
+::ng-deep body .session-expired-dialog .p-dialog-header {
   background: linear-gradient(135deg, #d32f2f 0%, #f44336 100%);
   color: #ffffff;
   padding: 1rem 1.5rem;
@@ -364,19 +363,19 @@ body a:hover {
   border-top-right-radius: 8px;
 }
 
-::ng-deep .session-expired-dialog .p-dialog-header .p-dialog-title {
+::ng-deep body .session-expired-dialog .p-dialog-header .p-dialog-title {
   font-size: 1.1rem;
   font-weight: 600;
   color: #ffffff;
 }
 
-::ng-deep .session-expired-dialog .p-dialog-content {
+::ng-deep body .session-expired-dialog .p-dialog-content {
   padding: 1.5rem;
   background: #ffffff;
 }
 
-::ng-deep .session-expired-dialog .p-dialog-footer {
-  padding: 1rem 1.5rem;
+::ng-deep body .session-expired-dialog .p-dialog-footer {
+  padding: 0.5rem;
   background: #f8f9fa;
   border-top: 1px solid #e9ecef;
   border-bottom-left-radius: 8px;

@@ -2,8 +2,8 @@ import { Component, OnDestroy, OnInit, SimpleChanges, ChangeDetectionStrategy, C
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ConfirmationService, MessageService, SelectItem } from 'primeng/api';
-import { forkJoin, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { forkJoin, Subject, timer, Subscription } from 'rxjs';
+import { takeUntil, switchMap, filter as rxFilter } from 'rxjs/operators';
 import { Config } from 'src/app/domain/config';
 import { User } from 'src/app/domain/user';
 import { AuthorService } from 'src/app/services/author.service';
@@ -66,7 +66,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   panelStates = new Map();
 
   private destroy$ = new Subject<void>();
-  private statusInterval: any;
+  private statusPollingSub: Subscription | null = null;
 
   constructor(private messageService: MessageService,
     public translate: TranslateService,
@@ -85,7 +85,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   getData() {
-    this.getDataStatus();
     this.getUsers();
     this.getGlobal();
     this.getMetadata();
@@ -96,10 +95,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
 
     this.getData();
-
-    this.statusInterval = setInterval(() => {
-      this.getDataStatus();
-    }, 5000);
+    this.startStatusPolling();
 
   }
 
@@ -107,33 +103,54 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // Removed console.log for production
   }
 
-  getDataStatus(): void {
-    this.metadataService.getDataStatus()
-      .pipe(takeUntil(this.destroy$))
+  private startStatusPolling(): void {
+    if (this.statusPollingSub) {
+      return;
+    }
+
+    this.statusPollingSub = timer(0, 5000)
+      .pipe(
+        rxFilter(() => !document.hidden),
+        switchMap(() => this.metadataService.getDataStatus()),
+        takeUntil(this.destroy$)
+      )
       .subscribe({
-        next: (data) => {
-          this.type = data.type;
-          this.entity = data.entity;
-          this.current = data.current;
-          this.total = data.total;
-          this.message = data.message;
-
-          this.uploads = data.uploadsTotal;
-          this.uploadsProgress = data.uploadsCurrent;
-
-          if (this.message) {
-            this.message = this.translate.instant('locale.settings.panel.metadata.' + this.message);
-          }
-
-          if (this.total !== 0) {
-            this.progressBar = Math.round((this.current * 100) / this.total);
-          }
-          this.cdr.markForCheck();
-        },
+        next: (data) => this.handleMetadataStatus(data),
         error: (error) => {
           console.error('[Settings] Error fetching data status:', error);
         }
       });
+  }
+
+  private handleMetadataStatus(data: any): void {
+    if (!data) {
+      return;
+    }
+
+    this.type = data.type;
+    this.entity = data.entity;
+    this.current = data.current;
+    this.total = data.total;
+    this.message = data.message;
+
+    this.uploads = data.uploadsTotal;
+    this.uploadsProgress = data.uploadsCurrent;
+
+    if (this.message) {
+      this.message = this.translate.instant('locale.settings.panel.metadata.' + this.message);
+    }
+
+    if (this.total !== 0) {
+      this.progressBar = Math.round((this.current * 100) / this.total);
+    } else {
+      this.progressBar = 0;
+    }
+
+    if (!data.running) {
+      this.current = 0;
+    }
+
+    this.cdr.markForCheck();
   }
 
 
@@ -460,9 +477,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.statusInterval) {
-      clearInterval(this.statusInterval);
-    }
+    this.statusPollingSub?.unsubscribe();
     this.destroy$.next();
     this.destroy$.complete();
   }

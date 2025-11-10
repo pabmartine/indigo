@@ -35,6 +35,7 @@
              (click)="getBooksBySerie(serie.name)"
              style="cursor: pointer;"
              loading="lazy"
+             (error)="serie.image = './assets/images/unknown.jpg'"
              [alt]="serie.name" />
       </div>
       <div class="center">
@@ -49,12 +50,4 @@
       </div>
     </div>
   </div>
-
-  <button type="button"
-          pButton
-          [ngClass]="'up-button'"
-          *ngIf="showGoUpButton"
-          (click)="scrollTop()"
-          icon="pi pi-arrow-up"
-          aria-label="Scroll to top"></button>
 </p-card>

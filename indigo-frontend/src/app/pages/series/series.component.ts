@@ -10,13 +10,6 @@ import { forkJoin, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AuthStateService } from 'src/app/services/auth-state.service';
 import { User } from 'src/app/domain/user';
-import { ImageService } from 'src/app/utils/image.service';
-
-// Interfaz para series con imagen temporal
-interface SerieWithTempImage extends Serie {
-  originalImageRequested?: boolean;
-}
-
 @Component({
   selector: 'app-series',
   templateUrl: './series.component.html',
@@ -45,10 +38,6 @@ export class SeriesComponent implements OnInit, OnDestroy {
   ];
   selectedSort: string;
 
-  showGoUpButton: boolean;
-  private showScrollHeight = 400;
-  private hideScrollHeight = 200;
-
   // Estado de carga
   isLoading: boolean = false;
   isScrolling: boolean = false;
@@ -67,8 +56,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     public translate: TranslateService,
     private cdr: ChangeDetectorRef,
-    private authState: AuthStateService,
-    private imageService: ImageService
+    private authState: AuthStateService
   ) {
     this.user = this.authState.getCurrentUser() || { languageBooks: ['en'], role: 'USER', username: '' } as User;
     // Ensure languageBooks is always initialized
@@ -80,7 +68,6 @@ export class SeriesComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.initializeSortOptions();
-    this.showGoUpButton = false;
     this.reset();
     this.loadInitialDataInParallel();
   }
@@ -148,16 +135,11 @@ export class SeriesComponent implements OnInit, OnDestroy {
 
           // Process Series
           const cacheKey = `${this.page}-${this.size}-${this.sort}-${this.order}-${this.user.languageBooks?.join(',')}`;
-          const seriesWithoutImages: SerieWithTempImage[] = series.map(serie => ({
-            ...serie,
-            image: null,
-            originalImageRequested: false
-          }));
-          Array.prototype.push.apply(this.series, seriesWithoutImages);
+          const processedSeries = this.mapSeriesWithCover(series);
+          Array.prototype.push.apply(this.series, processedSeries);
           this.page++;
           this.cdr.detectChanges();
-          this.requestCoversAsync(seriesWithoutImages, 0);
-          this.seriesCache.set(cacheKey, series);
+          this.seriesCache.set(cacheKey, processedSeries);
 
           this.isLoading = false;
           this.cdr.detectChanges();
@@ -200,13 +182,6 @@ export class SeriesComponent implements OnInit, OnDestroy {
   onWindowScroll(): void {
     const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
 
-    // Show/hide scroll to top button
-    if (scrollPosition > this.showScrollHeight) {
-      this.showGoUpButton = true;
-    } else if (this.showGoUpButton && scrollPosition < this.hideScrollHeight) {
-      this.showGoUpButton = false;
-    }
-
     // Infinite scroll detection - trigger when user is near bottom
     const windowHeight = window.innerHeight
     const documentHeight = document.documentElement.scrollHeight
@@ -215,19 +190,12 @@ export class SeriesComponent implements OnInit, OnDestroy {
     if (scrollPosition + windowHeight >= documentHeight - scrollThreshold) {
       this.onScroll()
     }
-
-    this.cdr.detectChanges()
   }
 
   onScroll(): void {
     if (this.series.length < this.total && !this.isScrolling) {
       this.getAll();
     }
-  }
-
-  scrollTop(): void {
-    document.body.scrollTop = 0; // Safari
-    document.documentElement.scrollTop = 0; // Other
   }
 
   getAll(): void {
@@ -247,23 +215,12 @@ export class SeriesComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
-          // INMEDIATAMENTE mostrar series sin imágenes
-          const seriesWithoutImages: SerieWithTempImage[] = data.map(serie => ({
-            ...serie,
-            image: null, // Temporalmente sin imagen
-            originalImageRequested: false // Flag para saber si ya se pidió la imagen
-          }));
-
-          // Mostrar datos inmediatamente
-          Array.prototype.push.apply(this.series, seriesWithoutImages);
+          const processedSeries = this.mapSeriesWithCover(data);
+          Array.prototype.push.apply(this.series, processedSeries);
           this.page++;
           this.cdr.detectChanges();
-
-          // Solicitar covers de forma asíncrona
-          this.requestCoversAsync(seriesWithoutImages, this.series.length - seriesWithoutImages.length);
-
           this.isScrolling = false;
-          // Las imágenes se guardarán en cache cuando se reciban
+          this.seriesCache.set(cacheKey, processedSeries);
         },
         error: (error) => {
           console.log(error);
@@ -279,73 +236,11 @@ export class SeriesComponent implements OnInit, OnDestroy {
       });
   }
 
-  private requestCoversAsync(series: SerieWithTempImage[], startIndex: number): void {
-    // Solicitar covers en pequeños lotes para no sobrecargar el servidor
-    const batchSize = 3;
-    let currentIndex = 0;
-
-    const processBatch = () => {
-      const endIndex = Math.min(currentIndex + batchSize, series.length);
-
-      for (let i = currentIndex; i < endIndex; i++) {
-        const serie = series[i];
-        const targetIndex = startIndex + i;
-
-        if (!serie.originalImageRequested && targetIndex < this.series.length) {
-          serie.originalImageRequested = true;
-
-          // Solicitar cover de forma asíncrona
-          setTimeout(() => {
-            this.getCoverAsync(serie.name, targetIndex);
-          }, i * 100); // Delay entre solicitudes para evitar sobrecarga
-        }
-      }
-
-      currentIndex = endIndex;
-
-      // Continuar con el siguiente lote
-      if (currentIndex < series.length) {
-        setTimeout(processBatch, 200); // Pausa entre lotes
-      }
-    };
-
-    // Iniciar procesamiento
-    setTimeout(processBatch, 150);
-  }
-
-  private getCoverAsync(serieName: string, serieIndex: number): void {
-    this.serieService.getCover(serieName)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (data) => {
-          if (serieIndex < this.series.length && this.series[serieIndex].name === serieName) {
-            this.series[serieIndex].image = this.imageService.toDataUrlSafe(data.image);
-            this.cdr.detectChanges();
-
-            // Actualizar cache con la imagen procesada
-            this.updateCacheWithImage(serieName, this.series[serieIndex].image);
-          }
-        },
-        error: (error) => {
-          console.log(`Error loading cover for serie: ${serieName}`, error);
-          // No mostrar error al usuario, simplemente la serie quedará sin imagen
-        }
-      });
-  }
-
-  private updateCacheWithImage(serieName: string, imageUrl: string): void {
-    // Actualizar todas las entradas de cache que contengan esta serie
-    this.seriesCache.forEach((series, key) => {
-      const serieIndex = series.findIndex(s => s.name === serieName);
-      if (serieIndex !== -1) {
-        series[serieIndex].image = imageUrl;
-      }
-    });
-  }
-
-  // Método original mantenido para compatibilidad, pero optimizado
-  getCover(serie: Serie): void {
-    this.getCoverAsync(serie.name, this.series.findIndex(s => s.name === serie.name));
+  private mapSeriesWithCover(series: Serie[]): Serie[] {
+    return series.map(serie => ({
+      ...serie,
+      image: this.serieService.buildCoverUrl(serie.name)
+    }));
   }
 
   getBooksBySerie(serie: string): void {

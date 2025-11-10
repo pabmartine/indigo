@@ -20,6 +20,7 @@ export class Book {
         public recommendations?:string[],
         public languages?:string[],
         public image?: string,
+        public coverUrl?: string,
         public reviews?: ReviewBook[],
         ) {
     }

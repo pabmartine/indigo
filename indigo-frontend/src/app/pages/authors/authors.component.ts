@@ -49,10 +49,6 @@ export class AuthorsComponent implements OnInit, OnDestroy {
   ];
   selectedSort: string;
 
-  showGoUpButton: boolean = false;
-  private showScrollHeight = 400;
-  private hideScrollHeight = 200;
-
   user: User;
 
   // Cache para optimizar rendimiento
@@ -225,13 +221,6 @@ export class AuthorsComponent implements OnInit, OnDestroy {
   onWindowScroll(): void {
     const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
 
-    // Show/hide scroll to top button
-    if (scrollPosition > this.showScrollHeight) {
-      this.showGoUpButton = true;
-    } else if (this.showGoUpButton && scrollPosition < this.hideScrollHeight) {
-      this.showGoUpButton = false;
-    }
-
     // Infinite scroll detection - trigger when user is near bottom
     const windowHeight = window.innerHeight
     const documentHeight = document.documentElement.scrollHeight
@@ -240,19 +229,12 @@ export class AuthorsComponent implements OnInit, OnDestroy {
     if (scrollPosition + windowHeight >= documentHeight - scrollThreshold) {
       this.onScroll()
     }
-
-    this.cdr.detectChanges()
   }
 
   onScroll(): void {
     if (this.authors.length < this.total && !this.isScrolling) {
       this.getAll();
     }
-  }
-
-  scrollTop(): void {
-    document.body.scrollTop = 0; // Safari
-    document.documentElement.scrollTop = 0; // Other
   }
 
   getAll(): void {

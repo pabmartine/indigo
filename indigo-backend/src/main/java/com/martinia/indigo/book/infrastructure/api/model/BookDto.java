@@ -1,14 +1,15 @@
 package com.martinia.indigo.book.infrastructure.api.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.martinia.indigo.common.infrastructure.api.model.ReviewDto;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.List;
 
@@ -17,6 +18,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class BookDto implements Serializable {
 
 	@NotEmpty

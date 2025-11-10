@@ -10,7 +10,7 @@
     [closable]="false"
     [resizable]="false"
     [focusOnShow]="false"
-    [style]="{width: '400px', maxWidth: '90vw'}"
+    [style]="{}"
     styleClass="session-expired-dialog">
     <div class="session-content">
         <i class="pi pi-exclamation-triangle session-icon"></i>
@@ -28,3 +28,10 @@
 </p-dialog>
 
 <router-outlet></router-outlet>
+
+<p-scrollTop
+    target="window"
+    [threshold]="0"
+    icon="pi pi-arrow-up"
+    styleClass="global-scroll-top">
+</p-scrollTop>

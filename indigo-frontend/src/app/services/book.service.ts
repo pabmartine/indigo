@@ -100,8 +100,11 @@ export class BookService {
     return this.http.get(this.endpoint + "/languages");
   }
 
-  getImage(path: string): Observable<any> {
-    return this.http.get(this.endpoint + "/image?path=" + path);
+  public buildCoverImageUrl(bookId?: string | null): string | null {
+    if (!bookId) {
+      return null;
+    }
+    return `${this.endpoint}/cover/${bookId}`;
   }
 
   deleteBook(id: string): Observable<any> {
@@ -109,7 +112,10 @@ export class BookService {
   }
 
   editBook(book: Book): Observable<any> {
-    console.log(book);
-    return this.http.put(this.endpoint + "/edit", book);
+    const payload: any = { ...book };
+    if (payload.image && typeof payload.image === 'string' && payload.image.startsWith('http')) {
+      delete payload.image;
+    }
+    return this.http.put(this.endpoint + "/edit", payload);
   }
 }

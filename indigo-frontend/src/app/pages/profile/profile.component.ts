@@ -242,10 +242,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
         const booksWithTempData: BookWithTempImage[] = data.map((book) => {
           const processedBook: BookWithTempImage = { ...book };
 
-          if (book.image) {
-            processedBook.image = this.imageService.toDataUrlSafe(book.image);
-            processedBook.originalImage = book.image;
-          }
+          const coverUrl = this.bookService.buildCoverImageUrl(book.id);
+          processedBook.image = coverUrl || processedBook.image;
+          processedBook.originalImage = coverUrl || processedBook.originalImage;
 
           if (book.rating) {
             processedBook.rating = Math.round(book.rating);
@@ -397,12 +396,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
     const index = this.books.findIndex((b) => b.id === book.id);
     if (index !== -1) {
       const originalBookData = this.books[index];
+      const coverUrl = this.bookService.buildCoverImageUrl(book.id) || originalBookData.image;
       this.books[index] = {
         ...book,
-        image: book.image
-          ? this.imageService.toDataUrlSafe(book.image)
-          : originalBookData.image,
-        originalImage: book.image || originalBookData.originalImage,
+        image: coverUrl,
+        originalImage: coverUrl || originalBookData.originalImage,
         authors: book.authors || []
       };
       this.cdr.detectChanges();

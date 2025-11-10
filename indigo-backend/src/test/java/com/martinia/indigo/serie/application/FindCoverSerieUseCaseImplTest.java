@@ -1,54 +1,51 @@
 package com.martinia.indigo.serie.application;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
-import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
+import com.martinia.indigo.book.infrastructure.mongo.entities.SerieMongo;
 import com.martinia.indigo.serie.domain.ports.usecases.FindCoverSerieUseCase;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
-
 import jakarta.annotation.Resource;
-import java.util.Arrays;
-import java.util.Collections;
+import org.junit.jupiter.api.Test;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class FindCoverSerieUseCaseImplTest extends BaseIndigoTest {
 
 	@Resource
 	private FindCoverSerieUseCase findCoverSerieUseCase;
 
-	@MockBean
+	@Resource
 	private BookRepository bookRepository;
 
-	@MockBean
-	private BookMongoMapper bookMongoMapper;
+	@Test
+	void shouldReturnCoverBytesWhenSerieExists() {
+		BookMongoEntity entity = BookMongoEntity.builder()
+				.title("Serie Book")
+				.path("/tmp/serie-book.epub")
+				.languages(List.of("es"))
+				.similar(List.of())
+				.authors(List.of("Author"))
+				.serie(SerieMongo.builder().name("Serie X").index(0).build())
+				.pages(100)
+				.tags(List.of("tag"))
+				.image(Base64.getEncoder().encodeToString("serie-cover".getBytes(StandardCharsets.UTF_8)))
+				.build();
+		bookRepository.save(entity);
+
+		byte[] cover = findCoverSerieUseCase.getCover("Serie X");
+
+		assertThat(cover).isNotNull();
+		assertThat(new String(cover, StandardCharsets.UTF_8)).isEqualTo("serie-cover");
+	}
 
 	@Test
-	public void testGetCover_ReturnsCover() {
-		// Given
-		String serie = "Serie 1";
-
-		Book book1 = new Book();
-		book1.setImage("cover.jpg");
-
-		Book book2 = new Book();
-
-		List<Book> books = Arrays.asList(book1, book2);
-
-		when(bookMongoMapper.entities2Domains(Collections.singletonList(Mockito.any(BookMongoEntity.class)))).thenReturn(books);
-		when(bookRepository.findBooksBySerie(serie)).thenReturn(Collections.singletonList(Mockito.any(BookMongoEntity.class)));
-
-		// When
-		String result = findCoverSerieUseCase.getCover(serie);
-
-		// Then
-		assertNull(result);
+	void shouldReturnEmptyBytesWhenSerieNotFound() {
+		byte[] cover = findCoverSerieUseCase.getCover("unknown");
+		assertThat(cover).isEmpty();
 	}
 }

@@ -70,5 +70,3 @@ export class AppComponent implements OnDestroy {
     this.destroy$.complete();
   }
 }
-
-

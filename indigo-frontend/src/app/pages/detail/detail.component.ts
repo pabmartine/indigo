@@ -126,25 +126,6 @@ export class DetailComponent implements OnInit, OnDestroy {
     ];
   }
 
-  getImage(path: string): void {
-    this.selectedImage = this.selected.image;
-
-    if (path) {
-      this.bookService.getImage(path)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: (data) => {
-            if (data) {
-              this.selectedImage = this.imageService.toDataUrlSafe(data.image, this.selected.image);
-            }
-          },
-          error: (error) => {
-          }
-        });
-    }
-  }
-
-
   getSerie(serie: Serie): void {
     if (serie) {
       this.bookService.getSerie(serie.name, this.user.languageBooks)
@@ -164,7 +145,8 @@ export class DetailComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (data) => {
             data.forEach((book) => {
-              book.image = this.imageService.toDataUrlSafe(book.image);
+              const coverUrl = this.bookService.buildCoverImageUrl(book.id)
+              book.image = coverUrl || book.image
             });
             Array.prototype.push.apply(this.similar, data);
           },
@@ -183,7 +165,8 @@ export class DetailComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (data) => {
             data.forEach((book) => {
-              book.image = this.imageService.toDataUrlSafe(book.image);
+              const coverUrl = this.bookService.buildCoverImageUrl(book.id)
+              book.image = coverUrl || book.image
             });
             Array.prototype.push.apply(this.recommendations, data);
           },
@@ -200,14 +183,14 @@ export class DetailComponent implements OnInit, OnDestroy {
     this.close();
 
     this.selected = book;
+    this.selectedImage = this.bookService.buildCoverImageUrl(book.id);
+    this.selected.image = this.selectedImage;
     this.editedBook = new Book();
     this.kindle = false;
     this.favoriteBook = false;
     this.serie.length = 0;
     this.similar.length = 0;
     this.recommendations.length = 0;
-    //this.getReviews(book.path);
-    this.getImage(book.path);
     this.getSerie(book.serie);
     this.getSimilar(book.similar);
     this.getRecommendations(book.recommendations);
@@ -453,9 +436,15 @@ export class DetailComponent implements OnInit, OnDestroy {
         next: (data) => {
           this.selected = data;
 
+          const coverUrl = this.bookService.buildCoverImageUrl(this.selected.id) || this.selected.image;
           if (data.image) {
-            this.selected.image = this.imageService.toDataUrlSafe(data.image);
+            this.selected.image = data.image.startsWith('http')
+              ? data.image
+              : this.imageService.toDataUrlSafe(data.image, coverUrl || '')
+          } else {
+            this.selected.image = coverUrl || this.selected.image;
           }
+          this.selectedImage = this.selected.image;
 
           this.eventBook.emit(this.selected);
 
@@ -603,4 +592,3 @@ export class DetailComponent implements OnInit, OnDestroy {
   }
 
 }
-

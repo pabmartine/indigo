@@ -124,14 +124,6 @@
   padding-bottom: 0.5rem;
 }
 
-/* Go-up button */
-.up-button {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 100;
-}
-
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .page-title {
@@ -282,4 +274,3 @@
     margin-top: 1rem;
   }
 }
-

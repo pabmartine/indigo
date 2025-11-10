@@ -43,10 +43,6 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
   private sort: string;
   private order: string;
 
-  showGoUpButton: boolean;
-  private showScrollHeight = 400;
-  private hideScrollHeight = 200;
-
   sorts: SelectItem[] = [];
   selectedSort: string;
 
@@ -126,7 +122,6 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
       { label: this.translate.instant('locale.books.order_by.rating.asc'), value: 'rating,asc' }
     ];
 
-    this.showGoUpButton = false;
   }
 
   private initializeNavigation(): void {
@@ -150,13 +145,6 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
   onWindowScroll(): void {
     const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
 
-    // Show/hide scroll to top button
-    if (scrollPosition > this.showScrollHeight) {
-      this.showGoUpButton = true;
-    } else if (this.showGoUpButton && scrollPosition < this.hideScrollHeight) {
-      this.showGoUpButton = false;
-    }
-
     // Infinite scroll detection - trigger when user is near bottom
     const windowHeight = window.innerHeight
     const documentHeight = document.documentElement.scrollHeight
@@ -165,8 +153,6 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
     if (scrollPosition + windowHeight >= documentHeight - scrollThreshold) {
       this.onScroll()
     }
-
-    this.cdr.detectChanges()
   }
 
   onChange(event): void {
@@ -187,11 +173,6 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
     if (this.books.length > 0 && this.books.length < this.total) {
       this.getAll();
     }
-  }
-
-  scrollTop(): void {
-    document.body.scrollTop = 0; // Safari
-    document.documentElement.scrollTop = 0; // Other
   }
 
   count(): void {
@@ -261,12 +242,15 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
           }
 
           // INMEDIATAMENTE añadir los datos SIN procesar imágenes
-          const booksWithoutImages: BookWithTempImage[] = data.map(book => ({
-            ...book,
-            image: null, // Temporalmente sin imagen
-            originalImage: book.image, // Guardar imagen original
-            rating: book.rating ? Math.round(book.rating) : book.rating
-          }));
+          const booksWithoutImages: BookWithTempImage[] = data.map(book => {
+            const coverUrl = this.bookService.buildCoverImageUrl(book.id);
+            return {
+              ...book,
+              image: coverUrl || null,
+              originalImage: coverUrl || null,
+              rating: book.rating ? Math.round(book.rating) : book.rating
+            }
+          });
 
           // Mostrar datos inmediatamente
           Array.prototype.push.apply(this.books, booksWithoutImages);
@@ -307,12 +291,12 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
       const processedBooks = data.map(book => {
         if (!book) return null; // Saltar libros nulos/undefined
 
-        const processedBook = { ...book };
-
-        // Procesar imagen de forma síncrona para cache
-        if (book.image) {
-          processedBook.image = this.imageService.toDataUrlSafe(book.image);
-        }
+        const coverUrl = this.bookService.buildCoverImageUrl(book.id);
+        const processedBook = {
+          ...book,
+          image: coverUrl || book.image,
+          originalImage: coverUrl || book.image
+        };
 
         if (book.rating) {
           processedBook.rating = Math.round(book.rating);
@@ -342,14 +326,12 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
         const book = books[i];
         const targetIndex = startIndex + i;
 
-        if (book && book.originalImage && targetIndex < this.books.length) {
-          // Procesar imagen de forma asíncrona
-          setTimeout(() => {
-            if (targetIndex < this.books.length && this.books[targetIndex]) {
-              this.books[targetIndex].image = this.imageService.toDataUrlSafe(book.originalImage);
-              this.cdr.detectChanges();
-            }
-          }, i * 10); // Pequeño delay entre imágenes para suavizar la carga
+        if (book && targetIndex < this.books.length) {
+          const imageUrl = book.originalImage || this.bookService.buildCoverImageUrl(book.id);
+          if (targetIndex < this.books.length && this.books[targetIndex]) {
+            this.books[targetIndex].image = imageUrl || this.books[targetIndex].image;
+            this.cdr.detectChanges();
+          }
         }
       }
 
