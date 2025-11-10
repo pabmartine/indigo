@@ -29,6 +29,7 @@ import { DialogModule } from 'primeng/dialog';
 import { CheckboxModule } from 'primeng/checkbox';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { CardModule } from 'primeng/card';
+import { ToastModule } from 'primeng/toast';
 
 
 //auth
@@ -148,6 +149,7 @@ import { AuthorComponent } from './pages/author/author.component';
     CheckboxModule,
     OverlayPanelModule,
     CardModule,
+    ToastModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,

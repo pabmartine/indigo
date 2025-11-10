@@ -1,30 +1,26 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { User } from 'src/app/domain/user';
 import { Router } from '@angular/router';
 import { LoginService } from 'src/app/services/login.service';
-import { MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 import { UserService } from 'src/app/services/user.service';
 import { AuthStateService } from 'src/app/services/auth-state.service';
 
 @Component({
   selector: 'app-login',
-  templateUrl: './login.component.html',
-  providers: [MessageService]
+  templateUrl: './login.component.html'
 })
 export class LoginComponent implements OnInit {
 
   user: User = new User();
-  error: string;
   rememberMe: boolean;
+  errorMessage: string | null = null;
 
   constructor(private loginService: LoginService,
     private router: Router,
-    private messageService: MessageService,
     public translate: TranslateService,
     public userService: UserService,
-    private authState: AuthStateService,
-    private changeDetectorRef: ChangeDetectorRef) { }
+    private authState: AuthStateService) { }
 
   ngOnInit(): void {
     // CHECK THE isLoggedIn STATE HERE
@@ -39,21 +35,21 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  login(user): void {
-    if (this.validate(user)) {
+  login(): void {
+    this.clearErrorMessage();
+    if (this.validate(this.user)) {
       if (this.rememberMe) {
         localStorage.setItem('username', this.user.username);
         localStorage.setItem('password', this.user.password);
         localStorage.setItem('rememberMe', this.rememberMe.toString());
       }
 
-      console.log("1");
-      this.loginService.login(user).subscribe({
+      this.loginService.login(this.user).subscribe({
         next: (response) => {
           if (response != null && response.headers.get("Authorization") != null) {
             this.userService.get(this.user.username).subscribe({
               next: (data) => {
-                user = data;
+                let user = data;
                 user.token = response.headers.get("Authorization").slice(7);
                 this.authState.setUser(user).then(() => {
                   sessionStorage.setItem('token', user.token);
@@ -62,29 +58,19 @@ export class LoginComponent implements OnInit {
                 });
               },
               error: () => {
-                this.error = "locale.login.error";
+                this.setErrorMessage("locale.login.error");
               }
             });
           } else {
-            this.error = "locale.login.error";
+            this.setErrorMessage("locale.login.error");
           }
         },
         error: (error) => {
-          console.log(error);
+          let errorMessage = "locale.login.error";
           if (error.status === 401 || error.status === 403) {
-            this.error = "locale.login.userpass.wrong";
-          } else {
-            this.error = error;
+            errorMessage = "locale.login.userpass.wrong";
           }
-        },
-        complete: () => {
-          // Called when operation is complete (both success and error)
-          if (this.error != null) {
-            this.translate.get(this.error).subscribe((text: string) => {
-              this.messageService.add({ severity: 'error', detail: text });
-            });
-            this.changeDetectorRef.detectChanges();
-          }
+          this.setErrorMessage(errorMessage);
         }
       });
     }
@@ -94,19 +80,27 @@ export class LoginComponent implements OnInit {
 
   validate(user: User): boolean {
 
-    this.messageService.clear();
-
     if (!user.username) {
-      this.error = "locale.login.username.required";
+      this.setErrorMessage("locale.login.username.required");
       return false;
     }
 
     if (!user.password) {
-      this.error = "locale.login.password.required";
+      this.setErrorMessage("locale.login.password.required");
       return false;
     }
 
     return true;
+  }
+
+  private setErrorMessage(key: string): void {
+    this.translate.get(key).subscribe((text: string) => {
+      this.errorMessage = text;
+    });
+  }
+
+  private clearErrorMessage(): void {
+    this.errorMessage = null;
   }
 
 }

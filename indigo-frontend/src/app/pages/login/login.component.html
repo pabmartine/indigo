@@ -4,7 +4,7 @@
 
         <span class="title">{{'locale.login.title' | translate}}</span>
 
-        <div class="p-fluid login-data" (keyup.enter)="login(user)">
+        <div class="p-fluid login-data" (keyup.enter)="login()">
                 <div class="p-col-12 p-inputgroup">
                     <input id="username" name="username" type="text" pInputText autocomplete="off"
                     placeholder="{{'locale.login.username' | translate}}" [(ngModel)]="user.username" />
@@ -24,16 +24,17 @@
             </div>
             <div class="p-col-12">
                 <button type="button" pButton label="{{'locale.buttons.login' | translate}}"
-                    (click)="login(user)">
+                    (click)="login()">
                 </button>
+            </div>
+            <div class="p-col-12 login-error" *ngIf="errorMessage">
+                <p-message severity="error" [text]="errorMessage"></p-message>
             </div>
         </div>
 
     </p-card>
 
-    <div class="error">
-        <p-messages [closable]="false"></p-messages>
-    </div>
+
 
 
 
