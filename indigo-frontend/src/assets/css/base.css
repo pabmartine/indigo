@@ -354,6 +354,11 @@ body a:hover {
   animation: skeleton-loading 1.5s infinite;
 }
 
+::ng-deep body .p-dialog.session-expired-dialog {
+  width: 350px !important;
+  max-width: 90vw !important;
+}
+
 ::ng-deep body .session-expired-dialog .p-dialog-header {
   background: linear-gradient(135deg, #d32f2f 0%, #f44336 100%);
   color: #ffffff;

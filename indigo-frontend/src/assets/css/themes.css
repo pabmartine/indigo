@@ -85,3 +85,35 @@
     box-shadow: none !important;
   }
 }
+
+body .p-dialog.session-expired-dialog {
+  width: auto !important;
+  min-width: auto !important;
+  max-width: 90vw !important;
+  height: auto !important;
+  max-height: fit-content !important;
+}
+
+body .p-dialog.session-expired-dialog .p-dialog-footer {
+  padding: 0.5rem !important;
+}
+
+body .p-dialog.session-expired-dialog .session-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-align: left;
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+body .p-dialog.session-expired-dialog .session-icon {
+  font-size: 1rem;
+}
+
+body .p-dialog.session-expired-dialog .session-message {
+  display: inline;
+}
+
+
+

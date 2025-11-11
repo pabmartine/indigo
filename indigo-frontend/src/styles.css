@@ -22,10 +22,11 @@
 
 /* Session timeout dialog */
 .p-dialog.session-expired-dialog {
-  width: auto !important;
-  min-width: 260px;
-  max-width: 360px;
-  max-height: none !important;
+  width: 350px !important;
+  min-width: 350px !important;
+  max-width: 90vw !important;
+  height: auto !important;
+  max-height: fit-content !important;
 }
 
 .p-dialog.session-expired-dialog .p-dialog-content {
