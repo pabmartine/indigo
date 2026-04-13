@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageService, SelectItem } from 'primeng/api';
@@ -27,10 +27,11 @@ interface BookWithTempImage extends Book {
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [MessageService]
 })
-export class RecommendationsComponent implements OnInit, OnDestroy {
+export class RecommendationsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild(DetailComponent) detailComponent: DetailComponent;
   @ViewChild(AuthorComponent) authorComponent: AuthorComponent;
+  @ViewChild('scrollSentinel') scrollSentinel?: ElementRef<HTMLDivElement>;
 
   books: Book[] = [];
 
@@ -58,6 +59,7 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
 
   // Cache para optimizar rendimiento
   private booksCache = new Map<string, Book[]>();
+  private scrollObserver?: IntersectionObserver;
 
   private user: User;
 
@@ -69,6 +71,7 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     public translate: TranslateService,
     private cdr: ChangeDetectorRef,
+    private ngZone: NgZone,
     private authState: AuthStateService,
     private imageService: ImageService
   ) {
@@ -87,17 +90,15 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
     this.doSearch();
   }
 
-  ngAfterViewChecked(): void {
-    if (sessionStorage.getItem("position")) {
-      document.documentElement.scrollTop = Number(sessionStorage.getItem("position"));
-      sessionStorage.removeItem("position");
-    }
+  ngAfterViewInit(): void {
+    this.setupScrollObserver();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
     this.booksCache.clear();
+    this.scrollObserver?.disconnect();
   }
 
   private initializeScreenSize(): void {
@@ -141,18 +142,36 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
     return book.id ? book.id.toString() : index.toString();
   }
 
-  @HostListener('window:scroll', [])
-  onWindowScroll(): void {
-    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
-
-    // Infinite scroll detection - trigger when user is near bottom
-    const windowHeight = window.innerHeight
-    const documentHeight = document.documentElement.scrollHeight
-    const scrollThreshold = 300 // pixels from bottom to trigger load
-
-    if (scrollPosition + windowHeight >= documentHeight - scrollThreshold) {
-      this.onScroll()
+  private restoreScrollPosition(): void {
+    const storedPosition = sessionStorage.getItem("position");
+    if (!storedPosition) {
+      return;
     }
+
+    setTimeout(() => {
+      document.documentElement.scrollTop = Number(storedPosition);
+      sessionStorage.removeItem("position");
+    });
+  }
+
+  private setupScrollObserver(): void {
+    if (!this.scrollSentinel || typeof window === 'undefined') {
+      return;
+    }
+
+    this.ngZone.runOutsideAngular(() => {
+      this.scrollObserver?.disconnect();
+      this.scrollObserver = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            this.ngZone.run(() => this.onScroll());
+          }
+        },
+        { rootMargin: '400px 0px' }
+      );
+
+      this.scrollObserver.observe(this.scrollSentinel.nativeElement);
+    });
   }
 
   onChange(event): void {
@@ -219,6 +238,7 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
         Array.prototype.push.apply(this.books, cachedData);
         this.page++;
         this.cdr.detectChanges();
+        this.restoreScrollPosition();
       }
       return;
     }
@@ -257,6 +277,7 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
           this.page++;
           this.isLoading = false;
           this.cdr.detectChanges();
+          this.restoreScrollPosition();
 
           // Procesar imágenes de forma asíncrona SIN bloquear la UI
           this.processImagesAsync(booksWithoutImages, this.books.length - booksWithoutImages.length);
@@ -321,6 +342,7 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
 
     const processBatch = () => {
       const endIndex = Math.min(currentIndex + batchSize, books.length);
+      let hasUpdates = false;
 
       for (let i = currentIndex; i < endIndex; i++) {
         const book = books[i];
@@ -330,9 +352,13 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
           const imageUrl = book.originalImage || this.bookService.buildCoverImageUrl(book.id);
           if (targetIndex < this.books.length && this.books[targetIndex]) {
             this.books[targetIndex].image = imageUrl || this.books[targetIndex].image;
-            this.cdr.detectChanges();
+            hasUpdates = true;
           }
         }
+      }
+
+      if (hasUpdates) {
+        this.cdr.detectChanges();
       }
 
       currentIndex = endIndex;
@@ -442,7 +468,7 @@ export class RecommendationsComponent implements OnInit, OnDestroy {
     this.router.navigate(["books"], {
       queryParams: {
         adv_search: JSON.stringify(search),
-        author: JSON.stringify(author)
+        author: JSON.stringify({ name: author })
       }
     });
   }

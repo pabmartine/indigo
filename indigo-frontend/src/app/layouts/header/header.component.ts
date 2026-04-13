@@ -2,14 +2,11 @@ import { Component, EventEmitter, OnInit, OnDestroy, Output } from '@angular/cor
 import { Router } from '@angular/router';
 import { TranslateService, TranslationChangeEvent } from '@ngx-translate/core';
 import { MenuItem } from 'primeng/api/menuitem';
-import { Book } from 'src/app/domain/book';
 import { Notification } from 'src/app/domain/notification';
 import { Search } from 'src/app/domain/search';
 import { User } from 'src/app/domain/user';
 import { NotificationEnum } from 'src/app/enums/notification.enum.';
-import { BookService } from 'src/app/services/book.service';
 import { NotificationService } from 'src/app/services/notification.service';
-import { UserService } from 'src/app/services/user.service';
 import { AuthStateService } from 'src/app/services/auth-state.service';
 import { Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
@@ -42,15 +39,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private router: Router,
     public translate: TranslateService,
     private notificationService: NotificationService,
-    private bookService: BookService,
-    private userService: UserService,
     private authState: AuthStateService) {
   }
 
   ngOnInit(): void {
 
-    this.translate.onTranslationChange.subscribe(
-      (event: TranslationChangeEvent) => {
+    this.translate.onTranslationChange
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(
+      (_event: TranslationChangeEvent) => {
         this.items = this.buildMenu();
       },
     );
@@ -93,13 +90,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const user = this.authState.getCurrentUser();
     if (!user) return;
 
-    const successCallback = (data) => {
-      console.log(data);
+    const successCallback = (data: Notification[]) => {
       this.fillMessages(data, user);
     };
 
-    const errorCallback = (error) => {
-      console.log(error);
+    const errorCallback = (_error: unknown) => {
     };
 
     if (this.isAdmin()) {
@@ -121,31 +116,17 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.messages.forEach((message) => {
 
       if (message.type === NotificationEnum.KINDLE) {
+        const bookTitle = message.kindle?.title || message.kindle?.book || '';
+        const targetUser = user.username === message.user ? user.username : message.user;
+        const translationKey = message.kindle?.error
+          ? 'locale.messages.kindle.error'
+          : 'locale.messages.kindle.ok';
 
-
-        this.bookService.getBookByPath(message.kindle.book).subscribe(data => {
-          const book: Book = data;
-          let username: string;
-          if (user.username == message.user) {
-            username = user.username;
-            if (message.kindle.error)
-              message.message = this.translate.instant('locale.messages.kindle.error', { book: book.title, user: username });
-            else
-              message.message = this.translate.instant('locale.messages.kindle.ok', { book: book.title, user: username });
-          } else {
-                if (message.kindle.error) {
-                  message.message = this.translate.instant('locale.messages.kindle.error', { book: book.title, user: message.user });
-                }
-                else {
-                  console.log(user);
-                  message.message = this.translate.instant('locale.messages.kindle.ok', { book: book.title, user: message.user });
-                }
-          }
+        message.message = this.translate.instant(translationKey, {
+          book: bookTitle,
+          user: targetUser
         });
-
-
       } else {
-        console.log(message);
         message.message = this.translate.instant('locale.messages.upload',
           {
             total: message.upload.total,
@@ -242,7 +223,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   showRow(valor: number): boolean {
-    console.log(valor);
     return valor > 0;
   }
 

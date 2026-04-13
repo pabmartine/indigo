@@ -2653,7 +2653,6 @@ app-detail::-webkit-scrollbar-thumb:hover {
 .p-dialog-content app-author,
 .p-dialog-content app-detail,
 .p-dialog-content app-serie,
-.p-dialog-content > app-*,
 .p-dialog-content > * {
   display: block !important;
   height: 100% !important;
@@ -2670,7 +2669,6 @@ app-detail::-webkit-scrollbar-thumb:hover {
 .p-dialog-content app-author::-webkit-scrollbar,
 .p-dialog-content app-detail::-webkit-scrollbar,
 .p-dialog-content app-serie::-webkit-scrollbar,
-.p-dialog-content > app-*::-webkit-scrollbar,
 .p-dialog-content > *::-webkit-scrollbar {
   width: 8px !important;
 }
@@ -2679,7 +2677,6 @@ app-detail::-webkit-scrollbar-thumb:hover {
 .p-dialog-content app-author::-webkit-scrollbar-track,
 .p-dialog-content app-detail::-webkit-scrollbar-track,
 .p-dialog-content app-serie::-webkit-scrollbar-track,
-.p-dialog-content > app-*::-webkit-scrollbar-track,
 .p-dialog-content > *::-webkit-scrollbar-track {
   background: #f1f1f1 !important;
   border-radius: var(--border-radius) !important;
@@ -2689,7 +2686,6 @@ app-detail::-webkit-scrollbar-thumb:hover {
 .p-dialog-content app-author::-webkit-scrollbar-thumb,
 .p-dialog-content app-detail::-webkit-scrollbar-thumb,
 .p-dialog-content app-serie::-webkit-scrollbar-thumb,
-.p-dialog-content > app-*::-webkit-scrollbar-thumb,
 .p-dialog-content > *::-webkit-scrollbar-thumb {
   background: var(--primary-color) !important;
   border-radius: var(--border-radius) !important;
@@ -2699,7 +2695,6 @@ app-detail::-webkit-scrollbar-thumb:hover {
 .p-dialog-content app-author::-webkit-scrollbar-thumb:hover,
 .p-dialog-content app-detail::-webkit-scrollbar-thumb:hover,
 .p-dialog-content app-serie::-webkit-scrollbar-thumb:hover,
-.p-dialog-content > app-*::-webkit-scrollbar-thumb:hover,
 .p-dialog-content > *::-webkit-scrollbar-thumb:hover {
   background: var(--primary-hover) !important;
 }

@@ -45,6 +45,7 @@
         </div>
       </div>
     </div>
+    <div #scrollSentinel aria-hidden="true"></div>
 
     <!-- Empty state -->
     <div *ngIf="!isLoading && (!books || books.length === 0)" class="empty-state">

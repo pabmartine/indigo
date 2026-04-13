@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { SharedModule } from 'src/app/shared/shared.module';
+import { DetailSharedModule } from 'src/app/shared/detail-shared.module';
 import { AuthorsComponent } from './authors.component';
 import { AuthGuard } from 'src/app/utils/auth.guard';
 
@@ -17,7 +17,7 @@ const routes: Routes = [
     AuthorsComponent
   ],
   imports: [
-    SharedModule,
+    DetailSharedModule,
     RouterModule.forChild(routes)
   ]
 })

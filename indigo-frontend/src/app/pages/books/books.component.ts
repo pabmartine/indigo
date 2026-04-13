@@ -1,8 +1,10 @@
 import { Location } from "@angular/common"
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  ElementRef,
   NgZone,
   OnDestroy,
   OnInit,
@@ -12,8 +14,8 @@ import { ActivatedRoute, NavigationEnd, Router } from "@angular/router"
 import { TranslateService } from "@ngx-translate/core"
 import { MessageService } from "primeng/api"
 import { SelectItem } from "primeng/api/selectitem"
-import { combineLatest, Observable, Subject, fromEvent, Subscription } from "rxjs"
-import { auditTime, catchError, debounceTime, filter, takeUntil, tap } from "rxjs/operators"
+import { combineLatest, Observable, Subject } from "rxjs"
+import { catchError, debounceTime, filter, takeUntil, tap } from "rxjs/operators"
 import { of } from "rxjs"
 import { Author } from "src/app/domain/author"
 import { Book } from "src/app/domain/book"
@@ -37,9 +39,10 @@ interface BookWithTempImage extends Book {
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [MessageService],
 })
-export class BooksComponent implements OnInit, OnDestroy {
+export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild(DetailComponent) detailComponent: DetailComponent
   @ViewChild(AuthorComponent) authorComponent: AuthorComponent
+  @ViewChild("scrollSentinel") scrollSentinel?: ElementRef<HTMLDivElement>
 
   books: BookWithTempImage[] = []
   favorites: BookWithTempImage[] = []
@@ -77,7 +80,7 @@ export class BooksComponent implements OnInit, OnDestroy {
   private readonly maxCacheEntries = 5
   private favoritesCache: BookWithTempImage[] | null = null
   private filtersKey: string = "default"
-  private scrollSubscription: Subscription | null = null
+  private scrollObserver?: IntersectionObserver
 
   private destroy$ = new Subject<void>()
 
@@ -85,6 +88,7 @@ export class BooksComponent implements OnInit, OnDestroy {
   showAuthorDetail = false
   isListView = false
   isScrolling = false
+  listItemSize = 210
 
   constructor(
     private bookService: BookService,
@@ -114,16 +118,12 @@ export class BooksComponent implements OnInit, OnDestroy {
       // IMPORTANTE: Procesar parámetros de URL ANTES de las suscripciones
       this.initializeSearch()
       this.initializeSubscriptions()
-      this.setupScrollListener()
       this.isInitialized = true
     }
   }
 
-  ngAfterViewChecked() {
-    if (sessionStorage.getItem("position")) {
-      document.documentElement.scrollTop = Number(sessionStorage.getItem("position"))
-      sessionStorage.removeItem("position")
-    }
+  ngAfterViewInit(): void {
+    this.setupScrollObserver()
   }
 
   ngOnDestroy() {
@@ -133,7 +133,7 @@ export class BooksComponent implements OnInit, OnDestroy {
     if (this.favoritesCache) {
       this.favoritesCache = null
     }
-    this.scrollSubscription?.unsubscribe()
+    this.scrollObserver?.disconnect()
   }
 
   private initializeUser(): void {
@@ -153,10 +153,13 @@ export class BooksComponent implements OnInit, OnDestroy {
     if (typeof window !== 'undefined') {
       if (window.screen.width < 640) {
         this.size = 10
+        this.listItemSize = 190
       } else if (window.screen.width < 1024) {
         this.size = 20
+        this.listItemSize = 200
       } else {
         this.size = 60
+        this.listItemSize = 210
       }
     }
   }
@@ -235,18 +238,12 @@ export class BooksComponent implements OnInit, OnDestroy {
     let shouldSearch = false
     let paramsChanged = false
 
-    // Debug: imprimir parámetros recibidos
-    console.log('Route change - URL:', navigationEvent.url)
-    console.log('Route change - params:', params)
-    console.log('Current adv_search before change:', this.adv_search)
-
     if (params["author"]) {
       try {
         const newAuthorInfo = JSON.parse(params["author"])
         if (JSON.stringify(this.authorInfo) !== JSON.stringify(newAuthorInfo)) {
           this.authorInfo = newAuthorInfo
           paramsChanged = true
-          console.log('Author info changed to:', this.authorInfo)
         }
       } catch (error) {
         console.error('Error parsing author params:', error)
@@ -254,24 +251,20 @@ export class BooksComponent implements OnInit, OnDestroy {
     } else if (this.authorInfo !== null) {
       this.authorInfo = null
       paramsChanged = true
-      console.log('Author info cleared')
     }
 
     if (params["adv_search"]) {
       try {
         const newAdvSearch = JSON.parse(params["adv_search"])
-        console.log('New parsed adv_search:', newAdvSearch) // Debug
         if (JSON.stringify(this.adv_search) !== JSON.stringify(newAdvSearch)) {
           this.adv_search = newAdvSearch
           paramsChanged = true
-          console.log('Search parameters changed to:', this.adv_search) // Debug
         }
       } catch (error) {
         console.error('Error parsing adv_search params:', error)
       }
     } else if (navigationEvent.url === "/books" && this.adv_search !== null && !params["author"]) {
       if (!this.isAuthorSearch(this.adv_search)) {
-        console.log('Clearing adv_search because no params and not author search')
         this.adv_search = null
         paramsChanged = true
       }
@@ -279,7 +272,6 @@ export class BooksComponent implements OnInit, OnDestroy {
 
     if (paramsChanged) {
       shouldSearch = true
-      console.log('Parameters changed, will trigger search')
     }
 
     if (
@@ -289,26 +281,22 @@ export class BooksComponent implements OnInit, OnDestroy {
       !params["adv_search"] &&
       !params["author"]
     ) {
-      console.log('Clean books route, clearing search and triggering default search')
       this.adv_search = null
       shouldSearch = true
     }
 
     if (shouldSearch) {
-      console.log('Triggering search with final adv_search:', this.adv_search) // Debug
       this.doSearch()
     }
   }
 
   private initializeSearch(): void {
     const queryParams = this.route.snapshot.queryParams
-    console.log('Initial query params:', queryParams) // Debug
 
     // Procesar inmediatamente si hay adv_search en los parámetros
     if (queryParams["adv_search"]) {
       try {
         this.adv_search = JSON.parse(queryParams["adv_search"])
-        console.log('Parsed initial adv_search:', this.adv_search) // Debug
       } catch (error) {
         console.error('Error parsing initial adv_search:', error)
         this.adv_search = null
@@ -319,7 +307,6 @@ export class BooksComponent implements OnInit, OnDestroy {
     if (queryParams["author"]) {
       try {
         this.authorInfo = JSON.parse(queryParams["author"])
-        console.log('Parsed initial author:', this.authorInfo) // Debug
       } catch (error) {
         console.error('Error parsing initial author:', error)
         this.authorInfo = null
@@ -334,27 +321,36 @@ export class BooksComponent implements OnInit, OnDestroy {
     }
   }
 
-  private setupScrollListener(): void {
+  private setupScrollObserver(): void {
+    if (!this.scrollSentinel || typeof window === "undefined") {
+      return
+    }
+
     this.ngZone.runOutsideAngular(() => {
-      this.scrollSubscription = fromEvent(window, "scroll")
-        .pipe(auditTime(100), takeUntil(this.destroy$))
-        .subscribe(() => {
-          this.ngZone.run(() => this.handleScroll())
-        })
+      this.scrollObserver?.disconnect()
+      this.scrollObserver = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            this.ngZone.run(() => this.onScroll())
+          }
+        },
+        { rootMargin: "400px 0px" }
+      )
+
+      this.scrollObserver.observe(this.scrollSentinel.nativeElement)
     })
   }
 
-  private handleScroll(): void {
-    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
-
-    // Infinite scroll detection - trigger when user is near bottom
-    const windowHeight = window.innerHeight
-    const documentHeight = document.documentElement.scrollHeight
-    const scrollThreshold = 300 // pixels from bottom to trigger load
-
-    if (scrollPosition + windowHeight >= documentHeight - scrollThreshold) {
-      this.onScroll()
+  private restoreScrollPosition(): void {
+    const storedPosition = sessionStorage.getItem("position")
+    if (!storedPosition) {
+      return
     }
+
+    setTimeout(() => {
+      document.documentElement.scrollTop = Number(storedPosition)
+      sessionStorage.removeItem("position")
+    })
   }
 
   onChange(event: any): void {
@@ -380,6 +376,17 @@ export class BooksComponent implements OnInit, OnDestroy {
     }
   }
 
+  onVirtualScrollIndexChange(index: number): void {
+    if (!this.isListView) {
+      return
+    }
+
+    const preloadThreshold = 8
+    if (index + preloadThreshold >= this.books.length) {
+      this.onScroll()
+    }
+  }
+
   private fetchCountAndUpdateTitle(): Observable<any> {
     if (!this.adv_search) {
       this.adv_search = new Search()
@@ -390,12 +397,8 @@ export class BooksComponent implements OnInit, OnDestroy {
     const languages = this.user?.languageBooks || this.authState.getLanguageBooks()
     this.adv_search.languages = languages.length > 0 ? languages : ['en']
 
-    console.log('Fetching count with search object:', JSON.stringify(this.adv_search)) // Debug
-    console.log('Count languages being used:', this.adv_search.languages) // Debug
-
     return this.bookService.count(this.adv_search).pipe(
       tap((data) => {
-        console.log('Count result:', data) // Debug
         this.total = data
         this.updateTitle()
         this.cdr.detectChanges()
@@ -451,9 +454,6 @@ export class BooksComponent implements OnInit, OnDestroy {
     this.adv_search.languages = languages.length > 0 ? languages : ['en']
     this.filtersKey = this.createFiltersKey(this.adv_search)
 
-    console.log('Getting books with search object:', JSON.stringify(this.adv_search)) // Debug
-    console.log('GetAll languages being used:', this.adv_search.languages) // Debug
-
     const cacheKey = this.createPageCacheKey(this.page)
 
     if (this.bookCache.has(cacheKey)) {
@@ -461,6 +461,7 @@ export class BooksComponent implements OnInit, OnDestroy {
       Array.prototype.push.apply(this.books, cachedData)
       this.page++
       this.cdr.detectChanges()
+      this.restoreScrollPosition()
       return
     }
 
@@ -470,8 +471,6 @@ export class BooksComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: Book[]) => {
-          console.log('Books received:', data?.length || 0) // Debug
-
           if (!data || (data.length === 0 && this.page === 0)) {
             if (this.page === 0) this.books = []
             this.cdr.detectChanges()
@@ -501,6 +500,7 @@ export class BooksComponent implements OnInit, OnDestroy {
           Array.prototype.push.apply(this.books, booksWithTempData)
           this.page++
           this.cdr.detectChanges()
+          this.restoreScrollPosition()
 
           this.storeInCache(cacheKey, booksWithTempData)
           this.isScrolling = false
@@ -670,15 +670,11 @@ export class BooksComponent implements OnInit, OnDestroy {
   }
 
   private doSearch(): void {
-    console.log('Starting search with:', this.adv_search) // Debug
-
     // Ensure user is properly initialized BEFORE reset
     if (!this.user || !this.user.languageBooks || this.user.languageBooks.length === 0) {
       console.warn('User languageBooks not initialized, re-initializing user')
       this.initializeUser()
     }
-
-    console.log('User languageBooks:', this.user?.languageBooks) // Debug
 
     this.reset()
     this.searched = true
@@ -696,8 +692,6 @@ export class BooksComponent implements OnInit, OnDestroy {
     // CRUCIAL: Configurar idiomas - ALWAYS ensure languages are set
     const languages = this.user?.languageBooks || this.authState.getLanguageBooks()
     this.adv_search.languages = languages.length > 0 ? languages : ['en']
-
-    console.log('Final adv_search before API calls:', JSON.stringify(this.adv_search)) // Debug
 
     this.fetchCountAndUpdateTitle().subscribe(() => {
       this.getAll()
@@ -923,7 +917,7 @@ export class BooksComponent implements OnInit, OnDestroy {
   }
 
   setView(isList: boolean): void {
-    this.isListView = isList;
-    this.cdr.detectChanges();
+    this.isListView = isList
+    this.cdr.detectChanges()
   }
 }

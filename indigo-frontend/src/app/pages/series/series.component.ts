@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { SelectItem } from 'primeng/api/selectitem';
 import { Serie } from 'src/app/domain/serie';
 import { SerieService } from 'src/app/services/serie.service';
@@ -17,9 +17,12 @@ import { User } from 'src/app/domain/user';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [MessageService]
 })
-export class SeriesComponent implements OnInit, OnDestroy {
+export class SeriesComponent implements OnInit, OnDestroy, AfterViewInit {
+
+  @ViewChild('scrollSentinel') scrollSentinel?: ElementRef<HTMLDivElement>;
 
   series: Serie[] = [];
+  seriesRows: Serie[][] = [];
 
   title: string;
   total: number;
@@ -41,6 +44,8 @@ export class SeriesComponent implements OnInit, OnDestroy {
   // Estado de carga
   isLoading: boolean = false;
   isScrolling: boolean = false;
+  seriesColumns = 6;
+  seriesRowHeight = 260;
 
   user: User;
 
@@ -49,6 +54,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
 
   // Cache para optimizar rendimiento
   private seriesCache = new Map<string, Serie[]>();
+  private scrollObserver?: IntersectionObserver;
 
   constructor(
     private serieService: SerieService,
@@ -56,6 +62,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     public translate: TranslateService,
     private cdr: ChangeDetectorRef,
+    private ngZone: NgZone,
     private authState: AuthStateService
   ) {
     this.user = this.authState.getCurrentUser() || { languageBooks: ['en'], role: 'USER', username: '' } as User;
@@ -72,21 +79,40 @@ export class SeriesComponent implements OnInit, OnDestroy {
     this.loadInitialDataInParallel();
   }
 
+  ngAfterViewInit(): void {
+    this.setupScrollObserver();
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
     this.seriesCache.clear();
+    this.scrollObserver?.disconnect();
   }
 
   private initializeScreenSize(): void {
     // Define el número de elementos según el ancho de pantalla
     if (window.screen.width < 640) {
       this.size = 10;
+      this.seriesColumns = 2;
+      this.seriesRowHeight = 230;
     } else if (window.screen.width < 1024) {
       this.size = 20;
+      this.seriesColumns = 4;
+      this.seriesRowHeight = 245;
     } else {
       this.size = 60;
+      this.seriesColumns = 6;
+      this.seriesRowHeight = 260;
     }
+  }
+
+  private updateSeriesRows(): void {
+    const rows: Serie[][] = [];
+    for (let index = 0; index < this.series.length; index += this.seriesColumns) {
+      rows.push(this.series.slice(index, index + this.seriesColumns));
+    }
+    this.seriesRows = rows;
   }
 
   private initializeSortOptions(): void {
@@ -137,6 +163,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
           const cacheKey = `${this.page}-${this.size}-${this.sort}-${this.order}-${this.user.languageBooks?.join(',')}`;
           const processedSeries = this.mapSeriesWithCover(series);
           Array.prototype.push.apply(this.series, processedSeries);
+          this.updateSeriesRows();
           this.page++;
           this.cdr.detectChanges();
           this.seriesCache.set(cacheKey, processedSeries);
@@ -178,23 +205,36 @@ export class SeriesComponent implements OnInit, OnDestroy {
     this.getAll();
   }
 
-  @HostListener('window:scroll', [])
-  onWindowScroll(): void {
-    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
-
-    // Infinite scroll detection - trigger when user is near bottom
-    const windowHeight = window.innerHeight
-    const documentHeight = document.documentElement.scrollHeight
-    const scrollThreshold = 300 // pixels from bottom to trigger load
-
-    if (scrollPosition + windowHeight >= documentHeight - scrollThreshold) {
-      this.onScroll()
+  private setupScrollObserver(): void {
+    if (!this.scrollSentinel || typeof window === 'undefined') {
+      return;
     }
+
+    this.ngZone.runOutsideAngular(() => {
+      this.scrollObserver?.disconnect();
+      this.scrollObserver = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            this.ngZone.run(() => this.onScroll());
+          }
+        },
+        { rootMargin: '400px 0px' }
+      );
+
+      this.scrollObserver.observe(this.scrollSentinel.nativeElement);
+    });
   }
 
   onScroll(): void {
     if (this.series.length < this.total && !this.isScrolling) {
       this.getAll();
+    }
+  }
+
+  onVirtualScrollIndexChange(index: number): void {
+    const preloadThreshold = 3;
+    if (index + preloadThreshold >= this.seriesRows.length) {
+      this.onScroll();
     }
   }
 
@@ -205,6 +245,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
     if (this.seriesCache.has(cacheKey)) {
       const cachedData = this.seriesCache.get(cacheKey);
       Array.prototype.push.apply(this.series, cachedData);
+      this.updateSeriesRows();
       this.page++;
       this.cdr.detectChanges();
       return;
@@ -217,6 +258,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
         next: (data) => {
           const processedSeries = this.mapSeriesWithCover(data);
           Array.prototype.push.apply(this.series, processedSeries);
+          this.updateSeriesRows();
           this.page++;
           this.cdr.detectChanges();
           this.isScrolling = false;

@@ -2,7 +2,6 @@ import { DatePipe, Location } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { saveAs } from 'file-saver';
 import { MenuItem, MessageService } from 'primeng/api';
 import { Dialog } from 'primeng/dialog';
 import { Subject } from 'rxjs';
@@ -21,7 +20,6 @@ import { MailService } from 'src/app/services/mail.service';
 import { AuthStateService } from 'src/app/services/auth-state.service';
 import { ImageService } from 'src/app/utils/image.service';
 import { User } from 'src/app/domain/user';
-declare var ePub: any;
 
 @Component({
   selector: 'app-detail',
@@ -75,6 +73,8 @@ export class DetailComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   @ViewChild('viewer') viewer: ElementRef;
+
+  private epubFactory: any | null = null;
 
   constructor(
     private bookService: BookService,
@@ -344,11 +344,12 @@ export class DetailComponent implements OnInit, OnDestroy {
     this.bookService.getEpub(this.selected.path)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data) => {
+        next: async (data) => {
           if (data) {
             try {
+              const Epub = await this.loadEpubFactory();
               var file = new File([data], "name");
-              this.book = new ePub(file);
+              this.book = Epub(file);
 
               this.rendition = this.book.renderTo("viewer", { flow: "paginated", method: "continuous", width: "100%", height: "97%" });
               this.displayed = this.rendition.display();
@@ -390,6 +391,16 @@ export class DetailComponent implements OnInit, OnDestroy {
       });
   }
 
+  private async loadEpubFactory(): Promise<any> {
+    if (this.epubFactory) {
+      return this.epubFactory;
+    }
+
+    const epubModule = await import('epubjs');
+    this.epubFactory = epubModule.default ?? epubModule;
+    return this.epubFactory;
+  }
+
   private handleEpubError(): void {
     this.showEpub = false;
     this.messageService.clear();
@@ -412,7 +423,13 @@ export class DetailComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
-          saveAs(data, this.selected.title);
+          const filename = `${this.selected.title || 'book'}.epub`;
+          const downloadUrl = URL.createObjectURL(data);
+          const anchor = document.createElement('a');
+          anchor.href = downloadUrl;
+          anchor.download = filename;
+          anchor.click();
+          URL.revokeObjectURL(downloadUrl);
         },
         error: (error) => {
           this.messageService.clear();

@@ -13,7 +13,7 @@ export class AppComponent implements OnDestroy {
   title = 'indigo-client';
 
   sessionDialog = false;
-  userActivity: number | null;
+  userActivity: ReturnType<typeof setTimeout> | null = null;
   userInactive: Subject<any> = new Subject();
 
   private destroy$ = new Subject<void>();

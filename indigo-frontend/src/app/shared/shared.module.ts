@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 // PrimeNG Modules
 import { CardModule } from 'primeng/card';
@@ -15,10 +16,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessagesModule } from 'primeng/messages';
 import { MessageModule } from 'primeng/message';
 import { InputTextModule } from 'primeng/inputtext';
-import { InputTextareaModule } from 'primeng/inputtextarea';
-import { InputMaskModule } from 'primeng/inputmask';
 import { CheckboxModule } from 'primeng/checkbox';
-import { AccordionModule } from 'primeng/accordion';
 import { PanelModule } from 'primeng/panel';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { RatingModule } from 'primeng/rating';
@@ -26,16 +24,11 @@ import { TableModule } from 'primeng/table';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CalendarModule } from 'primeng/calendar';
-import { AutoCompleteModule } from 'primeng/autocomplete';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
-import { SpeedDialModule } from 'primeng/speeddial';
-import { DividerModule } from 'primeng/divider';
-import { ChipsModule } from 'primeng/chips';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { PasswordModule } from 'primeng/password';
 
 // Shared Components
-import { DetailComponent } from '../pages/detail/detail.component';
-import { AuthorComponent } from '../pages/author/author.component';
 import { BookGridComponent } from './book-grid/book-grid.component';
 import { LazyImageDirective } from './directives/lazy-image.directive';
 
@@ -47,8 +40,6 @@ import { LazyImageDirective } from './directives/lazy-image.directive';
  */
 @NgModule({
   declarations: [
-    DetailComponent,
-    AuthorComponent,
     BookGridComponent,
     LazyImageDirective
   ],
@@ -56,6 +47,7 @@ import { LazyImageDirective } from './directives/lazy-image.directive';
     CommonModule,
     FormsModule,
     RouterModule,
+    ScrollingModule,
     TranslateModule,
     // PrimeNG
     CardModule,
@@ -68,10 +60,8 @@ import { LazyImageDirective } from './directives/lazy-image.directive';
     MessagesModule,
     MessageModule,
     InputTextModule,
-    InputTextareaModule,
-    InputMaskModule,
+    PasswordModule,
     CheckboxModule,
-    AccordionModule,
     PanelModule,
     ProgressBarModule,
     RatingModule,
@@ -79,17 +69,14 @@ import { LazyImageDirective } from './directives/lazy-image.directive';
     MultiSelectModule,
     InputNumberModule,
     CalendarModule,
-    AutoCompleteModule,
     OverlayPanelModule,
-    SpeedDialModule,
-    DividerModule,
-    ChipsModule,
     ConfirmDialogModule
   ],
   exports: [
     CommonModule,
     FormsModule,
     RouterModule,
+    ScrollingModule,
     TranslateModule,
     // PrimeNG
     CardModule,
@@ -102,10 +89,8 @@ import { LazyImageDirective } from './directives/lazy-image.directive';
     MessagesModule,
     MessageModule,
     InputTextModule,
-    InputTextareaModule,
-    InputMaskModule,
+    PasswordModule,
     CheckboxModule,
-    AccordionModule,
     PanelModule,
     ProgressBarModule,
     RatingModule,
@@ -113,15 +98,9 @@ import { LazyImageDirective } from './directives/lazy-image.directive';
     MultiSelectModule,
     InputNumberModule,
     CalendarModule,
-    AutoCompleteModule,
     OverlayPanelModule,
-    SpeedDialModule,
-    DividerModule,
-    ChipsModule,
     ConfirmDialogModule,
     // Shared components
-    DetailComponent,
-    AuthorComponent,
     BookGridComponent,
     LazyImageDirective
   ]

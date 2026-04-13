@@ -79,8 +79,15 @@
     </div>
 
     <!-- List View -->
-    <div *ngIf="isListView" class="books-list">
-      <div *ngFor="let book of books || []; trackBy: trackByBookId" class="book-list-item" (click)="showDetails(book)">
+    <cdk-virtual-scroll-viewport *ngIf="isListView"
+                                 class="books-list-viewport"
+                                 [itemSize]="listItemSize"
+                                 minBufferPx="600"
+                                 maxBufferPx="1200"
+                                 (scrolledIndexChange)="onVirtualScrollIndexChange($event)">
+      <div *cdkVirtualFor="let book of books || []; trackBy: trackByBookId"
+           class="book-list-item"
+           (click)="showDetails(book)">
         <img class="book-list-cover"
              [appLazyImage]="book.image"
              [lazySource]="book.originalImage"
@@ -112,7 +119,8 @@
           </div>
         </div>
       </div>
-    </div>
+    </cdk-virtual-scroll-viewport>
+    <div *ngIf="!isListView" #scrollSentinel aria-hidden="true"></div>
   </div>
 
 </div>

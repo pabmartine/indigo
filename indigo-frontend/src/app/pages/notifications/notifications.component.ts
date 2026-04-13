@@ -15,6 +15,7 @@ import { ImageService } from 'src/app/utils/image.service';
 @Component({
   selector: 'app-notifications',
   templateUrl: './notifications.component.html',
+  styleUrls: ['./notifications.component.css'],
   providers: [MessageService]
 
 })
@@ -141,5 +142,4 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   }
 
 }
-
 

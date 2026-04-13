@@ -23,15 +23,14 @@ const routes: Routes = [
         path: "",
         loadChildren: () => import('./layouts/layout/layout.module').then(m => m.LayoutModule)
       }
-    ],
-    runGuardsAndResolvers: 'always'
+    ]
   },
   { path: "login", component: LoginComponent}
 
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { onSameUrlNavigation: 'reload' })],
+  imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

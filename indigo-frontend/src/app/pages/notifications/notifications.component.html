@@ -11,41 +11,42 @@
         </div>
 
         <div class="content-body p-grid">
-            <div class="p-fluid">
-                <p-table #dt [value]="notifications" responsiveLayout="stack" [paginator]="true" [rows]="10"
-                    [rowsPerPageOptions]="[10,25,50]">
+            <div class="p-fluid notifications-table-wrapper">
+                <p-table #dt [value]="notifications" responsiveLayout="stack" breakpoint="1280px" [paginator]="true"
+                    [rows]="10" [rowsPerPageOptions]="[10,25,50]" styleClass="notifications-table"
+                    [tableStyle]="{'width': '100%', 'table-layout': 'fixed'}">
                     <ng-template pTemplate="header">
                         <tr>
                             
-                            <th class="center" pSortableColumn="type">
+                            <th class="center notification-col-type" pSortableColumn="type">
                                 {{'locale.notifications.type' | translate}}
                                 <p-sortIcon field="type"></p-sortIcon>
                             </th>
-                            <th class="center" pSortableColumn="user">
+                            <th class="center notification-col-user" pSortableColumn="user">
                                 {{'locale.notifications.user' | translate}}
                                 <p-sortIcon field="user"></p-sortIcon>
                             </th>
-                            <th class="center" pSortableColumn="title">
+                            <th class="center notification-col-title" pSortableColumn="title">
                                 {{'locale.notifications.book' | translate}}
                                 <p-sortIcon field="title"></p-sortIcon>
                             </th>
-                            <th class="center" pSortableColumn="sendDate">
+                            <th class="center notification-col-date" pSortableColumn="sendDate">
                               {{'locale.notifications.sendDate' | translate}}
                               <p-sortIcon field="sendDate"></p-sortIcon>
                           </th>
-                            <th class="center" pSortableColumn="readUser">
+                            <th class="center notification-col-read" pSortableColumn="readUser">
                                 {{'locale.notifications.readUser' | translate}}
                                 <p-sortIcon field="readUser"></p-sortIcon>
                             </th>
-                            <th class="center" pSortableColumn="readAdmin">
+                            <th class="center notification-col-read" pSortableColumn="readAdmin">
                                 {{'locale.notifications.readAdmin' | translate}}
                                 <p-sortIcon field="readAdmin"></p-sortIcon>
                             </th>
-                            <th class="center" pSortableColumn="status">
+                            <th class="center notification-col-status" pSortableColumn="status">
                                 {{'locale.notifications.status' | translate}}
                                 <p-sortIcon field="status"></p-sortIcon>
                             </th>
-                            <th class="center">
+                            <th class="center notification-col-message">
                                 {{'locale.notifications.message' | translate}}
                             </th>
                             <th class="table-buttons"></th>
@@ -125,24 +126,53 @@
                     </ng-template>
                     <ng-template pTemplate="body" let-notif>
                         <tr>
-                           
-                            <td>{{'locale.notifications.types.' + notif.type | translate}}
+                            <td class="notification-cell">
+                                <span class="p-column-title">{{'locale.notifications.type' | translate}}</span>
+                                {{'locale.notifications.types.' + notif.type | translate}}
                             </td>
-                            <td>{{notif.user}}
+                            <td class="notification-cell">
+                                <span class="p-column-title">{{'locale.notifications.user' | translate}}</span>
+                                {{notif.user}}
                             </td>
-                            <td *ngIf="notif.kindle && notif.kindle.title; else noTitle" (mouseover)="data=notif.kindle.image;opCover.toggle($event)">{{notif.kindle.title}}</td>
-                            <ng-template #noTitle><td></td></ng-template>
-                            <td>{{notif.date}}</td>
-                            <td>{{'locale.notifications.read.' + notif.readUser | translate}}
+                            <td class="notification-cell notification-cell-wrap" *ngIf="notif.kindle && notif.kindle.title; else noTitle" (mouseover)="data=notif.kindle.image;opCover.toggle($event)">
+                                <span class="p-column-title">{{'locale.notifications.book' | translate}}</span>
+                                {{notif.kindle.title}}
                             </td>
-                            <td>{{'locale.notifications.read.' + notif.readAdmin | translate}}
+                            <ng-template #noTitle>
+                                <td class="notification-cell">
+                                    <span class="p-column-title">{{'locale.notifications.book' | translate}}</span>
+                                </td>
+                            </ng-template>
+                            <td class="notification-cell">
+                                <span class="p-column-title">{{'locale.notifications.sendDate' | translate}}</span>
+                                {{notif.date}}
                             </td>
-                            <td>{{'locale.notifications.statuses.' + notif.status | translate}}
+                            <td class="notification-cell">
+                                <span class="p-column-title">{{'locale.notifications.readUser' | translate}}</span>
+                                {{'locale.notifications.read.' + notif.readUser | translate}}
                             </td>
-                            <td class="column-overflow" *ngIf="notif.message && notif.upload" (mouseover)="upload=notif.upload;opUpload.toggle($event)" (mouseout)="opUpload.hide()">{{notif.message}}</td>
-                            <td class="column-overflow" *ngIf="notif.message && notif.kindle" (mouseover)="data=notif.message;opKindle.toggle($event)" (mouseout)="opKindle.hide()">{{notif.message}}</td>
-                            <td class="column-overflow" *ngIf="!notif.message">{{notif.message}}</td>
-                            <td class="table-buttons" style="text-overflow: unset;">
+                            <td class="notification-cell">
+                                <span class="p-column-title">{{'locale.notifications.readAdmin' | translate}}</span>
+                                {{'locale.notifications.read.' + notif.readAdmin | translate}}
+                            </td>
+                            <td class="notification-cell">
+                                <span class="p-column-title">{{'locale.notifications.status' | translate}}</span>
+                                {{'locale.notifications.statuses.' + notif.status | translate}}
+                            </td>
+                            <td class="notification-cell notification-cell-wrap" *ngIf="notif.message && notif.upload" (mouseover)="upload=notif.upload;opUpload.toggle($event)" (mouseout)="opUpload.hide()">
+                                <span class="p-column-title">{{'locale.notifications.message' | translate}}</span>
+                                {{notif.message}}
+                            </td>
+                            <td class="notification-cell notification-cell-wrap" *ngIf="notif.message && notif.kindle" (mouseover)="data=notif.message;opKindle.toggle($event)" (mouseout)="opKindle.hide()">
+                                <span class="p-column-title">{{'locale.notifications.message' | translate}}</span>
+                                {{notif.message}}
+                            </td>
+                            <td class="notification-cell notification-cell-wrap" *ngIf="!notif.message">
+                                <span class="p-column-title">{{'locale.notifications.message' | translate}}</span>
+                                {{notif.message}}
+                            </td>
+                            <td class="table-buttons notification-actions-cell" style="text-overflow: unset;">
+                                <span class="p-column-title">&nbsp;</span>
                                 <button pButton type="button" icon="pi pi-trash"
                                     (click)="deleteNotification(notif.id)"></button>
                             </td>

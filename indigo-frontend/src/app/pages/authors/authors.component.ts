@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
@@ -22,12 +22,14 @@ import { ImageService } from 'src/app/utils/image.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [MessageService]
 })
-export class AuthorsComponent implements OnInit, OnDestroy {
+export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild(AuthorComponent) authorComponent: AuthorComponent;
   @ViewChild(DetailComponent) detailComponent: DetailComponent;
+  @ViewChild('scrollSentinel') scrollSentinel?: ElementRef<HTMLDivElement>;
 
   authors: Author[] = [];
+  authorRows: Author[][] = [];
   favorites: Author[] = [];
 
   title: string;
@@ -54,6 +56,7 @@ export class AuthorsComponent implements OnInit, OnDestroy {
   // Cache para optimizar rendimiento
   private authorsCache = new Map<string, Author[]>();
   private favoritesCache: Author[] = null;
+  private scrollObserver?: IntersectionObserver;
 
   // Subject para manejar la destrucción del componente
   private destroy$ = new Subject<void>();
@@ -65,6 +68,8 @@ export class AuthorsComponent implements OnInit, OnDestroy {
   // Estado de carga
   isLoading: boolean = false;
   isScrolling: boolean = false;
+  authorColumns = 5;
+  authorRowHeight = 190;
 
   constructor(
     private authorService: AuthorService,
@@ -72,6 +77,7 @@ export class AuthorsComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     public translate: TranslateService,
     private cdr: ChangeDetectorRef,
+    private ngZone: NgZone,
     private authState: AuthStateService,
     private imageService: ImageService
   ) {
@@ -89,21 +95,40 @@ export class AuthorsComponent implements OnInit, OnDestroy {
     this.loadInitialDataInParallel();
   }
 
+  ngAfterViewInit(): void {
+    this.setupScrollObserver();
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
     this.authorsCache.clear();
+    this.scrollObserver?.disconnect();
   }
 
   private initializeScreenSize(): void {
     // Define el número de elementos según el ancho de pantalla
     if (window.screen.width <= 640) {
       this.size = 10;
+      this.authorColumns = 2;
+      this.authorRowHeight = 170;
     } else if (window.screen.width <= 1024) {
       this.size = 20;
+      this.authorColumns = 4;
+      this.authorRowHeight = 180;
     } else {
       this.size = 80;
+      this.authorColumns = 5;
+      this.authorRowHeight = 190;
     }
+  }
+
+  private updateAuthorRows(): void {
+    const rows: Author[][] = [];
+    for (let index = 0; index < this.authors.length; index += this.authorColumns) {
+      rows.push(this.authors.slice(index, index + this.authorColumns));
+    }
+    this.authorRows = rows;
   }
 
   private initializeSortOptions(): void {
@@ -161,6 +186,7 @@ export class AuthorsComponent implements OnInit, OnDestroy {
             originalImage: author.image
           }));
           Array.prototype.push.apply(this.authors, authorsWithoutImages);
+          this.updateAuthorRows();
           this.page++;
           this.cdr.detectChanges();
           this.processAuthorsImagesAsync(authorsWithoutImages, 0);
@@ -217,23 +243,36 @@ export class AuthorsComponent implements OnInit, OnDestroy {
     this.getAll();
   }
 
-  @HostListener('window:scroll', [])
-  onWindowScroll(): void {
-    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
-
-    // Infinite scroll detection - trigger when user is near bottom
-    const windowHeight = window.innerHeight
-    const documentHeight = document.documentElement.scrollHeight
-    const scrollThreshold = 300 // pixels from bottom to trigger load
-
-    if (scrollPosition + windowHeight >= documentHeight - scrollThreshold) {
-      this.onScroll()
+  private setupScrollObserver(): void {
+    if (!this.scrollSentinel || typeof window === 'undefined') {
+      return;
     }
+
+    this.ngZone.runOutsideAngular(() => {
+      this.scrollObserver?.disconnect();
+      this.scrollObserver = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            this.ngZone.run(() => this.onScroll());
+          }
+        },
+        { rootMargin: '400px 0px' }
+      );
+
+      this.scrollObserver.observe(this.scrollSentinel.nativeElement);
+    });
   }
 
   onScroll(): void {
     if (this.authors.length < this.total && !this.isScrolling) {
       this.getAll();
+    }
+  }
+
+  onVirtualScrollIndexChange(index: number): void {
+    const preloadThreshold = 3;
+    if (index + preloadThreshold >= this.authorRows.length) {
+      this.onScroll();
     }
   }
 
@@ -244,6 +283,7 @@ export class AuthorsComponent implements OnInit, OnDestroy {
     if (this.authorsCache.has(cacheKey)) {
       const cachedData = this.authorsCache.get(cacheKey);
       Array.prototype.push.apply(this.authors, cachedData);
+      this.updateAuthorRows();
       this.page++;
       this.cdr.detectChanges();
       return;
@@ -263,6 +303,7 @@ export class AuthorsComponent implements OnInit, OnDestroy {
 
           // Mostrar datos inmediatamente
           Array.prototype.push.apply(this.authors, authorsWithoutImages);
+          this.updateAuthorRows();
           this.page++;
           this.cdr.detectChanges();
 
@@ -304,18 +345,20 @@ export class AuthorsComponent implements OnInit, OnDestroy {
 
     const processBatch = () => {
       const endIndex = Math.min(currentIndex + batchSize, authors.length);
+      let hasUpdates = false;
 
       for (let i = currentIndex; i < endIndex; i++) {
         const author = authors[i];
         const targetIndex = startIndex + i;
 
         if (author.originalImage && targetIndex < this.authors.length) {
-          // Procesar imagen de forma asíncrona
-          setTimeout(() => {
-            this.authors[targetIndex].image = this.imageService.toDataUrlSafe(author.originalImage);
-            this.cdr.detectChanges();
-          }, i * 15); // Pequeño delay entre imágenes
+          this.authors[targetIndex].image = this.imageService.toDataUrlSafe(author.originalImage);
+          hasUpdates = true;
         }
+      }
+
+      if (hasUpdates) {
+        this.cdr.detectChanges();
       }
 
       currentIndex = endIndex;
@@ -331,14 +374,33 @@ export class AuthorsComponent implements OnInit, OnDestroy {
   }
 
   private processFavoritesImagesAsync(favorites: any[]): void {
-    favorites.forEach((author, index) => {
-      if (author.originalImage) {
-        setTimeout(() => {
-          this.favorites[index].image = this.imageService.toDataUrlSafe(author.originalImage);
-          this.cdr.detectChanges();
-        }, index * 75); // Delay progresivo para suavizar la carga
+    const batchSize = 4;
+    let currentIndex = 0;
+
+    const processBatch = () => {
+      const endIndex = Math.min(currentIndex + batchSize, favorites.length);
+      let hasUpdates = false;
+
+      for (let i = currentIndex; i < endIndex; i++) {
+        const author = favorites[i];
+        if (author.originalImage && i < this.favorites.length) {
+          this.favorites[i].image = this.imageService.toDataUrlSafe(author.originalImage);
+          hasUpdates = true;
+        }
       }
-    });
+
+      if (hasUpdates) {
+        this.cdr.detectChanges();
+      }
+
+      currentIndex = endIndex;
+
+      if (currentIndex < favorites.length) {
+        setTimeout(processBatch, 75);
+      }
+    };
+
+    setTimeout(processBatch, 75);
   }
 
   getBooksByAuthor(author: Author): void {

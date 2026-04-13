@@ -1,0 +1,88 @@
+.notifications-table-wrapper {
+  width: 100%;
+  min-width: 0;
+}
+
+:host ::ng-deep .notifications-table {
+  width: 100%;
+}
+
+:host ::ng-deep .notifications-table .p-datatable-wrapper {
+  overflow-x: hidden;
+}
+
+:host ::ng-deep .notifications-table th,
+:host ::ng-deep .notifications-table td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:host ::ng-deep .notifications-table .p-column-filter,
+:host ::ng-deep .notifications-table .p-dropdown,
+:host ::ng-deep .notifications-table .p-inputtext {
+  width: 100%;
+  min-width: 0;
+}
+
+:host ::ng-deep .notifications-table .notification-col-type {
+  width: 8rem;
+}
+
+:host ::ng-deep .notifications-table .notification-col-user {
+  width: 10rem;
+}
+
+:host ::ng-deep .notifications-table .notification-col-title {
+  width: 14rem;
+}
+
+:host ::ng-deep .notifications-table .notification-col-date {
+  width: 9rem;
+}
+
+:host ::ng-deep .notifications-table .notification-col-read,
+:host ::ng-deep .notifications-table .notification-col-status {
+  width: 8rem;
+}
+
+:host ::ng-deep .notifications-table .notification-col-message {
+  width: auto;
+}
+
+:host ::ng-deep .notifications-table .notification-cell-wrap {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+:host ::ng-deep .notifications-table .notification-actions-cell {
+  width: 4rem;
+  text-align: center;
+}
+
+@media (max-width: 1279px) {
+  :host ::ng-deep .notifications-table .p-datatable-thead > tr:nth-child(2) {
+    display: none;
+  }
+
+  :host ::ng-deep .notifications-table .p-datatable-tbody > tr > td {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+    padding: 0.75rem 1rem;
+  }
+
+  :host ::ng-deep .notifications-table .p-datatable-tbody > tr > td .p-column-title {
+    display: inline-block;
+    min-width: 8rem;
+    margin-right: 0.5rem;
+    font-weight: 600;
+  }
+
+  :host ::ng-deep .notifications-table .notification-actions-cell {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+  }
+}

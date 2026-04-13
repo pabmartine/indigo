@@ -233,19 +233,19 @@ export class CategoriesComponent implements OnInit, OnDestroy {
 
     const processBatch = () => {
       const endIndex = Math.min(currentIndex + batchSize, tags.length);
+      let hasUpdates = false;
 
       for (let i = currentIndex; i < endIndex; i++) {
         const tag = tags[i];
 
         if (tag.originalImage && i < this.tags.length) {
-          // Procesar imagen de forma asíncrona
-          setTimeout(() => {
-            if (i < this.tags.length) {
-              this.tags[i].image = tag.originalImage;
-              this.cdr.detectChanges();
-            }
-          }, i * 20); // Pequeño delay entre imágenes
+          this.tags[i].image = tag.originalImage;
+          hasUpdates = true;
         }
+      }
+
+      if (hasUpdates) {
+        this.cdr.detectChanges();
       }
 
       currentIndex = endIndex;

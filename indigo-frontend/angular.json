@@ -33,10 +33,6 @@
               "src/assets/css/search.css",
               "src/assets/css/settings.css",
               "src/assets/css/index.css"
-            ],
-            "scripts": [
-              "node_modules/jszip/dist/jszip.min.js",
-              "node_modules/epubjs/dist/epub.min.js"
             ]
           },
           "configurations": {

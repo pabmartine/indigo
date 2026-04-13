@@ -64,31 +64,37 @@
         </div>
 
         <!-- Authors grid -->
-        <div class="authors-grid"
-             *ngIf="!isLoading">
-          <div *ngFor="let author of authors; trackBy: trackByAuthorId" class="author-item" (click)="showDetails(author)">
+        <cdk-virtual-scroll-viewport *ngIf="!isLoading"
+                                     class="authors-viewport"
+                                     [itemSize]="authorRowHeight"
+                                     minBufferPx="440"
+                                     maxBufferPx="880"
+                                     (scrolledIndexChange)="onVirtualScrollIndexChange($event)">
+          <div *cdkVirtualFor="let row of authorRows" class="authors-row">
+            <div *ngFor="let author of row; trackBy: trackByAuthorId" class="author-item" (click)="showDetails(author)">
 
-            <div class="user_avatar">
-              <img [src]="author.image || './assets/images/avatar3.jpg'"
-                   class="avatar"
+              <div class="user_avatar">
+                <img [src]="author.image || './assets/images/avatar3.jpg'"
+                     class="avatar"
+                     (click)="showDetails(author)"
+                     style="cursor: pointer;"
+                     loading="lazy"
+                     [alt]="author.name"
+                     [class.loading-image]="!author.image" />
+
+                <a href="javascript:;"
                    (click)="showDetails(author)"
                    style="cursor: pointer;"
-                   loading="lazy"
-                   [alt]="author.name"
-                   [class.loading-image]="!author.image" />
+                   tabindex="0"
+                   (keyup.enter)="showDetails(author)">
+                  <span class="title">{{author.name}}</span>
+                  <span class="subtitle">{{author.numBooks}} {{'locale.authors.total' | translate}}</span>
+                </a>
+              </div>
 
-              <a href="javascript:;"
-                 (click)="showDetails(author)"
-                 style="cursor: pointer;"
-                 tabindex="0"
-                 (keyup.enter)="showDetails(author)">
-                <span class="title">{{author.name}}</span>
-                <span class="subtitle">{{author.numBooks}} {{'locale.authors.total' | translate}}</span>
-              </a>
             </div>
-
           </div>
-        </div>
+        </cdk-virtual-scroll-viewport>
 
     </div>
   </div>
