@@ -2,7 +2,9 @@ package com.martinia.indigo.book.domain.ports.repositories;
 
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.common.domain.model.Search;
+import com.martinia.indigo.notification.domain.ports.repositories.NotificationRepository;
 import com.martinia.indigo.notification.infrastructure.mongo.entities.NotificationMongoEntity;
+import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.AggregateIterable;
@@ -34,18 +36,30 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
 @Slf4j
 public class CustomBookRepositoryImpl implements CustomBookRepository {
 
+	private static final Set<String> ALLOWED_SORT_FIELDS = new LinkedHashSet<>(Arrays.asList(
+			"title", "path", "pubDate", "pages", "rating", "lastModified", "_id", "id"
+	));
+
 	@Resource
 	private MongoTemplate mongoTemplate;
+
+	@Resource
+	private UserRepository userRepository;
+
+	@Resource
+	private NotificationRepository notificationRepository;
 
 	private String collectionName = BookMongoEntity.class.getAnnotation(org.springframework.data.mongodb.core.mapping.Document.class)
 			.collection();
@@ -115,7 +129,11 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 	public List<BookMongoEntity> findAll(Search search, int page, int size, String sort, String order) {
 
-		Query query = new Query().with(PageRequest.of(page, size, Sort.by(Direction.fromString(order), sort)));
+		Query query = new Query().with(PageRequest.of(page, size, Sort.by(resolveDirection(order), resolveSortField(sort))));
+		query.fields()
+				.exclude("reviews")
+				.exclude("similar")
+				.exclude("recommendations");
 
 		List<Criteria> criterias = new ArrayList<>();
 
@@ -356,63 +374,53 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 	@Override
 	public long countRecommendationsByUser(String user) {
-
-		long ret = 0;
-
-		Query query = new Query();
-		List<Criteria> criterias = new ArrayList<>();
-		criterias.add(Criteria.where("user").is(user));
-		query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
-		List<NotificationMongoEntity> notifs = mongoTemplate.find(query, NotificationMongoEntity.class);
-
-		if (!CollectionUtils.isEmpty(notifs)) {
-
-			query = new Query();
-			criterias.clear();
-			criterias.add(Criteria.where("username").is(user));
-			query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
-			UserMongoEntity userMongoEntity = mongoTemplate.findOne(query, UserMongoEntity.class);
-
-			List<String> languages = userMongoEntity.getLanguageBooks();
-
-			List<String> recommendations = new ArrayList<>();
-
-			for (NotificationMongoEntity notif : notifs) {
-				if (notif.getType()!=null && notif.getType().equals("KINDLE")) {
-					query = new Query();
-					criterias.clear();
-					criterias.add(Criteria.where("path").is(notif.getKindle().getBook()));
-					query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
-					BookMongoEntity book = mongoTemplate.findOne(query, BookMongoEntity.class);
-
-					if (book != null && !CollectionUtils.isEmpty(book.getRecommendations())) {
-						recommendations.addAll(book.getRecommendations());
-					}
-				}
-			}
-
-			if (!CollectionUtils.isEmpty(recommendations)) {
-				recommendations = recommendations.stream().distinct().collect(Collectors.toList());
-
-				ret = getRecommendationsByBook(recommendations, languages, recommendations.size()).size();
-
-			}
-
+		Optional<UserMongoEntity> userMongoEntity = userRepository.findByUsername(user);
+		if (userMongoEntity.isEmpty()) {
+			return 0;
 		}
-		return ret;
+
+		List<NotificationMongoEntity> notifications = notificationRepository.findByUserAndType(user, "KINDLE");
+		if (CollectionUtils.isEmpty(notifications)) {
+			return 0;
+		}
+
+		List<String> sentBookPaths = notifications.stream()
+				.map(NotificationMongoEntity::getKindle)
+				.filter(Objects::nonNull)
+				.map(notification -> notification.getBook())
+				.filter(Objects::nonNull)
+				.distinct()
+				.toList();
+
+		if (CollectionUtils.isEmpty(sentBookPaths)) {
+			return 0;
+		}
+
+		List<String> recommendations = mongoTemplate.find(new Query(Criteria.where("path").in(sentBookPaths)), BookMongoEntity.class)
+				.stream()
+				.map(BookMongoEntity::getRecommendations)
+				.filter(Objects::nonNull)
+				.flatMap(List::stream)
+				.filter(Objects::nonNull)
+				.distinct()
+				.toList();
+
+		if (CollectionUtils.isEmpty(recommendations)) {
+			return 0;
+		}
+
+		return getRecommendationsByBook(recommendations, userMongoEntity.get().getLanguageBooks(), recommendations.size()).size();
 	}
 
 	@Override
 	public List<BookMongoEntity> getRecommendationsByUser(String user, int page, int size, String sort, String order) {
 
 		List<BookMongoEntity> ret = new ArrayList<>();
-
-		Query query = new Query();
-		List<Criteria> criterias = new ArrayList<>();
-		criterias.add(Criteria.where("username").is(user));
-		query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
-		UserMongoEntity userMongoEntity = mongoTemplate.findOne(query, UserMongoEntity.class);
-		List<String> languages = userMongoEntity.getLanguageBooks();
+		Optional<UserMongoEntity> userMongoEntity = userRepository.findByUsername(user);
+		if (userMongoEntity.isEmpty()) {
+			return ret;
+		}
+		List<String> languages = userMongoEntity.get().getLanguageBooks();
 
 		CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(
 				MongoClientSettings.getDefaultCodecRegistry(),
@@ -436,12 +444,23 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 								.append("as", "book")), new Document("$replaceRoot", new Document("newRoot",
 						new Document("$mergeObjects", Arrays.asList(new Document("$arrayElemAt", Arrays.asList("$book", 0L)), "$$ROOT")))),
 				new Document("$match", new Document("languages", new Document("$in", languages))),
-				new Document("$sort", new Document(sort, (order.equals("asc") ? 1 : -1)).append("_id", -1L)),
+				new Document("$sort", new Document(resolveSortField(sort), (resolveDirection(order).isAscending() ? 1 : -1)).append("_id", -1L)),
 				new Document("$skip", page * size), new Document("$limit", size)), BookMongoEntity.class);
 
 		data.iterator().forEachRemaining(ret::add);
 
 		return ret;
+	}
+
+	private String resolveSortField(String sort) {
+		if (!ALLOWED_SORT_FIELDS.contains(sort)) {
+			return "title";
+		}
+		return "id".equals(sort) ? "_id" : sort;
+	}
+
+	private Direction resolveDirection(String order) {
+		return "desc".equalsIgnoreCase(order) ? Direction.DESC : Direction.ASC;
 	}
 
 	@Override

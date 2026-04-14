@@ -4,6 +4,7 @@ import com.martinia.indigo.user.domain.model.User;
 import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import com.martinia.indigo.user.domain.ports.usecases.UpdateUserUseCase;
 import com.martinia.indigo.user.infrastructure.mongo.mappers.UserMongoMapper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +28,7 @@ public class UpdateUserUseCaseImpl implements UpdateUserUseCase {
 	public void update(final User user) {
 		userRepository.findById(user.getId()).ifPresent(_user -> {
 
-			if (!_user.getPassword().equals(user.getPassword())) {
+			if (StringUtils.isNotBlank(user.getPassword()) && !_user.getPassword().equals(user.getPassword())) {
 				_user.setPassword(passwordEncoder.encode(user.getPassword()));
 			}
 

@@ -40,11 +40,7 @@ public class ImageUtils {
 
 		String image = null;
 		try {
-			if (!libraryPath.endsWith(File.separator)) {
-				libraryPath += File.separator;
-			}
-
-			String basePath = libraryPath + path;
+			String basePath = normalizeLibraryPath() + path;
 
 			File file = new File(basePath);
 			if (file.exists()) {
@@ -64,7 +60,6 @@ public class ImageUtils {
 
 									for (String type : types) {
 										if (fileName.contains(type) && Arrays.asList("jpg", "jpeg", "png").contains(extension)) {
-											System.out.println("File " + entry.getName());
 											try (InputStream is = zipFile.getInputStream(entry)) {
 												BufferedImage originalImage = ImageIO.read(is);
 												image = getScaledImage(originalImage, 0);
@@ -82,30 +77,18 @@ public class ImageUtils {
 			}
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.debug("Error extracting image from epub {}", path, e);
 		}
 		return image;
 	}
 
 	public String getBase64Cover(String path, boolean scale) {
 		String image = null;
-
-		if (!libraryPath.endsWith(File.separator)) {
-			libraryPath += File.separator;
-		}
-
-		path = libraryPath + path;
+		path = normalizeLibraryPath() + path;
 
 		if ((new File(path)).exists()) {
 			try {
 				String coverPath = path + "/cover.jpg";
-				String thumbPath = path + "/thumbnail.jpg";
-
-				File thumbFile = new File(thumbPath);
-
-				if (thumbFile.exists()) {
-					thumbFile.delete();
-				}
 
 				File coverFile = new File(coverPath);
 				BufferedImage originalImage = ImageIO.read(coverFile);
@@ -221,16 +204,18 @@ public class ImageUtils {
 
 	private static String getScaledImage(BufferedImage originalImage, double rotate) throws IOException {
 
-		int h = originalImage.getHeight();
-		int w = originalImage.getWidth();
+		int originalHeight = originalImage.getHeight();
+		int originalWidth = originalImage.getWidth();
+		int h;
+		int w;
 
-		if (h > w) {
+		if (originalHeight > originalWidth) {
 			h = 250;
-			w = (w * 250) / h;
+			w = Math.max(1, (originalWidth * 250) / originalHeight);
 		}
 		else {
 			w = 250;
-			h = (h * 250) / w;
+			h = Math.max(1, (originalHeight * 250) / originalWidth);
 		}
 
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -291,18 +276,18 @@ public class ImageUtils {
 						libraryPathWithoutSeparator.lastIndexOf(File.separator) + 1
 				);
 
-				// Si normalizedPath comienza con el último directorio de libraryPath, eliminarlo
-				if (normalizedPath.startsWith(lastDirOfLibrary + File.separator) ||
-						normalizedPath.startsWith(lastDirOfLibrary)) {
-					normalizedPath = normalizedPath.substring(lastDirOfLibrary.length());
-					while (normalizedPath.startsWith(File.separator)) {
-						normalizedPath = normalizedPath.substring(1);
+					// Si normalizedPath comienza con el último directorio de libraryPath, eliminarlo
+					if (normalizedPath.startsWith(lastDirOfLibrary + File.separator) ||
+							normalizedPath.startsWith(lastDirOfLibrary)) {
+						normalizedPath = normalizedPath.substring(lastDirOfLibrary.length());
+						while (normalizedPath.startsWith(File.separator)) {
+							normalizedPath = normalizedPath.substring(1);
+						}
 					}
-				}
 
-				basePath = normalizedLibraryPath + normalizedPath;
-				log.debug("Using relative path: {} -> {}", path, basePath);
-			}
+					basePath = normalizedLibraryPath + normalizedPath;
+					log.debug("Using relative path: {} -> {}", path, basePath);
+				}
 
 			File file = new File(basePath);
 			log.debug("Checking path: {} (exists: {}, isDirectory: {})", basePath, file.exists(), file.isDirectory());
@@ -355,6 +340,10 @@ public class ImageUtils {
 		}
 
 		return normalizedPath;
+	}
+
+	private String normalizeLibraryPath() {
+		return libraryPath.endsWith(File.separator) ? libraryPath : libraryPath + File.separator;
 	}
 
 }

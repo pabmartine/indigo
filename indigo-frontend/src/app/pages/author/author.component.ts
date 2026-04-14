@@ -253,7 +253,7 @@ export class AuthorComponent implements OnInit {
   }
 
   getAll(): void {
-    this.bookService.getAll(this.adv_search, 0, this.total, "pubDate", "desc").subscribe({
+    this.bookService.getAllSummary(this.adv_search, 0, this.total, "pubDate", "desc").subscribe({
       next: (data) => {
         // Procesar las imágenes de los libros
         const processedBooks = data.map(book => ({

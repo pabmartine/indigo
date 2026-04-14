@@ -24,6 +24,10 @@ export class UserService {
     return this.http.get<User>(this.endpoint+"/get?username="+username);
   }
 
+  public getCurrent(): Observable<User> {
+    return this.http.get<User>(this.endpoint+"/me");
+  }
+
   public update(user:User):Observable<any> {
     return this.http.put<User>(this.endpoint + "/update",user);
   }

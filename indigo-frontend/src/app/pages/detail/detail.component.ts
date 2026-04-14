@@ -182,9 +182,8 @@ export class DetailComponent implements OnInit, OnDestroy {
   showDetails(book: Book) {
     this.close();
 
-    this.selected = book;
-    this.selectedImage = this.bookService.buildCoverImageUrl(book.id);
-    this.selected.image = this.selectedImage;
+    this.selected = this.prepareBookForDetail(book);
+    this.selectedImage = this.selected.image;
     this.editedBook = new Book();
     this.kindle = false;
     this.favoriteBook = false;
@@ -197,6 +196,7 @@ export class DetailComponent implements OnInit, OnDestroy {
     this.getKindle();
     this.getFavoriteBook(book.path);
     this.view(book.path);
+    this.loadFullBookDetails(book);
 
     setTimeout(() => {
       this.open();
@@ -206,6 +206,48 @@ export class DetailComponent implements OnInit, OnDestroy {
       this.checkOverflowRecommendations();
     }, 200)
 
+  }
+
+  private prepareBookForDetail(book: Book): Book {
+    const coverUrl = this.bookService.buildCoverImageUrl(book.id) || book.image;
+    return {
+      ...book,
+      image: coverUrl || book.image
+    };
+  }
+
+  private loadFullBookDetails(book: Book): void {
+    if (!book?.id) {
+      return;
+    }
+
+    const needsHydration = !book.comment || !book.reviews || !book.similar || !book.recommendations;
+    if (!needsHydration) {
+      return;
+    }
+
+    this.bookService.getBookId(book.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (fullBook) => {
+          if (!fullBook || this.selected?.id !== book.id) {
+            return;
+          }
+
+          const hydratedBook = this.prepareBookForDetail({ ...fullBook, image: this.selected.image });
+          this.selected = hydratedBook;
+          this.selectedImage = hydratedBook.image;
+          this.serie.length = 0;
+          this.similar.length = 0;
+          this.recommendations.length = 0;
+          this.getSerie(hydratedBook.serie);
+          this.getSimilar(hydratedBook.similar);
+          this.getRecommendations(hydratedBook.recommendations);
+        },
+        error: (error) => {
+          console.error('Error hydrating book details:', error);
+        }
+      });
   }
 
   openAuthor(author: string) {

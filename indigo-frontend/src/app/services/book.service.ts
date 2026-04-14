@@ -31,6 +31,14 @@ export class BookService {
     return this.http.post(url, adv_search);
   }
 
+  public getAllSummary(adv_search: Search, page: number,
+    size: number,
+    sort: string,
+    order: string): Observable<any> {
+    let url = this.endpoint + "/all/advance/summary?" + "page=" + page + "&size=" + size + "&sort=" + sort + "&order=" + order;
+    return this.http.post(url, adv_search);
+  }
+
   getEpub(path: string): Observable<Blob> {
     path = path.replace('&', '@_@');
     path = path.replace('[', '@-@');

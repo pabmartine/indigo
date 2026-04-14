@@ -29,7 +29,7 @@ public class FindBookCoverByPathUseCaseImplTest extends BaseIndigoTest {
 		String base64Image = "base64encodedimage";
 
 		// Mock the behavior of utilComponent.getBase64Cover()
-		when(imageUtils.getBase64Cover(path, false)).thenReturn(base64Image);
+		when(imageUtils.getBase64Cover(path, true)).thenReturn(base64Image);
 
 		// When
 		Optional<String> imageOptional = findBookCoverByPathUseCase.getImage(path);
@@ -45,7 +45,7 @@ public class FindBookCoverByPathUseCaseImplTest extends BaseIndigoTest {
 		String path = "invalid/path";
 
 		// Mock the behavior of utilComponent.getBase64Cover()
-		when(imageUtils.getBase64Cover(path, false)).thenReturn(null);
+		when(imageUtils.getBase64Cover(path, true)).thenReturn(null);
 
 		// When
 		Optional<String> imageOptional = findBookCoverByPathUseCase.getImage(path);
@@ -59,8 +59,6 @@ public class FindBookCoverByPathUseCaseImplTest extends BaseIndigoTest {
 		// Given
 		String nullPath = null;
 
-		when(imageUtils.getBase64Cover(nullPath, false)).thenReturn(null);
-
 		// When
 		Optional<String> imageOptional = findBookCoverByPathUseCase.getImage(nullPath);
 
@@ -72,8 +70,6 @@ public class FindBookCoverByPathUseCaseImplTest extends BaseIndigoTest {
 	public void testGetImage_WithEmptyPath() {
 		// Given
 		String emptyPath = "";
-
-		when(imageUtils.getBase64Cover(emptyPath, false)).thenReturn(null);
 
 		// When
 		Optional<String> imageOptional = findBookCoverByPathUseCase.getImage(emptyPath);
@@ -88,7 +84,7 @@ public class FindBookCoverByPathUseCaseImplTest extends BaseIndigoTest {
 		String absolutePath = "/home/user/books/cover.jpg";
 		String base64Image = "absolutePathImageBase64";
 
-		when(imageUtils.getBase64Cover(absolutePath, false)).thenReturn(base64Image);
+		when(imageUtils.getBase64Cover(absolutePath, true)).thenReturn(base64Image);
 
 		// When
 		Optional<String> imageOptional = findBookCoverByPathUseCase.getImage(absolutePath);
@@ -104,7 +100,7 @@ public class FindBookCoverByPathUseCaseImplTest extends BaseIndigoTest {
 		String relativePath = "books/fiction/cover.png";
 		String base64Image = "relativePathImageBase64";
 
-		when(imageUtils.getBase64Cover(relativePath, false)).thenReturn(base64Image);
+		when(imageUtils.getBase64Cover(relativePath, true)).thenReturn(base64Image);
 
 		// When
 		Optional<String> imageOptional = findBookCoverByPathUseCase.getImage(relativePath);

@@ -81,6 +81,7 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
   private favoritesCache: BookWithTempImage[] | null = null
   private filtersKey: string = "default"
   private scrollObserver?: IntersectionObserver
+  private ignoreNextRouteSearch = false
 
   private destroy$ = new Subject<void>()
 
@@ -235,6 +236,11 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private handleRouteChange(navigationEvent: NavigationEnd, params: any): void {
+    if (this.ignoreNextRouteSearch) {
+      this.ignoreNextRouteSearch = false
+      return
+    }
+
     let shouldSearch = false
     let paramsChanged = false
 
@@ -293,7 +299,6 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
   private initializeSearch(): void {
     const queryParams = this.route.snapshot.queryParams
 
-    // Procesar inmediatamente si hay adv_search en los parámetros
     if (queryParams["adv_search"]) {
       try {
         this.adv_search = JSON.parse(queryParams["adv_search"])
@@ -317,6 +322,7 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
     if (!hasQueryParams && !this.searched) {
       this.doSearch()
     } else if (hasQueryParams && !this.searched) {
+      this.ignoreNextRouteSearch = true
       this.doSearch()
     }
   }
@@ -364,10 +370,8 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
     this.page = 0
     this.books.length = 0
     this.resetCache()
-
-    this.fetchCountAndUpdateTitle().subscribe(() => {
-      this.getAll()
-    })
+    this.getAll()
+    this.fetchCountAndUpdateTitle().subscribe()
   }
 
   onScroll(): void {
@@ -467,7 +471,7 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.isScrolling = true
     this.bookService
-      .getAll(this.adv_search, this.page, this.size, this.sort, this.order)
+      .getAllSummary(this.adv_search, this.page, this.size, this.sort, this.order)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data: Book[]) => {
@@ -692,10 +696,8 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
     // CRUCIAL: Configurar idiomas - ALWAYS ensure languages are set
     const languages = this.user?.languageBooks || this.authState.getLanguageBooks()
     this.adv_search.languages = languages.length > 0 ? languages : ['en']
-
-    this.fetchCountAndUpdateTitle().subscribe(() => {
-      this.getAll()
-    })
+    this.getAll()
+    this.fetchCountAndUpdateTitle().subscribe()
   }
 
   private shouldLoadFavorites(): boolean {

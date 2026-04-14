@@ -10,4 +10,6 @@ import com.martinia.indigo.tag.infrastructure.mongo.entities.TagMongoEntity;
 public interface CustomTagRepository {
 
 	List<TagMongoEntity> findAll(List<String> languages, Sort sort);
+
+	List<TagMongoEntity> findAll(List<String> languages, int page, int size, Sort sort);
 }

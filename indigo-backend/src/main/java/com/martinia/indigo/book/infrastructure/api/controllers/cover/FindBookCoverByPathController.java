@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.CacheControl;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,6 +21,7 @@ import jakarta.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/book")
@@ -51,7 +53,10 @@ public class FindBookCoverByPathController {
 			map = new HashMap<String, String>();
 			map.put("image", image.get());
 		}
-		return new ResponseEntity<>(map, HttpStatus.OK);
+		return ResponseEntity.status(HttpStatus.OK)
+				.cacheControl(CacheControl.maxAge(10, TimeUnit.MINUTES).cachePublic())
+				.contentType(MediaType.APPLICATION_JSON)
+				.body(map);
 
 	}
 }

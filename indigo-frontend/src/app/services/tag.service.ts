@@ -19,7 +19,11 @@ export class TagService {
 
  getAll(languages: string[], sort: string, order: string) : Observable<any> {
     return this.http.get<any>(this.endpoint+"/all?languages=" + languages.map(x=>x).join(",") + "&sort=" + sort + "&order=" + order);
-  }  
+  }
+
+  getAllPaged(languages: string[], page: number, size: number, sort: string, order: string) : Observable<any> {
+    return this.http.get<any>(this.endpoint+"/all/paged?languages=" + languages.map(x=>x).join(",") + "&page=" + page + "&size=" + size + "&sort=" + sort + "&order=" + order);
+  }
 
   rename(source:number, target: string) : Observable<any> {
     return this.http.get<string>(this.endpoint+"/rename?source="+source+"&target="+target);

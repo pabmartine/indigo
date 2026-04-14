@@ -177,15 +177,15 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   }
 
   getAll(): void {
-    this.tagService.getAll(this.user.languageBooks, this.sort, this.order)
+    this.tagService.getAllPaged(this.user.languageBooks, 0, 500, this.sort, this.order)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
           // INMEDIATAMENTE mostrar tags sin procesar imágenes
           const tagsWithoutImages: TagWithTempImage[] = data.map(tag => ({
             ...tag,
-            image: tag.image ? null : './assets/images/unknown.jpg', // Placeholder si no hay imagen
-            originalImage: tag.image // Guardar imagen original
+            image: tag.image || './assets/images/unknown.jpg',
+            originalImage: tag.image
           }));
 
           this.tags = tagsWithoutImages;
@@ -193,10 +193,6 @@ export class CategoriesComponent implements OnInit, OnDestroy {
           this.isLoading = false;
           this.cdr.detectChanges();
 
-          // Procesar imágenes de forma asíncrona
-          this.processTagsImagesAsync(tagsWithoutImages);
-
-          // Guardar en cache con imágenes procesadas para futuras cargas
           const processedTags = this.processTags(data);
           this.tagsCache = [...processedTags];
         },
@@ -218,46 +214,11 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   private processTags(data: Tag[]): Tag[] {
     return data.map(tag => {
       const processedTag = { ...tag };
-      // Las tags ya vienen con imagen procesada del servidor o null
       if (!processedTag.image) {
         processedTag.image = './assets/images/unknown.jpg';
       }
       return processedTag;
     });
-  }
-
-  private processTagsImagesAsync(tags: TagWithTempImage[]): void {
-    // Procesar imágenes en pequeños lotes para no bloquear la UI
-    const batchSize = 4;
-    let currentIndex = 0;
-
-    const processBatch = () => {
-      const endIndex = Math.min(currentIndex + batchSize, tags.length);
-      let hasUpdates = false;
-
-      for (let i = currentIndex; i < endIndex; i++) {
-        const tag = tags[i];
-
-        if (tag.originalImage && i < this.tags.length) {
-          this.tags[i].image = tag.originalImage;
-          hasUpdates = true;
-        }
-      }
-
-      if (hasUpdates) {
-        this.cdr.detectChanges();
-      }
-
-      currentIndex = endIndex;
-
-      // Continuar con el siguiente lote si hay más imágenes
-      if (currentIndex < tags.length) {
-        setTimeout(processBatch, 80); // Pausa entre lotes
-      }
-    };
-
-    // Iniciar procesamiento
-    setTimeout(processBatch, 100);
   }
 
   getBooksByTag(tag: Tag): void {

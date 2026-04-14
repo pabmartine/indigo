@@ -47,7 +47,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   getAllTags() {
     this.tags.length = 0;
-    this.tagService.getAll(this.user.languageBooks, "name", "asc")
+    this.tagService.getAllPaged(this.user.languageBooks, 0, 500, "name", "asc")
       .pipe(takeUntil(this.destroy$))
       .subscribe(
         data => {

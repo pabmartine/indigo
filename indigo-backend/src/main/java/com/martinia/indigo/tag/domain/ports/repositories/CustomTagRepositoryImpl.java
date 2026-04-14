@@ -23,14 +23,28 @@ public class CustomTagRepositoryImpl implements CustomTagRepository {
 
 	@Override
 	public List<TagMongoEntity> findAll(List<String> languages, Sort sort) {
-		Query query = new Query().with(PageRequest.of(0, Integer.MAX_VALUE, sort));
+		Query query = new Query().with(Sort.by(sort.stream().toList()));
 		List<Criteria> criterias = new ArrayList<>();
 		if (!CollectionUtils.isEmpty(languages)) {
 			for (String lang : languages)
 				criterias.add(Criteria.where("numBooks.languages." + lang)
 						.exists(true));
+			query.addCriteria(new Criteria().orOperator(criterias.toArray(new Criteria[criterias.size()])));
 		}
-		query.addCriteria(new Criteria().orOperator(criterias.toArray(new Criteria[criterias.size()])));
+
+		return mongoTemplate.find(query, TagMongoEntity.class);
+	}
+
+	@Override
+	public List<TagMongoEntity> findAll(List<String> languages, int page, int size, Sort sort) {
+		Query query = new Query().with(PageRequest.of(page, size, sort));
+		List<Criteria> criterias = new ArrayList<>();
+		if (!CollectionUtils.isEmpty(languages)) {
+			for (String lang : languages)
+				criterias.add(Criteria.where("numBooks.languages." + lang)
+						.exists(true));
+			query.addCriteria(new Criteria().orOperator(criterias.toArray(new Criteria[criterias.size()])));
+		}
 
 		return mongoTemplate.find(query, TagMongoEntity.class);
 	}

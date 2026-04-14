@@ -43,8 +43,8 @@ public class CustomAuthorRepositoryImpl implements CustomAuthorRepository {
 			for (String lang : languages)
 				criterias.add(Criteria.where("numBooks.languages." + lang)
 						.exists(true));
+			query.addCriteria(new Criteria().orOperator(criterias.toArray(new Criteria[criterias.size()])));
 		}
-		query.addCriteria(new Criteria().orOperator(criterias.toArray(new Criteria[criterias.size()])));
 
 		return mongoTemplate.find(query, AuthorMongoEntity.class);
 	}

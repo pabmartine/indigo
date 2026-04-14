@@ -48,5 +48,23 @@ public class FindAllTagsController {
 		return new ResponseEntity<>(tagsDto, HttpStatus.OK);
 	}
 
-}
+	@Operation(summary = "Find tags paged",
+			description = "Retrieves a paginated list of tags, optionally filtered by language and sorted.",
+			responses = {
+					@ApiResponse(responseCode = "200", description = "Successfully retrieved the paginated list of tags",
+							content = @Content(mediaType = "application/json",
+									schema = @Schema(implementation = TagDto.class)))
+			})
+	@GetMapping(value = "/all/paged", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<TagDto>> getAllPaged(
+			@Parameter(description = "List of languages to filter tags by (e.g., 'en', 'es')", example = "[\"en\"]") @RequestParam final List<String> languages,
+			@Parameter(description = "Page number for pagination (0-indexed)", example = "0") @RequestParam int page,
+			@Parameter(description = "Number of tags per page", example = "50") @RequestParam int size,
+			@Parameter(description = "Field to sort by (e.g., 'name')", example = "name") @RequestParam String sort,
+			@Parameter(description = "Sort order (asc or desc)", example = "asc") @RequestParam String order) {
+		final List<com.martinia.indigo.tag.domain.model.Tag> tags = useCase.findAll(languages, page, size, sort, order);
+		final List<TagDto> tagsDto = mapper.domains2Dtos(tags);
+		return new ResponseEntity<>(tagsDto, HttpStatus.OK);
+	}
 
+}

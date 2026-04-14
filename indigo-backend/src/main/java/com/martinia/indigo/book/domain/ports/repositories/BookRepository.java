@@ -23,4 +23,7 @@ public interface BookRepository extends MongoRepository<BookMongoEntity, String>
 	@Query("{ 'path' : ?0 }")
 	Optional<BookMongoEntity> findByPath(String path);
 
+	@Query("{ 'path' : { $in: ?0 } }")
+	List<BookMongoEntity> findByPathIn(List<String> paths);
+
 }

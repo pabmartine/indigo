@@ -13,9 +13,10 @@ import jakarta.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -33,15 +34,16 @@ public class FindSentBooksUseCaseImpl implements FindSentBooksUseCase {
 	@Override
 	public List<Book> getSentBooks(final String user) {
 		Map<String, Book> map = new HashMap<>();
-		List<NotificationMongoEntity> notifications = notificationRepository.findByUser(user);
-		notifications.stream().filter(notification -> notification.getType().equals("KINDLE")).forEach(notification -> {
-			if (!map.containsKey(notification.getKindle().getBook())) {
-				Optional<BookMongoEntity> book = bookRepository.findByPath(notification.getKindle().getBook());
-				if (book.isPresent()) {
-					map.put(notification.getKindle().getBook(), bookMongoMapper.entity2Domain(book.get()));
-				}
-			}
-		});
+		List<NotificationMongoEntity> notifications = notificationRepository.findByUserAndType(user, "KINDLE");
+		Set<String> bookPaths = notifications.stream()
+				.map(NotificationMongoEntity::getKindle)
+				.filter(java.util.Objects::nonNull)
+				.map(notification -> notification.getBook())
+				.filter(java.util.Objects::nonNull)
+				.collect(java.util.stream.Collectors.toCollection(LinkedHashSet::new));
+
+		List<BookMongoEntity> books = bookRepository.findByPathIn(new ArrayList<>(bookPaths));
+		books.forEach(book -> map.put(book.getPath(), bookMongoMapper.entity2Domain(book)));
 		return new ArrayList<>(map.values());
 	}
 }

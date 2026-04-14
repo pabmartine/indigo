@@ -104,7 +104,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   }
 
   isValid() {
-    let valid = this.user.username && this.user.password && this.user.language;
+    let valid = this.user.username && this.user.language && (this.user.id || this.user.password);
     return valid;
   }
 
@@ -186,7 +186,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
           }
 
           // Store user in session via AuthStateService
-          this.authState.setUser(this.user);
+          const currentToken = this.authState.getCurrentUser()?.token;
+          this.authState.setUser({ ...this.user, token: currentToken });
 
           this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.profile.ok.update'), closable: false, life: 5000 });
         }

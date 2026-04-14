@@ -43,6 +43,7 @@ class FindBookCoverByPathControllerIntegrationTest extends BaseIndigoIntegration
 		// Then
 		resultActions.andExpect(status().isOk());
 		resultActions.andExpect(MockMvcResultMatchers.jsonPath("$.image").value(bookMongoEntity.getImage()));
+		resultActions.andExpect(MockMvcResultMatchers.header().string("Cache-Control", org.hamcrest.Matchers.containsString("max-age")));
 	}
 
 	@Test

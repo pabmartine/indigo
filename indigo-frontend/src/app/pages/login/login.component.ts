@@ -31,7 +31,6 @@ export class LoginComponent implements OnInit {
     this.rememberMe = JSON.parse(localStorage.getItem("rememberMe"));
     if (this.rememberMe){
       this.user.username = localStorage.getItem("username");
-      this.user.password = localStorage.getItem("password");
     }
   }
 
@@ -40,27 +39,29 @@ export class LoginComponent implements OnInit {
     if (this.validate(this.user)) {
       if (this.rememberMe) {
         localStorage.setItem('username', this.user.username);
-        localStorage.setItem('password', this.user.password);
         localStorage.setItem('rememberMe', this.rememberMe.toString());
+      } else {
+        localStorage.removeItem('username');
+        localStorage.removeItem('rememberMe');
       }
 
       this.loginService.login(this.user).subscribe({
         next: (response) => {
           if (response != null && response.headers.get("Authorization") != null) {
+            const token = response.headers.get("Authorization").slice(7);
             this.userService.get(this.user.username).subscribe({
-              next: (data) => {
-                let user = data;
-                user.token = response.headers.get("Authorization").slice(7);
-                this.authState.setUser(user).then(() => {
-                  sessionStorage.setItem('token', user.token);
-                  this.translate.use(user.language);
-                  this.router.navigate(["books"]);
-                });
-              },
-              error: () => {
-                this.setErrorMessage("locale.login.error");
-              }
-            });
+                next: (data) => {
+                  let user = data;
+                  user.token = token;
+                  this.authState.setUser(user).then(() => {
+                    this.translate.use(user.language);
+                    this.router.navigate(["books"]);
+                  });
+                },
+                error: () => {
+                  this.setErrorMessage("locale.login.error");
+                }
+              });
           } else {
             this.setErrorMessage("locale.login.error");
           }

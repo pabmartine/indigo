@@ -25,8 +25,21 @@ public class FindAllTagsUseCaseImpl implements FindAllTagsUseCase {
 	@Override
 	public List<Tag> findAll(final List<String> languages, final String sort, final String order) {
 		List<TagMongoEntity> tags = tagRepository.findAll(languages, Sort.by(Sort.Direction.fromString(order), sort));
+		return mapTags(languages, tags);
+	}
 
+	@Override
+	public List<Tag> findAll(final List<String> languages, final int page, final int size, final String sort, final String order) {
+		List<TagMongoEntity> tags = tagRepository.findAll(languages, page, size, Sort.by(Sort.Direction.fromString(order), sort));
+		return mapTags(languages, tags);
+	}
+
+	private List<Tag> mapTags(List<String> languages, List<TagMongoEntity> tags) {
 		tags.forEach(tag -> {
+			if (languages == null || languages.isEmpty()) {
+				tag.getNumBooks().setTotal(tag.getNumBooks().getLanguages().values().stream().mapToInt(Integer::intValue).sum());
+				return;
+			}
 			int total = 0;
 			for (String key : tag.getNumBooks().getLanguages().keySet()) {
 				if (languages.contains(key)) {
@@ -35,8 +48,6 @@ public class FindAllTagsUseCaseImpl implements FindAllTagsUseCase {
 			}
 			tag.getNumBooks().setTotal(total);
 		});
-
 		return tagMongoMapper.entities2Domains(tags);
 	}
-
 }

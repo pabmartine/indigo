@@ -7,6 +7,7 @@ import java.util.List;
 import javax.persistence.Id;
 
 import lombok.Builder;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
@@ -24,6 +25,7 @@ public class UserMongoEntity implements Serializable {
 
 	@Id
 	private String id;
+	@Indexed(unique = true)
 	private String username;
 	private String password;
 	private String kindle;

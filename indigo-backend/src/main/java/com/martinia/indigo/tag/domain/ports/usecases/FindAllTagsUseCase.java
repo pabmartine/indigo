@@ -8,4 +8,6 @@ public interface FindAllTagsUseCase {
 
 	List<Tag> findAll(final List<String> languages, final String sort, final String order);
 
+	List<Tag> findAll(final List<String> languages, final int page, final int size, final String sort, final String order);
+
 }

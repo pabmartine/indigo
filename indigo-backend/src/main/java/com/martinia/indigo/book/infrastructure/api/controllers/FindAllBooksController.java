@@ -1,7 +1,9 @@
 package com.martinia.indigo.book.infrastructure.api.controllers;
 
 import com.martinia.indigo.book.infrastructure.api.model.BookDto;
+import com.martinia.indigo.book.infrastructure.api.model.BookSummaryDto;
 import com.martinia.indigo.book.infrastructure.api.mappers.BookDtoMapper;
+import com.martinia.indigo.book.infrastructure.api.mappers.BookSummaryDtoMapper;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.ports.usecases.FindAllBooksUseCase;
 import com.martinia.indigo.common.domain.model.Search;
@@ -34,6 +36,9 @@ public class FindAllBooksController {
 	@Resource
 	private BookDtoMapper mapper;
 
+	@Resource
+	private BookSummaryDtoMapper summaryMapper;
+
 	@Operation(summary = "Find all books with advanced search and pagination",
 			description = "Retrieves a paginated and sortable list of books based on advanced search criteria.",
 			requestBody = @RequestBody(description = "Search object with criteria for filtering books (optional)",
@@ -52,6 +57,27 @@ public class FindAllBooksController {
 			@Parameter(description = "Sort order (asc or desc)", example = "asc") @RequestParam String order) {
 		List<Book> books = useCase.findAll(search, page, size, sort, order);
 		List<BookDto> booksDto = mapper.domains2Dtos(books);
+		return new ResponseEntity<>(booksDto, HttpStatus.OK);
+	}
+
+	@Operation(summary = "Find all books summary",
+			description = "Retrieves a paginated and sortable lightweight list of books for cards and grids.",
+			requestBody = @RequestBody(description = "Search object with criteria for filtering books (optional)",
+					content = @Content(mediaType = "application/json", schema = @Schema(implementation = Search.class))),
+			responses = {
+					@ApiResponse(responseCode = "200", description = "Successfully retrieved the lightweight list of books",
+							content = @Content(mediaType = "application/json",
+									schema = @Schema(implementation = BookSummaryDto.class)))
+			})
+	@PostMapping(value = "/all/advance/summary", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<List<BookSummaryDto>> getBooksSummary(
+			@org.springframework.web.bind.annotation.RequestBody(required = false) Search search,
+			@Parameter(description = "Page number for pagination (0-indexed)", example = "0") @RequestParam int page,
+			@Parameter(description = "Number of books per page", example = "10") @RequestParam int size,
+			@Parameter(description = "Field to sort by (e.g., 'title')", example = "title") @RequestParam String sort,
+			@Parameter(description = "Sort order (asc or desc)", example = "asc") @RequestParam String order) {
+		List<Book> books = useCase.findAll(search, page, size, sort, order);
+		List<BookSummaryDto> booksDto = summaryMapper.domains2Dtos(books);
 		return new ResponseEntity<>(booksDto, HttpStatus.OK);
 	}
 
