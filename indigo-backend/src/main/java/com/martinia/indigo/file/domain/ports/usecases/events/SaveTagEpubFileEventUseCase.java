@@ -4,4 +4,6 @@ public interface SaveTagEpubFileEventUseCase {
 
 	void save(final String bookId);
 
+	void save(final String bookId, final boolean newBook);
+
 }

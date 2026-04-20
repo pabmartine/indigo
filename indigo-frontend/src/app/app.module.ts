@@ -31,6 +31,7 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
 import { ScrollTopModule } from 'primeng/scrolltop';
+import { MessageService } from 'primeng/api';
 
 
 //auth
@@ -182,19 +183,19 @@ import { AuthorComponent } from './pages/author/author.component';
     }),
   ],
   providers: [
+    MessageService,
     { provide: RouteReuseStrategy, useClass: CustomReuseStrategy },
     {
       provide: APP_INITIALIZER,
       useFactory: appInitializerFactory,
       deps: [TranslateService, Injector],
       multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ErrorInterceptor,
+      multi: true
     }
-    // Temporarily disabled to diagnose issue
-    // {
-    //   provide: HTTP_INTERCEPTORS,
-    //   useClass: ErrorInterceptor,
-    //   multi: true
-    // }
   ],
   exports: [],
   bootstrap: [AppComponent]

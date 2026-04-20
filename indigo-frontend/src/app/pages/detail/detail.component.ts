@@ -146,7 +146,8 @@ export class DetailComponent implements OnInit, OnDestroy {
           next: (data) => {
             data.forEach((book) => {
               const coverUrl = this.bookService.buildCoverImageUrl(book.id)
-              book.image = coverUrl || book.image
+              book.coverUrl = coverUrl || book.coverUrl || book.image
+              book.image = undefined
             });
             Array.prototype.push.apply(this.similar, data);
           },
@@ -166,7 +167,8 @@ export class DetailComponent implements OnInit, OnDestroy {
           next: (data) => {
             data.forEach((book) => {
               const coverUrl = this.bookService.buildCoverImageUrl(book.id)
-              book.image = coverUrl || book.image
+              book.coverUrl = coverUrl || book.coverUrl || book.image
+              book.image = undefined
             });
             Array.prototype.push.apply(this.recommendations, data);
           },

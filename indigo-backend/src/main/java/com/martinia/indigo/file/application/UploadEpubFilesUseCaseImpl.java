@@ -31,6 +31,11 @@ public class UploadEpubFilesUseCaseImpl implements UploadEpubFilesUseCase {
 	@Override
 	public void upload(final Long number) {
 		try {
+			if (uploadEpubFilesSingleton.isRunning()) {
+				log.warn("Upload process already running");
+				return;
+			}
+
 			final Path path = Paths.get(uploadsPath);
 			uploadEpubFilesSingleton.start(number);
 
@@ -38,13 +43,14 @@ public class UploadEpubFilesUseCaseImpl implements UploadEpubFilesUseCase {
 				Files.createDirectories(path);
 			}
 
-			Files.walk(path)
-					.filter(file -> file.toFile().getName().toLowerCase().endsWith(".epub"))
-					.limit(number)
-					.map(Path::toAbsolutePath)
-					.forEach(file -> {
-						commandBus.execute(ExtractEpubFileCommand.builder().file(file).build());
-					});
+			try (var files = Files.walk(path)) {
+				files.filter(file -> file.toFile().getName().toLowerCase().endsWith(".epub"))
+						.limit(number)
+						.map(Path::toAbsolutePath)
+						.forEach(file -> {
+							commandBus.executeAndWait(ExtractEpubFileCommand.builder().file(file).build());
+						});
+			}
 
 		}
 		catch (Exception e) {
@@ -53,5 +59,3 @@ public class UploadEpubFilesUseCaseImpl implements UploadEpubFilesUseCase {
 		}
 	}
 }
-
-

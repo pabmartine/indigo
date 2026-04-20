@@ -244,7 +244,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
           const processedBook: BookWithTempImage = { ...book };
 
           const coverUrl = this.bookService.buildCoverImageUrl(book.id);
-          processedBook.image = coverUrl || processedBook.image;
+          processedBook.image = undefined;
           processedBook.originalImage = coverUrl || processedBook.originalImage;
 
           if (book.rating) {

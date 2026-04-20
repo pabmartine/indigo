@@ -24,6 +24,7 @@ import java.util.List;
 @NoArgsConstructor
 @Document(collection = "books")
 @CompoundIndex(name = "serie_language_idx", def = "{'serie.name': 1, 'languages': 1}")
+@CompoundIndex(name = "serie_name_index_idx", def = "{'serie.name': 1, 'serie.index': 1}")
 @CompoundIndex(name = "languages_rating_idx", def = "{'languages': 1, 'rating': -1}")
 @CompoundIndex(name = "languages_pubdate_idx", def = "{'languages': 1, 'pubDate': -1}")
 

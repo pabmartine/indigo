@@ -1,9 +1,13 @@
 package com.martinia.indigo.book.domain.ports.repositories;
 
+import com.martinia.indigo.book.domain.model.BookPageData;
+import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
+import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
 import com.martinia.indigo.common.domain.model.Search;
 import com.martinia.indigo.notification.domain.ports.repositories.NotificationRepository;
 import com.martinia.indigo.notification.infrastructure.mongo.entities.NotificationMongoEntity;
+import com.martinia.indigo.serie.domain.model.SeriePageData;
 import com.martinia.indigo.user.domain.ports.repositories.UserRepository;
 import com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity;
 import com.mongodb.MongoClientSettings;
@@ -42,6 +46,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Repository
@@ -61,141 +66,80 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 	@Resource
 	private NotificationRepository notificationRepository;
 
+	@Resource
+	private BookMongoMapper bookMongoMapper;
+
 	private String collectionName = BookMongoEntity.class.getAnnotation(org.springframework.data.mongodb.core.mapping.Document.class)
 			.collection();
 
 	public long countBooks(Search search) {
-
-		        Query query = new Query();
-		
-		        List<Criteria> criterias = new ArrayList<>();
-		
-		        if (search != null && !search.isEmpty()) {
-		
-		            if (StringUtils.isNoneEmpty(search.getPath())) {
-		                String path = StringUtils.stripAccents(search.getPath());
-		                criterias.add(Criteria.where("path").regex(path, "i"));
-		            }
-		
-		            if (StringUtils.isNoneEmpty(search.getTitle()) || StringUtils.isNoneEmpty(search.getAuthor())) {
-		                String textToSearch = (Optional.ofNullable(search.getTitle()).orElse("") + " " + Optional.ofNullable(search.getAuthor()).orElse("")).trim();
-		                if (StringUtils.isNotBlank(textToSearch)) {
-		                    query.addCriteria(TextCriteria.forDefaultLanguage().matchingAny(textToSearch));
-		                }
-		            }
-			if (null != (search.getIni())) {
-				criterias.add(Criteria.where("pubDate").gte(search.getIni()));
-			}
-
-			if (null != (search.getEnd())) {
-
-				Calendar c = Calendar.getInstance();
-				c.setTime(search.getEnd());
-				c.set(Calendar.HOUR_OF_DAY, 23);
-				c.set(Calendar.MINUTE, 59);
-
-				criterias.add(Criteria.where("pubDate").lte(c.getTime()));
-
-			}
-
-			if (null != (search.getMin())) {
-				criterias.add(Criteria.where("pages").gte(search.getMin()));
-			}
-
-			if (null != (search.getMax())) {
-				criterias.add(Criteria.where("pages").lte(search.getMax()));
-			}
-
-			if (!CollectionUtils.isEmpty(search.getSelectedTags())) {
-				criterias.add(Criteria.where("tags").in(search.getSelectedTags()));
-			}
-
-			if (StringUtils.isNoneEmpty(search.getSerie())) {
-				criterias.add(Criteria.where("serie.name").is(search.getSerie()));
-			}
-
-		}
-
-		        if (search != null) {//TODO: mejorar esto
-		            if (!CollectionUtils.isEmpty(search.getLanguages())) {
-		                criterias.add(Criteria.where("languages").in(search.getLanguages()));
-		            }
-		            if (!criterias.isEmpty()) {
-		                query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
-		            }
-		        }
+		Query query = buildSearchQuery(search);
 		return mongoTemplate.count(query, BookMongoEntity.class);
+	}
+
+	@Override
+	public long countReviews() {
+		List<Document> pipeline = Arrays.asList(
+				new Document("$project", new Document("reviewsCount",
+						new Document("$size", new Document("$ifNull", Arrays.asList("$reviews", Collections.emptyList()))))),
+				new Document("$group", new Document("_id", null).append("total", new Document("$sum", "$reviewsCount")))
+		);
+
+		Document result = mongoTemplate.getCollection(collectionName).aggregate(pipeline).first();
+		return result == null ? 0L : Long.parseLong(String.valueOf(result.get("total")));
 	}
 
 	public List<BookMongoEntity> findAll(Search search, int page, int size, String sort, String order) {
 
-		Query query = new Query().with(PageRequest.of(page, size, Sort.by(resolveDirection(order), resolveSortField(sort))));
-		query.fields()
-				.exclude("reviews")
-				.exclude("similar")
-				.exclude("recommendations");
-
-		List<Criteria> criterias = new ArrayList<>();
-
-		if (search != null && !search.isEmpty()) {
-
-			if (StringUtils.isNoneEmpty(search.getPath())) {
-
-				String path = StringUtils.stripAccents(search.getPath());
-				criterias.add(Criteria.where("path").regex(path, "i"));
-			}
-
-			if (StringUtils.isNoneEmpty(search.getTitle()) || StringUtils.isNoneEmpty(search.getAuthor())) {
-				String textToSearch = (Optional.ofNullable(search.getTitle()).orElse("") + " " + Optional.ofNullable(search.getAuthor()).orElse("")).trim();
-				if (StringUtils.isNotBlank(textToSearch)) {
-					query.addCriteria(TextCriteria.forDefaultLanguage().matchingAny(textToSearch));
-				}
-			}
-
-			if (null != (search.getIni())) {
-				criterias.add(Criteria.where("pubDate").gte(search.getIni()));
-			}
-
-			if (null != (search.getEnd())) {
-
-				Calendar c = Calendar.getInstance();
-				c.setTime(search.getEnd());
-				c.set(Calendar.HOUR_OF_DAY, 23);
-				c.set(Calendar.MINUTE, 59);
-
-				criterias.add(Criteria.where("pubDate").lte(c.getTime()));
-
-			}
-
-			if (null != (search.getMin())) {
-				criterias.add(Criteria.where("pages").gte(search.getMin()));
-			}
-
-			if (null != (search.getMax())) {
-				criterias.add(Criteria.where("pages").lte(search.getMax()));
-			}
-
-			if (!CollectionUtils.isEmpty(search.getSelectedTags())) {
-				criterias.add(Criteria.where("tags").in(search.getSelectedTags()));
-			}
-
-			if (StringUtils.isNoneEmpty(search.getSerie())) {
-				criterias.add(Criteria.where("serie.name").is(search.getSerie()));
-			}
-
-		}
-
-		if (search != null) {//TODO: mejorar esto
-			if (!CollectionUtils.isEmpty(search.getLanguages())) {
-				criterias.add(Criteria.where("languages").in(search.getLanguages()));
-			}
-			if (!criterias.isEmpty()) {
-				query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
-			}
-		}
+		Query query = buildSearchQuery(search)
+				.with(PageRequest.of(page, size, Sort.by(resolveDirection(order), resolveSortField(sort))));
+		excludeHeavyBookFields(query);
 
 		return mongoTemplate.find(query, BookMongoEntity.class);
 
+	}
+
+	@Override
+	public BookPageData findAllPage(Search search, int page, int size, String sort, String order) {
+		List<Bson> pipeline = new ArrayList<>();
+
+		Bson searchMatch = buildSearchMatchDocument(search);
+		if (searchMatch != null) {
+			pipeline.add(searchMatch);
+		}
+
+		String resolvedSort = resolveSortField(sort);
+		int sortDirection = resolveDirection(order).isAscending() ? 1 : -1;
+		Document projection = new Document("reviews", 0)
+				.append("similar", 0)
+				.append("recommendations", 0);
+
+		pipeline.add(new Document("$facet", new Document("items", Arrays.asList(
+				new Document("$sort", new Document(resolvedSort, sortDirection)),
+				new Document("$skip", page * size),
+				new Document("$limit", size),
+				new Document("$project", projection)
+		)).append("total", Arrays.asList(
+				new Document("$count", "count")
+		))));
+
+		Document facet = mongoTemplate.getCollection(collectionName).aggregate(pipeline).first();
+		if (facet == null) {
+			return new BookPageData(Collections.emptyList(), 0L);
+		}
+
+		List<Document> itemDocuments = facet.getList("items", Document.class, Collections.emptyList());
+		List<BookMongoEntity> entities = itemDocuments.stream()
+				.map(document -> mongoTemplate.getConverter().read(BookMongoEntity.class, document))
+				.collect(Collectors.toList());
+		List<Book> items = entities.stream()
+				.map(this::mapEntityToDomain)
+				.collect(Collectors.toList());
+
+		List<Document> totalDocuments = facet.getList("total", Document.class, Collections.emptyList());
+		long total = totalDocuments.isEmpty() ? 0L : Long.parseLong(String.valueOf(totalDocuments.get(0).get("count")));
+
+		return new BookPageData(items, total);
 	}
 
 	@Override
@@ -283,6 +227,138 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 		}
 
 		return ret;
+	}
+
+	@Override
+	public SeriePageData getSeriesPage(List<String> languages, int page, int size, String sort, String order) {
+		Map<String, Long> items = new LinkedHashMap<>();
+
+		List<Document> list = Arrays.asList(
+				new Document("$match",
+						new Document("serie.name", new Document("$ne", new BsonNull()))
+								.append("languages", new Document("$in", languages))),
+				new Document("$project", new Document("serie.name", 1L)),
+				new Document("$group", new Document("_id", "$serie.name").append("count", new Document("$sum", 1L))),
+				new Document("$facet", new Document("items", Arrays.asList(
+						new Document("$sort", new Document(sort.equals("numBooks") ? "count" : "_id", order.equalsIgnoreCase("asc") ? 1 : -1)),
+						new Document("$skip", page * size),
+						new Document("$limit", size)
+				)).append("total", Arrays.asList(
+						new Document("$count", "count")
+				)))
+		);
+
+		Document facet = mongoTemplate.getCollection(collectionName).aggregate(list).first();
+		if (facet == null) {
+			return new SeriePageData(items, 0L);
+		}
+
+		List<Document> itemDocuments = facet.getList("items", Document.class, Collections.emptyList());
+		for (Document document : itemDocuments) {
+			String serie = String.valueOf(document.get("_id"));
+			Long numBooks = Long.parseLong(String.valueOf(document.get("count")));
+			items.put(serie, numBooks);
+		}
+
+		List<Document> totalDocuments = facet.getList("total", Document.class, Collections.emptyList());
+		long total = totalDocuments.isEmpty() ? 0L : Long.parseLong(String.valueOf(totalDocuments.get(0).get("count")));
+
+		return new SeriePageData(items, total);
+	}
+
+	@Override
+	public Optional<String> findFirstImageBySerie(String serie) {
+		if (StringUtils.isBlank(serie)) {
+			return Optional.empty();
+		}
+
+		Query query = new Query()
+				.addCriteria(Criteria.where("serie.name").is(serie))
+				.with(Sort.by(Sort.Direction.ASC, "serie.index").and(Sort.by(Sort.Direction.ASC, "_id")))
+				.limit(1);
+		query.fields().include("image");
+
+		BookMongoEntity book = mongoTemplate.findOne(query, BookMongoEntity.class);
+		return Optional.ofNullable(book)
+				.map(BookMongoEntity::getImage)
+				.filter(StringUtils::isNotBlank);
+	}
+
+	private Query buildSearchQuery(Search search) {
+		Query query = new Query();
+
+		List<Criteria> criterias = new ArrayList<>();
+
+		if (search != null && !search.isEmpty()) {
+			if (StringUtils.isNoneEmpty(search.getPath())) {
+				String path = StringUtils.stripAccents(search.getPath());
+				criterias.add(Criteria.where("path").regex(path, "i"));
+			}
+
+			if (StringUtils.isNotBlank(search.getTitle())) {
+				criterias.add(Criteria.where("title").regex(Pattern.quote(search.getTitle()), "i"));
+			}
+
+			if (StringUtils.isNotBlank(search.getAuthor())) {
+				criterias.add(Criteria.where("authors").regex("^" + Pattern.quote(search.getAuthor()) + "$", "i"));
+			}
+
+			if (search.getIni() != null) {
+				criterias.add(Criteria.where("pubDate").gte(search.getIni()));
+			}
+
+			if (search.getEnd() != null) {
+				Calendar c = Calendar.getInstance();
+				c.setTime(search.getEnd());
+				c.set(Calendar.HOUR_OF_DAY, 23);
+				c.set(Calendar.MINUTE, 59);
+				criterias.add(Criteria.where("pubDate").lte(c.getTime()));
+			}
+
+			if (search.getMin() != null) {
+				criterias.add(Criteria.where("pages").gte(search.getMin()));
+			}
+
+			if (search.getMax() != null) {
+				criterias.add(Criteria.where("pages").lte(search.getMax()));
+			}
+
+			if (!CollectionUtils.isEmpty(search.getSelectedTags())) {
+				criterias.add(Criteria.where("tags").in(search.getSelectedTags()));
+			}
+
+			if (StringUtils.isNoneEmpty(search.getSerie())) {
+				criterias.add(Criteria.where("serie.name").is(search.getSerie()));
+			}
+		}
+
+		if (search != null) {
+			if (!CollectionUtils.isEmpty(search.getLanguages())) {
+				criterias.add(Criteria.where("languages").in(search.getLanguages()));
+			}
+			if (!criterias.isEmpty()) {
+				query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[0])));
+			}
+		}
+
+		return query;
+	}
+
+	private void excludeHeavyBookFields(Query query) {
+		query.fields()
+				.exclude("reviews")
+				.exclude("similar")
+				.exclude("recommendations");
+	}
+
+	private Bson buildSearchMatchDocument(Search search) {
+		Query query = buildSearchQuery(search);
+		Document document = query.getQueryObject();
+		return document.isEmpty() ? null : new Document("$match", document);
+	}
+
+	private Book mapEntityToDomain(BookMongoEntity entity) {
+		return bookMongoMapper.entity2Domain(entity);
 	}
 
 	@Override

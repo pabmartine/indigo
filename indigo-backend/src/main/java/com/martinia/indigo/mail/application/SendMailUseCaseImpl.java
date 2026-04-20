@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -71,9 +72,9 @@ public class SendMailUseCaseImpl extends BaseMailUseCaseImpl implements SendMail
 	private String sendEmail(String filename, File f, String address, EmailConfiguration emailConfig) {
 		String error = null;
 		try {
-			init(emailConfig);
+			JavaMailSenderImpl mailSender = buildMailSender(emailConfig);
 
-			MimeMessage message = javaMailSender.createMimeMessage();
+			MimeMessage message = mailSender.createMimeMessage();
 
 			MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
@@ -85,7 +86,7 @@ public class SendMailUseCaseImpl extends BaseMailUseCaseImpl implements SendMail
 			FileSystemResource file = new FileSystemResource(f);
 			helper.addAttachment(filename, file);
 
-			javaMailSender.send(message);
+			mailSender.send(message);
 		}
 		catch (MailException | MessagingException e) {
 			error = e.getMessage();

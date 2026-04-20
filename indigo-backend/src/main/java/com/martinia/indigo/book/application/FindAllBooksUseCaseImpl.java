@@ -1,6 +1,7 @@
 package com.martinia.indigo.book.application;
 
 import com.martinia.indigo.book.domain.model.Book;
+import com.martinia.indigo.book.domain.model.BookPageData;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.domain.ports.usecases.FindAllBooksUseCase;
 import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
@@ -25,6 +26,11 @@ public class FindAllBooksUseCaseImpl implements FindAllBooksUseCase {
 	@Override
 	public List<Book> findAll(Search search, int page, int size, String sort, String order) {
 		return bookMongoMapper.entities2Domains(bookRepository.findAll(search, page, size, sort, order));
+	}
+
+	@Override
+	public BookPageData findAllPage(Search search, int page, int size, String sort, String order) {
+		return bookRepository.findAllPage(search, page, size, sort, order);
 	}
 
 }

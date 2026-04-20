@@ -34,6 +34,15 @@ public class SaveAuthorEpubFileEventUseCaseImpl implements SaveAuthorEpubFileEve
 	@Override
 	@Transactional
 	public synchronized void save(final String bookId, final String authorImage) {
+		save(bookId, authorImage, true);
+	}
+
+	@Override
+	@Transactional
+	public synchronized void save(final String bookId, final String authorImage, final boolean newBook) {
+		if (!newBook) {
+			return;
+		}
 
 		bookRepository.findById(bookId).ifPresent(bookMongoEntity -> {
 
@@ -48,23 +57,9 @@ public class SaveAuthorEpubFileEventUseCaseImpl implements SaveAuthorEpubFileEve
 					authorMongoEntity.setImage(authorImage);
 					authorMongoEntity.getNumBooks().setTotal(authorMongoEntity.getNumBooks().getTotal() + 1);
 
-					// Update existing languages count
-					authorMongoEntity.getNumBooks().getLanguages().keySet().forEach(key -> {
-						if (authorMongoEntity.getNumBooks().getLanguages().get(key) != null) {
-							authorMongoEntity.getNumBooks()
-									.getLanguages()
-									.put(key, authorMongoEntity.getNumBooks().getLanguages().get(key) + 1);
-						}
-						else {
-							authorMongoEntity.getNumBooks().getLanguages().put(key, 1);
-						}
-					});
-
-					// Add new languages from the book if they don't exist
 					bookMongoEntity.getLanguages().forEach(bookLanguage -> {
-						if (!authorMongoEntity.getNumBooks().getLanguages().containsKey(bookLanguage)) {
-							authorMongoEntity.getNumBooks().getLanguages().put(bookLanguage, 1);
-						}
+						Integer current = authorMongoEntity.getNumBooks().getLanguages().get(bookLanguage);
+						authorMongoEntity.getNumBooks().getLanguages().put(bookLanguage, current == null ? 1 : current + 1);
 					});
 
 					return authorMongoEntity;
@@ -88,5 +83,3 @@ public class SaveAuthorEpubFileEventUseCaseImpl implements SaveAuthorEpubFileEve
 	}
 
 }
-
-

@@ -17,6 +17,6 @@ public class SaveTagEpubFileEventListener extends EventBusListener<EpubFileAdded
 
 	@Override
 	public void handle(final EpubFileAddedEvent event) {
-		useCase.save(event.getBookId());
+		useCase.save(event.getBookId(), event.isNewBook());
 	}
 }

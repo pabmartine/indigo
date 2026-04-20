@@ -60,7 +60,7 @@ public class StartMetadataUseCaseImpl implements StartMetadataUseCase {
 				commandBus.execute(StartFillAuthorsMetadataCommand.builder().override(false).lang(lang).build());
 				break;
 			case REVIEWS:
-				commandBus.execute(StartFillReviewsMetadataCommand.builder().override(true).lang(lang).build());
+				commandBus.execute(StartFillReviewsMetadataCommand.builder().override(false).lang(lang).build());
 				break;
 			default:
 				break;

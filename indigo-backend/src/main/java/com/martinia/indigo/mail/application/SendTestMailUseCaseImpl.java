@@ -6,6 +6,7 @@ import com.martinia.indigo.mail.domain.ports.usecases.SendTestMailUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -30,8 +31,7 @@ public class SendTestMailUseCaseImpl extends BaseMailUseCaseImpl implements Send
 	public boolean send(String address, EmailConfiguration emailConfig) {
 		boolean ret = false;
 		try {
-
-			init(emailConfig);
+			JavaMailSenderImpl mailSender = buildMailSender(emailConfig);
 
 			SimpleMailMessage message = new SimpleMailMessage();
 			message.setTo(address);
@@ -39,7 +39,7 @@ public class SendTestMailUseCaseImpl extends BaseMailUseCaseImpl implements Send
 			message.setSubject("Test mail");
 			message.setText("This is a test mail");
 
-			javaMailSender.send(message);
+			mailSender.send(message);
 
 			ret = true;
 		}

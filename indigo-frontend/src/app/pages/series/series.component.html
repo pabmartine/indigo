@@ -34,12 +34,14 @@
     <div *cdkVirtualFor="let row of seriesRows" class="series-row">
       <div class="serie-item"
            *ngFor="let serie of row; trackBy: trackBySerieId">
-        <div class="stack twisted" *ngIf="serie.image">
-          <img [src]="serie.image"
+        <div class="stack twisted">
+          <img [appLazyImage]="serie.image"
+               [lazySource]="serie.originalImage"
+               [lazyPlaceholder]="'./assets/images/unknown.jpg'"
+               (lazyLoaded)="serie.image = $event"
                class="list-image"
                (click)="getBooksBySerie(serie.name)"
                style="cursor: pointer;"
-               loading="lazy"
                (error)="serie.image = './assets/images/unknown.jpg'"
                [alt]="serie.name" />
         </div>

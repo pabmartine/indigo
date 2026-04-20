@@ -103,9 +103,7 @@ public class FindGoodReadsBookUseCaseImpl implements FindGoodReadsBookUseCase {
 																	return similar_title + "@;@" + similar_author;
 																}).collect(Collectors.joining("#;#"));
 							
-																if (StringUtils.isNoneEmpty(similar)) {
-																	return new String[] { String.valueOf(rating), similar, ProviderEnum.GOODREADS.name() };
-																}
+																return new String[] { String.valueOf(rating), similar, ProviderEnum.GOODREADS.name() };
 							
 															}
 													}

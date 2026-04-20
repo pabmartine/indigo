@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Book } from '../domain/book';
+import { BookSummaryPage } from '../domain/bookSummaryPage';
 import { Search } from '../domain/search';
 
 
@@ -37,6 +38,14 @@ export class BookService {
     order: string): Observable<any> {
     let url = this.endpoint + "/all/advance/summary?" + "page=" + page + "&size=" + size + "&sort=" + sort + "&order=" + order;
     return this.http.post(url, adv_search);
+  }
+
+  public getAllSummaryPage(adv_search: Search, page: number,
+    size: number,
+    sort: string,
+    order: string): Observable<BookSummaryPage> {
+    let url = this.endpoint + "/all/advance/summary/page?" + "page=" + page + "&size=" + size + "&sort=" + sort + "&order=" + order;
+    return this.http.post<BookSummaryPage>(url, adv_search);
   }
 
   getEpub(path: string): Observable<Blob> {

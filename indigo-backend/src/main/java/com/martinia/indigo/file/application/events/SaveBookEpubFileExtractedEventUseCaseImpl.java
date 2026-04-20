@@ -54,6 +54,8 @@ public class SaveBookEpubFileExtractedEventUseCaseImpl implements SaveBookEpubFi
 		final String basePath =
 				endpointBook + FileSystems.getDefault().getSeparator() + authorPath + FileSystems.getDefault().getSeparator()
 						+ bookOpf.getTitle() + " (" + bookOpf.getLanguage() + ")";
+		final boolean[] isNewBook = { false };
+		final boolean[] isUpdatedBook = { false };
 
 		final BookMongoEntity entity = bookRepository.findByPath(basePath).map(bookMongoEntity -> {
 			if (bookMongoEntity.getVersion() < bookOpf.getVersion()) {
@@ -66,11 +68,14 @@ public class SaveBookEpubFileExtractedEventUseCaseImpl implements SaveBookEpubFi
 				bookMongoEntity.setPages(bookOpf.getPages());
 				bookMongoEntity.setImage(bookOpf.getBookImage());
 				bookMongoEntity.setAuthors(bookOpf.getAuthors());
+				bookMongoEntity.setTags(bookOpf.getTags());
+				bookMongoEntity.setLanguages(List.of(bookOpf.getLanguage()));
 				bookMongoEntity.setVersion(bookOpf.getVersion());
+				isUpdatedBook[0] = true;
 			}
-			uploadEpubFilesSingleton.addUpdatedBook();
 			return bookMongoEntity;
 		}).orElseGet(() -> {
+			isNewBook[0] = true;
 
 			final BookMongoEntity bookMongoEntity = BookMongoEntity.builder()
 					.id(null)
@@ -98,11 +103,22 @@ public class SaveBookEpubFileExtractedEventUseCaseImpl implements SaveBookEpubFi
 		if (savedEntity == null) {
 			return;
 		}
-		uploadEpubFilesSingleton.addNewBook();
+		if (isNewBook[0]) {
+			uploadEpubFilesSingleton.addNewBook();
+		}
+		if (isUpdatedBook[0]) {
+			uploadEpubFilesSingleton.addUpdatedBook();
+		}
 		fileRepository.save(File.builder().id(UUID.fromString(savedEntity.getId())).path(Paths.get(basePath)).build());
 
 
-		eventBus.publish(EpubFileAddedEvent.builder().bookId(entity.getId()).authorImage(bookOpf.getAuthorImage()).sourcePath(path).targetPath(Paths.get(basePath)).build());
+		eventBus.publish(EpubFileAddedEvent.builder()
+				.bookId(entity.getId())
+				.authorImage(bookOpf.getAuthorImage())
+				.sourcePath(path)
+				.targetPath(Paths.get(basePath))
+				.newBook(isNewBook[0])
+				.build());
 	}
 
 	private static String getAuthorPath(final List<String> authors) {
@@ -114,7 +130,6 @@ public class SaveBookEpubFileExtractedEventUseCaseImpl implements SaveBookEpubFi
 	}
 
 }
-
 
 
 

@@ -1,6 +1,8 @@
 package com.martinia.indigo.book.infrastructure.api.controllers;
 
 import com.martinia.indigo.book.infrastructure.api.model.BookDto;
+import com.martinia.indigo.book.domain.model.BookPageData;
+import com.martinia.indigo.book.infrastructure.api.model.BookSummaryPageDto;
 import com.martinia.indigo.book.infrastructure.api.model.BookSummaryDto;
 import com.martinia.indigo.book.infrastructure.api.mappers.BookDtoMapper;
 import com.martinia.indigo.book.infrastructure.api.mappers.BookSummaryDtoMapper;
@@ -79,6 +81,27 @@ public class FindAllBooksController {
 		List<Book> books = useCase.findAll(search, page, size, sort, order);
 		List<BookSummaryDto> booksDto = summaryMapper.domains2Dtos(books);
 		return new ResponseEntity<>(booksDto, HttpStatus.OK);
+	}
+
+	@Operation(summary = "Find all books summary with total",
+			description = "Retrieves a paginated lightweight list of books together with the total number of matching books.",
+			requestBody = @RequestBody(description = "Search object with criteria for filtering books (optional)",
+					content = @Content(mediaType = "application/json", schema = @Schema(implementation = Search.class))),
+			responses = {
+					@ApiResponse(responseCode = "200", description = "Successfully retrieved the lightweight list of books with total",
+							content = @Content(mediaType = "application/json",
+									schema = @Schema(implementation = BookSummaryPageDto.class)))
+			})
+	@PostMapping(value = "/all/advance/summary/page", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<BookSummaryPageDto> getBooksSummaryPage(
+			@org.springframework.web.bind.annotation.RequestBody(required = false) Search search,
+			@Parameter(description = "Page number for pagination (0-indexed)", example = "0") @RequestParam int page,
+			@Parameter(description = "Number of books per page", example = "10") @RequestParam int size,
+			@Parameter(description = "Field to sort by (e.g., 'title')", example = "title") @RequestParam String sort,
+			@Parameter(description = "Sort order (asc or desc)", example = "asc") @RequestParam String order) {
+		BookPageData booksPage = useCase.findAllPage(search, page, size, sort, order);
+		List<BookSummaryDto> booksDto = summaryMapper.domains2Dtos(booksPage.items());
+		return new ResponseEntity<>(new BookSummaryPageDto(booksDto, booksPage.total(), page, size), HttpStatus.OK);
 	}
 
 }

@@ -3,8 +3,6 @@ package com.martinia.indigo.mail.application;
 import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
 import com.martinia.indigo.mail.domain.EmailConfiguration;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import jakarta.annotation.Resource;
@@ -16,16 +14,8 @@ public class BaseMailUseCaseImpl {
 	@Resource
 	protected ConfigurationRepository configurationRepository;
 
-	@Autowired
-	protected JavaMailSender javaMailSender;
-
-//	@Value("${book.library.path}")
-//	@Setter
-//	protected String libraryPath;
-
-	protected void init(EmailConfiguration emailConfig) {
-
-		JavaMailSenderImpl ms = (JavaMailSenderImpl) javaMailSender;
+	protected JavaMailSenderImpl buildMailSender(EmailConfiguration emailConfig) {
+		JavaMailSenderImpl ms = new JavaMailSenderImpl();
 		ms.setHost(emailConfig.getHost());
 		ms.setPort(emailConfig.getPort());
 		ms.setUsername(emailConfig.getUsername());
@@ -35,21 +25,21 @@ public class BaseMailUseCaseImpl {
 		props.put("mail.transport.protocol", "smtp");
 
 		String encryption = emailConfig.getEncryption();
-
-		if (encryption==null)
-			log.error("encryption not configured");
+		if (encryption == null) {
+			log.warn("SMTP encryption not configured");
+			return ms;
+		}
 		if (encryption.equals("starttls")) {
 			props.put("mail.smtp.auth", "true");
 			props.put("mail.smtp.starttls.enable", "true");
 		}
-		else {
-			if (encryption.equals("ssl/tls")) {
-				props.put("mail.smtp.auth", "true");
-				props.put("mail.smtp.socketFactory.port", "465");
-				props.put("mail.smtp.socketFactory.class", "jakarta.net.ssl.SSLSocketFactory");
-			}
+		else if (encryption.equals("ssl/tls")) {
+			props.put("mail.smtp.auth", "true");
+			props.put("mail.smtp.socketFactory.port", "465");
+			props.put("mail.smtp.socketFactory.class", "jakarta.net.ssl.SSLSocketFactory");
 		}
 
+		return ms;
 	}
 
 	protected EmailConfiguration getEmailConfig() {

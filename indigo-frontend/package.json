@@ -1,4 +1,4 @@
- {
+{
   "name": "indigo-client",
   "version": "0.0.0",
   "scripts": {
@@ -44,6 +44,7 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^16.2.16",
+    "@angular-eslint/schematics": "^21.0.1",
     "@angular/cli": "^16.2.16",
     "@angular/compiler-cli": "^16.2.12",
     "@popperjs/core": "^2.11.8",

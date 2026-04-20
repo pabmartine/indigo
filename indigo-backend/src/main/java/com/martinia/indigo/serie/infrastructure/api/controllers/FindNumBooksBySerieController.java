@@ -1,6 +1,8 @@
 package com.martinia.indigo.serie.infrastructure.api.controllers;
 
 import com.martinia.indigo.serie.domain.ports.usecases.FindNumBooksBySerieUseCase;
+import com.martinia.indigo.serie.domain.model.SeriePageData;
+import com.martinia.indigo.serie.infrastructure.api.model.SeriePageDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -55,6 +57,34 @@ public class FindNumBooksBySerieController {
 		}
 
 		return new ResponseEntity<>(ret, HttpStatus.OK);
+	}
+
+	@Operation(summary = "Get paginated series data",
+			description = "Retrieves a page of series together with the total number of available series.",
+			responses = {
+					@ApiResponse(responseCode = "200", description = "Successfully retrieved paginated series data",
+							content = @Content(mediaType = "application/json",
+									schema = @Schema(implementation = SeriePageDto.class)))
+			})
+	@GetMapping(value = "/page", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<SeriePageDto> getSeriesPage(
+			@Parameter(description = "List of languages to filter series by (e.g., 'en', 'es')", example = "[\"en\"]") @RequestParam List<String> languages,
+			@Parameter(description = "Page number for pagination (0-indexed)", example = "0") @RequestParam int page,
+			@Parameter(description = "Number of series per page", example = "10") @RequestParam int size,
+			@Parameter(description = "Field to sort by (e.g., 'name')", example = "name") @RequestParam String sort,
+			@Parameter(description = "Sort order (asc or desc)", example = "asc") @RequestParam String order) {
+
+		SeriePageData pageData = useCase.getSeriesPage(languages, page, size, sort, order);
+		List<Map<String, String>> items = new ArrayList<>();
+
+		for (String key : pageData.items().keySet()) {
+			Map<String, String> map = new HashMap<>();
+			map.put("name", key);
+			map.put("numBooks", pageData.items().get(key).toString());
+			items.add(map);
+		}
+
+		return new ResponseEntity<>(new SeriePageDto(items, pageData.total(), page, size), HttpStatus.OK);
 	}
 
 }

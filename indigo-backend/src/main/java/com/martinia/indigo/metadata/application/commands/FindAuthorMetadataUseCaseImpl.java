@@ -80,14 +80,14 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 						}
 						author.setProvider(goodReads[2]);
 
-						long milliseconds = (System.currentTimeMillis() - lastExecution);
+							long milliseconds = (System.currentTimeMillis() - lastExecution);
 
-						if (milliseconds < pullTime) {
-							try {
-								Thread.sleep(pullTime);
-							}
-							catch (InterruptedException e) {
-								throw new RuntimeException(e);
+							if (milliseconds < pullTime) {
+								try {
+									Thread.sleep(pullTime - milliseconds);
+								}
+								catch (InterruptedException e) {
+									throw new RuntimeException(e);
 							}
 						}
 					}

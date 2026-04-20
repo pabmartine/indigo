@@ -49,7 +49,14 @@ export class LoginComponent implements OnInit {
         next: (response) => {
           if (response != null && response.headers.get("Authorization") != null) {
             const token = response.headers.get("Authorization").slice(7);
-            this.userService.get(this.user.username).subscribe({
+            
+            // Set partial user with token first, so JwtModule can see it for subsequent requests
+            const partialUser = new User();
+            partialUser.token = token;
+            partialUser.username = this.user.username;
+            
+            this.authState.setUser(partialUser).then(() => {
+              this.userService.getCurrent().subscribe({
                 next: (data) => {
                   let user = data;
                   user.token = token;
@@ -62,6 +69,7 @@ export class LoginComponent implements OnInit {
                   this.setErrorMessage("locale.login.error");
                 }
               });
+            });
           } else {
             this.setErrorMessage("locale.login.error");
           }

@@ -14,5 +14,6 @@ public class EpubFileAddedEvent implements Event {
 	private Path sourcePath;
 	private Path targetPath;
 	private String authorImage;
+	private boolean newBook;
 
 }

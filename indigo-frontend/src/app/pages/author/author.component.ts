@@ -218,53 +218,28 @@ export class AuthorComponent implements OnInit {
 
   private doSearch() {
     this.total = 0;
-    this.books = []; // Usar asignación directa en lugar de .length = 0
+    this.books = [];
 
     this.adv_search = new Search();
     this.adv_search.author = this.selected.name;
     this.adv_search.languages = this.user.languageBooks;
 
-    this.count();
-  }
-
-  count(): void {
-    this.bookService.count(this.adv_search).subscribe({
-      next: (data) => {
-        this.total = data;
-        let author = this.adv_search.author;
-        this.title = this.translate.instant('locale.books.title_published') + "  (" + this.total + ")";
-
-        // Forzar detección de cambios después de actualizar el título
-        this.cdr.detectChanges();
-
-        this.getAll();
-      },
-      error: (error) => {
-        console.log(error);
-        this.messageService.clear();
-        this.messageService.add({
-          severity: 'error',
-          detail: this.translate.instant('locale.books.error.data'),
-          closable: false,
-          life: 5000
-        });
-      }
-    });
+    this.getAll();
   }
 
   getAll(): void {
-    this.bookService.getAllSummary(this.adv_search, 0, this.total, "pubDate", "desc").subscribe({
-      next: (data) => {
-        // Procesar las imágenes de los libros
-        const processedBooks = data.map(book => ({
+    this.bookService.getAllSummaryPage(this.adv_search, 0, 500, "pubDate", "desc").subscribe({
+      next: (response) => {
+        this.total = response.total || 0;
+        this.title = this.translate.instant('locale.books.title_published') + "  (" + this.total + ")";
+
+        const processedBooks = (response.items || []).map(book => ({
           ...book,
-          image: this.bookService.buildCoverImageUrl(book.id) || book.image
+          image: undefined,
+          coverUrl: this.bookService.buildCoverImageUrl(book.id) || book.image
         }));
 
-        // Agregar los libros procesados al array existente
-        this.books = [...this.books, ...processedBooks];
-
-        // Forzar detección de cambios inmediatamente después de actualizar los libros
+        this.books = [...processedBooks];
         this.cdr.detectChanges();
 
         setTimeout(() => {

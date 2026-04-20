@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 import { Search } from 'src/app/domain/search';
-import { forkJoin, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AuthStateService } from 'src/app/services/auth-state.service';
 import { User } from 'src/app/domain/user';
@@ -147,21 +147,16 @@ export class SeriesComponent implements OnInit, OnDestroy, AfterViewInit {
     this.isLoading = true;
     this.cdr.detectChanges();
 
-    const count$ = this.serieService.count(this.user.languageBooks);
-    const series$ = this.serieService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order);
-
-    forkJoin({ count: count$, series: series$ })
+    this.serieService.getPage(this.user.languageBooks, this.page, this.size, this.sort, this.order)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: ({ count, series }) => {
-          // Process Count
-          this.total = count;
+        next: (response) => {
+          this.total = response.total;
           this.lastPage = this.total / this.size;
           this.title = this.translate.instant('locale.series.title') + " (" + this.total + ")";
 
-          // Process Series
           const cacheKey = `${this.page}-${this.size}-${this.sort}-${this.order}-${this.user.languageBooks?.join(',')}`;
-          const processedSeries = this.mapSeriesWithCover(series);
+          const processedSeries = this.mapSeriesWithCover(response.items || []);
           Array.prototype.push.apply(this.series, processedSeries);
           this.updateSeriesRows();
           this.page++;
@@ -172,7 +167,7 @@ export class SeriesComponent implements OnInit, OnDestroy, AfterViewInit {
           this.cdr.detectChanges();
         },
         error: (error) => {
-          console.error('Error loading initial series data in parallel:', error);
+          console.error('Error loading initial series data:', error);
           this.isLoading = false;
           this.messageService.clear();
           this.messageService.add({
@@ -281,7 +276,8 @@ export class SeriesComponent implements OnInit, OnDestroy, AfterViewInit {
   private mapSeriesWithCover(series: Serie[]): Serie[] {
     return series.map(serie => ({
       ...serie,
-      image: this.serieService.buildCoverUrl(serie.name)
+      image: undefined,
+      originalImage: this.serieService.buildCoverUrl(serie.name)
     }));
   }
 

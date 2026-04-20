@@ -26,6 +26,12 @@ export class MetadataService {
     });
   }
 
+  getSummary(): Observable<{ books: number; authors: number; reviews: number }> {
+    return this.http.get<{ books: number; authors: number; reviews: number }>(this.endpoint + "/summary", {
+      headers: { ignoreLoadingBar: '' }
+    });
+  }
+
   stop(): Observable<any> {
     return this.http.get<any>(this.endpoint + "/stop");
   }

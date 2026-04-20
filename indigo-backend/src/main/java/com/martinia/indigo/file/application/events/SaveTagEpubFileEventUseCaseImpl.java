@@ -32,6 +32,15 @@ public class SaveTagEpubFileEventUseCaseImpl implements SaveTagEpubFileEventUseC
 	@Override
 	@Transactional
 	public synchronized void save(final String bookId) {
+		save(bookId, true);
+	}
+
+	@Override
+	@Transactional
+	public synchronized void save(final String bookId, final boolean newBook) {
+		if (!newBook) {
+			return;
+		}
 
 		bookRepository.findById(bookId).ifPresent(bookMongoEntity -> {
 			final String bookLanguage = bookMongoEntity.getLanguages().get(0);
@@ -62,5 +71,4 @@ public class SaveTagEpubFileEventUseCaseImpl implements SaveTagEpubFileEventUseC
 	}
 
 }
-
 

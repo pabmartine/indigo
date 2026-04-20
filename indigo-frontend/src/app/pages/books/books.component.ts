@@ -371,7 +371,6 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
     this.books.length = 0
     this.resetCache()
     this.getAll()
-    this.fetchCountAndUpdateTitle().subscribe()
   }
 
   onScroll(): void {
@@ -471,10 +470,14 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.isScrolling = true
     this.bookService
-      .getAllSummary(this.adv_search, this.page, this.size, this.sort, this.order)
+      .getAllSummaryPage(this.adv_search, this.page, this.size, this.sort, this.order)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data: Book[]) => {
+        next: (response) => {
+          this.total = response.total || 0
+          this.updateTitle()
+
+          const data = response.items || []
           if (!data || (data.length === 0 && this.page === 0)) {
             if (this.page === 0) this.books = []
             this.cdr.detectChanges()
@@ -487,7 +490,7 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
             const coverUrl = this.bookService.buildCoverImageUrl(book.id)
 
             processedBook.coverUrl = coverUrl || undefined
-            processedBook.image = coverUrl || undefined
+            processedBook.image = undefined
             processedBook.originalImage = coverUrl || undefined
 
             if (book.rating) {
@@ -697,7 +700,6 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
     const languages = this.user?.languageBooks || this.authState.getLanguageBooks()
     this.adv_search.languages = languages.length > 0 ? languages : ['en']
     this.getAll()
-    this.fetchCountAndUpdateTitle().subscribe()
   }
 
   private shouldLoadFavorites(): boolean {
@@ -742,7 +744,7 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
             const coverUrl = this.bookService.buildCoverImageUrl(book.id)
 
             processedBook.coverUrl = coverUrl || undefined
-            processedBook.image = coverUrl || undefined
+            processedBook.image = undefined
             processedBook.originalImage = coverUrl || undefined
 
             if (book.rating) {

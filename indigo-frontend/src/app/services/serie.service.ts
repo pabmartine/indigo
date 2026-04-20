@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { SeriePage } from '../domain/seriePage';
 
 
 @Injectable({
@@ -25,6 +26,13 @@ export class SerieService {
     sort: string,
     order: string): Observable<any> {
     return this.http.get<any>(this.endpoint + "/all?languages=" + languages.map(x=>x).join(",") + "&page=" + page + "&size=" + size + "&sort=" + sort + "&order=" + order);
+  }
+
+  getPage(languages: string[], page: number,
+    size: number,
+    sort: string,
+    order: string): Observable<SeriePage> {
+    return this.http.get<SeriePage>(this.endpoint + "/page?languages=" + languages.map(x => x).join(",") + "&page=" + page + "&size=" + size + "&sort=" + sort + "&order=" + order);
   }
 
 

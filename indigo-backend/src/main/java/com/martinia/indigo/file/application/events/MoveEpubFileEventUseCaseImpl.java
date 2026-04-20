@@ -56,8 +56,6 @@ public class MoveEpubFileEventUseCaseImpl implements MoveEpubFileEventUseCase {
 				if (file.isPresent()) {
 					eventPublisher.publishEvent(new EpubFileDeletedEvent(file.get().getId()));
 				}
-				Files.delete(sourcePath);
-				Files.delete(sourceCoverPath);
 
 				uploadEpubFilesSingleton.addMove();
 			}
@@ -68,10 +66,10 @@ public class MoveEpubFileEventUseCaseImpl implements MoveEpubFileEventUseCase {
 
 		}
 		catch (Exception e) {
+			uploadEpubFilesSingleton.addMoveError();
 			log.error(e.getMessage());
 		}
 	}
 
 }
-
 

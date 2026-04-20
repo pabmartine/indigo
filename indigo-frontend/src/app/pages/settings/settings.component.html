@@ -61,150 +61,171 @@
               <input type="text" pInputText autocomplete="off" [(ngModel)]="goodReadsKey"/>
             </div>
           </div>
-          <div class="p-grid metadata">
-            <div class="p-col-12 p-md-6">
-              <div class="metadata-box">
-                <span class="metadata-icon pi pi-book"></span>
-                <div class="metadata-title">Libros</div>
-                <div class="metadata-subtitle">Actualizar metadatos de todos los libros</div>
-                <div class="metadata-subinfo p-grid">
-                  <div class="p-col-8 p-md-10">
-                    <div class="progress">
-                      <p-progressBar [value]="progressBar" *ngIf="isBooksFull()"></p-progressBar>
-                    </div>
-                  </div>
-                  <div class="p-col-2 p-md-1">
-                    <span *ngIf="isBooksFull()">{{progressBar}}%</span>
-                    <span *ngIf="!isBooksFull()">0%</span>
-                  </div>
-                  <div class="p-col-2 p-md-1">
-                    <a href="javascript:;" (click)="doExecuteMetadata('FULL', 'BOOKS')">
-                      <span class="metadata-action-icon pi" [ngClass]="{ 'pi-pause': isBooksFull(), 'pi-play': !isBooksFull()  }"></span>
-                    </a>
+          <div class="metadata-overview">
+            <section class="metadata-section books-theme">
+              <header class="metadata-sectio-header">
+                <div class="metadata-section-title-wrap">
+                  <span class="metadata-section-icon pi pi-book"></span>
+                  <div>
+                    <div class="metadata-section-title">Libros</div>
                   </div>
                 </div>
-              </div>
-            </div>
-            <div class="p-col-12 p-md-6">
-              <div class="metadata-box">
-                <span class="metadata-icon pi pi-book"></span>
-                <div class="metadata-title">Libros</div>
-                <div class="metadata-subtitle">Actualizar libros sin metadatos</div>
-                <div class="metadata-subinfo p-grid">
-                  <div class="p-col-8 p-md-10">
-                    <div class="progress">
-                      <p-progressBar [value]="progressBar" *ngIf="isBooksPartial()"></p-progressBar>
+                <div class="metadata-section-total">{{ booksTotal }}</div>
+              </header>
+              <div class="metadata-task-grid">
+                <article class="metadata-task-card">
+                  <div class="metadata-task-top">
+                    <div>
+                      <div class="metadata-task-title">Todos los libros</div>
+                      <div class="metadata-task-description">Actualizar metadatos de toda la biblioteca</div>
+                    </div>
+                    <div class="metadata-task-actions">
+                      <span class="metadata-task-status">{{ getMetadataStatusLabel('FULL', 'BOOKS') }}</span>
+                      <a href="javascript:;" (click)="doExecuteMetadata('FULL', 'BOOKS')" class="metadata-action-button">
+                        <span class="pi" [ngClass]="{ 'pi-pause': isBooksFull(), 'pi-play': !isBooksFull() }"></span>
+                      </a>
                     </div>
                   </div>
-                  <div class="p-col-2 p-md-1">
-                    <span *ngIf="isBooksPartial()">{{progressBar}}%</span>
-                    <span *ngIf="!isBooksPartial()">0%</span>
+                  <div class="metadata-task-counter">{{ getMetadataCounter('FULL', 'BOOKS') }}</div>
+                  <div class="metadata-task-progress-row">
+                    <p-progressBar [value]="getMetadataProgress('FULL', 'BOOKS')"></p-progressBar>
+                    <span class="metadata-task-percent">{{ getMetadataProgress('FULL', 'BOOKS') }}%</span>
                   </div>
-                  <div class="p-col-2 p-md-1">
-                    <a href="javascript:;" (click)="doExecuteMetadata('PARTIAL', 'BOOKS')">
-                      <span class="metadata-action-icon pi"
-                            [ngClass]="{ 'pi-pause': isBooksPartial(), 'pi-play': !isBooksPartial()  }"></span>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="p-col-12 p-md-6">
-              <div class="metadata-box">
-                <span class="metadata-icon pi pi-user-edit"></span>
-                <div class="metadata-title">Autores</div>
-                <div class="metadata-subtitle">Actualizar metadatos de todos los autores</div>
-                <div class="metadata-subinfo p-grid">
-                  <div class="p-col-8 p-md-10">
-                    <div class="progress">
-                      <p-progressBar [value]="progressBar" *ngIf="isAuthorsFull()"></p-progressBar>
+                  <div class="metadata-task-footer">Última ejecución: -</div>
+                </article>
+
+                <article class="metadata-task-card">
+                  <div class="metadata-task-top">
+                    <div>
+                      <div class="metadata-task-title">Sin metadatos</div>
+                      <div class="metadata-task-description">Solo libros que carecen de información</div>
+                    </div>
+                    <div class="metadata-task-actions">
+                      <span class="metadata-task-status">{{ getMetadataStatusLabel('PARTIAL', 'BOOKS') }}</span>
+                      <a href="javascript:;" (click)="doExecuteMetadata('PARTIAL', 'BOOKS')" class="metadata-action-button">
+                        <span class="pi" [ngClass]="{ 'pi-pause': isBooksPartial(), 'pi-play': !isBooksPartial() }"></span>
+                      </a>
                     </div>
                   </div>
-                  <div class="p-col-2 p-md-1">
-                    <span *ngIf="isAuthorsFull()">{{progressBar}}%</span>
-                    <span *ngIf="!isAuthorsFull()">0%</span>
+                  <div class="metadata-task-counter">{{ getMetadataCounter('PARTIAL', 'BOOKS') }}</div>
+                  <div class="metadata-task-progress-row">
+                    <p-progressBar [value]="getMetadataProgress('PARTIAL', 'BOOKS')"></p-progressBar>
+                    <span class="metadata-task-percent">{{ getMetadataProgress('PARTIAL', 'BOOKS') }}%</span>
                   </div>
-                  <div class="p-col-2 p-md-1">
-                    <a href="javascript:;" (click)="doExecuteMetadata('FULL', 'AUTHORS')">
-                      <span class="metadata-action-icon pi"
-                            [ngClass]="{ 'pi-pause': isAuthorsFull(), 'pi-play': !isAuthorsFull()  }"></span>
-                    </a>
+                  <div class="metadata-task-footer">Última ejecución: -</div>
+                </article>
+              </div>
+            </section>
+
+            <section class="metadata-section authors-theme">
+              <header class="metadata-section-header">
+                <div class="metadata-section-title-wrap">
+                  <span class="metadata-section-icon pi pi-user-edit"></span>
+                  <div>
+                    <div class="metadata-section-title">Autores</div>
                   </div>
                 </div>
-              </div>
-            </div>
-            <div class="p-col-12 p-md-6">
-              <div class="metadata-box">
-                <span class="metadata-icon pi pi-user-edit"></span>
-                <div class="metadata-title">Autores</div>
-                <div class="metadata-subtitle">Actualizar autores sin metadatos</div>
-                <div class="metadata-subinfo p-grid">
-                  <div class="p-col-8 p-md-10">
-                    <div class="progress">
-                      <p-progressBar [value]="progressBar" *ngIf="isAuthorsPartial()"></p-progressBar>
+                <div class="metadata-section-total">{{ authorsTotal }}</div>
+              </header>
+              <div class="metadata-task-grid">
+                <article class="metadata-task-card">
+                  <div class="metadata-task-top">
+                    <div>
+                      <div class="metadata-task-title">Todos los autores</div>
+                      <div class="metadata-task-description">Actualizar biografías y datos de autores</div>
+                    </div>
+                    <div class="metadata-task-actions">
+                      <span class="metadata-task-status">{{ getMetadataStatusLabel('FULL', 'AUTHORS') }}</span>
+                      <a href="javascript:;" (click)="doExecuteMetadata('FULL', 'AUTHORS')" class="metadata-action-button">
+                        <span class="pi" [ngClass]="{ 'pi-pause': isAuthorsFull(), 'pi-play': !isAuthorsFull() }"></span>
+                      </a>
                     </div>
                   </div>
-                  <div class="p-col-2 p-md-1">
-                    <span *ngIf="isAuthorsPartial()">{{progressBar}}%</span>
-                    <span *ngIf="!isAuthorsPartial()">0%</span>
+                  <div class="metadata-task-counter">{{ getMetadataCounter('FULL', 'AUTHORS') }}</div>
+                  <div class="metadata-task-progress-row">
+                    <p-progressBar [value]="getMetadataProgress('FULL', 'AUTHORS')"></p-progressBar>
+                    <span class="metadata-task-percent">{{ getMetadataProgress('FULL', 'AUTHORS') }}%</span>
                   </div>
-                  <div class="p-col-2 p-md-1">
-                    <a href="javascript:;" (click)="doExecuteMetadata('PARTIAL', 'AUTHORS')">
-                      <span class="metadata-action-icon pi"
-                            [ngClass]="{ 'pi-pause': isAuthorsPartial(), 'pi-play': !isAuthorsPartial()  }"></span>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="p-col-12 p-md-6">
-              <div class="metadata-box">
-                <span class="metadata-icon pi pi-comments"></span>
-                <div class="metadata-title">Opiniones</div>
-                <div class="metadata-subtitle">Actualizar todas las opiniones</div>
-                <div class="metadata-subinfo p-grid">
-                  <div class="p-col-8 p-md-10">
-                    <div class="progress">
-                      <p-progressBar [value]="progressBar" *ngIf="isReviewsFull()"></p-progressBar>
+                  <div class="metadata-task-footer">Última ejecución: -</div>
+                </article>
+
+                <article class="metadata-task-card">
+                  <div class="metadata-task-top">
+                    <div>
+                      <div class="metadata-task-title">Sin metadatos</div>
+                      <div class="metadata-task-description">Solo autores sin información completa</div>
+                    </div>
+                    <div class="metadata-task-actions">
+                      <span class="metadata-task-status">{{ getMetadataStatusLabel('PARTIAL', 'AUTHORS') }}</span>
+                      <a href="javascript:;" (click)="doExecuteMetadata('PARTIAL', 'AUTHORS')" class="metadata-action-button">
+                        <span class="pi" [ngClass]="{ 'pi-pause': isAuthorsPartial(), 'pi-play': !isAuthorsPartial() }"></span>
+                      </a>
                     </div>
                   </div>
-                  <div class="p-col-2 p-md-1">
-                    <span *ngIf="isReviewsFull()">{{progressBar}}%</span>
-                    <span *ngIf="!isReviewsFull()">0%</span>
+                  <div class="metadata-task-counter">{{ getMetadataCounter('PARTIAL', 'AUTHORS') }}</div>
+                  <div class="metadata-task-progress-row">
+                    <p-progressBar [value]="getMetadataProgress('PARTIAL', 'AUTHORS')"></p-progressBar>
+                    <span class="metadata-task-percent">{{ getMetadataProgress('PARTIAL', 'AUTHORS') }}%</span>
                   </div>
-                  <div class="p-col-2 p-md-1">
-                    <a href="javascript:;" (click)="doExecuteMetadata('FULL', 'REVIEWS')">
-                      <span class="metadata-action-icon pi"
-                            [ngClass]="{ 'pi-pause': isReviewsFull(), 'pi-play': !isReviewsFull()  }"></span>
-                    </a>
+                  <div class="metadata-task-footer">Última ejecución: -</div>
+                </article>
+              </div>
+            </section>
+
+            <section class="metadata-section reviews-theme">
+              <header class="metadata-section-header">
+                <div class="metadata-section-title-wrap">
+                  <span class="metadata-section-icon pi pi-comments"></span>
+                  <div>
+                    <div class="metadata-section-title">Opiniones</div>
                   </div>
                 </div>
-              </div>
-            </div>
-            <div class="p-col-12 p-md-6">
-              <div class="metadata-box">
-                <span class="metadata-icon pi pi-comments"></span>
-                <div class="metadata-title">Opiniones</div>
-                <div class="metadata-subtitle">Actualizar opiniones sin datos</div>
-                <div class="metadata-subinfo p-grid">
-                  <div class="p-col-8 p-md-10">
-                    <div class="progress">
-                      <p-progressBar [value]="progressBar" *ngIf="isReviewsPartial()"></p-progressBar>
+                <div class="metadata-section-total">{{ reviewsTotal }}</div>
+              </header>
+              <div class="metadata-task-grid">
+                <article class="metadata-task-card">
+                  <div class="metadata-task-top">
+                    <div>
+                      <div class="metadata-task-title">Todas las opiniones</div>
+                      <div class="metadata-task-description">Sincronizar reseñas y valoraciones</div>
+                    </div>
+                    <div class="metadata-task-actions">
+                      <span class="metadata-task-status">{{ getMetadataStatusLabel('FULL', 'REVIEWS') }}</span>
+                      <a href="javascript:;" (click)="doExecuteMetadata('FULL', 'REVIEWS')" class="metadata-action-button">
+                        <span class="pi" [ngClass]="{ 'pi-pause': isReviewsFull(), 'pi-play': !isReviewsFull() }"></span>
+                      </a>
                     </div>
                   </div>
-                  <div class="p-col-2 p-md-1">
-                    <span *ngIf="isReviewsPartial()">{{progressBar}}%</span>
-                    <span *ngIf="!isReviewsPartial()">0%</span>
+                  <div class="metadata-task-counter">{{ getMetadataCounter('FULL', 'REVIEWS') }}</div>
+                  <div class="metadata-task-progress-row">
+                    <p-progressBar [value]="getMetadataProgress('FULL', 'REVIEWS')"></p-progressBar>
+                    <span class="metadata-task-percent">{{ getMetadataProgress('FULL', 'REVIEWS') }}%</span>
                   </div>
-                  <div class="p-col-2 p-md-1">
-                    <a href="javascript:;" (click)="doExecuteMetadata('PARTIAL', 'REVIEWS')">
-                      <span class="metadata-action-icon pi"
-                            [ngClass]="{ 'pi-pause': isReviewsPartial(), 'pi-play': !isReviewsPartial()  }"></span>
-                    </a>
+                  <div class="metadata-task-footer">Última ejecución: -</div>
+                </article>
+
+                <article class="metadata-task-card">
+                  <div class="metadata-task-top">
+                    <div>
+                      <div class="metadata-task-title">Sin datos</div>
+                      <div class="metadata-task-description">Libros sin opiniones asociadas</div>
+                    </div>
+                    <div class="metadata-task-actions">
+                      <span class="metadata-task-status">{{ getMetadataStatusLabel('PARTIAL', 'REVIEWS') }}</span>
+                      <a href="javascript:;" (click)="doExecuteMetadata('PARTIAL', 'REVIEWS')" class="metadata-action-button">
+                        <span class="pi" [ngClass]="{ 'pi-pause': isReviewsPartial(), 'pi-play': !isReviewsPartial() }"></span>
+                      </a>
+                    </div>
                   </div>
-                </div>
+                  <div class="metadata-task-counter">{{ getMetadataCounter('PARTIAL', 'REVIEWS') }}</div>
+                  <div class="metadata-task-progress-row">
+                    <p-progressBar [value]="getMetadataProgress('PARTIAL', 'REVIEWS')"></p-progressBar>
+                    <span class="metadata-task-percent">{{ getMetadataProgress('PARTIAL', 'REVIEWS') }}%</span>
+                  </div>
+                  <div class="metadata-task-footer">Última ejecución: -</div>
+                </article>
               </div>
-            </div>
+            </section>
           </div>
         </p-panel>
       </div>
@@ -269,10 +290,12 @@
               <div class="uploadsProgress" *ngIf="uploadsProgress>0">
                 <p-progressBar [value]="uploadsProgress"></p-progressBar>
               </div>
+              <small class="upload-status-text" *ngIf="getUploadsStatusText()">{{ getUploadsStatusText() }}</small>
             </div>
             <div class="p-col-12 p-col-2">
               <p-confirmDialog class="confirmDialog"></p-confirmDialog>
               <p-button label="{{'locale.buttons.detect' | translate}}" icon="pi pi-refresh" class="settings-button"
+                        [disabled]="uploadsRunning"
                         (click)="detect()"></p-button>
             </div>
           </div>

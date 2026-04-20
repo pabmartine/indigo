@@ -159,8 +159,8 @@ public class FindAmazonReviewsUseCaseImpl implements FindAmazonReviewsUseCase {
 				String comment = htmlDivision.getFirstChild().getFirstChild().getFirstChild().getNextSibling().getNextSibling()
 						.getNextSibling().getNextSibling().getFirstChild().getFirstChild().getNextSibling().getFirstChild().asNormalizedText();
 
-				reviews.add(Review.builder().comment(comment).name(name).date(date).rating(rating).title(title).lastMetadataSync(new Date())
-						.provider(ProviderEnum.WIKIPEDIA.name()).build());
+					reviews.add(Review.builder().comment(comment).name(name).date(date).rating(rating).title(title).lastMetadataSync(new Date())
+							.provider(ProviderEnum.AMAZON.name()).build());
 			}
 			catch (Exception e) {
 				log.error(e.getMessage());

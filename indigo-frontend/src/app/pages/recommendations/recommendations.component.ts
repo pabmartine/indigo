@@ -266,7 +266,7 @@ export class RecommendationsComponent implements OnInit, OnDestroy, AfterViewIni
             const coverUrl = this.bookService.buildCoverImageUrl(book.id);
             return {
               ...book,
-              image: coverUrl || null,
+              image: null,
               originalImage: coverUrl || null,
               rating: book.rating ? Math.round(book.rating) : book.rating
             }
@@ -279,10 +279,7 @@ export class RecommendationsComponent implements OnInit, OnDestroy, AfterViewIni
           this.cdr.detectChanges();
           this.restoreScrollPosition();
 
-          // Procesar imágenes de forma asíncrona SIN bloquear la UI
-          this.processImagesAsync(booksWithoutImages, this.books.length - booksWithoutImages.length);
-
-          // Guardar en cache (con imágenes procesadas para futuras cargas)
+          // Guardar en cache para futuras cargas
           this.processBooks(data).then(processedData => {
             this.booksCache.set(cacheKey, processedData);
           });
@@ -315,7 +312,7 @@ export class RecommendationsComponent implements OnInit, OnDestroy, AfterViewIni
         const coverUrl = this.bookService.buildCoverImageUrl(book.id);
         const processedBook = {
           ...book,
-          image: coverUrl || book.image,
+          image: null,
           originalImage: coverUrl || book.image
         };
 
@@ -328,49 +325,6 @@ export class RecommendationsComponent implements OnInit, OnDestroy, AfterViewIni
 
       resolve(processedBooks);
     });
-  }
-
-  private processImagesAsync(books: BookWithTempImage[], startIndex: number): void {
-    // Validar que books existe y es un array
-    if (!books || !Array.isArray(books) || books.length === 0) {
-      return;
-    }
-
-    // Procesar imágenes en pequeños lotes para no bloquear la UI
-    const batchSize = 5;
-    let currentIndex = 0;
-
-    const processBatch = () => {
-      const endIndex = Math.min(currentIndex + batchSize, books.length);
-      let hasUpdates = false;
-
-      for (let i = currentIndex; i < endIndex; i++) {
-        const book = books[i];
-        const targetIndex = startIndex + i;
-
-        if (book && targetIndex < this.books.length) {
-          const imageUrl = book.originalImage || this.bookService.buildCoverImageUrl(book.id);
-          if (targetIndex < this.books.length && this.books[targetIndex]) {
-            this.books[targetIndex].image = imageUrl || this.books[targetIndex].image;
-            hasUpdates = true;
-          }
-        }
-      }
-
-      if (hasUpdates) {
-        this.cdr.detectChanges();
-      }
-
-      currentIndex = endIndex;
-
-      // Continuar con el siguiente lote si hay más imágenes
-      if (currentIndex < books.length) {
-        setTimeout(processBatch, 50); // Pausa entre lotes
-      }
-    };
-
-    // Iniciar procesamiento
-    setTimeout(processBatch, 100);
   }
 
   showDetails(book: Book): void {

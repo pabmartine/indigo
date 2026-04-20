@@ -33,6 +33,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   uploads: number = 0;
   uploadsProgress: number = 0;
+  uploadsRunning: boolean = false;
+  uploadsProcessed: number = 0;
+  uploadsFailed: number = 0;
 
   userList: User[];
   goodReadsKey: string;
@@ -49,6 +52,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   uploadsPath: string;
   badge: number = 0;
+  booksTotal: number = 0;
+  authorsTotal: number = 0;
+  reviewsTotal: number = 0;
 
 
   encryptions: SelectItem[] = [
@@ -88,6 +94,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.getUsers();
     this.getGlobal();
     this.getMetadata();
+    this.getMetadataSummary();
     this.getSmtp();
     this.getUploads();
   }
@@ -135,6 +142,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     this.uploads = data.uploadsTotal;
     this.uploadsProgress = data.uploadsCurrent;
+    this.uploadsRunning = !!data.uploadsRunning;
+    this.uploadsProcessed = data.uploadsProcessed || 0;
+    this.uploadsFailed = data.uploadsFailed || 0;
 
     if (this.message) {
       this.message = this.translate.instant('locale.settings.panel.metadata.' + this.message);
@@ -146,7 +156,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.progressBar = 0;
     }
 
-    if (!data.running) {
+    if (!data.status) {
       this.current = 0;
     }
 
@@ -161,6 +171,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         next: (data) => {
           if (data) {
             this.userList = data;
+            this.cdr.markForCheck();
           }
         },
         error: (error) => {
@@ -177,6 +188,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         next: (data) => {
           if (data) {
             this.booksRecommendations = Number(data.value);
+            this.cdr.markForCheck();
           }
         },
         error: (error) => {
@@ -192,6 +204,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         next: (data) => {
           if (data) {
             this.uploadsPath = data.path;
+            this.cdr.markForCheck();
           }
         },
         error: (error) => {
@@ -208,7 +221,24 @@ export class SettingsComponent implements OnInit, OnDestroy {
         next: (data) => {
           if (data) {
             this.goodReadsKey = data.value;
+            this.cdr.markForCheck();
           }
+        },
+        error: (error) => {
+          console.log(error);
+        }
+      });
+  }
+
+  getMetadataSummary(): void {
+    this.metadataService.getSummary()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.booksTotal = data?.books || 0;
+          this.authorsTotal = data?.authors || 0;
+          this.reviewsTotal = data?.reviews || 0;
+          this.cdr.markForCheck();
         },
         error: (error) => {
           console.log(error);
@@ -239,6 +269,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
           this.smtpUsername = username?.value || '';
           this.smtpPassword = password?.value || '';
           this.smtpStatus = status?.value || 'unknown';
+          this.cdr.markForCheck();
         },
         error: (error) => {
           console.log(error);
@@ -277,18 +308,36 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
 
   upload(data:number): void {
+    if (this.uploadsRunning) {
+      return;
+    }
+
     this.fileService.upload(data)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data) => {
-          if (data) {
-            console.log(data);
-          }
+        next: () => {
+          this.messageService.clear();
+          this.messageService.add({ severity: 'info', detail: 'Importacion iniciada. El progreso se mostrara en esta seccion.', closable: false, life: 5000 });
         },
         error: (error) => {
           console.log(error);
+          this.messageService.add({ severity: 'error', detail: 'No se pudo iniciar la importacion de libros.', closable: false, life: 5000 });
         }
       });
+  }
+
+  getUploadsStatusText(): string {
+    if (this.uploadsRunning) {
+      return `Procesando ${this.uploadsProcessed} de ${this.uploads} libros`;
+    }
+
+    if (this.uploadsProcessed === 0) {
+      return '';
+    }
+
+    return this.uploadsFailed > 0
+      ? `Ultima importacion: ${this.uploadsProcessed} procesados, ${this.uploadsFailed} con error`
+      : `Ultima importacion: ${this.uploadsProcessed} procesados`;
   }
 
   isBooksFull() {
@@ -313,6 +362,26 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   isReviewsPartial() {
     return this.type === 'PARTIAL' && this.entity === 'REVIEWS';
+  }
+
+  isMetadataRunning(type: string, entity: string): boolean {
+    return this.type === type && this.entity === entity;
+  }
+
+  getMetadataProgress(type: string, entity: string): number {
+    return this.isMetadataRunning(type, entity) ? this.progressBar : 0;
+  }
+
+  getMetadataCounter(type: string, entity: string): string {
+    if (!this.isMetadataRunning(type, entity) || this.total === 0) {
+      return '0 / 0 elementos';
+    }
+
+    return `${this.current} / ${this.total} elementos`;
+  }
+
+  getMetadataStatusLabel(type: string, entity: string): string {
+    return this.isMetadataRunning(type, entity) ? 'En curso' : 'Listo';
   }
 
 
@@ -445,6 +514,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   detect(){
+    if (this.uploadsRunning) {
+      return;
+    }
 
     this.fileService.count()
       .pipe(takeUntil(this.destroy$))

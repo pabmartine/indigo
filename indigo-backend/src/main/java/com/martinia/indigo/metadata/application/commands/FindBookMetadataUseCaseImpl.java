@@ -55,14 +55,14 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 						.map(ConfigurationMongoEntity::getValue)
 						.orElse(null);
 
-				long milliseconds = (System.currentTimeMillis() - lastExecution);
+					long milliseconds = (System.currentTimeMillis() - lastExecution);
 
-				if (milliseconds < pullTime) {
-					try {
-						Thread.sleep(pullTime);
-					}
-					catch (InterruptedException e) {
-						throw new RuntimeException(e);
+					if (milliseconds < pullTime) {
+						try {
+							Thread.sleep(pullTime - milliseconds);
+						}
+						catch (InterruptedException e) {
+							throw new RuntimeException(e);
 					}
 				}
 

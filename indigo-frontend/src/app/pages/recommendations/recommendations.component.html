@@ -28,7 +28,12 @@
     <div *ngIf="!isLoading && books && books.length > 0" class="books-grid">
       <div *ngFor="let book of books; trackBy: trackByBookId" class="book-item" (click)="showDetails(book)">
         <div class="book-cover-container">
-          <img [src]="book.image || './assets/images/unknown.jpg'" class="book-cover" alt="{{ book.title }}"/>
+          <img class="book-cover"
+               [appLazyImage]="book.image"
+               [lazySource]="book.originalImage"
+               [lazyPlaceholder]="'./assets/images/unknown.jpg'"
+               (lazyLoaded)="book.image = $event"
+               alt="{{ book.title }}"/>
         </div>
         <div class="book-info">
           <span class="title" title="{{ book.title }}">{{book.title || 'Unknown Title'}}</span>

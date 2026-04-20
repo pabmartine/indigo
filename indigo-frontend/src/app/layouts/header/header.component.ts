@@ -53,7 +53,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     );
 
     this.items = this.buildMenu();
-    this.getMessages();
+    this.loadMessagesDeferred();
 
     // Configurar búsqueda en tiempo real con debounce
     this.searchSubject.pipe(
@@ -86,6 +86,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return menu;
   }
 
+  private loadMessagesDeferred(): void {
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      (window as Window & { requestIdleCallback: (callback: () => void) => void }).requestIdleCallback(() => this.getMessages());
+      return;
+    }
+
+    setTimeout(() => this.getMessages(), 0);
+  }
+
   getMessages() {
     const user = this.authState.getCurrentUser();
     if (!user) return;
@@ -103,7 +112,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
         error: errorCallback
       });
     } else {
-      this.notificationService.findAllByUser(user.id).subscribe({
+      this.notificationService.findAllByUser(user.username).subscribe({
         next: successCallback,
         error: errorCallback
       });

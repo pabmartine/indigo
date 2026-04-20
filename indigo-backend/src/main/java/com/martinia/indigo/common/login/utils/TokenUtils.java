@@ -8,6 +8,7 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Map;
 
 public class TokenUtils {
 
@@ -15,9 +16,10 @@ public class TokenUtils {
         return Keys.hmacShaKeyFor(key.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String createToken(String user, String key, Date expiration) {
+    public String createToken(String user, Map<String, Object> claims, String key, Date expiration) {
         return Jwts.builder()
                 .setSubject(user)
+                .addClaims(claims)
                 .setExpiration(expiration)
                 .signWith(getSigningKey(key), SignatureAlgorithm.HS256)
                 .compact();
@@ -30,5 +32,14 @@ public class TokenUtils {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    public Object getClaim(String token, String key, String claimName) {
+        return Jwts.parser()
+                .setSigningKey(getSigningKey(key))
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get(claimName);
     }
 }

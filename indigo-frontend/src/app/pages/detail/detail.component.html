@@ -254,7 +254,14 @@
       </div>
       <div id="inlineSerie" class="content-body p-grid inline" *ngIf="!expandSerie">
         <div class="p-sm-6 p-md-4 p-lg-2" *ngFor="let book of serie">
-          <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)" style="cursor: pointer" />
+          <img [appLazyImage]="book.image"
+               [lazySource]="book.coverUrl"
+               [lazyPlaceholder]="'./assets/images/unknown.jpg'"
+               (lazyLoaded)="book.image = $event"
+               height="225"
+               class="list-image"
+               (click)="showDetails(book)"
+               style="cursor: pointer" />
           <div>
             <span class="title">{{book.title}}</span>
           </div>
@@ -272,7 +279,11 @@
       </div>
       <div class="content-body p-grid" *ngIf="expandSerie">
         <div class="p-sm-6 p-md-4 p-lg-2" *ngFor="let book of serie">
-          <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)"
+          <img [appLazyImage]="book.image"
+            [lazySource]="book.coverUrl"
+            [lazyPlaceholder]="'./assets/images/unknown.jpg'"
+            (lazyLoaded)="book.image = $event"
+            height="225" class="list-image" (click)="showDetails(book)"
             style="cursor: pointer;" />
           <div>
             <span class="title">{{book.title}}</span>
@@ -313,7 +324,14 @@
       </div>
       <div id="inlineSimilar" class="content-body p-grid inline" *ngIf="!expandSimilar">
         <div class="p-sm-6 p-md-4 p-lg-2" *ngFor="let book of similar">
-          <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)" style="cursor: pointer" />
+          <img [appLazyImage]="book.image"
+               [lazySource]="book.coverUrl"
+               [lazyPlaceholder]="'./assets/images/unknown.jpg'"
+               (lazyLoaded)="book.image = $event"
+               height="225"
+               class="list-image"
+               (click)="showDetails(book)"
+               style="cursor: pointer" />
           <div>
             <span class="title">{{book.title}}</span>
           </div>
@@ -331,7 +349,11 @@
       </div>
       <div class="content-body p-grid" *ngIf="expandSimilar">
         <div class="p-sm-6 p-md-4 p-lg-2" *ngFor="let book of similar">
-          <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)"
+          <img [appLazyImage]="book.image"
+            [lazySource]="book.coverUrl"
+            [lazyPlaceholder]="'./assets/images/unknown.jpg'"
+            (lazyLoaded)="book.image = $event"
+            height="225" class="list-image" (click)="showDetails(book)"
             style="cursor: pointer;" />
           <div>
             <span class="title">{{book.title}}</span>
@@ -372,7 +394,14 @@
       </div>
       <div id="inlineRecommendations" class="content-body p-grid inline" *ngIf="!expandRecommendations">
         <div class="p-sm-6 p-md-4 p-lg-2" *ngFor="let book of recommendations" #theElementYouWantToCheck>
-          <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)" style="cursor: pointer" />
+          <img [appLazyImage]="book.image"
+               [lazySource]="book.coverUrl"
+               [lazyPlaceholder]="'./assets/images/unknown.jpg'"
+               (lazyLoaded)="book.image = $event"
+               height="225"
+               class="list-image"
+               (click)="showDetails(book)"
+               style="cursor: pointer" />
           <div>
             <span class="title">{{book.title}}</span>
           </div>
@@ -390,7 +419,11 @@
       </div>
       <div class="content-body p-grid" *ngIf="expandRecommendations">
         <div class="p-sm-6 p-md-4 p-lg-2" *ngFor="let book of recommendations">
-          <img [src]="book.image" height="225" class="list-image" (click)="showDetails(book)"
+          <img [appLazyImage]="book.image"
+            [lazySource]="book.coverUrl"
+            [lazyPlaceholder]="'./assets/images/unknown.jpg'"
+            (lazyLoaded)="book.image = $event"
+            height="225" class="list-image" (click)="showDetails(book)"
             style="cursor: pointer;" />
           <div>
             <span class="title">{{book.title}}</span>

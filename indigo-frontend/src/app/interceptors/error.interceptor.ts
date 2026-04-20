@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import {
   HttpRequest,
   HttpHandler,
@@ -30,11 +30,18 @@ import { AuthStateService } from '../services/auth-state.service';
 export class ErrorInterceptor implements HttpInterceptor {
 
   constructor(
+    private injector: Injector,
     private router: Router,
-    private messageService: MessageService,
-    private translate: TranslateService,
     private authState: AuthStateService
   ) {}
+
+  private get translate(): TranslateService {
+    return this.injector.get(TranslateService);
+  }
+
+  private get messageService(): MessageService {
+    return this.injector.get(MessageService);
+  }
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     return next.handle(request).pipe(

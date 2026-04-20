@@ -16,6 +16,10 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.security.core.GrantedAuthority;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
@@ -46,7 +50,10 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
 		// Add header
 		String userName = autentication.getName();
-		jwtParserComponent.createToken(response, userName);
+		List<String> roles = autentication.getAuthorities().stream()
+				.map(GrantedAuthority::getAuthority)
+				.collect(Collectors.toList());
+		jwtParserComponent.createToken(response, userName, roles);
 
 	}
 

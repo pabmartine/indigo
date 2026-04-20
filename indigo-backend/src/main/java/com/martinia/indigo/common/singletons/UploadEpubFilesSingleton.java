@@ -76,9 +76,10 @@ public class UploadEpubFilesSingleton {
 	}
 
 	private String buildMessage() {
-		return "Total: " + this.total + ", Extract: " + this.extract + ", Extract Error: " + this.extractError + ", Move Error: "
-				+ this.moveError + ", Delete Error: " + this.deleteError + ", New Books: " + this.newBooks + ", Updated Books: "
-				+ this.updatedBooks + ", New Authors: " + this.newAuthors + ", New Tags: " + this.newTags + ", Deleted: " + this.deleted;
+		return "Total: " + this.total + ", Extraidos: " + this.extract + ", Movidos: " + this.moved + ", Errores de extraccion: "
+				+ this.extractError + ", Errores de movimiento: " + this.moveError + ", Libros nuevos: " + this.newBooks
+				+ ", Libros actualizados: " + this.updatedBooks + ", Autores nuevos: " + this.newAuthors + ", Etiquetas nuevas: "
+				+ this.newTags;
 	}
 
 	private void clear() {
@@ -141,7 +142,7 @@ public class UploadEpubFilesSingleton {
 	}
 
 	public int getCurentStatus() {
-		final long current = (deleted + deleteError + moveError + extractError);
+		final long current = moved + moveError + extractError;
 		if (this.running && current > 0) {
 			check(current);
 			return (int) ((100 * current) / this.total);
@@ -149,5 +150,13 @@ public class UploadEpubFilesSingleton {
 		else {
 			return 0;
 		}
+	}
+
+	public long getProcessedItems() {
+		return moved + moveError + extractError;
+	}
+
+	public long getFailedItems() {
+		return moveError + extractError;
 	}
 }

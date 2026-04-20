@@ -34,6 +34,9 @@ public class FindStatusMetadataUseCaseImpl implements FindStatusMetadataUseCase 
 
 		data.put("uploadsTotal", uploadEpubFilesSingleton.getTotal());
 		data.put("uploadsCurrent", uploadEpubFilesSingleton.getCurentStatus());
+		data.put("uploadsRunning", uploadEpubFilesSingleton.isRunning());
+		data.put("uploadsProcessed", uploadEpubFilesSingleton.getProcessedItems());
+		data.put("uploadsFailed", uploadEpubFilesSingleton.getFailedItems());
 		return data;
 	}
 
