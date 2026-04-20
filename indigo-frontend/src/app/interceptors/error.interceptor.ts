@@ -61,6 +61,10 @@ export class ErrorInterceptor implements HttpInterceptor {
                      'A network error occurred. Please check your connection.';
       console.error('Client-side error:', error.error.message);
     } else {
+      if (this.isRecoverableCurrentUserLookup(error)) {
+        return throwError(() => error);
+      }
+
       // Backend returned an unsuccessful response code
       switch (error.status) {
         case 0:
@@ -198,6 +202,12 @@ export class ErrorInterceptor implements HttpInterceptor {
 
     // Return error to allow component-level handling if needed
     return throwError(() => error);
+  }
+
+  private isRecoverableCurrentUserLookup(error: HttpErrorResponse): boolean {
+    return !!error.url &&
+           /\/api\/user\/me(?:\?|$)/.test(error.url) &&
+           (error.status === 404 || error.status === 500);
   }
 
   private isProduction(): boolean {

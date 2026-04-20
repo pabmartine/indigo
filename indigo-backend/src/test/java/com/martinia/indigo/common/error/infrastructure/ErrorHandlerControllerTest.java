@@ -3,9 +3,11 @@ package com.martinia.indigo.common.error.infrastructure;
 import com.martinia.indigo.common.error.infrastructure.model.ErrorMessageDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.io.IOException;
 
@@ -53,6 +55,28 @@ public class ErrorHandlerControllerTest {
 		ErrorMessageDto message = response.getBody();
 		Assertions.assertNotNull(message);
 		Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), message.getStatusCode());
+		Assertions.assertEquals(exception.getMessage(), message.getMessage());
+		Assertions.assertEquals(webRequest.getDescription(false), message.getDescription());
+	}
+
+	@Test
+	public void testNotFoundExceptionHandler_withNoResourceFoundException_shouldReturnNotFoundResponse() {
+		// Arrange
+		NoResourceFoundException exception = new NoResourceFoundException(HttpMethod.GET, "/api/user/me");
+		WebRequest webRequest = mock(WebRequest.class);
+
+		ErrorHandlerController errorHandlerController = new ErrorHandlerController();
+
+		// Act
+		ResponseEntity<ErrorMessageDto> response = errorHandlerController.notFoundExceptionHandler(exception, webRequest);
+
+		// Assert
+		Assertions.assertNotNull(response);
+		Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
+		ErrorMessageDto message = response.getBody();
+		Assertions.assertNotNull(message);
+		Assertions.assertEquals(HttpStatus.NOT_FOUND.value(), message.getStatusCode());
 		Assertions.assertEquals(exception.getMessage(), message.getMessage());
 		Assertions.assertEquals(webRequest.getDescription(false), message.getDescription());
 	}

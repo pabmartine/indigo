@@ -93,3 +93,6 @@ retries:
   maxDelay:
     commands: ${RETRIES_MAXDELAY_COMMANDS:0}
     events: ${RETRIES_MAXDELAY_EVENTS:0}
+
+cors:
+  allowed-origin-patterns: ${CORS_ALLOWED_ORIGIN_PATTERNS:http://localhost:4200,http://krahen.synology.me:8080,http://krahen.synology.me:8081}

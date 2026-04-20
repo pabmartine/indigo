@@ -5,6 +5,8 @@ import { LoginService } from 'src/app/services/login.service';
 import { TranslateService } from '@ngx-translate/core';
 import { UserService } from 'src/app/services/user.service';
 import { AuthStateService } from 'src/app/services/auth-state.service';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login',
@@ -56,9 +58,13 @@ export class LoginComponent implements OnInit {
             partialUser.username = this.user.username;
             
             this.authState.setUser(partialUser).then(() => {
-              this.userService.getCurrent().subscribe({
+              this.findLoggedUser().subscribe({
                 next: (data) => {
-                  let user = data;
+                  if (!data) {
+                    this.setErrorMessage("locale.login.error");
+                    return;
+                  }
+                  const user = data;
                   user.token = token;
                   this.authState.setUser(user).then(() => {
                     this.translate.use(user.language);
@@ -85,7 +91,16 @@ export class LoginComponent implements OnInit {
     }
   }
 
-
+  private findLoggedUser(): Observable<User> {
+    return this.userService.getCurrent().pipe(
+      catchError((error) => {
+        if (this.user.username && (error.status === 404 || error.status === 500)) {
+          return this.userService.get(this.user.username);
+        }
+        return throwError(() => error);
+      })
+    );
+  }
 
   validate(user: User): boolean {
 

@@ -1,7 +1,8 @@
 package com.martinia.indigo.common.config;
 
-import java.util.Arrays;
+import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -30,13 +31,16 @@ public class SecurityConfiguration {
 	private final JWTParserComponent jwtParserComponent;
 	private final LoginService userService;
 	private final Http401UnauthorizedEntryPoint authenticationEntryPoint;
+	private final List<String> allowedOriginPatterns;
 
 	public SecurityConfiguration(JWTParserComponent jwtParserComponent,
 			LoginService userService,
-			Http401UnauthorizedEntryPoint authenticationEntryPoint) {
+			Http401UnauthorizedEntryPoint authenticationEntryPoint,
+			@Value("${cors.allowed-origin-patterns}") List<String> allowedOriginPatterns) {
 		this.jwtParserComponent = jwtParserComponent;
 		this.userService = userService;
 		this.authenticationEntryPoint = authenticationEntryPoint;
+		this.allowedOriginPatterns = allowedOriginPatterns;
 	}
 
 	@Bean
@@ -88,7 +92,7 @@ public class SecurityConfiguration {
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowCredentials(true);
-		configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:4200", "http://krahen.synology.me:8080"));
+		configuration.setAllowedOriginPatterns(allowedOriginPatterns);
 		configuration.addAllowedHeader("*");
 		configuration.addExposedHeader("Authorization");
 		configuration.addAllowedMethod("*");
