@@ -19,7 +19,10 @@ public class AddFavoriteBookUseCaseImpl implements AddFavoriteBookUseCase {
 	@Override
 	public void addFavoriteBook(String user, String book) {
 		userRepository.findByUsername(user).ifPresent(_user -> {
-			if (CollectionUtils.isEmpty(_user.getFavoriteBooks()) || !_user.getFavoriteBooks().contains(book)) {
+			if (_user.getFavoriteBooks() == null) {
+				_user.setFavoriteBooks(new java.util.ArrayList<>());
+			}
+			if (!_user.getFavoriteBooks().contains(book)) {
 				_user.getFavoriteBooks().add(book);
 				userRepository.save(_user);
 			}

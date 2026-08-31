@@ -407,7 +407,7 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
     this.reset();
 
     const search: Search = new Search();
-    search.author = author.sort;
+    search.author = author.name;
     this.router.navigate(["books"], {
       queryParams: {
         adv_search: JSON.stringify(search),

@@ -27,7 +27,7 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
 	public JWTAuthenticationFilter(String url, AuthenticationManager manager, JWTParserComponent jwtParserComponent) {
 
-		super(url);
+		super(new org.springframework.security.web.util.matcher.AntPathRequestMatcher(url, "POST"));
 		this.jwtParserComponent = jwtParserComponent;
 		setAuthenticationManager(manager);
 
@@ -54,7 +54,7 @@ public class JWTAuthenticationFilter extends AbstractAuthenticationProcessingFil
 				.map(GrantedAuthority::getAuthority)
 				.collect(Collectors.toList());
 		jwtParserComponent.createToken(response, userName, roles);
-
+		response.setStatus(HttpServletResponse.SC_OK);
 	}
 
 }

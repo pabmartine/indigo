@@ -55,8 +55,8 @@ class FindAllUsersControllerTest extends BaseIndigoTest {
 		when(useCase.findAll()).thenReturn(users);
 
 		List<UserDto> usersDto = new ArrayList<>();
-		usersDto.add(new UserDto("1", "user1", "password1", "kindle1", null, null, null));
-		usersDto.add(new UserDto("2", "user2", "password2", "kindle2", null, null, null));
+		usersDto.add(new UserDto("1", "user1", "kindle1", "role1", "language1", new ArrayList<>()));
+		usersDto.add(new UserDto("2", "user2", "kindle2", "role2", "language2", new ArrayList<>()));
 		when(mapper.domains2Dtos(users)).thenReturn(usersDto);
 
 		// Act

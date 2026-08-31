@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Date;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,7 @@ class TokenUtilsTest {
         String key = "ThisIsASecretKeyForTestingJsonWebTokens";
         Date expiration = new Date(System.currentTimeMillis() + 10000);
 
-        String token = tokenUtils.createToken(user, key, expiration);
+        String token = tokenUtils.createToken(user, Map.of(), key, expiration);
         String readUser = tokenUtils.readToken(token, key);
 
         assertEquals(user, readUser);
@@ -37,7 +38,7 @@ class TokenUtilsTest {
         String key = "ThisIsASecretKeyForTestingJsonWebTokens";
         Date expiration = new Date(System.currentTimeMillis() - 1000);
 
-        String token = tokenUtils.createToken(user, key, expiration);
+        String token = tokenUtils.createToken(user, Map.of(), key, expiration);
 
         assertThrows(ExpiredJwtException.class, () -> {
             tokenUtils.readToken(token, key);

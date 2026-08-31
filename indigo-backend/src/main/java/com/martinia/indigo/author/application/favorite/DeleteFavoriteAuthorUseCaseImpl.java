@@ -19,8 +19,10 @@ public class DeleteFavoriteAuthorUseCaseImpl implements DeleteFavoriteAuthorUseC
 	public void deleteFavoriteAuthor(String user, String author) {
 		userRepository.findByUsername(user)
 				.ifPresent(entity -> {
-					entity.getFavoriteAuthors().remove(author);
-					userRepository.save(entity);
+					if (entity.getFavoriteAuthors() != null) {
+						entity.getFavoriteAuthors().remove(author);
+						userRepository.save(entity);
+					}
 				});
 	}
 

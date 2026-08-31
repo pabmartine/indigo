@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.5</version> <!-- Actualizado para Spring Boot 3.x que soporta Java 21 -->
+        <version>3.4.0</version> <!-- Actualizado para Spring Boot 3.4.x con Spring 6.2 y ASM moderno -->
         <relativePath/>
     </parent>
     <groupId>com.martinia</groupId>
@@ -16,7 +16,14 @@
     <description>Free web interface for the Calibre e-book library - Backend</description>
 
     <properties>
-        <java.version>21</java.version> <!-- Actualizado a Java 21 -->
+        <java.version>25</java.version> <!-- Runtime Java 25 -->
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
+        <lombok.version>1.18.40</lombok.version>
+        <mapstruct.version>1.6.2</mapstruct.version>
+        <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
+        <springdoc.version>2.8.5</springdoc.version>
     </properties>
 
     <dependencies>
@@ -24,6 +31,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -122,11 +133,11 @@
             <version>2.19.0</version> <!-- Actualizado -->
         </dependency>
 
-        <!-- Lombok actualizado para Java 21 -->
+        <!-- Lombok actualizado para Java 25 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.30</version> <!-- Actualizado para Java 21 -->
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -134,19 +145,19 @@
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
-            <version>1.5.5.Final</version> <!-- Actualizado -->
+            <version>${mapstruct.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>1.19.7</version> <!-- Actualizado -->
+            <version>1.20.2</version> <!-- Actualizado -->
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>mongodb</artifactId>
-            <version>1.19.7</version> <!-- Actualizado -->
+            <version>1.20.2</version> <!-- Actualizado -->
             <scope>test</scope>
         </dependency>
 
@@ -167,7 +178,7 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.5.0</version>
+            <version>${springdoc.version}</version>
         </dependency>
 
     </dependencies>
@@ -179,24 +190,30 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-            <!-- Maven Compiler Plugin actualizado para Java 21 -->
+            <!-- Maven Compiler Plugin actualizado para Java 25 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.12.1</version> <!-- Actualizado -->
+                <version>3.13.0</version>
                 <configuration>
-                    <source>21</source> <!-- Actualizado a Java 21 -->
-                    <target>21</target> <!-- Actualizado a Java 21 -->
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <release>${maven.compiler.release}</release>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.30</version> <!-- Actualizado -->
+                            <version>${lombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>${lombok-mapstruct-binding.version}</version>
                         </path>
                         <path>
                             <groupId>org.mapstruct</groupId>
                             <artifactId>mapstruct-processor</artifactId>
-                            <version>1.5.5.Final</version> <!-- Actualizado -->
+                            <version>${mapstruct.version}</version>
                         </path>
                     </annotationProcessorPaths>
                     <compilerArgs>
@@ -209,7 +226,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.11</version>
+                <version>0.8.12</version>
                 <executions>
                     <execution>
                         <goals>

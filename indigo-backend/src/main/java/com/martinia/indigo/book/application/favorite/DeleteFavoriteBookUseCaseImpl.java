@@ -17,8 +17,10 @@ public class DeleteFavoriteBookUseCaseImpl implements DeleteFavoriteBookUseCase 
 	@Override
 	public void deleteFavoriteBook(String user, String book) {
 		userRepository.findByUsername(user).ifPresent(_user -> {
-			_user.getFavoriteBooks().remove(book);
-			userRepository.save(_user);
+			if (_user.getFavoriteBooks() != null) {
+				_user.getFavoriteBooks().remove(book);
+				userRepository.save(_user);
+			}
 		});
 	}
 

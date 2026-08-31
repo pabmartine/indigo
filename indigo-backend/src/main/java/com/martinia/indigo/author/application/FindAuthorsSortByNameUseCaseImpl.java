@@ -3,6 +3,7 @@ package com.martinia.indigo.author.application;
 import com.martinia.indigo.author.domain.model.Author;
 import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
 import com.martinia.indigo.author.domain.ports.usecases.FindAuthorsSortByNameUseCase;
+import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
 import com.martinia.indigo.author.infrastructure.mongo.mappers.AuthorMongoMapper;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +23,11 @@ public class FindAuthorsSortByNameUseCaseImpl implements FindAuthorsSortByNameUs
 
 	@Override
 	public Optional<Author> findBySort(String sort) {
-		return authorRepository.findByName(sort).map(author -> Optional.of(authorMongoMapper.entity2Domain(author)))
-				.orElse(Optional.empty());
+		Optional<AuthorMongoEntity> authorEntity = authorRepository.findBySort(sort);
+		if (authorEntity.isEmpty()) {
+			authorEntity = authorRepository.findByName(sort);
+		}
+		return authorEntity.map(authorMongoMapper::entity2Domain);
 	}
 
 }

@@ -49,10 +49,12 @@ public class FindBookCoverByPathController {
 
 		Optional<String> image = useCase.getImage(path);
 
-		if (image.isPresent()) {
-			map = new HashMap<String, String>();
-			map.put("image", image.get());
+		if (image.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
+
+		map = new HashMap<String, String>();
+		map.put("image", image.get());
 		return ResponseEntity.status(HttpStatus.OK)
 				.cacheControl(CacheControl.maxAge(10, TimeUnit.MINUTES).cachePublic())
 				.contentType(MediaType.APPLICATION_JSON)

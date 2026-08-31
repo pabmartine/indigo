@@ -131,6 +131,16 @@ export class DetailComponent implements OnInit, OnDestroy {
       this.bookService.getSerie(serie.name, this.user.languageBooks)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
+          next: (data) => {
+            if (data) {
+              data.forEach((book) => {
+                const coverUrl = this.bookService.buildCoverImageUrl(book.id);
+                book.coverUrl = coverUrl || book.coverUrl || book.image;
+                book.image = undefined;
+              });
+              this.serie = data;
+            }
+          },
           error: (error) => {
           }
         });
@@ -184,6 +194,7 @@ export class DetailComponent implements OnInit, OnDestroy {
   showDetails(book: Book) {
     this.close();
 
+    this.user = this.authState.getCurrentUser() || this.user;
     this.selected = this.prepareBookForDetail(book);
     this.selectedImage = this.selected.image;
     this.editedBook = new Book();
@@ -282,6 +293,13 @@ export class DetailComponent implements OnInit, OnDestroy {
 
 
   sendToKindle(): void {
+    this.user = this.authState.getCurrentUser() || this.user;
+    if (!this.user?.kindle) {
+      this.messageService.clear();
+      this.messageService.add({ severity: 'warn', detail: this.translate.instant('locale.profile.kindle.empty') || 'Por favor, configura tu correo Kindle en el Perfil.', closable: false, life: 5000 });
+      return;
+    }
+
     const book = this.selected.path;
 
     this.messageService.clear();
@@ -293,30 +311,27 @@ export class DetailComponent implements OnInit, OnDestroy {
         next: (data) => {
           this.messageService.clear();
           this.messageService.add({ severity: 'success', detail: this.translate.instant('locale.books.detail.kindle.ok'), closable: false, life: 5000 });
-
-
         },
         error: (error) => {
           this.messageService.clear();
           this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.books.detail.kindle.error'), closable: false, life: 5000 });
-
-
         }
       });
   }
-
-
 
   getKindle(): void {
     this.configService.get("smtp.status")
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
-          if (data.value == 'ok') {
+          if (data && data.value == 'ok') {
             this.kindle = true;
+          } else {
+            this.kindle = false;
           }
         },
-        error: (error) => {
+        error: (_error) => {
+          this.kindle = false;
         }
       });
   }
@@ -580,9 +595,8 @@ export class DetailComponent implements OnInit, OnDestroy {
 
 
   editBook() {
-    this.editedBook = this.selected;
+    this.editedBook = JSON.parse(JSON.stringify(this.selected));
     this.editDialog = true;
-    //this.close();
   }
 
   saveBook(): void {
@@ -641,10 +655,17 @@ export class DetailComponent implements OnInit, OnDestroy {
     this.checkOverflowReview();
   }
 
-  toDate(date: string): Date {
-    let d = date.split("/");
-    let dat = new Date(d[2] + '/' + d[1] + '/' + d[0]);
-    return dat;
+  toDate(date: any): Date {
+    if (!date) return new Date();
+    if (date instanceof Date) return date;
+    if (typeof date === 'string' && date.includes('/')) {
+      const d = date.split('/');
+      if (d.length === 3) {
+        return new Date(Number(d[2]), Number(d[1]) - 1, Number(d[0]));
+      }
+    }
+    const parsed = new Date(date);
+    return isNaN(parsed.getTime()) ? new Date() : parsed;
   }
 
   ngOnDestroy(): void {

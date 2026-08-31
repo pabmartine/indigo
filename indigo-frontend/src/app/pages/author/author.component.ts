@@ -91,11 +91,10 @@ export class AuthorComponent implements OnInit {
       next: (data) => {
         this.selected = data;
 
-        if (data.image && !data.image.startsWith('http')) {
+        if (data.image && !data.image.startsWith('http') && !data.image.startsWith('data:')) {
           this.selected.image = this.imageService.toDataUrlSafe(data.image);
-        }
-        if (data.image && data.image.startsWith('http')) {
-          this.selected.image = "./assets/images/avatar3.jpg";
+        } else if (data.image) {
+          this.selected.image = data.image;
         }
 
         this.eventAuthor.emit(this.selected);

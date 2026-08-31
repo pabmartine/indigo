@@ -76,7 +76,7 @@
       </div>
 
       <div class="p-field">
-        <label for="target">{{'locale.tags.actions.merge.description.source' | translate}}</label>
+        <label for="target">{{'locale.tags.actions.merge.description.target' | translate}}</label>
         <p-dropdown [options]="sortedTags" [(ngModel)]="targetTag" optionLabel="name" [showClear]="true"
           (onChange)="validateMerge($event)"></p-dropdown>
       </div>

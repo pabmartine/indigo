@@ -18,7 +18,10 @@ public class AddFavoriteAuthorUseCaseImpl implements AddFavoriteAuthorUseCase {
 	@Override
 	public void addFavoriteAuthor(String user, String author) {
 		userRepository.findByUsername(user).ifPresent(_user -> {
-			if (CollectionUtils.isEmpty(_user.getFavoriteAuthors()) || !_user.getFavoriteAuthors().contains(author)) {
+			if (_user.getFavoriteAuthors() == null) {
+				_user.setFavoriteAuthors(new java.util.ArrayList<>());
+			}
+			if (!_user.getFavoriteAuthors().contains(author)) {
 				_user.getFavoriteAuthors().add(author);
 				userRepository.save(_user);
 			}

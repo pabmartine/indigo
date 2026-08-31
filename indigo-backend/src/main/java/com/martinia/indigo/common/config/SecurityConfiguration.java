@@ -49,6 +49,14 @@ public class SecurityConfiguration {
 	}
 
 	@Bean
+	public org.springframework.security.authentication.AuthenticationProvider authenticationProvider() {
+		org.springframework.security.authentication.dao.DaoAuthenticationProvider authProvider = new org.springframework.security.authentication.dao.DaoAuthenticationProvider();
+		authProvider.setUserDetailsService(userService);
+		authProvider.setPasswordEncoder(passwordEncoder());
+		return authProvider;
+	}
+
+	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
 		return authConfig.getAuthenticationManager();
 	}
@@ -60,6 +68,7 @@ public class SecurityConfiguration {
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers(HttpMethod.POST, "/api/login").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/config/get").authenticated()
 						.requestMatchers("/api/config/**").hasAuthority("ADMIN")
 						.requestMatchers("/api/metadata/**").hasAuthority("ADMIN")
 						.requestMatchers("/api/file/**").hasAuthority("ADMIN")

@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 	private static final Set<String> ALLOWED_SORT_FIELDS = new LinkedHashSet<>(Arrays.asList(
-			"title", "path", "pubDate", "pages", "rating", "lastModified", "_id", "id"
+			"count", "title", "path", "pubDate", "pages", "rating", "lastModified", "_id", "id"
 	));
 
 	@Resource
@@ -300,7 +300,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 			}
 
 			if (StringUtils.isNotBlank(search.getAuthor())) {
-				criterias.add(Criteria.where("authors").regex("^" + Pattern.quote(search.getAuthor()) + "$", "i"));
+				criterias.add(Criteria.where("authors").regex(Pattern.quote(search.getAuthor()), "i"));
 			}
 
 			if (search.getIni() != null) {
@@ -327,8 +327,8 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 				criterias.add(Criteria.where("tags").in(search.getSelectedTags()));
 			}
 
-			if (StringUtils.isNoneEmpty(search.getSerie())) {
-				criterias.add(Criteria.where("serie.name").is(search.getSerie()));
+			if (StringUtils.isNotBlank(search.getSerie())) {
+				criterias.add(Criteria.where("serie.name").regex(Pattern.quote(search.getSerie()), "i"));
 			}
 		}
 

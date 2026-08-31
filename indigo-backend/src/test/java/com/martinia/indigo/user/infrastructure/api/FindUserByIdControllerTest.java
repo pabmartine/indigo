@@ -51,7 +51,7 @@ public class FindUserByIdControllerTest extends BaseIndigoTest {
 		// Arrange
 		String id = "1";
 		User user = new User(id, "johnDoe", "password", "kindle", "role", "language", null, null, null);
-		UserDto userDto = new UserDto(id, "johnDoe", "password", "kindle", "role", "language", null);
+		UserDto userDto = new UserDto(id, "johnDoe", "kindle", "role", "language", null);
 		when(findUserByIdUseCase.findById(id)).thenReturn(Optional.of(user));
 		when(userDtoMapper.domain2Dto(user)).thenReturn(userDto);
 

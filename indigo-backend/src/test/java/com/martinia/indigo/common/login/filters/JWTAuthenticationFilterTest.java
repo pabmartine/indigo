@@ -13,6 +13,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -44,7 +46,7 @@ class JWTAuthenticationFilterTest {
 
 		authenticationFilter.successfulAuthentication(request, response, chain, authentication);
 
-		verify(jwtParserComponent).createToken(response, "username");
+		verify(jwtParserComponent).createToken(eq(response), eq("username"), any());
 	}
 }
 

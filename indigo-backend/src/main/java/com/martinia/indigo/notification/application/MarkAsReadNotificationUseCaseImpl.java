@@ -20,9 +20,13 @@ public class MarkAsReadNotificationUseCaseImpl implements MarkAsReadNotification
 
 	@Override
 	public void markAsRead(final String id, final String user) {
-		userRepository.findById(user).ifPresent(usr -> {
+		java.util.Optional<com.martinia.indigo.user.infrastructure.mongo.entities.UserMongoEntity> userOpt = userRepository.findById(user);
+		if (userOpt.isEmpty()) {
+			userOpt = userRepository.findByUsername(user);
+		}
+		userOpt.ifPresent(usr -> {
 			notificationRepository.findById(id).ifPresent(notification -> {
-				if (usr.getRole().equals("ADMIN")) {
+				if ("ADMIN".equalsIgnoreCase(usr.getRole())) {
 					notification.setReadAdmin(true);
 				}
 				else {

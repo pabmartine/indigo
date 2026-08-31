@@ -13,7 +13,7 @@ data:
       recommendations: ${DATA_INITIALIZER_BOOKS_RECOMMENDATIONS:20}
     user:
       admin:
-        password: ${DATA_INITIALIZER_USER_ADMIN_PASSWORD:$2a$10$U47NDeBbqVmBHQsYXh8HI.IpxGiopQ0cWgXTkwU/AwFmGRf5l9lfq}
+        password: ${DATA_INITIALIZER_USER_ADMIN_PASSWORD:$2b$10$bVKqIlrnIwvgTqU1.DqaSebesu1IT.oDw/8hppkE5HsqtNR7jI826}
         username: ${DATA_INITIALIZER_USER_ADMIN_USERNAME:admin}
   author:
     default-image: ${DATA_AUTHOR_DEFAULT_IMAGE:https://s.gr-assets.com/assets/nophoto/user/u_200x266-e183445fd1a1b5cc7075bb1cf7043306.png}
@@ -31,13 +31,13 @@ spring:
     allow-circular-references: ${SPRING_MAIN_ALLOW_CIRCULAR_REFERENCES:true}
   data:
     mongodb:
-      authentication-database: ${SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE}
+      host: ${SPRING_DATA_MONGODB_HOST:localhost}
+      port: ${SPRING_DATA_MONGODB_PORT:27017}
+      database: ${SPRING_DATA_MONGODB_DATABASE:indigo}
+      username: ${SPRING_DATA_MONGODB_USERNAME:}
+      password: ${SPRING_DATA_MONGODB_PASSWORD:}
+      authentication-database: ${SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE:admin}
       auto-index-creation: ${SPRING_DATA_MONGODB_AUTO_INDEX_CREATION:true}
-      database: ${SPRING_DATA_MONGODB_DATABASE}
-      host: ${SPRING_DATA_MONGODB_HOST}
-      password: ${SPRING_DATA_MONGODB_PASSWORD}
-      port: ${SPRING_DATA_MONGODB_PORT}
-      username: ${SPRING_DATA_MONGODB_USERNAME}
   mail:
     properties:
       mail:
@@ -68,7 +68,7 @@ metadata:
   google:
     url: ${METADATA_GOOGLE_URL:https://www.googleapis.com/books/v1/volumes?q=intitle:$title}
   libretranslate:
-    url: ${METADATA_LIBRETRANSLATE_URL}
+    url: ${METADATA_LIBRETRANSLATE_URL:http://localhost:5000}
   amazon:
     url: ${METADATA_AMAZON_URL:https://www.amazon.es}
     asin: ${METADATA_AMAZON_ASIN:${metadata.amazon.url}/s?k=$title+$author&i=stripbooks}

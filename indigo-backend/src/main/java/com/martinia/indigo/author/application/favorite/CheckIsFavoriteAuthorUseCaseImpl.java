@@ -17,8 +17,8 @@ public class CheckIsFavoriteAuthorUseCaseImpl implements CheckIsFavoriteAuthorUs
 	@Override
 	public Boolean isFavoriteAuthor(String user, String author) {
 		return userRepository.findByUsername(user)
-				.map(_user -> _user.getFavoriteAuthors().stream().filter(favorite -> favorite.equalsIgnoreCase(author)).findAny()
-						.isPresent()).orElse(Boolean.FALSE);
+				.map(_user -> _user.getFavoriteAuthors() != null && _user.getFavoriteAuthors().stream().anyMatch(favorite -> favorite.equalsIgnoreCase(author)))
+				.orElse(Boolean.FALSE);
 	}
 
 }

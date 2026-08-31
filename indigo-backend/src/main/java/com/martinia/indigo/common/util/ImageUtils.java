@@ -40,38 +40,47 @@ public class ImageUtils {
 
 		String image = null;
 		try {
-			String basePath = normalizeLibraryPath() + path;
+			String basePath = path.startsWith(normalizeLibraryPath()) ? path : normalizeLibraryPath() + path;
 
 			File file = new File(basePath);
-			if (file.exists()) {
+			if (file.exists() && file.isDirectory()) {
 				File[] files = file.listFiles();
-				for (File f : files) {
-					if (f.getName().endsWith(".epub")) {
+				if (files != null) {
+					for (File f : files) {
+						if (f.getName().endsWith(".epub")) {
 
-						try (ZipFile zipFile = new ZipFile(f)) {
-							Enumeration zipFiles = zipFile.entries();
+							try (ZipFile zipFile = new ZipFile(f)) {
+								Enumeration<? extends ZipEntry> zipFiles = zipFile.entries();
 
-							while (zipFiles.hasMoreElements()) {
-								ZipEntry entry = (ZipEntry) zipFiles.nextElement();
-								if (!entry.isDirectory()) {
+								while (zipFiles.hasMoreElements() && image == null) {
+									ZipEntry entry = zipFiles.nextElement();
+									if (!entry.isDirectory()) {
 
-									String fileName = entry.getName().toLowerCase();
-									String extension = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
+										String fileName = entry.getName().toLowerCase();
+										int lastDot = fileName.lastIndexOf(".");
+										String extension = lastDot >= 0 ? fileName.substring(lastDot + 1) : "";
 
-									for (String type : types) {
-										if (fileName.contains(type) && Arrays.asList("jpg", "jpeg", "png").contains(extension)) {
-											try (InputStream is = zipFile.getInputStream(entry)) {
-												BufferedImage originalImage = ImageIO.read(is);
-												image = getScaledImage(originalImage, 0);
+										for (String type : types) {
+											if (fileName.contains(type) && Arrays.asList("jpg", "jpeg", "png").contains(extension)) {
+												try (InputStream is = zipFile.getInputStream(entry)) {
+													BufferedImage originalImage = ImageIO.read(is);
+													if (originalImage != null) {
+														image = getScaledImage(originalImage, 0);
+														break;
+													}
+												}
 											}
 										}
+
 									}
 
 								}
-
 							}
-						}
 
+						}
+						if (image != null) {
+							break;
+						}
 					}
 				}
 			}
@@ -84,19 +93,23 @@ public class ImageUtils {
 
 	public String getBase64Cover(String path, boolean scale) {
 		String image = null;
-		path = normalizeLibraryPath() + path;
+		String fullPath = path.startsWith(normalizeLibraryPath()) ? path : normalizeLibraryPath() + path;
 
-		if ((new File(path)).exists()) {
+		if ((new File(fullPath)).exists()) {
 			try {
-				String coverPath = path + "/cover.jpg";
+				String coverPath = fullPath + "/cover.jpg";
 
 				File coverFile = new File(coverPath);
-				BufferedImage originalImage = ImageIO.read(coverFile);
-				if (scale) {
-					image = getScaledImage(originalImage, 0);
-				}
-				else {
-					image = getOriginalImage(originalImage);
+				if (coverFile.exists()) {
+					BufferedImage originalImage = ImageIO.read(coverFile);
+					if (originalImage != null) {
+						if (scale) {
+							image = getScaledImage(originalImage, 0);
+						}
+						else {
+							image = getOriginalImage(originalImage);
+						}
+					}
 				}
 			}
 			catch (Exception e) {
@@ -105,7 +118,7 @@ public class ImageUtils {
 		}
 
 		if (image == null) {
-			image = getImageFromEpub(path, "cover", "thumbnail");
+			image = getImageFromEpub(fullPath, "cover", "thumbnail");
 		}
 
 		return image;

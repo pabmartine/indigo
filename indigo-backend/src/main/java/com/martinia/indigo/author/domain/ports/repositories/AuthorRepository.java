@@ -13,4 +13,7 @@ public interface AuthorRepository extends MongoRepository<AuthorMongoEntity, Str
 
 	@Query("{ 'name' : ?0 }")
 	Optional<AuthorMongoEntity> findByName(String name);
+
+	@Query("{ 'sort' : ?0 }")
+	Optional<AuthorMongoEntity> findBySort(String sort);
 }

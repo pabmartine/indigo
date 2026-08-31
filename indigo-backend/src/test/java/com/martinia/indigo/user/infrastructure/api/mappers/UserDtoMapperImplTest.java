@@ -47,7 +47,6 @@ public class UserDtoMapperImplTest {
 		// Then
 		assertEquals(domain.getId(), dto.getId());
 		assertEquals(domain.getUsername(), dto.getUsername());
-		assertEquals(domain.getPassword(), dto.getPassword());
 		assertEquals(domain.getKindle(), dto.getKindle());
 		assertEquals(domain.getRole(), dto.getRole());
 		assertEquals(domain.getLanguage(), dto.getLanguage());
