@@ -1,7 +1,10 @@
 book:
   library:
+    import-workers: ${BOOK_LIBRARY_IMPORT_WORKERS:2}
     path: ${BOOK_LIBRARY_PATH}
-    uploads: ${BOOK_LIBRARY_UPLOADS:${book.library.path}/uploads}
+    #uploads: ${BOOK_LIBRARY_UPLOADS:${book.library.path}/uploads}
+    uploads: /home/pablo/Descargas/EPL_Descomprimido
+    reconcile-categories-on-startup: ${BOOK_LIBRARY_RECONCILE_CATEGORIES_ON_STARTUP:true}
 
 logging.level:
   root: ${LOGGING_LEVEL_ROOT:INFO}
@@ -31,12 +34,7 @@ spring:
     allow-circular-references: ${SPRING_MAIN_ALLOW_CIRCULAR_REFERENCES:true}
   data:
     mongodb:
-      host: ${SPRING_DATA_MONGODB_HOST:localhost}
-      port: ${SPRING_DATA_MONGODB_PORT:27017}
-      database: ${SPRING_DATA_MONGODB_DATABASE:indigo}
-      username: ${SPRING_DATA_MONGODB_USERNAME:}
-      password: ${SPRING_DATA_MONGODB_PASSWORD:}
-      authentication-database: ${SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE:admin}
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/indigo}
       auto-index-creation: ${SPRING_DATA_MONGODB_AUTO_INDEX_CREATION:true}
   mail:
     properties:
@@ -51,32 +49,60 @@ spring:
 
 flags:
   amazon: ${FLAGS_AMAZON:false}
-  goodreads: ${FLAGS_GOODREADS:true}
+  goodreads-reviews: ${FLAGS_GOODREADS_REVIEWS:true}
   wikipedia: ${FLAGS_WIKIPEDIA:true}
   google: ${FLAGS_GOOGLE:true}
+  openlibrary: ${FLAGS_OPENLIBRARY:true}
   libretranslate: ${FLAGS_LIBRETRANSLATE:true}
 
 metadata:
+  http:
+    default-minimum-interval-millis: ${METADATA_HTTP_DEFAULT_MINIMUM_INTERVAL_MILLIS:250}
+    google-minimum-interval-millis: ${METADATA_HTTP_GOOGLE_MINIMUM_INTERVAL_MILLIS:1000}
+    openlibrary-minimum-interval-millis: ${METADATA_HTTP_OPENLIBRARY_MINIMUM_INTERVAL_MILLIS:500}
+    wikipedia-minimum-interval-millis: ${METADATA_HTTP_WIKIPEDIA_MINIMUM_INTERVAL_MILLIS:2000}
+    circuit-breaker:
+      failures: ${METADATA_HTTP_CIRCUIT_BREAKER_FAILURES:3}
+      cooldown-minutes: ${METADATA_HTTP_CIRCUIT_BREAKER_COOLDOWN_MINUTES:15}
+  reviews:
+    cache-ttl-minutes: ${METADATA_REVIEWS_CACHE_TTL_MINUTES:360}
+    max-attempts: ${METADATA_REVIEWS_MAX_ATTEMPTS:2}
+    retry-delay-millis: ${METADATA_REVIEWS_RETRY_DELAY_MILLIS:1000}
+    amazon:
+      minimum-interval-millis: ${METADATA_REVIEWS_AMAZON_MINIMUM_INTERVAL_MILLIS:2500}
+    goodreads:
+      minimum-interval-millis: ${METADATA_REVIEWS_GOODREADS_MINIMUM_INTERVAL_MILLIS:2000}
+    circuit-breaker:
+      failures: ${METADATA_REVIEWS_CIRCUIT_BREAKER_FAILURES:3}
+      cooldown-minutes: ${METADATA_REVIEWS_CIRCUIT_BREAKER_COOLDOWN_MINUTES:30}
   goodreads:
-    pull: ${METADATA_GOODREADS_PULL:1000}
     url: ${METADATA_GOODREADS_URL:https://www.goodreads.com}
     reviews: ${METADATA_GOODREADS_REVIEWS:${metadata.goodreads.url}/search?q=$title+$author&search_type=books}
-    author: ${METADATA_GOODREADS_AUTHOR:${metadata.goodreads.url}/search.xml?q=$subject&key=$key}
-    author-info: ${METADATA_GOODREADS_AUTHOR_INFO:${metadata.goodreads.url}/author/show/$id?format=xml&key=$key}
-    book: ${METADATA_GOODREADS_BOOK:${metadata.goodreads.url}/book/title.xml?title=$title&key=$key}
-    book-authors: ${METADATA_GOODREADS_BOOK_AUTHORS:${metadata.goodreads.url}/book/title.xml?title=$title&key=$key&authors=$authors}
   google:
-    url: ${METADATA_GOOGLE_URL:https://www.googleapis.com/books/v1/volumes?q=intitle:$title}
+    url: ${METADATA_GOOGLE_URL:https://www.googleapis.com/books/v1/volumes?q=intitle:$title+inauthor:$author}
+    api-key: ${METADATA_GOOGLE_API_KEY:}
+  openlibrary:
+    books: ${METADATA_OPENLIBRARY_BOOKS:https://openlibrary.org/search.json?title=$title&author=$author&fields=key,title,author_name,edition_key,ratings_average,ratings_count,cover_i&limit=5}
+    books-by-isbn: ${METADATA_OPENLIBRARY_BOOKS_BY_ISBN:https://openlibrary.org/search.json?isbn=$isbn&fields=key,title,author_name,edition_key,ratings_average,ratings_count&limit=5}
+    authors: ${METADATA_OPENLIBRARY_AUTHORS:https://openlibrary.org/search/authors.json?q=$subject&limit=5}
+    author-info: ${METADATA_OPENLIBRARY_AUTHOR_INFO:https://openlibrary.org/authors/$id.json}
+    author-image: ${METADATA_OPENLIBRARY_AUTHOR_IMAGE:https://covers.openlibrary.org/a/olid/$id-L.jpg?default=false}
+    dumps:
+      editions-url: ${METADATA_OPENLIBRARY_DUMPS_EDITIONS_URL:https://openlibrary.org/data/ol_dump_editions_latest.txt.gz}
+      ratings-url: ${METADATA_OPENLIBRARY_DUMPS_RATINGS_URL:https://openlibrary.org/data/ol_dump_ratings_latest.txt.gz}
+      storage-path: ${METADATA_OPENLIBRARY_DUMPS_STORAGE_PATH:${book.library.path}/metadata/openlibrary}
+      minimum-free-space-bytes: ${METADATA_OPENLIBRARY_DUMPS_MINIMUM_FREE_SPACE_BYTES:1073741824}
+      delete-downloads-on-success: ${METADATA_OPENLIBRARY_DUMPS_DELETE_DOWNLOADS_ON_SUCCESS:true}
   libretranslate:
     url: ${METADATA_LIBRETRANSLATE_URL:http://localhost:5000}
   amazon:
     url: ${METADATA_AMAZON_URL:https://www.amazon.es}
     asin: ${METADATA_AMAZON_ASIN:${metadata.amazon.url}/s?k=$title+$author&i=stripbooks}
-    reviews: ${METADATA_AMAZON_REVIEWS:${metadata.amazon.url}/product-reviews/$asin/?showViewpoints=0&sortBy=byRankDescending&pageNumber=$numPage}
+    reviews: ${METADATA_AMAZON_REVIEWS:${metadata.amazon.url}/dp/$asin}
   wikipedia:
     url: ${METADATA_WIKIPEDIA_URL:https://$lang.wikipedia.org}
     author: ${METADATA_WIKIPEDIA_AUTHOR:${metadata.wikipedia.url}/w/api.php?action=query&format=json&list=search&utf8=1&origin=*&srsearch=$subject}
-    author-info: ${METADATA_WIKIPEDIA_AUTHOR_INFO:${metadata.wikipedia.url}/w/api.php?format=json&action=query&prop=extracts|pageimages&exintro&explaintext&generator=search&gsrlimit=1&redirects=1&piprop=original&gsrsearch=$subject}
+    author-info: ${METADATA_WIKIPEDIA_AUTHOR_INFO:${metadata.wikipedia.url}/w/api.php?format=json&action=query&prop=extracts|pageimages&exintro&explaintext&redirects=1&piprop=original&titles=$subject}
   unsplash:
     url: ${METADATA_UNSPLASH_URL:https://unsplash.com/es/s/fotos/$term}
 

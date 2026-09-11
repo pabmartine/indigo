@@ -76,8 +76,7 @@ class FindAuthorMetadataCommandHandlerIntegrationTest extends BaseIndigoIntegrat
 
 		Mockito.doReturn(null).when(findWikipediaAuthorPort).findAuthor(Mockito.anyString(),
 				Mockito.anyString(), Mockito.anyInt());
-		Mockito.doReturn(null).when(findGoodReadsAuthorPort).findAuthor(Mockito.anyString(),
-				Mockito.anyString());
+		Mockito.doReturn(null).when(findOpenLibraryAuthorPort).findAuthor(Mockito.anyString());
 
 		//When
 		commandBus.executeAndWait(command);
@@ -113,8 +112,7 @@ class FindAuthorMetadataCommandHandlerIntegrationTest extends BaseIndigoIntegrat
 		wikipedia[2] = "new provider";
 		Mockito.doReturn(wikipedia).when(findWikipediaAuthorPort).findAuthor(Mockito.anyString(),
 				Mockito.anyString(), Mockito.anyInt());
-		Mockito.doReturn(null).when(findGoodReadsAuthorPort).findAuthor(Mockito.anyString(),
-				Mockito.anyString());
+		Mockito.doReturn(null).when(findOpenLibraryAuthorPort).findAuthor(Mockito.anyString());
 
 		//When
 		commandBus.executeAndWait(command);
@@ -132,7 +130,7 @@ class FindAuthorMetadataCommandHandlerIntegrationTest extends BaseIndigoIntegrat
 	}
 
 	@Test
-	void findAmazonReviewsGoodreadsFound() {
+	void findAuthorMetadataOpenLibraryFound() {
 		//Given
 		FindAuthorMetadataCommand command = FindAuthorMetadataCommand.builder()
 				.authorId("id")
@@ -143,15 +141,14 @@ class FindAuthorMetadataCommandHandlerIntegrationTest extends BaseIndigoIntegrat
 
 		insertAuthor();
 
-		String[] goodReads = new String[3];
-		goodReads[0] = "new description";
-		goodReads[1] = "new image";
-		goodReads[2] = "new provider";
+		String[] openLibrary = new String[3];
+		openLibrary[0] = "new description";
+		openLibrary[1] = "new image";
+		openLibrary[2] = "new provider";
 
 		Mockito.doReturn(null).when(findWikipediaAuthorPort).findAuthor(Mockito.anyString(),
 				Mockito.anyString(), Mockito.anyInt());
-		Mockito.doReturn(goodReads).when(findGoodReadsAuthorPort).findAuthor(Mockito.anyString(),
-				Mockito.anyString());
+		Mockito.doReturn(openLibrary).when(findOpenLibraryAuthorPort).findAuthor(Mockito.anyString());
 
 
 		//When

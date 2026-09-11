@@ -50,8 +50,7 @@ export class DetailComponent implements OnInit, OnDestroy {
   expandSerie: boolean;
   showExpandSerie: boolean;
 
-  expandReview: boolean;
-  showExpandReview: boolean;
+  expandReview: boolean = false;
 
   expandSimilar: boolean;
   showExpandSimilar: boolean;
@@ -214,7 +213,6 @@ export class DetailComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.open();
       this.checkOverflowSerie();
-      this.checkOverflowReview();
       this.checkOverflowSimilar();
       this.checkOverflowRecommendations();
     }, 200)
@@ -634,12 +632,6 @@ export class DetailComponent implements OnInit, OnDestroy {
       this.showExpandSerie = this.isOverFlowed(row);
   }
 
-  checkOverflowReview() {
-    let row = document.getElementById('inlineReview');
-    if (row)
-      this.showExpandReview = this.isOverFlowed(row);
-  }
-
   isOverFlowed(element) {
     if (element) {
       return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
@@ -652,7 +644,6 @@ export class DetailComponent implements OnInit, OnDestroy {
     this.checkOverflowRecommendations();
     this.checkOverflowSimilar();
     this.checkOverflowSerie();
-    this.checkOverflowReview();
   }
 
   toDate(date: any): Date {

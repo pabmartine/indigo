@@ -194,15 +194,13 @@
           </span>
         </div>
 
-        <div class="p-col-12 p-md-2 content-header-subtitle" *ngIf="showExpandReview">
-          <span class="page-subtitle" *ngIf="!expandReview" onmouseover="this.style.cursor='pointer'">
-            <span (click)="expandReview = true" style="white-space: nowrap;">{{'locale.books.detail.expand.more' |
-              translate}}</span>
-          </span>
-          <span class="page-subtitle" *ngIf="expandReview" onmouseover="this.style.cursor='pointer'">
-            <span (click)="expandReview = false; checkOverflowReview()"
-              style="white-space: nowrap;">{{'locale.books.detail.expand.less' | translate}}</span>
-          </span>
+        <div class="p-col-12 p-md-2 content-header-subtitle">
+          <button type="button" pButton class="p-button-text review-layout-toggle"
+            [icon]="expandReview ? 'pi pi-th-large' : 'pi pi-list'"
+            [label]="(expandReview ? 'locale.books.detail.expand.less' : 'locale.books.detail.expand.more') | translate"
+            [attr.aria-expanded]="expandReview"
+            (click)="expandReview = !expandReview">
+          </button>
         </div>
 
       </div>
@@ -213,7 +211,9 @@
             <div *ngIf="review.rating">
               <p-rating [ngModel]="review.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
             </div>
-            <span class="review-title">{{review.title}}</span>
+            <span class="review-title">{{review.title || review.name}}</span>
+            <small>{{review.provider}} · {{review.language || 'Idioma no identificado'}} · {{review.lastMetadataSync | date:'shortDate'}}
+              <a *ngIf="review.sourceUrl" [href]="review.sourceUrl" target="_blank" rel="noopener noreferrer">Ver original</a></small>
             <span class="review-comment" [ngClass]="{ 'review-comment-expand': expandReview }">{{review.comment}}</span>
           </div>
         </div>
@@ -224,7 +224,9 @@
             <div *ngIf="review.rating">
               <p-rating [ngModel]="review.rating" readonly="true" stars="5" [cancel]="false"></p-rating>
             </div>
-            <span class="review-title">{{review.title}}</span>
+            <span class="review-title">{{review.title || review.name}}</span>
+            <small>{{review.provider}} · {{review.language || 'Idioma no identificado'}} · {{review.lastMetadataSync | date:'shortDate'}}
+              <a *ngIf="review.sourceUrl" [href]="review.sourceUrl" target="_blank" rel="noopener noreferrer">Ver original</a></small>
             <span class="review-comment" [ngClass]="{ 'review-comment-expand': expandReview }">{{review.comment}}</span>
 
           </div>

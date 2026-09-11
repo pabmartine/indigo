@@ -4,22 +4,21 @@ import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import com.martinia.indigo.common.singletons.MetadataSingleton;
+import com.martinia.indigo.metadata.domain.model.BookMetadataScope;
+import com.martinia.indigo.metadata.domain.model.DynamicMetadataPolicy;
+import com.martinia.indigo.metadata.domain.model.MetadataItemResult;
+import com.martinia.indigo.metadata.domain.model.MetadataMergePolicy;
 import com.martinia.indigo.metadata.domain.model.commands.FindBookMetadataCommand;
 import com.martinia.indigo.metadata.domain.ports.usecases.commands.StartFillBooksMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import jakarta.annotation.Resource;
-import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Slf4j
 @Service
-@Transactional
 public class StartFillBooksMetadataUseCaseImpl implements StartFillBooksMetadataUseCase {
-
-	private static final int BATCH_SIZE = 100;
 
 	@Resource
 	protected MetadataSingleton metadataSingleton;
@@ -31,48 +30,69 @@ public class StartFillBooksMetadataUseCaseImpl implements StartFillBooksMetadata
 	protected CommandBus commandBus;
 
 	@Override
-	@Transactional
-	public void start(boolean override) {
+	public void start(final BookMetadataScope scope, final MetadataMergePolicy mergePolicy,
+			final DynamicMetadataPolicy dynamicPolicy, final long requestedRunId) {
 
-		log.info("Finding metadata for all book library");
+		log.info("Finding metadata for books with scope {}", scope);
 
-		metadataSingleton.setMessage("obtaining_metadata_books");
+		final boolean managedRun = requestedRunId > 0;
+		final long runId = managedRun ? requestedRunId : metadataSingleton.getRunId();
+		if (managedRun && !metadataSingleton.isActive(runId)) {
+			return;
+		}
 
-		Long numBooks = bookRepository.count();
+		final List<BookMongoEntity> books = scope == BookMetadataScope.INCOMPLETE
+				? bookRepository.findBooksWithIncompleteMetadata()
+				: bookRepository.findAllBookIds();
+		final long numBooks = books.size();
 
-		metadataSingleton.setTotal(metadataSingleton.getTotal() + numBooks);
-
-		long lastExecution = 0;
-
-		int page = 0;
-		int size = BATCH_SIZE;
-		while (page * size < numBooks) {
-
-			if (!metadataSingleton.isRunning()) {
-				break;
+		if (managedRun && !metadataSingleton.initializeRun(runId, "obtaining_metadata_books", numBooks)) {
+			return;
+		}
+		if (!managedRun) {
+			metadataSingleton.setMessage("obtaining_metadata_books");
+			metadataSingleton.setTotal(metadataSingleton.getTotal() + numBooks);
+		}
+		if (numBooks == 0) {
+			if (managedRun) {
+				metadataSingleton.complete(runId);
 			}
+			else {
+				metadataSingleton.complete();
+			}
+			return;
+		}
 
-			List<BookMongoEntity> books = bookRepository.findAll(null, page, size, "id", "asc");
-
-			if (!CollectionUtils.isEmpty(books)) {
-				for (BookMongoEntity book : books) {
-
-					if (!metadataSingleton.isRunning()) {
-						break;
-					}
-
-					commandBus.executeAndWait(
-							FindBookMetadataCommand.builder().bookId(book.getId()).override(override).lastExecution(lastExecution).build());
-					lastExecution = System.currentTimeMillis();
-
-					metadataSingleton.increase();
-
-					log.debug("Obtained {}/{} books metadata", metadataSingleton.getCurrent(), numBooks);
+		long lastExecution = 0L;
+		try {
+			for (BookMongoEntity book : books) {
+				if (!(managedRun ? metadataSingleton.isActive(runId) : metadataSingleton.isRunning())) {
+					break;
 				}
+				try {
+					final MetadataItemResult result = commandBus.executeAndWait(FindBookMetadataCommand.builder()
+							.bookId(book.getId())
+							.mergePolicy(mergePolicy)
+							.dynamicPolicy(dynamicPolicy)
+							.lastExecution(lastExecution)
+							.build());
+					metadataSingleton.record(runId, result == null ? MetadataItemResult.ERROR : result);
+				}
+				catch (RuntimeException exception) {
+					log.error("Book metadata failed for {}", book.getId(), exception);
+					metadataSingleton.record(runId, MetadataItemResult.ERROR);
+				}
+				lastExecution = System.currentTimeMillis();
+				log.debug("Obtained {}/{} books metadata", metadataSingleton.getCurrent(), numBooks);
 			}
-
-			page++;
-
+		}
+		finally {
+			if (managedRun) {
+				metadataSingleton.complete(runId);
+			}
+			else {
+				metadataSingleton.complete();
+			}
 		}
 
 	}

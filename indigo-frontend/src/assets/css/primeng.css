@@ -124,6 +124,43 @@
   display: none !important;
 }
 
+/* Confirm dialogs must keep their compact, native PrimeNG layout. */
+.p-dialog.p-confirm-dialog {
+  width: min(32rem, 90vw) !important;
+  height: auto !important;
+  max-width: 90vw !important;
+  max-height: 90vh !important;
+}
+
+.p-dialog.p-confirm-dialog .p-dialog-header {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem !important;
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+.p-dialog.p-confirm-dialog .p-dialog-content {
+  display: block !important;
+  height: auto !important;
+  flex: 0 0 auto !important;
+  min-height: 0 !important;
+  padding: 1.25rem 1.5rem !important;
+  overflow: visible !important;
+}
+
+.p-dialog.p-confirm-dialog .p-dialog-content > *:not(.p-dialog-header) {
+  display: block !important;
+  height: auto !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+.p-dialog.p-confirm-dialog .p-dialog-footer {
+  padding: 0.75rem 1.5rem 1.25rem !important;
+}
+
 /* Evitar que el body haga scroll cuando el modal está abierto */
 body.p-overflow-hidden {
   overflow: hidden !important;

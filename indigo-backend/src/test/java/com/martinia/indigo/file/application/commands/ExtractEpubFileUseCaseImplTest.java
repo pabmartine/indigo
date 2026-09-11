@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -22,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -100,14 +103,22 @@ class ExtractEpubFileUseCaseImplTest {
     @Test
     void extract_WhenValidEpubWithOpf_ShouldPublishEvent() throws IOException {
         // Given
-        Path epubFile = createMockEpubFile();
-        lenient().when(imageUtils.getBase64Cover(any(InputStream.class), anyBoolean())).thenReturn("base64Image");
+        Path epubFile = createEpubWithPngCover();
+		lenient().when(imageUtils.saveCoverAndGetThumbnail(any(byte[].class), any(Path.class))).thenAnswer(invocation -> {
+			Files.write(invocation.getArgument(1, Path.class), invocation.getArgument(0, byte[].class));
+			return "base64Image";
+		});
 
         // When
         extractEpubFileUseCase.extract(epubFile);
 
         // Then
-        verify(uploadEpubFilesSingleton).addExtractError(); // Will be called since our mock epub doesn't have valid .opf
+        verify(uploadEpubFilesSingleton).addExtract();
+        verify(eventBus).publish(any(EpubFileExtractedEvent.class));
+        ArgumentCaptor<EpubFileExtractedEvent> eventCaptor = ArgumentCaptor.forClass(EpubFileExtractedEvent.class);
+        verify(eventBus).publish(eventCaptor.capture());
+        org.junit.jupiter.api.Assertions.assertEquals("base64Image", eventCaptor.getValue().getBookOpf().getBookImage());
+        org.junit.jupiter.api.Assertions.assertTrue(Files.exists(eventCaptor.getValue().getPath().getParent().resolve("cover.jpg")));
     }
 
     @Test
@@ -157,6 +168,22 @@ class ExtractEpubFileUseCaseImplTest {
         Path epubFile = tempDir.resolve("subfolder").resolve("test-book.epub");
         Files.createDirectories(epubFile.getParent());
         Files.createFile(epubFile);
+        return epubFile;
+    }
+
+    private Path createEpubWithPngCover() throws IOException {
+        Path epubFile = tempDir.resolve("book.epub");
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(Files.newOutputStream(epubFile))) {
+            zipOutputStream.putNextEntry(new ZipEntry("content.opf"));
+            zipOutputStream.write(("<package xmlns:dc=\"http://purl.org/dc/elements/1.1/\"><metadata>"
+                    + "<dc:title>Book</dc:title><dc:creator>Author</dc:creator><dc:language>en</dc:language>"
+                    + "<meta name=\"cover\" content=\"images/cover.png\"/>"
+                    + "</metadata></package>").getBytes());
+            zipOutputStream.closeEntry();
+            zipOutputStream.putNextEntry(new ZipEntry("images/cover.png"));
+            zipOutputStream.write(new byte[] { 1, 2, 3 });
+            zipOutputStream.closeEntry();
+        }
         return epubFile;
     }
 }

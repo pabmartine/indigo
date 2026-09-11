@@ -24,35 +24,43 @@ public class UploadEpubFilesSingleton {
 	@Resource
 	private EventBus eventBus;
 
-	private boolean running;
-	long total = 0;
-	long extract = 0;
-	long extractError = 0;
-	long moveError = 0;
-	long deleteError = 0;
-	long newBooks = 0;
-	long updatedBooks = 0;
-	long newAuthors = 0;
-	long newTags = 0;
-	long moved = 0;
-	long deleted = 0;
+	private volatile boolean running;
+	private volatile boolean managedProcessing;
+	public synchronized void beginManagedProcessing() { managedProcessing = true; }
+	public synchronized void endManagedProcessing() { stop(); managedProcessing = false; }
+	private String user;
+	volatile long total = 0;
+	volatile long extract = 0;
+	volatile long extractError = 0;
+	volatile long moveError = 0;
+	volatile long deleteError = 0;
+	volatile long newBooks = 0;
+	volatile long updatedBooks = 0;
+	volatile long newAuthors = 0;
+	volatile long newTags = 0;
+	volatile long moved = 0;
+	volatile long deleted = 0;
 
-	public void start(final long total) {
+	public synchronized void start(final long total) {
 		clear();
 		this.total = total;
+		this.user = getUserName();
 		this.running = true;
 	}
 
-	public void stop() {
+	public synchronized void stop() {
+		if (!this.running) {
+			return;
+		}
 		log.info(this.toString());
 		eventBus.publish(buildEvent());
-		clear();
+		this.running = false;
 	}
 
 	private UploadEpubFilesProcessFinishedEvent buildEvent() {
 		return UploadEpubFilesProcessFinishedEvent.builder()
 				.type(NotificationEnum.UPLOAD)
-				.user(getUserName())
+				.user(this.user != null ? this.user : "system")
 				.date(Calendar.getInstance().getTime())
 				.message(buildMessage())
 				.status(StatusEnum.FINISHED)
@@ -95,53 +103,54 @@ public class UploadEpubFilesSingleton {
 		this.newTags = 0;
 		this.moved = 0;
 		this.deleted = 0;
+		this.user = null;
 	}
 
-	public void addUpdatedBook() {
+	public synchronized void addUpdatedBook() {
 		this.updatedBooks++;
 	}
 
-	public void addNewBook() {
+	public synchronized void addNewBook() {
 		this.newBooks++;
 	}
 
-	public void addAuthor() {
+	public synchronized void addAuthor() {
 		this.newAuthors++;
 	}
 
-	public void addTag() {
+	public synchronized void addTag() {
 		this.newTags++;
 	}
 
-	public void addExtractError() {
+	public synchronized void addExtractError() {
 		this.extractError++;
 	}
 
-	public void addDeleteError() {
+	public synchronized void addDeleteError() {
 		this.deleteError++;
 	}
 
-	public void addMoveError() {
+	public synchronized void addMoveError() {
 		this.moveError++;
 	}
 
-	public void addDelete() {
+	public synchronized void addDelete() {
 		this.deleted++;
 	}
 
-	public void addMove() {
+	public synchronized void addMove() {
 		this.moved++;
 	}
 
-	public void addExtract() {
+	public synchronized void addExtract() {
 		this.extract++;
 	}
 
 	private void check(final long current) {
-		if (total <= current) {stop();}
+		if (!managedProcessing && total <= current) {stop();}
 	}
 
-	public int getCurentStatus() {
+	public synchronized int getCurentStatus() {
 		final long current = moved + moveError + extractError;
 		if (this.running && current > 0) {
 			check(current);
@@ -152,11 +161,11 @@ public class UploadEpubFilesSingleton {
 		}
 	}
 
-	public long getProcessedItems() {
+	public synchronized long getProcessedItems() {
 		return moved + moveError + extractError;
 	}
 
-	public long getFailedItems() {
+	public synchronized long getFailedItems() {
 		return moveError + extractError;
 	}
 }

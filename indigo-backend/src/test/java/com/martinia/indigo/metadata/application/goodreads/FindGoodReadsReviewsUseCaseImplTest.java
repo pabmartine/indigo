@@ -3,6 +3,7 @@ package com.martinia.indigo.metadata.application.goodreads;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.martinia.indigo.common.domain.model.Review;
+import com.martinia.indigo.metadata.application.reviews.ReviewProviderRequestPolicy;
 import com.martinia.indigo.metadata.domain.ports.adapters.libretranslate.DetectLibreTranslatePort;
 import com.martinia.indigo.metadata.domain.ports.adapters.libretranslate.TranslateLibreTranslatePort;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class FindGoodReadsReviewsUseCaseImplTest {
@@ -41,6 +44,7 @@ class FindGoodReadsReviewsUseCaseImplTest {
         ReflectionTestUtils.setField(findGoodReadsReviewsUseCase, "webClient", webClient);
         ReflectionTestUtils.setField(findGoodReadsReviewsUseCase, "detectLibreTranslatePort", Optional.of(detectLibreTranslatePort));
         ReflectionTestUtils.setField(findGoodReadsReviewsUseCase, "translateLibreTranslatePort", Optional.of(translateLibreTranslatePort));
+		ReflectionTestUtils.setField(findGoodReadsReviewsUseCase, "reviewProviderRequestPolicy", new ReviewProviderRequestPolicy());
     }
 
     @Test
@@ -79,6 +83,7 @@ class FindGoodReadsReviewsUseCaseImplTest {
         assertEquals("Another User", review2.getName());
         assertEquals(2, review2.getRating());
         assertEquals("This is another test review.", review2.getComment());
-        assertNotNull(review2.getDate());
-    }
+		assertNotNull(review2.getDate());
+		verify(webClient, never()).close();
+	}
 }

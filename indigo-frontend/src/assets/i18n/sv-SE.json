@@ -94,7 +94,7 @@
 			},
 			"similar": {
 				"title": "Other similar books"
-	_t	},
+			},
 			"recommendations": {
 				"title": "You may also like",
 				"title2": "Selected for you"
@@ -293,7 +293,6 @@
 				"metadata": {
 					"title": "Metadata",
 					"pull": "Make a request every (seconds)",
-					"goodreadskey": "GoodReads Developer Key",
 					"all": {
 						"partial": "Update all metadata (ratings, comments, author biography, etc.) for new books",
 						"full": "Update all metadata (ratings, comments, author biography, etc.) for the entire library. Overwrite existing ones."
@@ -326,6 +325,12 @@
 						"gmail": "Gmail",
 						"outlook": "Outlook",
 						"other": "Other"
+					}
+				},
+				"file": {
+					"title": "Uppladdning av nya böcker",
+					"uploads": {
+						"path": "Sökväg till uppladdningsmappen"
 					}
 				}
 			},

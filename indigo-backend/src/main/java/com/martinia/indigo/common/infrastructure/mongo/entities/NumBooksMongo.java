@@ -17,7 +17,9 @@ import lombok.Setter;
 @Builder
 public class NumBooksMongo implements Serializable {
 
+	@Builder.Default
 	private int total = 1;
+	@Builder.Default
 	private Map<String, Integer> languages = new HashMap<>();
 
 }

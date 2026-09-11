@@ -44,6 +44,8 @@ class SaveAuthorEpubFileEventUseCaseImplTest {
 
     @Mock
     private UploadEpubFilesSingleton uploadEpubFilesSingleton;
+    @Mock
+    private com.martinia.indigo.metadata.application.MetadataActivityService activity;
 
     @InjectMocks
     private SaveAuthorEpubFileEventUseCaseImpl saveAuthorEpubFileEventUseCase;
@@ -75,6 +77,25 @@ class SaveAuthorEpubFileEventUseCaseImplTest {
     }
 
     @Test
+    void missingImagePreservesExistingImage() {
+        when(bookRepository.findById("book1")).thenReturn(Optional.of(mockBook));
+        when(authorRepository.findByName("Test Author")).thenReturn(Optional.of(mockAuthor));
+        saveAuthorEpubFileEventUseCase.save("book1", null);
+        assertThat(mockAuthor.getImage()).isEqualTo("existing-image");
+        verify(authorRepository).save(mockAuthor);
+    }
+
+    @Test
+    void protectedImageIsNotReplacedWhenAnotherBookIsImported() {
+        when(bookRepository.findById("book1")).thenReturn(Optional.of(mockBook));
+        when(authorRepository.findByName("Test Author")).thenReturn(Optional.of(mockAuthor));
+        when(activity.isLocked("AUTHORS", "author1")).thenReturn(true);
+        saveAuthorEpubFileEventUseCase.save("book1", "incoming-image");
+        assertThat(mockAuthor.getImage()).isEqualTo("existing-image");
+        assertThat(mockAuthor.getNumBooks().getTotal()).isEqualTo(6);
+    }
+
+    @Test
     void save_WhenBookExistsAndAuthorExists_ShouldUpdateAuthor() {
         // Given
         String bookId = "book1";
@@ -92,6 +113,7 @@ class SaveAuthorEpubFileEventUseCaseImplTest {
 
         AuthorMongoEntity savedAuthor = authorCaptor.getValue();
         assertThat(savedAuthor.getImage()).isEqualTo(authorImage);
+        assertThat(savedAuthor.getMetadataSources().get("image")).isEqualTo("EPUB");
         assertThat(savedAuthor.getNumBooks().getTotal()).isEqualTo(6); // Incremented from 5
 
         verify(eventBus).publish(any(AuthorAddedEvent.class));
@@ -144,7 +166,8 @@ class SaveAuthorEpubFileEventUseCaseImplTest {
         when(bookRepository.findById(bookId)).thenReturn(Optional.empty());
 
         // When
-        saveAuthorEpubFileEventUseCase.save(bookId, authorImage);
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalStateException.class,
+                () -> saveAuthorEpubFileEventUseCase.save(bookId, authorImage));
 
         // Then
         verify(authorRepository, never()).findByName(anyString());

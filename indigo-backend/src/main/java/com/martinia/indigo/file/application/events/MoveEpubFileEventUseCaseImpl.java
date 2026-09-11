@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
+import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,6 +33,8 @@ public class MoveEpubFileEventUseCaseImpl implements MoveEpubFileEventUseCase {
 	private FileRepository fileRepository;
 	@Resource
 	private UploadEpubFilesSingleton uploadEpubFilesSingleton;
+	@org.springframework.beans.factory.annotation.Autowired(required = false)
+	private com.martinia.indigo.file.application.PendingImportService pendingImports;
 
 	@Override
 	@Transactional
@@ -44,23 +47,51 @@ public class MoveEpubFileEventUseCaseImpl implements MoveEpubFileEventUseCase {
 
 			final Optional<File> file = fileRepository.findByPath(sourcePath);
 
-			if (Files.exists(sourcePath) && Files.exists(sourceCoverPath)) {
+			if (Files.exists(sourcePath)) {
 
 				if (!Files.exists(targetPath)) {
 					Files.createDirectories(targetPath);
 				}
 
-				Files.move(sourcePath, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
-				Files.move(sourceCoverPath, targetCoverPath, StandardCopyOption.REPLACE_EXISTING);
+				if (Files.exists(targetFilePath)) {
+					if (Files.isSameFile(sourcePath, targetFilePath) || Files.mismatch(sourcePath, targetFilePath) != -1) {
+						throw new java.io.IOException("Import conflict; both EPUB files preserved: " + sourcePath);
+					}
+					Files.delete(sourcePath);
+					if (Files.exists(sourceCoverPath) && !Files.exists(targetCoverPath)) {
+						Files.move(sourceCoverPath, targetCoverPath);
+					}
+					else {
+						Files.deleteIfExists(sourceCoverPath);
+					}
+					log.info("Book {} already exists at {}; removed duplicate upload", sourcePath, targetFilePath);
+				}
+				else {
+//					Files.move(sourcePath, targetFilePath);
+					Files.copy(sourcePath, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
+					if (Files.exists(sourceCoverPath)) {
+						Files.move(sourceCoverPath, targetCoverPath, StandardCopyOption.REPLACE_EXISTING);
+					}
+					else {
+						log.warn("Book {} has no cover image; importing EPUB without a local cover", sourcePath);
+					}
+				}
 
 				if (file.isPresent()) {
 					eventPublisher.publishEvent(new EpubFileDeletedEvent(file.get().getId()));
 				}
 
+				deleteEmptyUploadDirectories(sourcePath.getParent());
+				if (pendingImports != null) pendingImports.fileComplete(sourcePath);
 				uploadEpubFilesSingleton.addMove();
 			}
 			else {
-				log.error("File {} or Image {} does not exist", sourcePath, sourceCoverPath);
+				if (pendingImports != null && Files.isRegularFile(targetFilePath)) {
+					if (file.isPresent()) eventPublisher.publishEvent(new EpubFileDeletedEvent(file.get().getId()));
+					pendingImports.fileComplete(sourcePath);
+					return;
+				}
+				log.error("EPUB file {} does not exist", sourcePath);
 				uploadEpubFilesSingleton.addMoveError();
 			}
 
@@ -71,5 +102,26 @@ public class MoveEpubFileEventUseCaseImpl implements MoveEpubFileEventUseCase {
 		}
 	}
 
-}
+	private void deleteEmptyUploadDirectories(final Path sourceDirectory) {
+		if (sourceDirectory == null || uploadsPath == null || uploadsPath.isBlank()) {
+			return;
+		}
 
+		final Path uploadsRoot = Path.of(uploadsPath).toAbsolutePath().normalize();
+		Path directory = sourceDirectory.toAbsolutePath().normalize();
+		while (!directory.equals(uploadsRoot) && directory.startsWith(uploadsRoot)) {
+			try {
+				Files.delete(directory);
+				directory = directory.getParent();
+			}
+			catch (DirectoryNotEmptyException e) {
+				break;
+			}
+			catch (Exception e) {
+				log.warn("Could not remove empty upload directory {}", directory, e);
+				break;
+			}
+		}
+	}
+
+}

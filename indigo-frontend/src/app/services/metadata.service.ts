@@ -36,6 +36,26 @@ export class MetadataService {
     return this.http.get<any>(this.endpoint + "/stop");
   }
 
+  activity(): Observable<any[]> { return this.http.get<any[]>(this.endpoint + '/activity'); }
+  reviewQueue(): Observable<any> { return this.http.get(this.endpoint + '/review-queue'); }
+  startReviewQueue(all: boolean, replace: boolean): Observable<any> {
+    return this.http.post(this.endpoint + '/review-queue/start?all=' + all + '&replace=' + replace + '&lang=es', {});
+  }
+  controlReviewQueue(action: string): Observable<any> { return this.http.post(this.endpoint + '/review-queue/' + action, {}); }
+  configureReviewQueue(amazon: number, goodreads: number): Observable<any> {
+    return this.http.post(this.endpoint + '/review-queue/settings?amazon=' + amazon + '&goodreads=' + goodreads, {});
+  }
+  pendingImports(): Observable<any[]> { return this.http.get<any[]>(this.endpoint + '/pending-imports'); }
+  retryImport(id: string): Observable<any> {
+    return this.http.post(this.endpoint + '/pending-imports/' + encodeURIComponent(id) + '/retry', {});
+  }
+  history(): Observable<any[]> { return this.http.get<any[]>(this.endpoint + '/activity/history'); }
+  retryItem(key: string): Observable<any> { return this.http.post(this.endpoint + '/activity/retry/' + encodeURIComponent(key), {}); }
+  undoItem(id: string): Observable<any> { return this.http.post(this.endpoint + '/activity/undo/' + encodeURIComponent(id), {}); }
+  lockItem(type: string, id: string, locked: boolean): Observable<any> {
+    return this.http.post(this.endpoint + '/activity/lock/' + encodeURIComponent(type) + '/' + encodeURIComponent(id) + '?locked=' + locked, {});
+  }
+
   findAuthor(lang: string, author: string): Observable<any> {
     return this.http.get(this.endpoint + "/author?lang=" + lang + "&author=" + author);
   }

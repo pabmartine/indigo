@@ -51,4 +51,12 @@ class FindBookByPathControllerTest extends BaseIndigoTest {
 		verify(useCase, times(1)).findByPath(bookPath);
 		verify(mapper, times(1)).domain2Dto(any());
 	}
+
+	@Test
+	void testGetBookByPathWhenBookDoesNotExist() throws Exception {
+		when(useCase.findByPath("missing")).thenReturn(Optional.empty());
+
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/book/path").param("path", "missing"))
+				.andExpect(MockMvcResultMatchers.status().isNotFound());
+	}
 }

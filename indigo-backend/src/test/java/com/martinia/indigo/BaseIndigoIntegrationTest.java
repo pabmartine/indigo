@@ -6,10 +6,10 @@ import com.martinia.indigo.common.bus.event.domain.ports.EventBus;
 import com.martinia.indigo.common.singletons.MetadataSingleton;
 import com.martinia.indigo.common.util.DataUtils;
 import com.martinia.indigo.metadata.domain.ports.adapters.amazon.FindAmazonReviewsPort;
-import com.martinia.indigo.metadata.domain.ports.adapters.goodreads.FindGoodReadsAuthorPort;
-import com.martinia.indigo.metadata.domain.ports.adapters.goodreads.FindGoodReadsBookPort;
 import com.martinia.indigo.metadata.domain.ports.adapters.goodreads.FindGoodReadsReviewsPort;
 import com.martinia.indigo.metadata.domain.ports.adapters.google.FindGoogleBooksBookPort;
+import com.martinia.indigo.metadata.domain.ports.adapters.openlibrary.FindOpenLibraryAuthorPort;
+import com.martinia.indigo.metadata.domain.ports.adapters.openlibrary.FindOpenLibraryBookPort;
 import com.martinia.indigo.metadata.domain.ports.adapters.libretranslate.DetectLibreTranslatePort;
 import com.martinia.indigo.metadata.domain.ports.adapters.libretranslate.TranslateLibreTranslatePort;
 import com.martinia.indigo.metadata.domain.ports.adapters.wikipedia.FindWikipediaAuthorInfoPort;
@@ -49,10 +49,10 @@ public class BaseIndigoIntegrationTest extends BaseIndigoTest {
 	protected FindWikipediaAuthorPort findWikipediaAuthorPort;
 
 	@SpyBean
-	protected FindGoodReadsAuthorPort findGoodReadsAuthorPort;
+	protected FindOpenLibraryAuthorPort findOpenLibraryAuthorPort;
 
 	@SpyBean
-	protected FindGoodReadsBookPort findGoodReadsBookPort;
+	protected FindOpenLibraryBookPort findOpenLibraryBookPort;
 
 	@SpyBean
 	protected FindGoogleBooksBookPort findGoogleBooksBookPort;

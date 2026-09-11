@@ -51,4 +51,16 @@ public class FindBookCoverByIdUseCaseImplTest extends BaseIndigoTest {
 		Optional<byte[]> cover = useCase.getCover("507f1f77bcf86cd799439011");
 		assertThat(cover).isNotPresent();
 	}
+
+	@Test
+	void shouldReturnEmptyWhenImageIsNotValidBase64() {
+		BookMongoEntity book = BookMongoEntity.builder()
+				.title("Invalid cover")
+				.path("/tmp/invalid-cover.epub")
+				.image("not-base64")
+				.build();
+		book = bookRepository.save(book);
+
+		assertThat(useCase.getCover(book.getId())).isEmpty();
+	}
 }

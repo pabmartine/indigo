@@ -1,3 +1,4 @@
+import { normalizeBookLanguages } from 'src/app/utils/book-languages';
 import { Location } from "@angular/common"
 import {
   AfterViewInit,
@@ -397,8 +398,7 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
     this.filtersKey = this.createFiltersKey(this.adv_search)
 
     // CRUCIAL: Asegurar que los idiomas estén configurados - use fallback chain
-    const languages = this.user?.languageBooks || this.authState.getLanguageBooks()
-    this.adv_search.languages = languages.length > 0 ? languages : ['en']
+    this.adv_search.languages = normalizeBookLanguages(this.user?.languageBooks || this.authState.getLanguageBooks())
 
     return this.bookService.count(this.adv_search).pipe(
       tap((data) => {
@@ -453,8 +453,7 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     // CRUCIAL: Asegurar que los idiomas estén configurados - use fallback chain
-    const languages = this.user?.languageBooks || this.authState.getLanguageBooks()
-    this.adv_search.languages = languages.length > 0 ? languages : ['en']
+    this.adv_search.languages = normalizeBookLanguages(this.user?.languageBooks || this.authState.getLanguageBooks())
     this.filtersKey = this.createFiltersKey(this.adv_search)
 
     const cacheKey = this.createPageCacheKey(this.page)
@@ -697,8 +696,7 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     // CRUCIAL: Configurar idiomas - ALWAYS ensure languages are set
-    const languages = this.user?.languageBooks || this.authState.getLanguageBooks()
-    this.adv_search.languages = languages.length > 0 ? languages : ['en']
+    this.adv_search.languages = normalizeBookLanguages(this.user?.languageBooks || this.authState.getLanguageBooks())
     this.getAll()
   }
 

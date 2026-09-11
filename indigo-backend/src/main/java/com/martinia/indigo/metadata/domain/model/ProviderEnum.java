@@ -2,5 +2,5 @@ package com.martinia.indigo.metadata.domain.model;
 
 public enum ProviderEnum {
 
-	WIKIPEDIA, GOODREADS, GOOGLE, AMAZON
+	WIKIPEDIA, GOODREADS, GOOGLE, OPEN_LIBRARY, AMAZON
 }

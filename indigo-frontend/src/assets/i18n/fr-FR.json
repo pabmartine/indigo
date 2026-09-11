@@ -293,7 +293,6 @@
 				"metadata": {
 					"title": "Metadata",
 					"pull": "Faire une demande toutes les (secondes)",
-					"goodreadskey": "Clé de développeur GoodReads",
 					"all": {
 						"partial": "Mettre à jour toutes les métadonnées (notes, commentaires, biographie de l'auteur, etc.) pour les nouveaux livres",
 						"full": "Mettre à jour toutes les métadonnées (notes, commentaires, biographie de l'auteur, etc.) pour toute la bibliothèque. Remplacer celles existantes."
@@ -326,6 +325,12 @@
 						"gmail": "Gmail",
 						"outlook": "Outlook",
 						"other": "Autre"
+					}
+				},
+				"file": {
+					"title": "Importation de nouveaux livres",
+					"uploads": {
+						"path": "Chemin du dossier d’importation"
 					}
 				}
 			},

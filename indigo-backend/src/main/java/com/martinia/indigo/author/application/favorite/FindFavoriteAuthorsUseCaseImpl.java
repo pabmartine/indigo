@@ -10,7 +10,6 @@ import org.springframework.util.CollectionUtils;
 
 import jakarta.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -32,11 +31,14 @@ public class FindFavoriteAuthorsUseCaseImpl implements FindFavoriteAuthorsUseCas
 	public List<Author> getFavoriteAuthors(String user) {
 		return userRepository.findByUsername(user).map(userEntity -> {
 			List<String> authors = userEntity.getFavoriteAuthors();
-			List<Author> ret = new ArrayList<>(authors != null ? authors.size() : 0);
-			if (!CollectionUtils.isEmpty(authors)) {
-				authors.forEach(author -> ret.add(findAuthor(author).get()));
+			if (CollectionUtils.isEmpty(authors)) {
+				return Collections.<Author>emptyList();
 			}
-			return ret;
+
+			return authors.stream()
+					.map(this::findAuthor)
+					.flatMap(Optional::stream)
+					.toList();
 		}).orElse(Collections.emptyList());
 
 	}

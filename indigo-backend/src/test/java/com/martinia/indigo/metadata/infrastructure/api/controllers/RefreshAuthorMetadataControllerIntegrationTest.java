@@ -27,7 +27,7 @@ public class RefreshAuthorMetadataControllerIntegrationTest extends BaseIndigoIn
 	private CommandBus commandBus;
 
 	@Test
-	@WithMockUser
+	@WithMockUser(authorities = "ADMIN")
 	public void refreshBookMetadataAuthorNotFound() throws Exception {
 		// Given
 		String lang = "en";
@@ -48,7 +48,7 @@ public class RefreshAuthorMetadataControllerIntegrationTest extends BaseIndigoIn
 	}
 
 	@Test
-	@WithMockUser
+	@WithMockUser(authorities = "ADMIN")
 	public void refreshBookMetadataAuthorOK() throws Exception {
 		// Given
 		String lang = "en";

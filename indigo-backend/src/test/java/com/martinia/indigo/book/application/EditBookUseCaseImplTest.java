@@ -15,7 +15,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import jakarta.annotation.Resource;
 
 import java.util.Optional;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.eq;
@@ -40,6 +44,8 @@ public class EditBookUseCaseImplTest extends BaseIndigoTest {
 
 	@MockBean
 	private ImageUtils imageUtils;
+	@MockBean
+	private com.martinia.indigo.metadata.application.MetadataActivityService activity;
 
 	@Test
 	public void testEditWithWrongImageFormat() {
@@ -97,5 +103,36 @@ public class EditBookUseCaseImplTest extends BaseIndigoTest {
 
 		// Then
 		verify(bookRepository).save(any());
+	}
+
+	@Test
+	public void editShouldPreserveBackendManagedMetadata() {
+		Book mockBook = new Book();
+		BookMongoEntity source = new BookMongoEntity();
+		source.setIsbn13(List.of("9780306406157"));
+		source.setIdentifiers(Map.of("ISBN_13", List.of("9780306406157")));
+		source.setOpenLibraryWorkId("OL1W");
+		source.setRatingAverage(4.25F);
+		source.setRatingsCount(42L);
+		source.setRatingProvider("OPEN_LIBRARY");
+		source.setRatingUpdatedAt(new Date());
+		source.setMetadataMatchStatus("MATCHED");
+
+		BookMongoEntity target = new BookMongoEntity();
+		target.setImage("image");
+		when(bookRepository.findById(any())).thenReturn(Optional.of(source));
+		when(bookMongoMapper.domain2Entity(any())).thenReturn(target);
+
+		useCase.edit(mockBook);
+
+		assertEquals(source.getIsbn13(), target.getIsbn13());
+		assertEquals(source.getIdentifiers(), target.getIdentifiers());
+		assertEquals(source.getOpenLibraryWorkId(), target.getOpenLibraryWorkId());
+		assertEquals(source.getRatingAverage(), target.getRatingAverage());
+		assertEquals(source.getRatingsCount(), target.getRatingsCount());
+		assertEquals(source.getRatingProvider(), target.getRatingProvider());
+		assertEquals(source.getRatingUpdatedAt(), target.getRatingUpdatedAt());
+		assertEquals(source.getMetadataMatchStatus(), target.getMetadataMatchStatus());
+		verify(bookRepository).save(target);
 	}
 }

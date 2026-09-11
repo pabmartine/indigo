@@ -14,7 +14,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 class FindBookByPathControllerIntegrationTest extends BaseIndigoIntegrationTest {
@@ -62,7 +61,6 @@ class FindBookByPathControllerIntegrationTest extends BaseIndigoIntegrationTest 
 		ResultActions result = mockMvc.perform(MockMvcRequestBuilders.get("/api/book/path").param("path", "unknown"));
 
 		// Then
-		result.andExpect(MockMvcResultMatchers.status().isOk());
-		assertEquals("", result.andReturn().getResponse().getContentAsString());
+		result.andExpect(MockMvcResultMatchers.status().isNotFound());
 	}
 }

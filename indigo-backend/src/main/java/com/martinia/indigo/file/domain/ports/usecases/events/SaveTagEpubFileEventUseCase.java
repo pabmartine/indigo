@@ -1,6 +1,7 @@
 package com.martinia.indigo.file.domain.ports.usecases.events;
 
 public interface SaveTagEpubFileEventUseCase {
+	void rebuildAfterBatch(java.util.List<String> bookIds);
 
 	void save(final String bookId);
 

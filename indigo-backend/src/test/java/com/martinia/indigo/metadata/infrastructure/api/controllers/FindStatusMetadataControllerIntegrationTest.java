@@ -22,7 +22,7 @@ public class FindStatusMetadataControllerIntegrationTest extends BaseIndigoInteg
 {
 
 	@Test
-	@WithMockUser
+	@WithMockUser(authorities = "ADMIN")
 	public void findStatus() throws Exception {
 		// Given
 		metadataSingleton.setType("type");

@@ -2,6 +2,9 @@ package com.martinia.indigo.metadata.application;
 
 import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import com.martinia.indigo.common.singletons.MetadataSingleton;
+import com.martinia.indigo.metadata.domain.model.BookMetadataScope;
+import com.martinia.indigo.metadata.domain.model.DynamicMetadataPolicy;
+import com.martinia.indigo.metadata.domain.model.MetadataMergePolicy;
 import com.martinia.indigo.metadata.domain.model.MetadataProcessType;
 import com.martinia.indigo.metadata.domain.model.commands.StartFillAuthorsMetadataCommand;
 import com.martinia.indigo.metadata.domain.model.commands.StartFillBooksMetadataCommand;
@@ -34,7 +37,7 @@ class StartMetadataUseCaseImplTest {
 		startMetadataUseCase.start("en", MetadataProcessType.FULL.name(), "BOOKS");
 
 		verify(metadataSingleton).start(MetadataProcessType.FULL.name(), "BOOKS");
-		verify(commandBus).execute(any(StartFillBooksMetadataCommand.class));
+		verify(commandBus).execute(argThat(command -> isBookCommand(command, BookMetadataScope.ALL)));
 	}
 
 	@Test
@@ -64,7 +67,7 @@ class StartMetadataUseCaseImplTest {
 		startMetadataUseCase.start("en", MetadataProcessType.PARTIAL.name(), "BOOKS");
 
 		verify(metadataSingleton).start(MetadataProcessType.PARTIAL.name(), "BOOKS");
-		verify(commandBus).execute(any(StartFillBooksMetadataCommand.class));
+		verify(commandBus).execute(argThat(command -> isBookCommand(command, BookMetadataScope.INCOMPLETE)));
 	}
 
 	@Test
@@ -100,21 +103,24 @@ class StartMetadataUseCaseImplTest {
 
 	@Test
 	void start_WhenUnknownEntity_ShouldNotExecuteCommand() {
-		when(metadataSingleton.isRunning()).thenReturn(false);
-
 		startMetadataUseCase.start("en", MetadataProcessType.FULL.name(), "UNKNOWN");
 
-		verify(metadataSingleton).start(MetadataProcessType.FULL.name(), "UNKNOWN");
+		verify(metadataSingleton, never()).start(anyString(), anyString());
 		verify(commandBus, never()).execute(any());
 	}
 
 	@Test
 	void start_WhenUnknownProcessType_ShouldNotExecuteCommand() {
-		when(metadataSingleton.isRunning()).thenReturn(false);
-
 		startMetadataUseCase.start("en", "UNKNOWN", "BOOKS");
 
-		verify(metadataSingleton).start("UNKNOWN", "BOOKS");
+		verify(metadataSingleton, never()).start(anyString(), anyString());
 		verify(commandBus, never()).execute(any());
+	}
+
+	private boolean isBookCommand(final Object command, final BookMetadataScope scope) {
+		return command instanceof StartFillBooksMetadataCommand booksCommand
+				&& booksCommand.getScope() == scope
+				&& booksCommand.getMergePolicy() == MetadataMergePolicy.FILL_MISSING
+				&& booksCommand.getDynamicPolicy() == DynamicMetadataPolicy.REFRESH_IF_STALE;
 	}
 }

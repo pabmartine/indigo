@@ -13,13 +13,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
-import org.springframework.transaction.annotation.Transactional;
-import java.util.Arrays;
 import java.util.Optional;
 
 @Slf4j
 @Service
-@Transactional
 public class FindWikipediaAuthorInfoUseCaseImpl implements FindWikipediaAuthorInfoUseCase {
 
 	@Resource
@@ -36,9 +33,10 @@ public class FindWikipediaAuthorInfoUseCaseImpl implements FindWikipediaAuthorIn
 
 		String[] ret = null;
 
-		subject = StringUtils.stripAccents(subject).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ");
+		String normalizedSubject = StringUtils.stripAccents(subject).replaceAll("[^a-zA-Z0-9]", " ")
+                .replaceAll("\\s+", " ").toLowerCase(java.util.Locale.ROOT).trim();
 
-		String url = endpoint.replace("$lang", lang).replace("$subject", subject.replace(" ", "%20"));
+		String url = endpoint.replace("$lang", lang).replace("$subject", java.net.URLEncoder.encode(subject, java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20"));
 
 		try {
 			String json = dataUtils.getData(url);
@@ -61,12 +59,8 @@ public class FindWikipediaAuthorInfoUseCaseImpl implements FindWikipediaAuthorIn
 					String filterTitle = StringUtils.stripAccents(strTitle).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ")
 							.toLowerCase().trim();
 
-					String[] terms = subject.split(" ");
 
-					long hasTerms = Arrays.stream(terms)
-							.filter(term -> filterTitle.contains(StringUtils.stripAccents(term).toLowerCase().trim())).count();
-
-					if (terms.length == 1 && hasTerms > 0 || terms.length > 1 && hasTerms > 1) {
+					if (filterTitle.equals(normalizedSubject) || filterTitle.startsWith(normalizedSubject + " ")) {
 						ret = new String[] { extract.asText(), source != null ? source.asText() : null, ProviderEnum.WIKIPEDIA.name() };
 					}
 
@@ -74,7 +68,7 @@ public class FindWikipediaAuthorInfoUseCaseImpl implements FindWikipediaAuthorIn
 			}
 		}
 		catch (Exception e) {
-			log.error(url);
+			throw new IllegalStateException("Could not obtain Wikipedia author details from " + url, e);
 		}
 
 		if (ret!=null && !lang.equals("es") && !StringUtils.isEmpty(ret[0])){

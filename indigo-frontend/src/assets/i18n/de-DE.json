@@ -293,7 +293,6 @@
                 "metadata": {
                     "title": "Metadaten",
                     "pull": "Eine Anfrage alle (Sekunden) durchführen",
-                    "goodreadskey": "Entwicklerschlüssel von GoodReads",
                     "all": {
                         "partial": "Alle Metadaten (Bewertungen, Kommentare, Biografie des Autors usw.) für neue Bücher aktualisieren",
                         "full": "Alle Metadaten (Bewertungen, Kommentare, Biografie des Autors usw.) für die gesamte Bibliothek aktualisieren. Vorhandene überschreiben."
@@ -326,6 +325,12 @@
                         "gmail": "Gmail",
                         "outlook": "Outlook",
                         "other": "Andere"
+                    }
+                },
+                "file": {
+                    "title": "Neue Bücher hochladen",
+                    "uploads": {
+                        "path": "Pfad zum Upload-Ordner"
                     }
                 }
             },

@@ -41,8 +41,10 @@ public class FindBookByPathController {
 	@GetMapping(value = "/path", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<BookDto> getBookByPath(
 			@Parameter(description = "The file path of the book to retrieve", example = "/books/my_book.epub") @RequestParam String path) {
-		BookDto bookDto = useCase.findByPath(path).map(book -> mapper.domain2Dto(book)).orElse(null);
-		return new ResponseEntity<>(bookDto, HttpStatus.OK);
+		return useCase.findByPath(path)
+				.map(mapper::domain2Dto)
+				.map(ResponseEntity::ok)
+				.orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
 	}
 
 }

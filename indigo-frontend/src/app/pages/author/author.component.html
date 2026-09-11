@@ -38,9 +38,14 @@
         </div>
       </div>
 
-      <div *ngIf="books?.length == 0" class="loading-container">
+      <div *ngIf="isLoadingBooks" class="loading-container">
           <p-divider></p-divider>
           <span class="loading">{{'locale.search.searching' | translate}}</span>
+      </div>
+      <div *ngIf="!isLoadingBooks && books.length === 0" class="loading-container">
+        <p-divider></p-divider>
+        <span *ngIf="!booksLoadFailed">{{title}}</span>
+        <span *ngIf="booksLoadFailed" role="alert">{{'locale.books.error.data' | translate}}</span>
       </div>
       <div *ngIf="books?.length > 0">
         <p-divider></p-divider>
@@ -147,9 +152,14 @@
         </div>
       </div>
 
-      <div *ngIf="books?.length == 0" class="loading-container">
+      <div *ngIf="isLoadingBooks" class="loading-container">
           <p-divider></p-divider>
           <span class="loading">{{'locale.search.searching' | translate}}</span>
+      </div>
+      <div *ngIf="!isLoadingBooks && books.length === 0" class="loading-container">
+        <p-divider></p-divider>
+        <span *ngIf="!booksLoadFailed">{{title}}</span>
+        <span *ngIf="booksLoadFailed" role="alert">{{'locale.books.error.data' | translate}}</span>
       </div>
       <div *ngIf="books?.length > 0">
         <p-divider></p-divider>

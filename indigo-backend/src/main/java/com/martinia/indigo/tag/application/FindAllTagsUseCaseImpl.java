@@ -1,5 +1,6 @@
 package com.martinia.indigo.tag.application;
 
+import com.martinia.indigo.common.util.LanguageCodeUtils;
 import com.martinia.indigo.tag.domain.model.Tag;
 import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
 import com.martinia.indigo.tag.domain.ports.usecases.FindAllTagsUseCase;
@@ -42,7 +43,7 @@ public class FindAllTagsUseCaseImpl implements FindAllTagsUseCase {
 			}
 			int total = 0;
 			for (String key : tag.getNumBooks().getLanguages().keySet()) {
-				if (languages.contains(key)) {
+				if (languages.stream().anyMatch(language -> LanguageCodeUtils.variants(language).contains(key))) {
 					total += tag.getNumBooks().getLanguages().get(key);
 				}
 			}

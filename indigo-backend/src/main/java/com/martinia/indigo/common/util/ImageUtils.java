@@ -13,6 +13,8 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -21,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Enumeration;
@@ -41,6 +45,10 @@ public class ImageUtils {
 		String image = null;
 		try {
 			String basePath = path.startsWith(normalizeLibraryPath()) ? path : normalizeLibraryPath() + path;
+			if (!isInsideLibrary(basePath)) {
+				log.warn("Refusing to read cover outside the configured library: {}", path);
+				return null;
+			}
 
 			File file = new File(basePath);
 			if (file.exists() && file.isDirectory()) {
@@ -95,7 +103,7 @@ public class ImageUtils {
 		String image = null;
 		String fullPath = path.startsWith(normalizeLibraryPath()) ? path : normalizeLibraryPath() + path;
 
-		if ((new File(fullPath)).exists()) {
+		if (isInsideLibrary(fullPath) && (new File(fullPath)).exists()) {
 			try {
 				String coverPath = fullPath + "/cover.jpg";
 
@@ -142,6 +150,29 @@ public class ImageUtils {
 		}
 
 		return image;
+	}
+
+	/**
+	 * Stores an imported cover as a real JPEG and returns the thumbnail used by book listings.
+	 */
+	public String saveCoverAndGetThumbnail(final byte[] imageBytes, final Path coverPath) throws IOException {
+		final BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(imageBytes));
+		if (originalImage == null) {
+			return null;
+		}
+		final BufferedImage jpegImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+		final Graphics2D graphics = jpegImage.createGraphics();
+		try {
+			graphics.setColor(Color.WHITE);
+			graphics.fillRect(0, 0, jpegImage.getWidth(), jpegImage.getHeight());
+			graphics.drawImage(originalImage, 0, 0, null);
+		}
+		finally {
+			graphics.dispose();
+		}
+		Files.createDirectories(coverPath.getParent());
+		ImageIO.write(jpegImage, "jpg", coverPath.toFile());
+		return getScaledImage(jpegImage, 0);
 	}
 
 	public String getBase64Url(String image) {
@@ -303,6 +334,10 @@ public class ImageUtils {
 				}
 
 			File file = new File(basePath);
+			if (!isInsideLibrary(basePath)) {
+				log.warn("Refusing to read EPUB outside the configured library: {}", path);
+				return null;
+			}
 			log.debug("Checking path: {} (exists: {}, isDirectory: {})", basePath, file.exists(), file.isDirectory());
 
 			if (file.exists() && file.isDirectory()) {
@@ -357,6 +392,12 @@ public class ImageUtils {
 
 	private String normalizeLibraryPath() {
 		return libraryPath.endsWith(File.separator) ? libraryPath : libraryPath + File.separator;
+	}
+
+	private boolean isInsideLibrary(String path) {
+		Path libraryRoot = Path.of(libraryPath).toAbsolutePath().normalize();
+		Path requestedPath = Path.of(path).toAbsolutePath().normalize();
+		return requestedPath.startsWith(libraryRoot);
 	}
 
 }

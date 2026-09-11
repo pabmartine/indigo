@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
+
 @Service
 @Transactional
 public class MarkAsReadNotificationUseCaseImpl implements MarkAsReadNotificationUseCase {
@@ -28,11 +30,12 @@ public class MarkAsReadNotificationUseCaseImpl implements MarkAsReadNotification
 			notificationRepository.findById(id).ifPresent(notification -> {
 				if ("ADMIN".equalsIgnoreCase(usr.getRole())) {
 					notification.setReadAdmin(true);
+					notificationRepository.save(notification);
 				}
-				else {
+				else if (Objects.equals(usr.getUsername(), notification.getUser())) {
 					notification.setReadUser(true);
+					notificationRepository.save(notification);
 				}
-				notificationRepository.save(notification);
 			});
 		});
 	}

@@ -7,22 +7,25 @@ import com.martinia.indigo.common.infrastructure.api.model.ReviewDto;
 import com.martinia.indigo.common.infrastructure.mongo.mappers.ReviewMongoMapper;
 import com.martinia.indigo.metadata.domain.ports.adapters.amazon.FindAmazonReviewsPort;
 import com.martinia.indigo.metadata.domain.ports.adapters.goodreads.FindGoodReadsReviewsPort;
+import com.martinia.indigo.metadata.domain.model.MetadataItemResult;
 import com.martinia.indigo.metadata.domain.ports.usecases.commands.FindReviewMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import jakarta.annotation.Resource;
-import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @Service
-@Transactional
 public class FindReviewMetadataUseCaseImpl implements FindReviewMetadataUseCase {
 
 	@Resource
@@ -41,43 +44,78 @@ public class FindReviewMetadataUseCaseImpl implements FindReviewMetadataUseCase 
 	private ReviewMongoMapper reviewMongoMapper;
 
 	@Override
-	public void find(final String bookId, final boolean override, final String lang) {
+	public MetadataItemResult find(final String bookId, final boolean override, final String lang) {
 
-		bookRepository.findById(bookId).ifPresent(book -> {
+		return bookRepository.findById(bookId).map(book -> {
 
-			if (override || refreshReviewMetadata(book.getReviews())) {
-
-				List<ReviewDto> reviews = findGoodReadsReviewsPort.map(gr -> gr.getReviews(lang, book.getTitle(), book.getAuthors()))
-						.orElse(Collections.EMPTY_LIST);
-
-				if (CollectionUtils.isEmpty(reviews)) {
-					reviews = findAmazonReviewsPort.map(amazon -> amazon.getReviews(book.getTitle(), book.getAuthors()))
-							.orElse(Collections.EMPTY_LIST);
-				}
-
-					if (!CollectionUtils.isEmpty(reviews)) {
-						book.setReviews(reviewMongoMapper.domains2Entities(reviewDtoMapper.dtos2domains(reviews)));
-						if (book.getRating() == 0) {
-							book.setRating(
-									book.getReviews().stream().map(ReviewMongo::getRating).reduce(0, Integer::sum) / book.getReviews().size());
-						}
-					}
-
-				bookRepository.save(book);
-
+			if (!override && !refreshReviewMetadata(book)) {
+				return MetadataItemResult.SKIPPED;
 			}
-		});
+
+			List<ReviewDto> reviews = Collections.emptyList();
+			String error = null;
+			boolean providerSucceeded = false;
+			if (findGoodReadsReviewsPort.isPresent()) {
+				try {
+					reviews = findGoodReadsReviewsPort.get().getReviews(lang, book.getTitle(), book.getAuthors());
+					providerSucceeded = true;
+				}
+				catch (RuntimeException exception) {
+					com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
+					error = com.martinia.indigo.metadata.application.ProviderDiagnostics.record("GOODREADS", "Obtener reseñas", exception);
+					log.warn("Goodreads reviews failed for {}", book.getTitle(), exception);
+				}
+			}
+
+			if (CollectionUtils.isEmpty(reviews) && findAmazonReviewsPort.isPresent()) {
+				try {
+					reviews = findAmazonReviewsPort.get().getReviews(book.getTitle(), book.getAuthors());
+					providerSucceeded = true;
+				}
+				catch (RuntimeException exception) {
+					com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
+					error = (error == null ? "" : error + "; ") + com.martinia.indigo.metadata.application.ProviderDiagnostics.record("AMAZON", "Obtener reseñas", exception);
+					log.warn("Amazon reviews failed for {}", book.getTitle(), exception);
+				}
+			}
+
+			if (!CollectionUtils.isEmpty(reviews)) {
+				book.setReviews(mergeReviews(book.getReviews(),
+						reviewMongoMapper.domains2Entities(reviewDtoMapper.dtos2domains(reviews))));
+			}
+
+			final MetadataItemResult result = !CollectionUtils.isEmpty(reviews) ? MetadataItemResult.FOUND
+					: error == null && providerSucceeded ? MetadataItemResult.NOT_FOUND : MetadataItemResult.ERROR;
+			if (result != MetadataItemResult.ERROR) {
+				book.setLastReviewsMetadataSync(new Date());
+			}
+			book.setReviewsMetadataStatus(result.name());
+			book.setReviewsMetadataError(error);
+			bookRepository.save(book);
+			return result;
+		}).orElse(MetadataItemResult.SKIPPED);
 	}
 
-	private boolean refreshReviewMetadata(final List<ReviewMongo> reviews) {
-		return CollectionUtils.isEmpty(reviews) || reviews.stream().anyMatch(review -> {
-			LocalDateTime lastMetadataSync = Optional.ofNullable(review.getLastMetadataSync())
+	private boolean refreshReviewMetadata(final com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity book) {
+		return Optional.ofNullable(book.getLastReviewsMetadataSync())
 					.map(date -> date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
-					.orElse(LocalDateTime.now());
-			LocalDateTime currentDate = LocalDateTime.now();
-			LocalDateTime expirationDate = lastMetadataSync.plusDays(7);
-			return expirationDate.isBefore(currentDate);
-		});
+					.orElse(LocalDateTime.MIN).plusDays(7).isBefore(LocalDateTime.now());
+	}
+
+	private List<ReviewMongo> mergeReviews(final List<ReviewMongo> existing, final List<ReviewMongo> fetched) {
+		final Map<String, ReviewMongo> unique = new LinkedHashMap<>();
+		for (ReviewMongo review : Optional.ofNullable(existing).orElse(Collections.emptyList())) {
+			unique.put(reviewKey(review), review);
+		}
+		for (ReviewMongo review : fetched) {
+			unique.put(reviewKey(review), review);
+		}
+		return new ArrayList<>(unique.values());
+	}
+
+	private String reviewKey(final ReviewMongo review) {
+		return String.join("|", Optional.ofNullable(review.getProvider()).orElse(""), Optional.ofNullable(review.getName()).orElse("").trim().toLowerCase(),
+				String.valueOf(review.getDate()), String.valueOf(review.getRating()));
 	}
 
 }

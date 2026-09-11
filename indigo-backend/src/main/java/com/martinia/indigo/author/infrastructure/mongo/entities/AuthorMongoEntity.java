@@ -29,6 +29,7 @@ public class AuthorMongoEntity implements Serializable {
 	private String sort;
 	private String description;
 	private String provider;
+	private java.util.Map<String, String> metadataSources;
 	private String image;
 	private NumBooksMongo numBooks;
 

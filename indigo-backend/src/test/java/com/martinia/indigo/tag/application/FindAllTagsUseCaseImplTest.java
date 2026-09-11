@@ -34,12 +34,12 @@ public class FindAllTagsUseCaseImplTest extends BaseIndigoTest {
 	@Test
 	public void testFindAll_ReturnsAllTags() {
 		// Given
-		List<String> languages = Arrays.asList("English", "Spanish");
+		List<String> languages = List.of("spa");
 		String sort = "name";
 		String order = "asc";
 
 		final Map<String, Integer> langs = new HashMap<>();
-		langs.put("eng", 1);
+		langs.put("es", 1);
 
 		TagMongoEntity tag1 = new TagMongoEntity();
 		tag1.setId("1");
@@ -62,7 +62,7 @@ public class FindAllTagsUseCaseImplTest extends BaseIndigoTest {
 
 		// Then
 		assertEquals(2, tags.size());
-		// Assert other expectations
+		assertEquals(1, tag1.getNumBooks().getTotal());
+		assertEquals(1, tag2.getNumBooks().getTotal());
 	}
 }
-

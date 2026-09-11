@@ -18,6 +18,11 @@ import jakarta.annotation.Resource;
 @RequestMapping("/api/metadata")
 @Tag(name = "Metadata", description = "API for managing book metadata")
 public class StartMetadataController {
+    @org.springframework.web.bind.annotation.ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
+    public org.springframework.http.ResponseEntity<java.util.Map<String, String>> invalidState(org.springframework.web.server.ResponseStatusException error) {
+        return org.springframework.http.ResponseEntity.status(error.getStatusCode())
+                .body(java.util.Map.of("message", error.getReason() == null ? "Operación no válida" : error.getReason()));
+    }
 
 	@Resource
 	private StartMetadataUseCase useCase;

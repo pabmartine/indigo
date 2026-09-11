@@ -1,6 +1,7 @@
 package com.martinia.indigo.metadata.infrastructure.adapters.google;
 
 import com.martinia.indigo.metadata.domain.ports.adapters.google.FindGoogleBooksBookPort;
+import com.martinia.indigo.metadata.domain.model.BookMetadataResult;
 import com.martinia.indigo.metadata.domain.ports.usecases.google.FindGoogleBooksBookUseCase;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
@@ -16,7 +17,7 @@ public class FindGoogleBooksBookAdapter implements FindGoogleBooksBookPort {
 	private FindGoogleBooksBookUseCase findGoogleBooksBookUseCase;
 
 	@Override
-	public String[] findBook(final String title, final List<String> authors) {
+	public BookMetadataResult findBook(final String title, final List<String> authors) {
 		return findGoogleBooksBookUseCase.findBook(title, authors);
 	}
 }

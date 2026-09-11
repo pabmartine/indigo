@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@org.springframework.security.test.context.support.WithMockUser(authorities = "ADMIN")
 public class RefreshBookMetadataControllerIntegrationTest extends BaseIndigoIntegrationTest {
 
 	public static final String PATH = "path";

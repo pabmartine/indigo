@@ -12,15 +12,14 @@ import com.martinia.indigo.file.domain.model.events.EpubFileExtractedEvent;
 import com.martinia.indigo.file.domain.ports.usecases.commands.ExtractEpubFileUseCase;
 import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -70,21 +69,21 @@ public class ExtractEpubFileUseCaseImpl implements ExtractEpubFileUseCase {
 			uploadEpubFilesSingleton.addExtract();
 		}
 
-		bookOpf.setBookImage(extractImage(path, Optional.ofNullable(bookOpf.getBookImageName()).orElse("cover.jpg")));
-		bookOpf.setAuthorImage(extractImage(path, Optional.ofNullable(bookOpf.getAuthorImageName()).orElse("autor.jpg")));
+		bookOpf.setBookImage(extractBookCover(path, Optional.ofNullable(bookOpf.getBookImageName()).orElse("cover.jpg")));
+		bookOpf.setAuthorImage(extractImage(path, Optional.ofNullable(bookOpf.getAuthorImageName()).orElse("autor.jpg"), null));
 
 		eventBus.publish(EpubFileExtractedEvent.builder().path(path).bookOpf(bookOpf).build());
 
 	}
 
 	private Path checkEpubPath(final Path path) {
-		final String strPath = path.toString();
-		final String fileName = path.getFileName().toString();
-		final String basePath = strPath.replace(fileName, "").replace("/", "");
-		if (basePath.trim().equals(uploadsPath.replace("/", "").trim())) {
+		final Path normalizedPath = path.toAbsolutePath().normalize();
+		final Path uploadsRoot = Path.of(uploadsPath).toAbsolutePath().normalize();
+		final String fileName = normalizedPath.getFileName().toString();
+		if (uploadsRoot.equals(normalizedPath.getParent())) {
 			try {
-				Path newPath = Files.createDirectory(Path.of(uploadsPath + FileSystems.getDefault().getSeparator() + UUID.randomUUID()));
-				Path movedPath = Files.move(path, newPath.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
+				Path newPath = Files.createDirectory(uploadsRoot.resolve(UUID.randomUUID().toString()));
+				Path movedPath = Files.move(normalizedPath, newPath.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
 				return movedPath;
 			}
 			catch (IOException e) {
@@ -113,26 +112,46 @@ public class ExtractEpubFileUseCaseImpl implements ExtractEpubFileUseCase {
 		return bookOpf;
 	}
 
-	private String extractImage(final Path path, String fileName) {
+	private String extractImage(final Path path, String fileName, final String destinationFileName) {
 		String image = null;
-		String realFileName = fileName;
 		try (ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(path.toFile()))) {
 			ZipEntry zipEntry = zipInputStream.getNextEntry();
 			while (zipEntry != null) {
 				if (zipEntry.getName().toLowerCase().contains(fileName.toLowerCase())) {
-					realFileName = zipEntry.getName();
-					createImageIfNotExist(zipInputStream, path, zipEntry.getName().toLowerCase());
-					image = imageUtils.getBase64Cover(zipInputStream, true);
+					final byte[] imageBytes = zipInputStream.readAllBytes();
+					if (destinationFileName != null) {
+						createImageIfNotExist(imageBytes, path, destinationFileName);
+					}
+					image = imageUtils.getBase64Cover(new ByteArrayInputStream(imageBytes), true);
 					break;
 				}
 				zipEntry = zipInputStream.getNextEntry();
 			}
 		}
 		catch (Exception ex) {
-			log.error(ex.getMessage());
-			image = findAlternativeImageInPath(path, realFileName);
+			log.error("Unable to extract EPUB image from {}", path, ex);
+			if (destinationFileName != null) {
+				image = findAlternativeImageInPath(path, destinationFileName);
+			}
 		}
 		return image;
+	}
+
+	private String extractBookCover(final Path path, final String fileName) {
+		try (ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(path.toFile()))) {
+			ZipEntry zipEntry = zipInputStream.getNextEntry();
+			while (zipEntry != null) {
+				if (zipEntry.getName().toLowerCase().contains(fileName.toLowerCase())) {
+					return imageUtils.saveCoverAndGetThumbnail(zipInputStream.readAllBytes(), path.getParent().resolve("cover.jpg"));
+				}
+				zipEntry = zipInputStream.getNextEntry();
+			}
+		}
+		catch (Exception ex) {
+			log.error("Unable to extract EPUB cover from {}", path, ex);
+			return findAlternativeImageInPath(path, "cover.jpg");
+		}
+		return null;
 	}
 
 	private String findAlternativeImageInPath(final Path path, final String fileName) {
@@ -140,7 +159,9 @@ public class ExtractEpubFileUseCaseImpl implements ExtractEpubFileUseCase {
 		try {
 			final Path sourceCoverPath = Path.of(path.getParent() + FileSystems.getDefault().getSeparator() + fileName.replace("jpeg", "jpg"));
 			if (sourceCoverPath.toFile().exists()) {
-				image = imageUtils.getBase64Cover(Files.newInputStream(sourceCoverPath), true);
+				try (var inputStream = Files.newInputStream(sourceCoverPath)) {
+					image = imageUtils.getBase64Cover(inputStream, true);
+				}
 			}
 		}
 		catch (IOException ex) {
@@ -149,11 +170,14 @@ public class ExtractEpubFileUseCaseImpl implements ExtractEpubFileUseCase {
 		return image;
 	}
 
-	private void createImageIfNotExist(final InputStream inputStream, final Path path, final String fileName) {
+	private void createImageIfNotExist(final byte[] imageBytes, final Path path, final String fileName) {
 		try {
-			final Path sourceCoverPath = Path.of(path.getParent() + FileSystems.getDefault().getSeparator() + fileName.replace("jpeg", "jpg"));
+			final Path sourceCoverPath = path.getParent().resolve(fileName).normalize();
+			if (!sourceCoverPath.startsWith(path.getParent().toAbsolutePath().normalize())) {
+				throw new IllegalArgumentException("Invalid EPUB image path");
+			}
 			if (!sourceCoverPath.toFile().exists()) {
-				Files.copy(inputStream, sourceCoverPath, StandardCopyOption.REPLACE_EXISTING);
+				Files.write(sourceCoverPath, imageBytes);
 			}
 		}
 		catch (IOException e) {
@@ -162,5 +186,3 @@ public class ExtractEpubFileUseCaseImpl implements ExtractEpubFileUseCase {
 	}
 
 }
-
-

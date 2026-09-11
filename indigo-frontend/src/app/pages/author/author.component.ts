@@ -1,3 +1,4 @@
+import { normalizeBookLanguages } from 'src/app/utils/book-languages';
 import { Component, EventEmitter, HostListener, OnInit, Output, ChangeDetectorRef } from '@angular/core';
 import { Author } from 'src/app/domain/author';
 import { MessageService } from 'primeng/api';
@@ -29,6 +30,8 @@ export class AuthorComponent implements OnInit {
   user: User;
 
   books: Book[] = [];
+  isLoadingBooks = false;
+  booksLoadFailed = false;
   expandBooks: boolean;
   showExpandBooks: boolean;
 
@@ -221,14 +224,17 @@ export class AuthorComponent implements OnInit {
 
     this.adv_search = new Search();
     this.adv_search.author = this.selected.name;
-    this.adv_search.languages = this.user.languageBooks;
+    this.adv_search.languages = normalizeBookLanguages(this.user.languageBooks);
 
     this.getAll();
   }
 
   getAll(): void {
+    this.isLoadingBooks = true;
+    this.booksLoadFailed = false;
     this.bookService.getAllSummaryPage(this.adv_search, 0, 500, "pubDate", "desc").subscribe({
       next: (response) => {
+        this.isLoadingBooks = false;
         this.total = response.total || 0;
         this.title = this.translate.instant('locale.books.title_published') + "  (" + this.total + ")";
 
@@ -246,6 +252,8 @@ export class AuthorComponent implements OnInit {
         }, 200);
       },
       error: (error) => {
+        this.isLoadingBooks = false;
+        this.booksLoadFailed = true;
         console.log(error);
         this.messageService.clear();
         this.messageService.add({

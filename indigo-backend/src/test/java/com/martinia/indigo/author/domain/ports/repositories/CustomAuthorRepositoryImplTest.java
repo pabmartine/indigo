@@ -1,6 +1,7 @@
 package com.martinia.indigo.author.domain.ports.repositories;
 
 import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
+import com.martinia.indigo.common.util.LanguageCodeUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -37,7 +38,7 @@ class CustomAuthorRepositoryImplTest {
 
 		Query query = new Query();
 		List<Criteria> criterias = new ArrayList<>();
-		for (String lang : languages) {
+		for (String lang : languages.stream().flatMap(language -> LanguageCodeUtils.variants(language).stream()).distinct().toList()) {
 			criterias.add(Criteria.where("numBooks.languages." + lang).exists(true));
 		}
 		query.addCriteria(new Criteria().orOperator(criterias.toArray(new Criteria[0])));
@@ -60,7 +61,7 @@ class CustomAuthorRepositoryImplTest {
 
 		Query query = new Query().with(pageable);
 		List<Criteria> criterias = new ArrayList<>();
-		for (String lang : languages) {
+		for (String lang : languages.stream().flatMap(language -> LanguageCodeUtils.variants(language).stream()).distinct().toList()) {
 			criterias.add(Criteria.where("numBooks.languages." + lang).exists(true));
 		}
 		query.addCriteria(new Criteria().orOperator(criterias.toArray(new Criteria[0])));

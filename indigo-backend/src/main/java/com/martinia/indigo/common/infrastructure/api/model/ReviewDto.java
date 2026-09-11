@@ -17,5 +17,10 @@ public class ReviewDto {
 	private String comment;
 	private int rating;
 	private Date date;
+	private Date lastMetadataSync;
+	private String provider;
+	private String sourceUrl;
+	private String originalLanguage;
+	private String language;
 
 }

@@ -22,7 +22,7 @@ public class StopMetadataControllerTest extends BaseIndigoTest {
 	private MockMvc mockMvc;
 
 	@Test
-	@WithMockUser
+	@WithMockUser(authorities = "ADMIN")
 	public void testStop_ThenReturnOkStatus() throws Exception {
 		// When
 		mockMvc.perform(MockMvcRequestBuilders.get("/api/metadata/stop").contentType(MediaType.APPLICATION_JSON))

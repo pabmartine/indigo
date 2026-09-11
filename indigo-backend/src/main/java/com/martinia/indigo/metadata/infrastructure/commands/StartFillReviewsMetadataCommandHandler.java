@@ -18,7 +18,7 @@ public class StartFillReviewsMetadataCommandHandler extends CommandHandler<Start
 	@Override
 	public Void handle(final StartFillReviewsMetadataCommand command) {
 
-		startFillReviewsMetadataUseCase.start(command.isOverride(), command.getLang());
+		startFillReviewsMetadataUseCase.start(command.isOverride(), command.getLang(), command.getRunId());
 
 		return null;
 	}

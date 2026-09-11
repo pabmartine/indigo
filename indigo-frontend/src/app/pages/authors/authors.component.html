@@ -64,14 +64,8 @@
         </div>
 
         <!-- Authors grid -->
-        <cdk-virtual-scroll-viewport *ngIf="!isLoading"
-                                     class="authors-viewport"
-                                     [itemSize]="authorRowHeight"
-                                     minBufferPx="440"
-                                     maxBufferPx="880"
-                                     (scrolledIndexChange)="onVirtualScrollIndexChange($event)">
-          <div *cdkVirtualFor="let row of authorRows" class="authors-row">
-            <div *ngFor="let author of row; trackBy: trackByAuthorId" class="author-item" (click)="showDetails(author)">
+        <div *ngIf="!isLoading" class="authors-grid">
+            <div *ngFor="let author of authors; trackBy: trackByAuthorId" class="author-item" (click)="showDetails(author)">
 
               <div class="user_avatar">
                 <img [src]="author.image || './assets/images/avatar3.jpg'"
@@ -93,8 +87,8 @@
               </div>
 
             </div>
-          </div>
-        </cdk-virtual-scroll-viewport>
+        </div>
+        <div #scrollSentinel class="scroll-sentinel" aria-hidden="true"></div>
 
     </div>
   </div>

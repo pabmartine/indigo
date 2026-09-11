@@ -74,9 +74,11 @@ public class MarkAsReadNotificationUseCaseImplTest extends BaseIndigoTest {
 
 		NotificationMongoEntity notificationEntity = new NotificationMongoEntity();
 		notificationEntity.setId(id);
+		notificationEntity.setUser(user);
 
 		UserMongoEntity regularUser = new UserMongoEntity();
 		regularUser.setRole("USER");
+		regularUser.setUsername(user);
 
 		when(notificationRepository.findById(id)).thenReturn(Optional.of(notificationEntity));
 		when(userRepository.findById(user)).thenReturn(Optional.of(regularUser));
@@ -88,6 +90,26 @@ public class MarkAsReadNotificationUseCaseImplTest extends BaseIndigoTest {
 		verify(notificationRepository).save(notificationEntity);
 		assertFalse(notificationEntity.isReadAdmin());
 		assertTrue(notificationEntity.isReadUser());
+	}
+
+	@Test
+	public void testMarkAsRead_NonAdminUserCannotMarkAnotherUsersNotification() {
+		String id = "notification_id";
+		NotificationMongoEntity notificationEntity = new NotificationMongoEntity();
+		notificationEntity.setId(id);
+		notificationEntity.setUser("other_user");
+
+		UserMongoEntity regularUser = new UserMongoEntity();
+		regularUser.setRole("USER");
+		regularUser.setUsername("regular_user");
+
+		when(notificationRepository.findById(id)).thenReturn(Optional.of(notificationEntity));
+		when(userRepository.findById("regular_user")).thenReturn(Optional.of(regularUser));
+
+		markAsReadNotificationUseCase.markAsRead(id, "regular_user");
+
+		verify(notificationRepository, never()).save(Mockito.any(NotificationMongoEntity.class));
+		assertFalse(notificationEntity.isReadUser());
 	}
 
 	@Test

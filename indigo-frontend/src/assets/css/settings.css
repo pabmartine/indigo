@@ -28,6 +28,17 @@
   margin-right: 5px;
 }
 
+.settings .upload-detect-action {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+
+.settings .upload-detect-button,
+.settings .upload-detect-button .p-button {
+  width: auto;
+}
+
 .settings .success {
   color: var(--success-color);
 }
@@ -60,18 +71,8 @@
   gap: 1rem;
   padding: 0.9rem 1rem;
   border-radius: 14px;
-  border: 1px solid #cfe0ff;
-  background: #edf5ff;
-}
-
-.settings .authors-theme .metadata-section-header {
-  border-color: #bfead9;
-  background: #eefcf5;
-}
-
-.settings .reviews-theme .metadata-section-header {
-  border-color: #ffd98d;
-  background: #fff9ea;
+  border: 1px solid var(--border-light);
+  background: #f8fafc;
 }
 
 .settings .metadata-section-title-wrap {
@@ -91,34 +92,18 @@
   align-items: center;
   justify-content: center;
   background: #ffffff;
-  color: #2f6bff;
+  color: var(--text-primary);
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
   font-size: 1.2rem;
   flex-shrink: 0;
-}
-
-.settings .authors-theme .metadata-section-icon {
-  color: #1ea672;
-}
-
-.settings .reviews-theme .metadata-section-icon {
-  color: #f48b18;
 }
 
 .settings .metadata-section-title {
   font-size: 1.25rem;
   font-weight: 700;
   line-height: 1.1;
-  color: #2f6bff;
+  color: var(--text-primary);
   text-align: left;
-}
-
-.settings .authors-theme .metadata-section-title {
-  color: #1ea672;
-}
-
-.settings .reviews-theme .metadata-section-title {
-  color: #f48b18;
 }
 
 .settings .metadata-section-subtitle {
@@ -255,6 +240,69 @@
 .uploadsProgress .p-progressbar-determinate .p-progressbar-label {
   display: block !important;
   color: #fff;
+}
+
+.upload-process {
+  margin-top: .75rem;
+  padding: .9rem 1rem;
+  border: 1px solid var(--border-color, #dfe3e8);
+  border-radius: 6px;
+  background: #f8fafc;
+}
+
+.upload-process-running {
+  border-left: 4px solid var(--primary-color, #6b93c5);
+}
+
+.upload-process-success {
+  border-left: 4px solid #4f8a67;
+}
+
+.upload-process-error {
+  border-left: 4px solid #c17b45;
+}
+
+.upload-process-heading,
+.upload-result-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.upload-process-heading span {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.upload-process .uploadsProgress {
+  margin: .75rem 0;
+}
+
+.upload-process-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 1.5rem;
+  color: var(--text-muted, #667085);
+}
+
+.upload-stat-error {
+  color: #a95132;
+}
+
+.upload-result-actions {
+  margin-top: .8rem;
+  padding-top: .7rem;
+  border-top: 1px solid var(--border-color, #dfe3e8);
+}
+
+.upload-books-link {
+  border: 0;
+  background: transparent;
+  color: var(--primary-color, #527fb7);
+  cursor: pointer;
+  font-weight: 600;
 }
 
 .settings .confirmDialog .p-button-icon-left {

@@ -3,6 +3,7 @@ package com.martinia.indigo.metadata.infrastructure.adapters.google;
 import com.martinia.indigo.BaseIndigoIntegrationTest;
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.metadata.domain.model.ProviderEnum;
+import com.martinia.indigo.metadata.domain.model.BookMetadataResult;
 import com.martinia.indigo.metadata.domain.ports.adapters.google.FindGoogleBooksBookPort;
 import com.martinia.indigo.metadata.domain.ports.usecases.google.FindGoogleBooksBookUseCase;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,6 @@ import jakarta.annotation.Resource;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -39,12 +39,13 @@ public class FindGoogleBooksBookAdapterIntegrationTest extends BaseIndigoIntegra
 		Mockito.when(dataUtils.getData(anyString())).thenReturn(JSON);
 
 		// When
-		String[] results = findGoogleBooksBookPort.findBook(title, authors);
+		BookMetadataResult results = findGoogleBooksBookPort.findBook(title, authors);
 
 		// Then
 		assertNotNull(results);
-		assertEquals("4", results[0]);
-		assertEquals(ProviderEnum.GOOGLE.name(), results[1]);
+		assertEquals(4F, results.getRatingAverage());
+		assertEquals(4L, results.getRatingsCount());
+		assertEquals(ProviderEnum.GOOGLE.name(), results.getProvider());
 
 	}
 }

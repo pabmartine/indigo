@@ -5,6 +5,7 @@ import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
 import com.martinia.indigo.author.domain.ports.usecases.FindAllAuthorsUseCase;
 import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
 import com.martinia.indigo.author.infrastructure.mongo.mappers.AuthorMongoMapper;
+import com.martinia.indigo.common.util.LanguageCodeUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -38,7 +39,8 @@ public class FindAllAuthorsUseCaseImpl implements FindAllAuthorsUseCase {
 				PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(order), sort)));
 
 		authors = authors.stream().map(author -> {
-			author.getNumBooks().setTotal(author.getNumBooks().getLanguages().keySet().stream().filter(lang -> languages.contains(lang))
+			author.getNumBooks().setTotal(author.getNumBooks().getLanguages().keySet().stream()
+					.filter(lang -> languages.stream().anyMatch(requested -> LanguageCodeUtils.variants(requested).contains(lang)))
 					.mapToInt(lang -> author.getNumBooks().getLanguages().get(lang)).sum());
 			if (Optional.ofNullable(author.getImage()).isPresent() && author.getImage().equals(defaultImage)) {
 				author.setImage(null);

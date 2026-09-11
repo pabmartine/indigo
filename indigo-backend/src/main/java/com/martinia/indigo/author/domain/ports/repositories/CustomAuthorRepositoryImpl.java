@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
+import com.martinia.indigo.common.util.LanguageCodeUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -26,7 +27,7 @@ public class CustomAuthorRepositoryImpl implements CustomAuthorRepository {
 		Query query = new Query();
 		List<Criteria> criterias = new ArrayList<>();
 		if (!CollectionUtils.isEmpty(languages)) {
-			for (String lang : languages)
+			for (String lang : languages.stream().flatMap(language -> LanguageCodeUtils.variants(language).stream()).distinct().toList())
 				criterias.add(Criteria.where("numBooks.languages." + lang)
 						.exists(true));
 			query.addCriteria(new Criteria().orOperator(criterias.toArray(new Criteria[criterias.size()])));
@@ -40,7 +41,7 @@ public class CustomAuthorRepositoryImpl implements CustomAuthorRepository {
 		Query query = new Query().with(page);
 		List<Criteria> criterias = new ArrayList<>();
 		if (!CollectionUtils.isEmpty(languages)) {
-			for (String lang : languages)
+			for (String lang : languages.stream().flatMap(language -> LanguageCodeUtils.variants(language).stream()).distinct().toList())
 				criterias.add(Criteria.where("numBooks.languages." + lang)
 						.exists(true));
 			query.addCriteria(new Criteria().orOperator(criterias.toArray(new Criteria[criterias.size()])));

@@ -1,19 +1,24 @@
 ﻿import { Injectable } from '@angular/core';
 import { Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { AuthStateService } from '../services/auth-state.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthGuard  {
-    constructor(private router: Router) { }
+    constructor(
+        private router: Router,
+        private authState: AuthStateService
+    ) { }
 
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
 
 
-        if (route.routeConfig.path != 'books' && route.routeConfig.path != 'detail') { //TODO hacer un interceptor específico para los borrados
+        const routePath = route.routeConfig?.path;
+        if (routePath !== 'books' && routePath !== 'detail') { //TODO hacer un interceptor específico para los borrados
             sessionStorage.removeItem("position");
         }
 
 
-        if (sessionStorage.user) {
+        if (this.authState.isAuthenticated()) {
             return true;
         }
 

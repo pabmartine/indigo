@@ -12,7 +12,7 @@ import jakarta.annotation.Resource;
 import java.util.List;
 
 @Component
-@ConditionalOnProperty(name = "flags.goodreads", havingValue="true")
+@ConditionalOnProperty(name = "flags.goodreads-reviews", havingValue="true")
 @Slf4j
 public class FindGoodReadsReviewsAdapter implements FindGoodReadsReviewsPort {
 

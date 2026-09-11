@@ -6,6 +6,8 @@ import com.martinia.indigo.book.infrastructure.mongo.mappers.BookMongoMapper;
 import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import com.martinia.indigo.common.util.ImageUtils;
 import com.martinia.indigo.metadata.domain.model.commands.FindBookMetadataCommand;
+import com.martinia.indigo.metadata.domain.model.DynamicMetadataPolicy;
+import com.martinia.indigo.metadata.domain.model.MetadataMergePolicy;
 import com.martinia.indigo.metadata.domain.model.commands.FindReviewMetadataCommand;
 import com.martinia.indigo.metadata.domain.ports.usecases.RefreshBookMetadataUseCase;
 import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
@@ -44,7 +46,12 @@ public class RefreshBookMetadataUseCaseImpl implements RefreshBookMetadataUseCas
 
 		return bookRepository.findByPath(path).map(book -> {
 
-			commandBus.executeAndWait(FindBookMetadataCommand.builder().bookId(book.getId()).override(true).lastExecution(0).build());
+			commandBus.executeAndWait(FindBookMetadataCommand.builder()
+					.bookId(book.getId())
+					.mergePolicy(MetadataMergePolicy.FILL_MISSING)
+					.dynamicPolicy(DynamicMetadataPolicy.REFRESH_IF_STALE)
+					.lastExecution(0)
+					.build());
 			commandBus.executeAndWait(
 					FindReviewMetadataCommand.builder().bookId(book.getId()).override(true).lastExecution(0).lang(lang).build());
 			return Optional.of(mapper.entity2Domain(bookRepository.findByPath(path).get()));

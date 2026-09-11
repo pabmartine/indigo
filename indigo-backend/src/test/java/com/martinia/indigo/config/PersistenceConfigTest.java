@@ -13,6 +13,7 @@ public class PersistenceConfigTest {
 
 	static {
 		MONGO_DB_CONTAINER.start();
+		System.setProperty("spring.data.mongodb.host", MONGO_DB_CONTAINER.getHost());
 		var mappedPort = MONGO_DB_CONTAINER.getMappedPort(27017);
 		System.setProperty("mongodb.container.port", String.valueOf(mappedPort));
 	}

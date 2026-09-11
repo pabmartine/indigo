@@ -12,12 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
-import org.springframework.transaction.annotation.Transactional;
-import java.util.Arrays;
 
 @Slf4j
 @Service
-@Transactional
 public class FindWikipediaAuthorUseCaseImpl implements FindWikipediaAuthorUseCase {
 
 	@Value("${metadata.wikipedia.author}")
@@ -51,7 +48,7 @@ public class FindWikipediaAuthorUseCaseImpl implements FindWikipediaAuthorUseCas
 				JsonNode search = query.get("search");
 
 				String strTitle = null;
-				String[] terms = subject.split(" ");
+				String normalizedSubject = subject.toLowerCase().trim();
 				if (search.isArray() && !search.isEmpty()) {
 					for (final JsonNode objNode : search) {
 						JsonNode title = objNode.get("title");
@@ -60,10 +57,7 @@ public class FindWikipediaAuthorUseCaseImpl implements FindWikipediaAuthorUseCas
 						String filterTitle = StringUtils.stripAccents(strTitle).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ")
 								.toLowerCase().trim();
 
-						long hasTerms = Arrays.stream(terms)
-								.filter(term -> filterTitle.contains(StringUtils.stripAccents(term).toLowerCase().trim())).count();
-
-						if (terms.length == 1 && hasTerms > 0 || terms.length > 1 && hasTerms > 1) {
+					if (filterTitle.equals(normalizedSubject) || filterTitle.startsWith(normalizedSubject + " ")) {
 							break;
 						}
 						else {
@@ -88,7 +82,7 @@ public class FindWikipediaAuthorUseCaseImpl implements FindWikipediaAuthorUseCas
 			}
 		}
 		catch (Exception e) {
-			log.error(url);
+			throw new IllegalStateException("Could not obtain Wikipedia metadata from " + url, e);
 		}
 
 		return ret;

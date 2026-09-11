@@ -89,4 +89,25 @@ public class FindFavoriteAuthorsUseCaseImplTest extends BaseIndigoTest {
 
 		assert (favoriteAuthors.size() == favoriteAuthorNames.size());
 	}
+
+	@Test
+	public void testGetFavoriteAuthors_IgnoresDeletedFavoriteAuthors() {
+		String user = "john_doe";
+		UserMongoEntity userEntity = new UserMongoEntity();
+		userEntity.setUsername(user);
+		userEntity.setFavoriteAuthors(Arrays.asList("Available author", "Deleted author"));
+
+		AuthorMongoEntity availableAuthor = new AuthorMongoEntity();
+		availableAuthor.setName("Available author");
+		Author mappedAuthor = new Author();
+
+		when(userRepository.findByUsername(user)).thenReturn(Optional.of(userEntity));
+		when(authorRepository.findByName("Available author")).thenReturn(Optional.of(availableAuthor));
+		when(authorRepository.findByName("Deleted author")).thenReturn(Optional.empty());
+		when(authorMongoMapper.entity2Domain(availableAuthor)).thenReturn(mappedAuthor);
+
+		List<Author> favoriteAuthors = findFavoriteAuthorsUseCase.getFavoriteAuthors(user);
+
+		org.junit.jupiter.api.Assertions.assertEquals(Collections.singletonList(mappedAuthor), favoriteAuthors);
+	}
 }

@@ -1,6 +1,8 @@
 package com.martinia.indigo.metadata.infrastructure.commands;
 
 import com.martinia.indigo.BaseIndigoTest;
+import com.martinia.indigo.metadata.domain.model.DynamicMetadataPolicy;
+import com.martinia.indigo.metadata.domain.model.MetadataMergePolicy;
 import com.martinia.indigo.metadata.domain.model.commands.FindBookMetadataCommand;
 import com.martinia.indigo.metadata.domain.ports.usecases.commands.FindBookMetadataUseCase;
 import org.junit.jupiter.api.Test;
@@ -27,12 +29,12 @@ public class FindBookMetadataCommandHandlerTest extends BaseIndigoTest {
 	public void testHandle() {
 		// Given
 		String bookId = "book-123";
-		boolean override = true;
 		long lastExecution = LocalDateTime.now().getLong(ChronoField.CLOCK_HOUR_OF_DAY);
 
 		FindBookMetadataCommand command = FindBookMetadataCommand.builder()
 				.bookId(bookId)
-				.override(override)
+				.mergePolicy(MetadataMergePolicy.FILL_MISSING)
+				.dynamicPolicy(DynamicMetadataPolicy.REFRESH_IF_STALE)
 				.lastExecution(lastExecution)
 				.build();
 
@@ -40,6 +42,7 @@ public class FindBookMetadataCommandHandlerTest extends BaseIndigoTest {
 		findBookMetadataCommandHandler.handle(command);
 
 		// Then
-		verify(findBookMetadataUseCase, times(1)).find(bookId, override, lastExecution);
+		verify(findBookMetadataUseCase, times(1)).find(bookId, MetadataMergePolicy.FILL_MISSING,
+				DynamicMetadataPolicy.REFRESH_IF_STALE, lastExecution);
 	}
 }

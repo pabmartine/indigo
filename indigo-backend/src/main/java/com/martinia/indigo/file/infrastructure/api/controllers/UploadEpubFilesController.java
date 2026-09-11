@@ -32,6 +32,9 @@ public class UploadEpubFilesController {
 	@PostMapping(value = "/upload", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Void> upload(
 			@Parameter(description = "The number of EPUB files to upload", example = "10") @RequestParam Long number) {
+		if (number == null || number <= 0) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
 		useCase.upload(number);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}

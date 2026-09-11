@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,8 +32,9 @@ public class DeleteNotificationController {
 			})
 	@DeleteMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Void> delete(
-			@Parameter(description = "The ID of the notification to delete", example = "60c72b2f9b1e8c001c8e4a0a") @RequestParam String id) {
-		useCase.delete(id);
+			@Parameter(description = "The ID of the notification to delete", example = "60c72b2f9b1e8c001c8e4a0a") @RequestParam String id,
+			Authentication authentication) {
+		useCase.delete(id, authentication.getName());
 		return new ResponseEntity<>(HttpStatus.OK);
 
 	}

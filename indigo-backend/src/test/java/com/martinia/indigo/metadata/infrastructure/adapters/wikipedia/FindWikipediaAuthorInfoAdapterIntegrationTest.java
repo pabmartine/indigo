@@ -36,6 +36,7 @@ class FindWikipediaAuthorInfoAdapterIntegrationTest extends BaseIndigoIntegratio
 
 		//Then
 		assertArrayEquals(expectedAuthorInfo, authorInfo);
+		Mockito.verifyNoInteractions(detectLibreTranslatePort, translateLibreTranslatePort);
 
 	}
 }

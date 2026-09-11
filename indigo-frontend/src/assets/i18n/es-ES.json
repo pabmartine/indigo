@@ -294,7 +294,6 @@
                 "metadata": {
                     "title": "Metadatos",
                     "pull": "Realizar una petición cada (segundos)",
-                    "goodreadskey": "Clave de desarrollador de GoodReads",
                     "all": {
                         "partial": "Actualizar todos los metadatos (ratings, comentarios, biografía del autor, etc.) para libros nuevos",
                         "full": "Actualizar todos los metadatos (ratings, comentarios, biografía del autor, etc.) para toda la biblioteca. Sobreescribir existentes."

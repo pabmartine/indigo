@@ -72,6 +72,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 	private String collectionName = BookMongoEntity.class.getAnnotation(org.springframework.data.mongodb.core.mapping.Document.class)
 			.collection();
 
+
 	public long countBooks(Search search) {
 		Query query = buildSearchQuery(search);
 		return mongoTemplate.count(query, BookMongoEntity.class);

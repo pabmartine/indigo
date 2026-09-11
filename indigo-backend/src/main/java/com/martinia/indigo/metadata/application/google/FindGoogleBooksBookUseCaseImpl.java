@@ -2,6 +2,7 @@ package com.martinia.indigo.metadata.application.google;
 
 import com.martinia.indigo.common.util.DataUtils;
 import com.martinia.indigo.metadata.domain.model.ProviderEnum;
+import com.martinia.indigo.metadata.domain.model.BookMetadataResult;
 import com.martinia.indigo.metadata.domain.ports.usecases.google.FindGoogleBooksBookUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -12,9 +13,7 @@ import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
-import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,29 +22,38 @@ import java.util.Objects;
 @Slf4j
 @Service
 @ConditionalOnProperty(name = "flags.google", havingValue = "true")
-@Transactional
 public class FindGoogleBooksBookUseCaseImpl implements FindGoogleBooksBookUseCase {
 
 	@Value("${metadata.google.url}")
 	private String endpoint;
 
+	@Value("${metadata.google.api-key:}")
+	private String apiKey;
+
 	@Resource
 	private DataUtils dataUtils;
 
 	@Override
-	public String[] findBook(String title, List<String> authors) {
+	public BookMetadataResult findBook(String title, List<String> authors) {
 
-		String[] ret = null;
+		BookMetadataResult ret = null;
+		final String originalTitle = title;
 
 		try {
 
-			String author = String.join(" ", authors);
+			List<String> safeAuthors = authors == null ? List.of() : authors;
+			List<String> normalizedAuthors = safeAuthors.stream().map(this::normalize).toList();
+			String author = String.join(" ", safeAuthors);
 
-			author = StringUtils.stripAccents(author).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ");
-			title = StringUtils.stripAccents(title.replaceAll("ñ", "-")).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ")
+			author = normalize(author);
+			title = StringUtils.stripAccents(title).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ")
 					.replaceAll(" ", "%20");
 
-			String json = dataUtils.getData(endpoint.replace("$title", title));
+			String requestUrl = endpoint.replace("$title", title).replace("$author", author.replace(" ", "%20"));
+			if (StringUtils.isNotBlank(apiKey)) {
+				requestUrl += (requestUrl.contains("?") ? "&" : "?") + "key=" + apiKey.trim();
+			}
+			String json = dataUtils.getData(requestUrl);
 
 			if (StringUtils.isNoneEmpty(json)) {
 				JsonParser springParser = JsonParserFactory.getJsonParser();
@@ -55,7 +63,6 @@ public class FindGoogleBooksBookUseCaseImpl implements FindGoogleBooksBookUseCas
 					ArrayList<LinkedHashMap<String, Object>> items = (ArrayList<LinkedHashMap<String, Object>>) map.get("items");
 
 					String finalTitle = title;
-					String finalAuthor = author;
 					ret = items.stream().map(item -> {
 						LinkedHashMap<String, Object> volumeInfo = (LinkedHashMap<String, Object>) item.get("volumeInfo");
 
@@ -63,31 +70,26 @@ public class FindGoogleBooksBookUseCaseImpl implements FindGoogleBooksBookUseCas
 						String filterName = StringUtils.stripAccents(name).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ")
 								.toLowerCase().trim();
 
-						String[] terms = finalTitle.split("%20");
+						String expectedTitle = finalTitle.replace("%20", " ").toLowerCase().trim();
 
-						long hasTerms = Arrays.stream(terms)
-								.filter(term -> filterName.contains(StringUtils.stripAccents(term).toLowerCase().trim())).count();
-
-						if (terms.length == 1 && hasTerms > 0 || terms.length > 1 && hasTerms > 1) {
+						if (filterName.equals(expectedTitle) || filterName.startsWith(expectedTitle + " ")) {
 
 							ArrayList<String> _authors = (ArrayList<String>) volumeInfo.get("authors");
-							if (_authors != null) {
+							if (_authors != null && !normalizedAuthors.isEmpty()) {
 								return _authors.stream().map(_author -> {
 
 									String filterAuthor = StringUtils.stripAccents(_author).replaceAll("[^a-zA-Z0-9]", " ")
 											.replaceAll("\\s+", " ").toLowerCase().trim();
 
-									String[] authorTerms = finalAuthor.split(" ");
-
-									long authorHasTerms = Arrays.stream(authorTerms)
-											.filter(term -> filterAuthor.contains(StringUtils.stripAccents(term).toLowerCase().trim()))
-											.count();
-
-									if (authorTerms.length == 1 && authorHasTerms > 0 || authorTerms.length > 1 && authorHasTerms > 1) {
+									if (normalizedAuthors.contains(filterAuthor)) {
 
 										if (volumeInfo.get("averageRating") != null) {
-											String rating = volumeInfo.get("averageRating").toString();
-											return new String[] { rating, ProviderEnum.GOOGLE.name() };
+											return BookMetadataResult.builder()
+													.ratingAverage(Float.valueOf(volumeInfo.get("averageRating").toString()))
+													.ratingsCount(asLong(volumeInfo.get("ratingsCount")))
+													.provider(ProviderEnum.GOOGLE.name())
+													.matchConfidence(1D)
+													.build();
 										}
 									}
 									return null;
@@ -104,9 +106,21 @@ public class FindGoogleBooksBookUseCaseImpl implements FindGoogleBooksBookUseCas
 
 		}
 		catch (Exception e) {
-			log.error(e.getMessage());
+			throw new IllegalStateException("Could not obtain Google Books metadata for " + originalTitle, e);
 		}
 
 		return ret;
+	}
+
+	private Long asLong(final Object value) {
+		return value == null ? null : Long.valueOf(value.toString());
+	}
+
+	private String normalize(final String value) {
+		return StringUtils.stripAccents(StringUtils.defaultString(value))
+				.replaceAll("[^a-zA-Z0-9]", " ")
+				.replaceAll("\\s+", " ")
+				.toLowerCase()
+				.trim();
 	}
 }

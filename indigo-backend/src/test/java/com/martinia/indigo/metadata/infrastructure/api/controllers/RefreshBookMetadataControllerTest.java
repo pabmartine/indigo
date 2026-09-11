@@ -29,7 +29,7 @@ public class RefreshBookMetadataControllerTest extends BaseIndigoTest {
 	private MockMvc mockMvc;
 
 	@Test
-	@WithMockUser
+	@WithMockUser(authorities = "ADMIN")
 	public void testRefreshBook_WhenRequestParamProvided_ThenReturnOkStatusAndBookDto() throws Exception {
 		// Given
 		String book = "exampleBook";

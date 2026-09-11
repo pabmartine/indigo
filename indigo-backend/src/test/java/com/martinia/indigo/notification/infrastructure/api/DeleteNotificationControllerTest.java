@@ -39,6 +39,6 @@ public class DeleteNotificationControllerTest extends BaseIndigoTest {
 				.andExpect(status().isOk()).andReturn();
 
 		// Then
-		verify(deleteNotificationUseCase).delete(id);
+		verify(deleteNotificationUseCase).delete(id, "user");
 	}
 }

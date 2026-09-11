@@ -8,6 +8,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @SuperBuilder
 @Data
@@ -19,6 +20,9 @@ public class BookOpf {
 	private List<String> authors;
 	private List<String> translators;
 	private List<String> tags;
+	private List<String> isbn10;
+	private List<String> isbn13;
+	private Map<String, List<String>> identifiers;
 	private String language;
 	private Date pubDate;
 	private Date lastModified;

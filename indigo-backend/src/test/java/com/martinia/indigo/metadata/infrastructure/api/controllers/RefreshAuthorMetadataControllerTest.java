@@ -29,7 +29,7 @@ public class RefreshAuthorMetadataControllerTest extends BaseIndigoTest {
 	private MockMvc mockMvc;
 
 	@Test
-	@WithMockUser
+	@WithMockUser(authorities = "ADMIN")
 	public void testRefreshAuthor_WhenRequestParamsProvided_ThenReturnOkStatusAndAuthorDto() throws Exception {
 		// Given
 		String lang = "en";

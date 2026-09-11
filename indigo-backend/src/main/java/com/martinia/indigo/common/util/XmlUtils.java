@@ -13,10 +13,14 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -64,6 +68,9 @@ public class XmlUtils {
 					.map(index -> (int) Math.floor(index))
 					.orElse(0);
 			final List<String> subjects = getSubjects(root);
+			final Map<String, List<String>> identifiers = getIdentifiers(root);
+			final List<String> isbn10 = identifiers.getOrDefault("ISBN_10", Collections.emptyList());
+			final List<String> isbn13 = identifiers.getOrDefault("ISBN_13", Collections.emptyList());
 			int pages = Optional.ofNullable(getMetaAttributeValue(root, "calibre:user_metadata:#pages", "#value#"))
 					.filter(StringUtils::isNoneEmpty)
 					.filter(item -> !item.equals("null"))
@@ -81,9 +88,9 @@ public class XmlUtils {
 			final float version = Optional.ofNullable(getMetaAttributeValue(root, "calibre:user_metadata:#version", "#value#"))
 					.filter(StringUtils::isNoneEmpty)
 					.map(vrs -> vrs.replace("[", "").replace("]", "").replace("'", "").replace("\"", ""))
-					.map(Float::parseFloat)
+					.map(XmlUtils::parseVersion)
 					.orElse(0F);
-			final String bookImageName = getMetaContent(root, "cover");
+			final String bookImageName = getManifestItemHref(root, getMetaContent(root, "cover"), "cover-image");
 			final String authorImageName = getMetaContent(root, "autor");
 
 			final BookOpf bookOpf = BookOpf.builder()
@@ -93,6 +100,9 @@ public class XmlUtils {
 					.authorId(creatorId)
 					.translators(translators)
 					.tags(subjects)
+					.isbn10(isbn10)
+					.isbn13(isbn13)
+					.identifiers(identifiers)
 					.language(language)
 					.pubDate(pubDate)
 					.lastModified(lastModified)
@@ -113,6 +123,13 @@ public class XmlUtils {
 		}
 	}
 
+	private static float parseVersion(String value) {
+		try {
+			float version = Float.parseFloat(value.trim());
+			return Float.isFinite(version) && version > 0 ? version : 0F;
+		} catch (NumberFormatException exception) { return 0F; }
+	}
+
 	private static String getAttribute(final Element parent, final String name, final String attribute) {
 		return IntStream.range(0, parent.getElementsByTagName(name).getLength())
 				.mapToObj(i -> (Element) parent.getElementsByTagName(name).item(i))
@@ -123,13 +140,170 @@ public class XmlUtils {
 				.orElse(null);
 	}
 
+	private static String getManifestItemHref(final Element parent, final String itemId, final String property) {
+		String propertyHref = null;
+		final NodeList elements = parent.getElementsByTagName("*");
+		for (int i = 0; i < elements.getLength(); i++) {
+			final Node node = elements.item(i);
+			final String nodeName = node.getNodeName().toLowerCase(Locale.ROOT);
+			if (!(node instanceof Element item) || (!nodeName.equals("item") && !nodeName.endsWith(":item"))) {
+				continue;
+			}
+			final String href = item.getAttribute("href");
+			if (StringUtils.isEmpty(href)) {
+				continue;
+			}
+			if (StringUtils.isNotEmpty(itemId) && itemId.equals(item.getAttribute("id"))) {
+				return href;
+			}
+			if (Arrays.asList(item.getAttribute("properties").split("\\s+")).contains(property)) {
+				propertyHref = href;
+			}
+		}
+		return Optional.ofNullable(propertyHref).orElse(itemId);
+	}
+
 	private static List<String> getSubjects(Element parent) {
-		String subjectValue = getElementValue(parent, "dc:subject");
-		if (StringUtils.isEmpty(subjectValue)) {
-			return Collections.emptyList();
+		final Map<String, String> subjects = new LinkedHashMap<>();
+		final NodeList elements = parent.getElementsByTagName("*");
+		for (int i = 0; i < elements.getLength(); i++) {
+			final Node node = elements.item(i);
+			final String nodeName = node.getNodeName().toLowerCase(Locale.ROOT);
+			if (!nodeName.equals("subject") && !nodeName.endsWith(":subject")) {
+				continue;
+			}
+			for (String value : node.getTextContent().split("[,;]")) {
+				final String subject = value.trim();
+				if (StringUtils.isNotEmpty(subject)) {
+					subjects.putIfAbsent(subject.toLowerCase(Locale.ROOT), subject);
+				}
+			}
+		}
+		return new ArrayList<>(subjects.values());
+	}
+
+	private static Map<String, List<String>> getIdentifiers(final Element parent) {
+		final Map<String, String> refinedTypes = getRefinedIdentifierTypes(parent);
+		final Map<String, List<String>> identifiers = new LinkedHashMap<>();
+		final NodeList elements = parent.getElementsByTagName("*");
+		for (int i = 0; i < elements.getLength(); i++) {
+			final Node node = elements.item(i);
+			final String nodeName = node.getNodeName().toLowerCase(Locale.ROOT);
+			if (!(node instanceof Element identifier)
+					|| (!nodeName.equals("identifier") && !nodeName.endsWith(":identifier"))) {
+				continue;
+			}
+
+			final String rawValue = StringUtils.trimToNull(identifier.getTextContent());
+			if (rawValue == null) {
+				continue;
+			}
+			String scheme = StringUtils.firstNonBlank(identifier.getAttribute("opf:scheme"),
+					identifier.getAttribute("scheme"));
+			if (StringUtils.isBlank(scheme) && StringUtils.isNotBlank(identifier.getAttribute("id"))) {
+				scheme = refinedTypes.get(identifier.getAttribute("id"));
+			}
+			addIdentifier(identifiers, scheme, rawValue);
+		}
+		return identifiers;
+	}
+
+	private static Map<String, String> getRefinedIdentifierTypes(final Element parent) {
+		final Map<String, String> types = new LinkedHashMap<>();
+		final NodeList elements = parent.getElementsByTagName("*");
+		for (int i = 0; i < elements.getLength(); i++) {
+			if (!(elements.item(i) instanceof Element meta)
+					|| !"identifier-type".equalsIgnoreCase(meta.getAttribute("property"))) {
+				continue;
+			}
+			final String target = StringUtils.removeStart(meta.getAttribute("refines"), "#");
+			final String value = StringUtils.trimToNull(meta.getTextContent());
+			if (StringUtils.isNotBlank(target) && value != null) {
+				types.put(target, switch (value) {
+					case "02" -> "ISBN_10";
+					case "15" -> "ISBN_13";
+					default -> value;
+				});
+			}
+		}
+		return types;
+	}
+
+	private static void addIdentifier(final Map<String, List<String>> identifiers, final String declaredScheme,
+			final String rawValue) {
+		final String normalizedIsbn = normalizeIsbn(rawValue);
+		final boolean isbnCandidate = StringUtils.containsIgnoreCase(declaredScheme, "isbn")
+				|| StringUtils.startsWithIgnoreCase(rawValue, "urn:isbn:")
+				|| rawValue.matches("(?i)[0-9X\\-\\s]+?");
+		if (isbnCandidate && normalizedIsbn.length() == 10 && isValidIsbn10(normalizedIsbn)) {
+			addIdentifierValue(identifiers, "ISBN_10", normalizedIsbn);
+			return;
+		}
+		if (isbnCandidate && normalizedIsbn.length() == 13 && isValidIsbn13(normalizedIsbn)) {
+			addIdentifierValue(identifiers, "ISBN_13", normalizedIsbn);
+			return;
 		}
 
-		return Arrays.stream(subjectValue.split(",")).map(String::trim).collect(Collectors.toList());
+		String scheme = StringUtils.trimToNull(declaredScheme);
+		String value = rawValue.trim();
+		final int urnSeparator = value.indexOf(':');
+		if (scheme == null && value.regionMatches(true, 0, "urn:", 0, 4) && urnSeparator >= 0) {
+			final int valueSeparator = value.indexOf(':', urnSeparator + 1);
+			if (valueSeparator > urnSeparator) {
+				scheme = value.substring(urnSeparator + 1, valueSeparator);
+				value = value.substring(valueSeparator + 1);
+			}
+		}
+		addIdentifierValue(identifiers, normalizeIdentifierScheme(scheme), value);
+	}
+
+	private static void addIdentifierValue(final Map<String, List<String>> identifiers, final String scheme,
+			final String value) {
+		final List<String> values = identifiers.computeIfAbsent(scheme, ignored -> new ArrayList<>());
+		if (values.stream().noneMatch(value::equalsIgnoreCase)) {
+			values.add(value);
+		}
+	}
+
+	private static String normalizeIdentifierScheme(final String scheme) {
+		if (StringUtils.isBlank(scheme)) {
+			return "OTHER";
+		}
+		final String normalized = scheme.trim().toUpperCase(Locale.ROOT).replaceAll("[^A-Z0-9]+", "_")
+				.replaceAll("^_+|_+$", "");
+		return normalized.isEmpty() ? "OTHER" : normalized;
+	}
+
+	private static String normalizeIsbn(final String value) {
+		String candidate = value.trim();
+		if (candidate.regionMatches(true, 0, "urn:isbn:", 0, 9)) {
+			candidate = candidate.substring(9);
+		}
+		return candidate.replaceAll("[^0-9Xx]", "").toUpperCase(Locale.ROOT);
+	}
+
+	private static boolean isValidIsbn10(final String isbn) {
+		int sum = 0;
+		for (int i = 0; i < 10; i++) {
+			final char character = isbn.charAt(i);
+			if (character == 'X' && i != 9 || character != 'X' && !Character.isDigit(character)) {
+				return false;
+			}
+			final int digit = character == 'X' ? 10 : Character.digit(character, 10);
+			sum += (10 - i) * digit;
+		}
+		return sum % 11 == 0;
+	}
+
+	private static boolean isValidIsbn13(final String isbn) {
+		int sum = 0;
+		for (int i = 0; i < 13; i++) {
+			if (!Character.isDigit(isbn.charAt(i))) {
+				return false;
+			}
+			sum += Character.digit(isbn.charAt(i), 10) * (i % 2 == 0 ? 1 : 3);
+		}
+		return sum % 10 == 0;
 	}
 
 	private static List<String> getCreators(Element parent) {
@@ -257,4 +431,3 @@ public class XmlUtils {
 	}
 
 }
-

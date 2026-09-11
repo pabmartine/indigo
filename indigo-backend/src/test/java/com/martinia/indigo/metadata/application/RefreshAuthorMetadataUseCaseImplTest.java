@@ -9,10 +9,10 @@ import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import com.martinia.indigo.common.util.DataUtils;
 import com.martinia.indigo.metadata.domain.ports.usecases.RefreshAuthorMetadataUseCase;
 import com.martinia.indigo.metadata.domain.ports.usecases.amazon.FindAmazonReviewsUseCase;
-import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsAuthorUseCase;
-import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsBookUseCase;
 import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsReviewsUseCase;
 import com.martinia.indigo.metadata.domain.ports.usecases.google.FindGoogleBooksBookUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.openlibrary.FindOpenLibraryAuthorUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.openlibrary.FindOpenLibraryBookUseCase;
 import com.martinia.indigo.metadata.domain.ports.usecases.wikipedia.FindWikipediaAuthorUseCase;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
@@ -45,10 +45,10 @@ public class RefreshAuthorMetadataUseCaseImplTest extends BaseIndigoTest {
 	private RefreshAuthorMetadataUseCase refreshAuthorMetadataUseCase;
 
 	@MockBean
-	private FindGoodReadsBookUseCase findGoodReadsBookUseCase;
+	private FindOpenLibraryBookUseCase findOpenLibraryBookUseCase;
 
 	@MockBean
-	private FindGoodReadsAuthorUseCase findGoodReadsAuthorUseCase;
+	private FindOpenLibraryAuthorUseCase findOpenLibraryAuthorUseCase;
 
 	@MockBean
 	private FindGoodReadsReviewsUseCase findGoodReadsReviewsUseCase;

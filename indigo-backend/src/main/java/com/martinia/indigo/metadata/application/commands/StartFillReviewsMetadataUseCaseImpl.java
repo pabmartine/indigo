@@ -6,18 +6,17 @@ import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import com.martinia.indigo.common.singletons.MetadataSingleton;
 import com.martinia.indigo.metadata.domain.model.commands.FindReviewMetadataCommand;
+import com.martinia.indigo.metadata.domain.model.MetadataItemResult;
 import com.martinia.indigo.metadata.domain.ports.usecases.commands.StartFillReviewsMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import jakarta.annotation.Resource;
-import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Slf4j
 @Service
-@Transactional
 public class StartFillReviewsMetadataUseCaseImpl implements StartFillReviewsMetadataUseCase {
 
 	private static final int BATCH_SIZE = 100;
@@ -33,24 +32,50 @@ public class StartFillReviewsMetadataUseCaseImpl implements StartFillReviewsMeta
 
 	@Resource
 	protected CommandBus commandBus;
+	@org.springframework.beans.factory.annotation.Autowired(required = false)
+	private com.martinia.indigo.metadata.application.reviews.ReviewQueueService reviewQueue;
 
 	@Override
-	@Transactional
-	public void start(boolean override, String lang) {
+	public void start(boolean override, String lang, long requestedRunId) {
+		if (reviewQueue != null) {
+			reviewQueue.start(override, lang, false);
+			if (requestedRunId > 0) metadataSingleton.complete(requestedRunId);
+			return;
+		}
 
 		log.info("Finding reviews for all book library");
 
-		metadataSingleton.setMessage("obtaining_metadata_reviews");
+		final boolean managedRun = requestedRunId > 0;
+		final long runId = managedRun ? requestedRunId : metadataSingleton.getRunId();
+		if (managedRun && !metadataSingleton.isActive(runId)) {
+			return;
+		}
 
 		Long numBooks = bookRepository.count();
 
-		metadataSingleton.setTotal(metadataSingleton.getTotal() + numBooks);
+		if (managedRun && !metadataSingleton.initializeRun(runId, "obtaining_metadata_reviews", numBooks)) {
+			return;
+		}
+		if (!managedRun) {
+			metadataSingleton.setMessage("obtaining_metadata_reviews");
+			metadataSingleton.setTotal(metadataSingleton.getTotal() + numBooks);
+		}
+		if (numBooks == 0) {
+			if (managedRun) {
+				metadataSingleton.complete(runId);
+			}
+			else {
+				metadataSingleton.complete();
+			}
+			return;
+		}
 
 		int page = 0;
 		int size = BATCH_SIZE;
-		while (page * size < numBooks) {
+		try {
+			while (page * size < numBooks) {
 
-			if (!metadataSingleton.isRunning()) {
+			if (!(managedRun ? metadataSingleton.isActive(runId) : metadataSingleton.isRunning())) {
 				break;
 			}
 
@@ -59,21 +84,35 @@ public class StartFillReviewsMetadataUseCaseImpl implements StartFillReviewsMeta
 			if (!CollectionUtils.isEmpty(books)) {
 				for (BookMongoEntity book : books) {
 
-					if (!metadataSingleton.isRunning()) {
+					if (!(managedRun ? metadataSingleton.isActive(runId) : metadataSingleton.isRunning())) {
 						break;
 					}
 
-					commandBus.executeAndWait(
-							FindReviewMetadataCommand.builder().bookId(book.getId()).override(override).lang(lang).build());
-
-					metadataSingleton.increase();
+					try {
+						MetadataItemResult result = commandBus.executeAndWait(
+								FindReviewMetadataCommand.builder().bookId(book.getId()).override(override).lang(lang).build());
+						metadataSingleton.record(runId, result);
+					}
+					catch (RuntimeException exception) {
+						log.error("Review metadata failed for {}", book.getTitle(), exception);
+						metadataSingleton.record(runId, MetadataItemResult.ERROR);
+					}
 
 					log.debug("Obtained {}/{} books reviews", metadataSingleton.getCurrent(), numBooks);
 				}
 			}
 
-			page++;
+				page++;
 
+			}
+		}
+		finally {
+			if (managedRun) {
+				metadataSingleton.complete(runId);
+			}
+			else {
+				metadataSingleton.complete();
+			}
 		}
 
 	}

@@ -5,14 +5,18 @@ import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import com.martinia.indigo.common.singletons.MetadataSingleton;
+import com.martinia.indigo.metadata.domain.model.BookMetadataScope;
+import com.martinia.indigo.metadata.domain.model.DynamicMetadataPolicy;
+import com.martinia.indigo.metadata.domain.model.MetadataMergePolicy;
 import com.martinia.indigo.metadata.domain.model.commands.FindBookMetadataCommand;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import jakarta.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 public class StartFillBooksMetadataUseCaseImplTest extends BaseIndigoTest {
@@ -30,62 +34,61 @@ public class StartFillBooksMetadataUseCaseImplTest extends BaseIndigoTest {
 	private StartFillBooksMetadataUseCaseImpl startFillBooksMetadataUseCase;
 
 	@Test
-	public void testStart_OverrideTrue_ShouldFindMetadataForEachBook() {
+	public void testStart_All_ShouldFindMetadataForEachBook() {
 		// Given
-		boolean override = true;
+		List<BookMongoEntity> books = List.of(BookMongoEntity.builder().id("one").build(),
+				BookMongoEntity.builder().id("two").build());
 
-		List<BookMongoEntity> books = new ArrayList<>();
-		// Agregar libros a la lista 'books' para simular resultados del repositorio
-		// ...
-
-		when(bookRepository.count()).thenReturn((long) books.size());
-		when(bookRepository.findAll(null, 0, 100, "id", "asc")).thenReturn(books);
+		when(bookRepository.findAllBookIds()).thenReturn(books);
 		doNothing().when(metadataSingleton).setMessage(anyString());
 		doNothing().when(metadataSingleton).setTotal(anyLong());
-		doNothing().when(metadataSingleton).setCurrent(anyLong());
-		doNothing().when(metadataSingleton).increase();
 		when(metadataSingleton.isRunning()).thenReturn(true);
-		// Configurar el comportamiento esperado del commandBus.executeAndWait()
-		// ...
 
 		// When
-		startFillBooksMetadataUseCase.start(override);
+		startFillBooksMetadataUseCase.start(BookMetadataScope.ALL, MetadataMergePolicy.FILL_MISSING,
+				DynamicMetadataPolicy.REFRESH_IF_STALE);
 
 		// Then
-		// Verificar que se llama al método count() del repositorio
-		verify(bookRepository, times(1)).count();
-		// Verificar que se llama al método executeAndWait() del commandBus por cada libro
+		verify(bookRepository).findAllBookIds();
+		verify(bookRepository, never()).findBooksWithIncompleteMetadata();
 		verify(commandBus, times(books.size())).executeAndWait(any(FindBookMetadataCommand.class));
-		// Verificar que se llama a los métodos de metadataSingleton para actualizar el estado
 		verify(metadataSingleton, times(1)).setMessage(anyString());
 		verify(metadataSingleton, times(1)).setTotal(anyLong());
-		verify(metadataSingleton, times(books.size())).setCurrent(anyLong());
-		verify(metadataSingleton, times(books.size())).increase();
 	}
 
 	@Test
 	public void testStart_MetadataSingletonNotRunning_ShouldStopProcessing() {
 		// Given
-		boolean override = true;
+		List<BookMongoEntity> books = List.of(BookMongoEntity.builder().id("one").build());
 
-		List<BookMongoEntity> books = new ArrayList<>();
-		// Agregar libros a la lista 'books' para simular resultados del repositorio
-		// ...
-
-		when(bookRepository.count()).thenReturn((long) books.size());
-		when(bookRepository.findAll(null, 0, 100, "id", "asc")).thenReturn(books);
+		when(bookRepository.findAllBookIds()).thenReturn(books);
 		when(metadataSingleton.isRunning()).thenReturn(false);
 
 		// When
-		startFillBooksMetadataUseCase.start(override);
+		startFillBooksMetadataUseCase.start(BookMetadataScope.ALL, MetadataMergePolicy.FILL_MISSING,
+				DynamicMetadataPolicy.REFRESH_IF_STALE);
 
 		// Then
-		// Verificar que el método findAll() del repositorio no es llamado porque metadataSingleton.isRunning() es falso
-		verify(bookRepository, never()).findAll(null, 0, 100, "id", "asc");
-		// Verificar que el método executeAndWait() del commandBus tampoco es llamado
 		verify(commandBus, never()).executeAndWait(any(FindBookMetadataCommand.class));
 	}
 
-	// Otras pruebas para otros casos
+	@Test
+	void shouldSelectIncompleteBooksInMongo() {
+		when(bookRepository.findBooksWithIncompleteMetadata())
+				.thenReturn(List.of(BookMongoEntity.builder().id("incomplete").build()));
+		when(metadataSingleton.isRunning()).thenReturn(true);
+
+		startFillBooksMetadataUseCase.start(BookMetadataScope.INCOMPLETE, MetadataMergePolicy.FILL_MISSING,
+				DynamicMetadataPolicy.REFRESH_IF_STALE);
+
+		verify(bookRepository).findBooksWithIncompleteMetadata();
+		verify(bookRepository, never()).findAllBookIds();
+		ArgumentCaptor<FindBookMetadataCommand> commandCaptor = ArgumentCaptor.forClass(FindBookMetadataCommand.class);
+		verify(commandBus).executeAndWait(commandCaptor.capture());
+		FindBookMetadataCommand command = commandCaptor.getValue();
+		assertEquals("incomplete", command.getBookId());
+		assertEquals(MetadataMergePolicy.FILL_MISSING, command.getMergePolicy());
+		assertEquals(DynamicMetadataPolicy.REFRESH_IF_STALE, command.getDynamicPolicy());
+	}
 
 }

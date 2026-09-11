@@ -9,6 +9,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ByteArrayOutputStream;
+import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -61,8 +63,32 @@ class ImageUtilsTest {
     }
 
     @Test
+    void getEpub_WhenPathEscapesLibrary_ShouldReturnNull() {
+        Resource result = imageUtils.getEpub("../");
+        assertNull(result);
+    }
+
+    @Test
     void getImageFromEpub_WhenFileDoesNotExist_ShouldReturnNull() {
         String result = imageUtils.getImageFromEpub("nonexistent");
         assertNull(result);
     }
+
+	@Test
+	void saveCoverAndGetThumbnail_NormalizesPngToJpegAndCreatesThumbnail() throws IOException {
+		BufferedImage png = new BufferedImage(100, 300, BufferedImage.TYPE_INT_ARGB);
+		png.setRGB(10, 10, 0x80FF0000);
+		ByteArrayOutputStream imageBytes = new ByteArrayOutputStream();
+		javax.imageio.ImageIO.write(png, "png", imageBytes);
+		Path coverPath = tempDir.resolve("imported").resolve("cover.jpg");
+
+		String thumbnail = imageUtils.saveCoverAndGetThumbnail(imageBytes.toByteArray(), coverPath);
+
+		assertNotNull(thumbnail);
+		assertNotNull(javax.imageio.ImageIO.read(coverPath.toFile()));
+		byte[] thumbnailBytes = java.util.Base64.getDecoder().decode(thumbnail);
+		BufferedImage thumbnailImage = javax.imageio.ImageIO.read(new java.io.ByteArrayInputStream(thumbnailBytes));
+		assertEquals(83, thumbnailImage.getWidth());
+        assertEquals(249, thumbnailImage.getHeight());
+	}
 }

@@ -12,6 +12,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -41,6 +42,18 @@ public class BookDto implements Serializable {
 	@NotNull
 	private List<String> authors;
 	private List<String> tags;
+	private List<String> isbn10;
+	private List<String> isbn13;
+	private Map<String, List<String>> identifiers;
+	private String openLibraryWorkId;
+	private String openLibraryEditionId;
+	private Float ratingAverage;
+	private Long ratingsCount;
+	private Map<String, Long> ratingDistribution;
+	private String ratingProvider;
+	private String ratingUpdatedAt;
+	private String metadataMatchStatus;
+	private Double metadataMatchConfidence;
 	private List<String> similar;
 	private List<String> recommendations;
 	@NotNull

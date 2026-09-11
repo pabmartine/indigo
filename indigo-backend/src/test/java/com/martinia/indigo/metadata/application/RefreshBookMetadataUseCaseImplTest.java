@@ -6,14 +6,12 @@ import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.common.bus.command.domain.ports.CommandBus;
 import com.martinia.indigo.common.util.DataUtils;
-import com.martinia.indigo.configuration.domain.ports.repositories.ConfigurationRepository;
-import com.martinia.indigo.configuration.infrastructure.mongo.entities.ConfigurationMongoEntity;
 import com.martinia.indigo.metadata.domain.ports.usecases.RefreshBookMetadataUseCase;
 import com.martinia.indigo.metadata.domain.ports.usecases.amazon.FindAmazonReviewsUseCase;
-import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsAuthorUseCase;
-import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsBookUseCase;
 import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsReviewsUseCase;
 import com.martinia.indigo.metadata.domain.ports.usecases.google.FindGoogleBooksBookUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.openlibrary.FindOpenLibraryAuthorUseCase;
+import com.martinia.indigo.metadata.domain.ports.usecases.openlibrary.FindOpenLibraryBookUseCase;
 import com.martinia.indigo.metadata.domain.ports.usecases.wikipedia.FindWikipediaAuthorUseCase;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
@@ -35,16 +33,13 @@ public class RefreshBookMetadataUseCaseImplTest extends BaseIndigoTest {
 	private BookRepository mockBookRepository;
 
 	@MockBean
-	private ConfigurationRepository mockConfigurationRepository;
-
-	@MockBean
 	private DataUtils dataUtils;
 
 	@MockBean
-	private FindGoodReadsBookUseCase findGoodReadsBookUseCase;
+	private FindOpenLibraryBookUseCase findOpenLibraryBookUseCase;
 
 	@MockBean
-	private FindGoodReadsAuthorUseCase findGoodReadsAuthorUseCase;
+	private FindOpenLibraryAuthorUseCase findOpenLibraryAuthorUseCase;
 
 	@MockBean
 	private FindGoodReadsReviewsUseCase findGoodReadsReviewsUseCase;
@@ -67,8 +62,6 @@ public class RefreshBookMetadataUseCaseImplTest extends BaseIndigoTest {
 	@BeforeEach
 	@SneakyThrows
 	void init() {
-		Mockito.when(mockConfigurationRepository.findByKey(any()))
-				.thenReturn(Optional.of(ConfigurationMongoEntity.builder().key("goodreads.key").value("123456").build()));
 		Mockito.when(dataUtils.getData(any())).thenReturn(null);
 		Mockito.when(findGoogleBooksBookUseCase.findBook(any(), any())).thenReturn(null);
 	}

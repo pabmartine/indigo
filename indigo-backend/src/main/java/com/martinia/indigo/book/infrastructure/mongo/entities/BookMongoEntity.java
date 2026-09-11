@@ -16,6 +16,7 @@ import javax.persistence.Id;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -52,6 +53,15 @@ public class BookMongoEntity implements Serializable {
 	private List<String> authors;
 	@Indexed
 	private List<String> tags;
+	@Indexed
+	private List<String> isbn10;
+	@Indexed
+	private List<String> isbn13;
+	private Map<String, List<String>> identifiers;
+	@Indexed
+	private String openLibraryWorkId;
+	@Indexed
+	private String openLibraryEditionId;
 	private List<String> similar;
 	private List<String> recommendations;
 	@Indexed
@@ -59,6 +69,16 @@ public class BookMongoEntity implements Serializable {
 	private List<ReviewMongo> reviews;
 
 	private Date lastMetadataSync;
+	private Float ratingAverage;
+	private Long ratingsCount;
+	private Map<String, Long> ratingDistribution;
+	private String ratingProvider;
+	private Date ratingUpdatedAt;
+	private String metadataMatchStatus;
+	private Double metadataMatchConfidence;
+	private Date lastReviewsMetadataSync;
+	private String reviewsMetadataStatus;
+	private String reviewsMetadataError;
 	private float version;
 
 }

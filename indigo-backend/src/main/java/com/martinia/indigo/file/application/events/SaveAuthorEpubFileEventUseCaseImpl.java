@@ -30,6 +30,10 @@ public class SaveAuthorEpubFileEventUseCaseImpl implements SaveAuthorEpubFileEve
 
 	@Resource
 	private UploadEpubFilesSingleton uploadEpubFilesSingleton;
+	@org.springframework.beans.factory.annotation.Autowired(required = false)
+	private com.martinia.indigo.file.application.PendingImportService pendingImports;
+	@org.springframework.beans.factory.annotation.Autowired(required = false)
+	private com.martinia.indigo.metadata.application.MetadataActivityService activity;
 
 	@Override
 	@Transactional
@@ -40,11 +44,12 @@ public class SaveAuthorEpubFileEventUseCaseImpl implements SaveAuthorEpubFileEve
 	@Override
 	@Transactional
 	public synchronized void save(final String bookId, final String authorImage, final boolean newBook) {
+		if (pendingImports != null && pendingImports.done(bookId, "authorsDone")) return;
 		if (!newBook) {
 			return;
 		}
 
-		bookRepository.findById(bookId).ifPresent(bookMongoEntity -> {
+		bookRepository.findById(bookId).ifPresentOrElse(bookMongoEntity -> {
 
 			bookMongoEntity.getAuthors().forEach(author -> {
 
@@ -54,7 +59,13 @@ public class SaveAuthorEpubFileEventUseCaseImpl implements SaveAuthorEpubFileEve
 
 				final String finalAuthor = author;
 				final AuthorMongoEntity entity = authorRepository.findByName(author).stream().findFirst().map(authorMongoEntity -> {
-					authorMongoEntity.setImage(authorImage);
+					if (authorImage != null && !authorImage.isBlank()
+							&& (activity == null || !activity.isLocked("AUTHORS", authorMongoEntity.getId()))) {
+						authorMongoEntity.setImage(authorImage);
+						var sources = new HashMap<String, String>(java.util.Optional.ofNullable(authorMongoEntity.getMetadataSources()).orElseGet(Map::of));
+						sources.put("image", "EPUB");
+						authorMongoEntity.setMetadataSources(sources);
+					}
 					authorMongoEntity.getNumBooks().setTotal(authorMongoEntity.getNumBooks().getTotal() + 1);
 
 					bookMongoEntity.getLanguages().forEach(bookLanguage -> {
@@ -70,6 +81,7 @@ public class SaveAuthorEpubFileEventUseCaseImpl implements SaveAuthorEpubFileEve
 					return AuthorMongoEntity.builder()
 							.name(finalAuthor)
 							.image(authorImage)
+							.metadataSources(authorImage == null || authorImage.isBlank() ? Map.of() : Map.of("image", "EPUB"))
 							.numBooks(NumBooksMongo.builder().total(1).languages(languages).build())
 							.build();
 				});
@@ -79,6 +91,9 @@ public class SaveAuthorEpubFileEventUseCaseImpl implements SaveAuthorEpubFileEve
 				eventBus.publish(AuthorAddedEvent.builder().authorId(entity.getId()).build());
 			});
 
+			if (pendingImports != null) pendingImports.complete(bookId, "authorsDone");
+		}, () -> {
+			throw new IllegalStateException("Book " + bookId + " is not visible yet while creating its authors");
 		});
 	}
 

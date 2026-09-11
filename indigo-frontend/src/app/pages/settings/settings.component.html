@@ -12,6 +12,52 @@
 
     <div class="content-body">
       <div class="p-col">
+        <p-panel header="Importaciones pendientes" [toggleable]="true" [collapsed]="true">
+          <p>Reintenta las tareas incompletas sin reiniciar. Las tareas confirmadas no se repiten. Espera a que termine cualquier importación en curso.</p>
+          <button pButton label="Actualizar" (click)="loadPendingImports()" [disabled]="importsBusy"></button>
+          <p *ngIf="importsLoaded && !pendingImports.length">No hay importaciones pendientes.</p>
+          <p-table [value]="pendingImports" [paginator]="true" [rows]="10">
+            <ng-template pTemplate="header"><tr><th>Archivo / fecha</th><th>Tareas pendientes</th><th>Acciones</th></tr></ng-template>
+            <ng-template pTemplate="body" let-item><tr>
+              <td>{{item.fileName}}<br>{{item.createdAt | date:'short'}}</td>
+              <td><div *ngFor="let task of item.pendingTasks">{{importTaskLabels[task] || task}}</div><small *ngIf="item.lastError">{{item.lastError}}</small></td>
+              <td><button pButton label="Reintentar" (click)="retryImport(item)" [disabled]="importsBusy || uploadsRunning"></button></td>
+            </tr></ng-template>
+          </p-table>
+        </p-panel>
+      </div>
+      <div class="p-col">
+        <p-panel header="Actividad e historial de metadatos" [toggleable]="true" [collapsed]="true">
+          <p>Últimas 100 operaciones. Proteger pausa las actualizaciones automáticas de ese tipo para el libro o autor.</p>
+          <button pButton label="Actualizar" (click)="loadActivity()" [disabled]="activityBusy"></button>
+          <p-table [value]="metadataItems" [paginator]="true" [rows]="10">
+            <ng-template pTemplate="header"><tr><th>Libro / autor</th><th>Tipo</th><th>Resultado</th><th>Acciones</th></tr></ng-template>
+            <ng-template pTemplate="body" let-item><tr>
+              <td>{{item.label}}</td><td>{{item.type}}</td><td>{{item.status}}
+                <div *ngFor="let detail of item.diagnostics"><strong>{{detail.provider}} — {{detail.operation}}</strong>
+                  <span *ngIf="detail.httpStatus"> (HTTP {{detail.httpStatus}})</span><div>{{detail.message}}</div>
+                  <small *ngIf="detail.retryAt">Próximo intento permitido: {{detail.retryAt | date:'short'}}</small></div>
+                <small *ngIf="item.error && !item.diagnostics?.length"> — {{item.error}}</small></td>
+              <td><button pButton label="Reintentar" *ngIf="item.status === 'ERROR'" [disabled]="activityBusy" (click)="activityAction('retry', item)"></button>
+                <button pButton label="Proteger" *ngIf="!item.locked" [disabled]="activityBusy" (click)="activityAction('lock', item)"></button>
+                <button pButton label="Desproteger" *ngIf="item.locked" [disabled]="activityBusy" (click)="activityAction('unlock', item)"></button></td>
+            </tr></ng-template>
+          </p-table>
+          <p-table [value]="metadataHistory" [paginator]="true" [rows]="10">
+            <ng-template pTemplate="header"><tr><th>Fecha / entidad</th><th>Cambios y procedencia</th><th>Acciones</th></tr></ng-template>
+            <ng-template pTemplate="body" let-item><tr>
+              <td>{{item.createdAt | date:'short'}} — {{item.label}}
+                <div *ngFor="let detail of item.diagnostics">{{detail.provider}} — {{detail.operation}}: {{detail.message}}
+                  <span *ngIf="detail.httpStatus"> (HTTP {{detail.httpStatus}})</span></div>
+                <small *ngIf="item.error && !item.diagnostics?.length">{{item.error}}</small></td>
+              <td><details *ngFor="let change of item.changes"><summary>{{change.field}} — {{change.provider || item.type}}</summary>
+                <div>Antes: {{(change.before | json) | slice:0:500}}</div><div>Después: {{(change.after | json) | slice:0:500}}</div></details></td>
+              <td><button pButton label="Deshacer" *ngIf="item.changes?.length && !item.undone" [disabled]="activityBusy" (click)="activityAction('undo', item)"></button></td>
+            </tr></ng-template>
+          </p-table>
+        </p-panel>
+      </div>
+      <div class="p-col">
         <p-panel header="{{'locale.settings.panel.users.title' | translate}}" [toggleable]="true" [collapsed]="true">
           <p-table [value]="userList" [responsive]="true">
             <ng-template pTemplate="header">
@@ -55,15 +101,9 @@
 
       <div class="p-col">
         <p-panel header="{{'locale.settings.panel.metadata.title' | translate}}" [toggleable]="true" [collapsed]="true">
-          <div class="p-grid p-fluid">
-            <div class="p-col-12 p-md-6 p-field">
-              <label>{{'locale.settings.panel.metadata.goodreadskey' | translate}}</label>
-              <input type="text" pInputText autocomplete="off" [(ngModel)]="goodReadsKey"/>
-            </div>
-          </div>
           <div class="metadata-overview">
             <section class="metadata-section books-theme">
-              <header class="metadata-sectio-header">
+              <header class="metadata-section-header">
                 <div class="metadata-section-title-wrap">
                   <span class="metadata-section-icon pi pi-book"></span>
                   <div>
@@ -91,7 +131,8 @@
                     <p-progressBar [value]="getMetadataProgress('FULL', 'BOOKS')"></p-progressBar>
                     <span class="metadata-task-percent">{{ getMetadataProgress('FULL', 'BOOKS') }}%</span>
                   </div>
-                  <div class="metadata-task-footer">Última ejecución: -</div>
+                  <div class="metadata-task-footer">{{ getMetadataResult('FULL', 'BOOKS') }}</div>
+                  <div class="metadata-task-footer">Última ejecución: {{ getMetadataLastExecution('FULL', 'BOOKS') }}</div>
                 </article>
 
                 <article class="metadata-task-card">
@@ -112,7 +153,8 @@
                     <p-progressBar [value]="getMetadataProgress('PARTIAL', 'BOOKS')"></p-progressBar>
                     <span class="metadata-task-percent">{{ getMetadataProgress('PARTIAL', 'BOOKS') }}%</span>
                   </div>
-                  <div class="metadata-task-footer">Última ejecución: -</div>
+                  <div class="metadata-task-footer">{{ getMetadataResult('PARTIAL', 'BOOKS') }}</div>
+                  <div class="metadata-task-footer">Última ejecución: {{ getMetadataLastExecution('PARTIAL', 'BOOKS') }}</div>
                 </article>
               </div>
             </section>
@@ -146,7 +188,8 @@
                     <p-progressBar [value]="getMetadataProgress('FULL', 'AUTHORS')"></p-progressBar>
                     <span class="metadata-task-percent">{{ getMetadataProgress('FULL', 'AUTHORS') }}%</span>
                   </div>
-                  <div class="metadata-task-footer">Última ejecución: -</div>
+                  <div class="metadata-task-footer">{{ getMetadataResult('FULL', 'AUTHORS') }}</div>
+                  <div class="metadata-task-footer">Última ejecución: {{ getMetadataLastExecution('FULL', 'AUTHORS') }}</div>
                 </article>
 
                 <article class="metadata-task-card">
@@ -167,7 +210,8 @@
                     <p-progressBar [value]="getMetadataProgress('PARTIAL', 'AUTHORS')"></p-progressBar>
                     <span class="metadata-task-percent">{{ getMetadataProgress('PARTIAL', 'AUTHORS') }}%</span>
                   </div>
-                  <div class="metadata-task-footer">Última ejecución: -</div>
+                  <div class="metadata-task-footer">{{ getMetadataResult('PARTIAL', 'AUTHORS') }}</div>
+                  <div class="metadata-task-footer">Última ejecución: {{ getMetadataLastExecution('PARTIAL', 'AUTHORS') }}</div>
                 </article>
               </div>
             </section>
@@ -182,48 +226,23 @@
                 </div>
                 <div class="metadata-section-total">{{ reviewsTotal }}</div>
               </header>
+              <p>Estado: {{reviewQueueState}} · {{reviewQueue.all ? 'Todas las reseñas' : 'Reseñas faltantes'}}</p>
+              <p>{{reviewQueue.processed || 0}} / {{reviewQueue.total || 0}} libros procesados · {{reviewQueue.errors || 0}} intentos fallidos · {{reviewQueue.failedBooks || 0}} libros sin completar</p>
+              <p *ngIf="reviewQueue.inFlight">Hay un libro en curso. Una pausa o parada impide la siguiente petición; la petición ya enviada puede terminar.</p>
+              <p *ngIf="reviewQueue.nextAttempt">Próximo reintento: {{reviewQueue.nextAttempt | date:'short'}}</p>
+              <p *ngIf="reviewQueue.reason">{{reviewQueue.reason}}</p>
+              <p>Intervalo mínimo entre peticiones (segundos, de 15 a 3600). Los límites del proveedor tienen prioridad.</p>
+              <label for="review-amazon-seconds">Amazon </label>
+              <input id="review-amazon-seconds" type="number" min="15" max="3600" [(ngModel)]="reviewAmazonSeconds">
+              <label for="review-goodreads-seconds">Goodreads </label>
+              <input id="review-goodreads-seconds" type="number" min="15" max="3600" [(ngModel)]="reviewGoodreadsSeconds">
+              <button pButton label="Guardar intervalos" (click)="reviewQueueAction('settings')" [disabled]="reviewQueueBusy || !reviewQueueLoaded"></button>
               <div class="metadata-task-grid">
-                <article class="metadata-task-card">
-                  <div class="metadata-task-top">
-                    <div>
-                      <div class="metadata-task-title">Todas las opiniones</div>
-                      <div class="metadata-task-description">Sincronizar reseñas y valoraciones</div>
-                    </div>
-                    <div class="metadata-task-actions">
-                      <span class="metadata-task-status">{{ getMetadataStatusLabel('FULL', 'REVIEWS') }}</span>
-                      <a href="javascript:;" (click)="doExecuteMetadata('FULL', 'REVIEWS')" class="metadata-action-button">
-                        <span class="pi" [ngClass]="{ 'pi-pause': isReviewsFull(), 'pi-play': !isReviewsFull() }"></span>
-                      </a>
-                    </div>
-                  </div>
-                  <div class="metadata-task-counter">{{ getMetadataCounter('FULL', 'REVIEWS') }}</div>
-                  <div class="metadata-task-progress-row">
-                    <p-progressBar [value]="getMetadataProgress('FULL', 'REVIEWS')"></p-progressBar>
-                    <span class="metadata-task-percent">{{ getMetadataProgress('FULL', 'REVIEWS') }}%</span>
-                  </div>
-                  <div class="metadata-task-footer">Última ejecución: -</div>
-                </article>
-
-                <article class="metadata-task-card">
-                  <div class="metadata-task-top">
-                    <div>
-                      <div class="metadata-task-title">Sin datos</div>
-                      <div class="metadata-task-description">Libros sin opiniones asociadas</div>
-                    </div>
-                    <div class="metadata-task-actions">
-                      <span class="metadata-task-status">{{ getMetadataStatusLabel('PARTIAL', 'REVIEWS') }}</span>
-                      <a href="javascript:;" (click)="doExecuteMetadata('PARTIAL', 'REVIEWS')" class="metadata-action-button">
-                        <span class="pi" [ngClass]="{ 'pi-pause': isReviewsPartial(), 'pi-play': !isReviewsPartial() }"></span>
-                      </a>
-                    </div>
-                  </div>
-                  <div class="metadata-task-counter">{{ getMetadataCounter('PARTIAL', 'REVIEWS') }}</div>
-                  <div class="metadata-task-progress-row">
-                    <p-progressBar [value]="getMetadataProgress('PARTIAL', 'REVIEWS')"></p-progressBar>
-                    <span class="metadata-task-percent">{{ getMetadataProgress('PARTIAL', 'REVIEWS') }}%</span>
-                  </div>
-                  <div class="metadata-task-footer">Última ejecución: -</div>
-                </article>
+                <button pButton label="Obtener todas" (click)="reviewQueueAction('all')" [disabled]="reviewQueueBusy || !reviewQueueLoaded"></button>
+                <button pButton label="Obtener reseñas faltantes" (click)="reviewQueueAction('missing')" [disabled]="reviewQueueBusy || !reviewQueueLoaded || reviewQueueActive"></button>
+                <button pButton label="Pausar" *ngIf="reviewQueue.status === 'RUNNING'" (click)="reviewQueueAction('pause')" [disabled]="reviewQueueBusy"></button>
+                <button pButton label="Reanudar" *ngIf="reviewQueue.status === 'PAUSED'" (click)="reviewQueueAction('resume')" [disabled]="reviewQueueBusy"></button>
+                <button pButton label="Parar" *ngIf="reviewQueue.status === 'RUNNING' || reviewQueue.status === 'PAUSED'" (click)="reviewQueueAction('stop')" [disabled]="reviewQueueBusy"></button>
               </div>
             </section>
           </div>
@@ -286,15 +305,38 @@
               <label>{{'locale.settings.panel.file.uploads.path' | translate}}</label>
             </div>
             <div class="p-col-12 p-md-10 p-field">
-              <input type="text" pInputText autocomplete="off" [(ngModel)]="uploadsPath" disabled="true" *ngIf="uploadsProgress==0"/>
-              <div class="uploadsProgress" *ngIf="uploadsProgress>0">
+              <input type="text" pInputText autocomplete="off" [(ngModel)]="uploadsPath" disabled="true"/>
+              <div class="upload-process" *ngIf="uploadsRunning || hasUploadsResult()"
+                   [ngClass]="{ 'upload-process-running': uploadsRunning, 'upload-process-error': hasUploadsResult() && uploadsFailed > 0, 'upload-process-success': hasUploadsResult() && uploadsFailed === 0 }">
+                <div class="upload-process-heading">
+                  <span>
+                    <i class="pi" [ngClass]="uploadsRunning ? 'pi-spin pi-spinner' : (uploadsFailed > 0 ? 'pi-exclamation-triangle' : 'pi-check-circle')"></i>
+                    {{ uploadsRunning ? 'Importación en curso' : 'Última importación terminada' }}
+                  </span>
+                  <strong>{{ uploadsRunning ? uploadsProgress + '%' : 'Completada' }}</strong>
+                </div>
+                <div class="uploadsProgress">
                 <p-progressBar [value]="uploadsProgress"></p-progressBar>
+                </div>
+                <div class="upload-process-stats">
+                  <span><strong>{{uploadsProcessed}}</strong> procesados</span>
+                  <span><strong>{{uploadsSucceeded}}</strong> correctos</span>
+                  <span [class.upload-stat-error]="uploadsFailed > 0"><strong>{{uploadsFailed}}</strong> errores</span>
+                  <span *ngIf="uploadsNewBooks > 0"><strong>{{uploadsNewBooks}}</strong> nuevos</span>
+                  <span *ngIf="uploadsUpdatedBooks > 0"><strong>{{uploadsUpdatedBooks}}</strong> actualizados</span>
+                </div>
+                <div class="upload-result-actions" *ngIf="hasUploadsResult()">
+                  <small>El resultado también queda registrado en Notificaciones.</small>
+                  <button type="button" class="upload-books-link" (click)="openImportedBooks()">
+                    Ver biblioteca <i class="pi pi-arrow-right"></i>
+                  </button>
+                </div>
               </div>
-              <small class="upload-status-text" *ngIf="getUploadsStatusText()">{{ getUploadsStatusText() }}</small>
+              <small class="upload-status-text" *ngIf="uploadsRunning">{{ getUploadsStatusText() }}</small>
             </div>
-            <div class="p-col-12 p-col-2">
-              <p-confirmDialog class="confirmDialog"></p-confirmDialog>
-              <p-button label="{{'locale.buttons.detect' | translate}}" icon="pi pi-refresh" class="settings-button"
+            <div class="p-col-12 p-md-2 upload-detect-action">
+              <p-confirmDialog class="confirmDialog" appendTo="body"></p-confirmDialog>
+              <p-button label="{{'locale.buttons.detect' | translate}}" icon="pi pi-refresh" class="settings-button upload-detect-button"
                         [disabled]="uploadsRunning"
                         (click)="detect()"></p-button>
             </div>

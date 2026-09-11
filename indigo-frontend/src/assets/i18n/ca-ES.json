@@ -293,7 +293,6 @@
                 "metadata": {
                     "title": "Metadades",
                     "pull": "Realitzar una sol·licitud cada (segons)",
-                    "goodreadskey": "Clau de desenvolupador de GoodReads",
                     "all": {
                         "partial": "Actualitzar totes les metadades (valoracions, comentaris, biografia de l'autor, etc.) per a llibres nous",
                         "full": "Actualitzar totes les metadades (valoracions, comentaris, biografia de l'autor, etc.) per a tota la biblioteca. Sobreescriure existents."

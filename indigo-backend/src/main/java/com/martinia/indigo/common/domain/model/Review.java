@@ -12,6 +12,9 @@ import java.util.Date;
 @Data
 @Builder
 public class Review {
+	public Review(String name, String title, String comment, int rating, Date date, Date lastMetadataSync, String provider) {
+		this(name, title, comment, rating, date, lastMetadataSync, provider, null, null, null);
+	}
 	private String name;
 	private String title;
 	private String comment;
@@ -20,5 +23,8 @@ public class Review {
 	private Date lastMetadataSync;
 
 	private String provider;
+	private String sourceUrl;
+	private String originalLanguage;
+	private String language;
 
 }

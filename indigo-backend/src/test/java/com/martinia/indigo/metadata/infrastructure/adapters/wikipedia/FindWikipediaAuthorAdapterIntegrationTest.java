@@ -26,23 +26,22 @@ public class FindWikipediaAuthorAdapterIntegrationTest extends BaseIndigoIntegra
 	private FindWikipediaAuthorPort findWikipediaAuthorPort;
 
 	@Test
-	public void findWikipediaAuthorOK() {
+	public void rejectsDifferentPersonWithSimilarName() {
 		// Given
 		String subject = "Juan Alonso de Acuna";
 		String lang = "es";
-		int cont = 5;
+		int cont = 0;
 		String[] expectedResults = new String[] {
 				"Alfonso (o Alonso) Carrillo de Acuña (Carrascosa del Campo, 11 de agosto de 1413-Alcalá de Henares, 1 de julio de 1482). Importante prelado de la Castilla del siglo XV.",
 				"https://upload.wikimedia.org/wikipedia/commons/f/f7/Alonso_Carrillo_de_Acu%C3%B1a_1508.gif",
 				ProviderEnum.WIKIPEDIA.name() };
 
 		Mockito.when(dataUtils.getData(anyString())).thenReturn(JSON);
-		Mockito.doReturn(expectedResults).when(findWikipediaAuthorInfoPort).getAuthorInfo(anyString(), anyString());
 
 		// When
 		String[] results = findWikipediaAuthorPort.findAuthor(subject, lang, cont);
 
 		// Then
-		assertArrayEquals(expectedResults, results);
+		org.junit.jupiter.api.Assertions.assertNull(results);
 	}
 }

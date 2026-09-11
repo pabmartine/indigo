@@ -33,14 +33,23 @@ class FindStatusMetadataUseCaseImplTest {
 		when(metadataSingleton.getCurrent()).thenReturn(50L);
 		when(metadataSingleton.getTotal()).thenReturn(100L);
 		when(metadataSingleton.getMessage()).thenReturn("Processing books");
+		when(metadataSingleton.getCompletedAt()).thenReturn(null);
 
 		when(uploadEpubFilesSingleton.getTotal()).thenReturn(200L);
 		when(uploadEpubFilesSingleton.getCurentStatus()).thenReturn(75);
+		when(uploadEpubFilesSingleton.isRunning()).thenReturn(true);
+		when(uploadEpubFilesSingleton.getProcessedItems()).thenReturn(150L);
+		when(uploadEpubFilesSingleton.getFailedItems()).thenReturn(2L);
+		when(uploadEpubFilesSingleton.getNewBooks()).thenReturn(140L);
+		when(uploadEpubFilesSingleton.getUpdatedBooks()).thenReturn(8L);
+		when(uploadEpubFilesSingleton.getMoved()).thenReturn(148L);
+		when(uploadEpubFilesSingleton.getDeleted()).thenReturn(2L);
 
 		Map<String, Object> result = findStatusMetadataUseCase.getStatus();
 
 		assertThat(result).isNotNull();
-		assertThat(result).hasSize(8);
+		assertThat(result).hasSize(22);
+		assertThat(result).containsKeys("found", "notFound", "skipped", "errors", "runs");
 		assertThat(result.get("type")).isEqualTo("FULL");
 		assertThat(result.get("entity")).isEqualTo("BOOKS");
 		assertThat(result.get("status")).isEqualTo(true);
@@ -49,6 +58,14 @@ class FindStatusMetadataUseCaseImplTest {
 		assertThat(result.get("message")).isEqualTo("Processing books");
 		assertThat(result.get("uploadsTotal")).isEqualTo(200L);
 		assertThat(result.get("uploadsCurrent")).isEqualTo(75);
+		assertThat(result.get("uploadsRunning")).isEqualTo(true);
+		assertThat(result.get("uploadsProcessed")).isEqualTo(150L);
+		assertThat(result.get("uploadsFailed")).isEqualTo(2L);
+		assertThat(result.get("uploadsSucceeded")).isEqualTo(148L);
+		assertThat(result.get("uploadsNewBooks")).isEqualTo(140L);
+		assertThat(result.get("uploadsUpdatedBooks")).isEqualTo(8L);
+		assertThat(result.get("uploadsMoved")).isEqualTo(148L);
+		assertThat(result.get("uploadsDeleted")).isEqualTo(2L);
 	}
 
 	@Test

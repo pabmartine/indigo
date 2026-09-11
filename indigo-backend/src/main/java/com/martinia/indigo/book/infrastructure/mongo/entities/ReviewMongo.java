@@ -24,5 +24,8 @@ public class ReviewMongo implements Serializable {
 	private Date lastMetadataSync;
 
 	private String provider;
+	private String sourceUrl;
+	private String originalLanguage;
+	private String language;
 
 }

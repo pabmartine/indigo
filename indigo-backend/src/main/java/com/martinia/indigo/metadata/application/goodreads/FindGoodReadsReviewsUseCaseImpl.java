@@ -7,6 +7,8 @@ import com.gargoylesoftware.htmlunit.html.HtmlArticle;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.martinia.indigo.common.domain.model.Review;
 import com.martinia.indigo.metadata.domain.model.ProviderEnum;
+import com.martinia.indigo.metadata.application.reviews.ReviewProviderRequestPolicy;
+import com.martinia.indigo.metadata.application.reviews.ReviewPageGuard;
 import com.martinia.indigo.metadata.domain.ports.adapters.libretranslate.DetectLibreTranslatePort;
 import com.martinia.indigo.metadata.domain.ports.adapters.libretranslate.TranslateLibreTranslatePort;
 import com.martinia.indigo.metadata.domain.ports.usecases.goodreads.FindGoodReadsReviewsUseCase;
@@ -18,26 +20,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import jakarta.annotation.Resource;
-import org.springframework.transaction.annotation.Transactional;
 import java.text.Normalizer;
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@ConditionalOnProperty(name = "flags.goodreads", havingValue = "true")
-@Transactional
+@ConditionalOnProperty(name = "flags.goodreads-reviews", havingValue = "true")
 public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseCase {
 
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.ENGLISH);
@@ -47,6 +47,8 @@ public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseC
 
 	@Resource
 	private WebClient webClient;
+	@Resource
+	private ReviewProviderRequestPolicy reviewProviderRequestPolicy;
 
 	@Resource
 	private Optional<DetectLibreTranslatePort> detectLibreTranslatePort;
@@ -56,106 +58,120 @@ public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseC
 
 	@Override
 	public List<Review> getReviews(String lang, String title, List<String> authors) {
-
-		List<Review> listReviews = null;
-		try {
-			String path = getPath(title, authors.stream().collect(Collectors.joining(" ")));
-			if (path != null) {
-				listReviews = getReviews(lang, path, 1);
+		if (StringUtils.isBlank(title)) {
+			return Collections.emptyList();
+		}
+		final String author = Optional.ofNullable(authors).orElse(Collections.emptyList()).stream().collect(Collectors.joining(" "));
+		return reviewProviderRequestPolicy.getReviews("goodreads", lang + '|' + normalize(title) + '|' + normalize(author), () -> {
+			try {
+				synchronized (webClient) {
+					String path = getPath(title, author);
+					if (path != null) {
+						return getReviews(lang, path, 1);
+					}
+				}
+				return Collections.emptyList();
 			}
-		}
-		catch (Exception e) {
-			log.error(e.getMessage());
-		}
-		return listReviews;
+			catch (Exception ex) {
+				throw new IllegalStateException("Could not obtain Goodreads reviews for " + title + ": " + ex.getMessage(), ex);
+			}
+		});
 	}
 
 	private String getPath(String title, String author) throws Exception {
 
-		AtomicReference<String> path = new AtomicReference<>();
+		String path = null;
 
 		String tokenized_title = normalize(title);
 		String tokenized_author = normalize(author);
+		String expectedTitle = normalize(title);
 
-		String url = endpoint.replace("$title", tokenized_title).replace("$author", tokenized_author);
+		String url = endpoint.replace("$title", encodeQuery(tokenized_title)).replace("$author", encodeQuery(tokenized_author));
 		HtmlPage page = webClient.getPage(url);
+		ReviewPageGuard.check(page);
 
-		page.getByXPath("//a[@class='bookTitle']").stream().forEach(item -> {
+		for (Object item : page.getByXPath("//a[contains(@class, 'bookTitle')]")) {
 			HtmlAnchor htmlAnchor = (HtmlAnchor) item;
 			try {
 				String ref = htmlAnchor.getHrefAttribute();
-				String compareTitle = htmlAnchor.getFirstChild().getNextSibling().getFirstChild().asNormalizedText();
-				String[] terms = normalize(compareTitle).split("\\+");
-				String filter = StringUtils.stripAccents(title).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ").toLowerCase()
-						.trim();
-
-				//TODO: mejorar esto.. en amazon los titulos son algo especiales por lo que no vale la comprobación de todas las palabras.. debería buscar algo intermedio
-				boolean similarContains = true;
-				for (String term : terms) {
-					term = StringUtils.stripAccents(term).toLowerCase().trim();
-					if (!filter.contains(term)) {
-						similarContains = false;
-					}
-				}
-
-				long hasTerms = Arrays.stream(terms).filter(term -> {
-					return (filter.contains(StringUtils.stripAccents(term).toLowerCase().trim()));
-				}).count();
-
-				if ((path == null || path.get() == null) && (terms.length == 1 && hasTerms > 0 || terms.length > 1 && hasTerms > 1)) {
-					path.set(ref);
+				String candidateTitle = normalize(htmlAnchor.asNormalizedText());
+				DomNode row = htmlAnchor.getFirstByXPath("ancestor::tr[1]");
+				boolean authorMatches = author.isBlank() || (row != null && row.getByXPath(".//a[contains(@class, 'authorName')]")
+						.stream().anyMatch(node -> normalize(((DomNode) node).asNormalizedText()).equals(tokenized_author)));
+				if (path == null && authorMatches && (candidateTitle.equals(expectedTitle) || candidateTitle.startsWith(expectedTitle + "+"))) {
+					path = ref;
 				}
 			}
 			catch (Exception e) {
-				System.out.println(e.getMessage());
+				log.debug("Could not evaluate Goodreads search result", e);
 			}
-		});
+		}
 
-		webClient.close();
-
-		return path.get();
+		return path;
 	}
 
 	private static String normalize(String title) {
-		if (title.contains("(")) {
-			title = title.substring(0, title.indexOf("(")) + title.substring(title.indexOf(")") + 1, title.length());
+		int openingParenthesis = title.indexOf("(");
+		int closingParenthesis = title.indexOf(")", openingParenthesis + 1);
+		if (openingParenthesis >= 0 && closingParenthesis > openingParenthesis) {
+			title = title.substring(0, openingParenthesis) + title.substring(closingParenthesis + 1);
 		}
-		return Normalizer.normalize(title, Normalizer.Form.NFD).toLowerCase().replaceAll("[^\\p{ASCII}]", "").replaceAll(" ", "+")
+		return Normalizer.normalize(title, Normalizer.Form.NFD).toLowerCase(Locale.ROOT).replaceAll("[^\\p{ASCII}]", "").replaceAll(" ", "+")
 				.replaceAll(",", "").replaceAll("\\.", "+").replaceAll(":", "+").replaceAll("\\+\\+", "+");
+	}
+
+	private static String encodeQuery(final String value) {
+		return java.net.URLEncoder.encode(value.replace('+', ' '), java.nio.charset.StandardCharsets.UTF_8);
 	}
 
 	private List<Review> getReviews(final String lang, final String url, final int numPage) throws Exception {
 
 		final List<Review> reviews = new ArrayList<>();
 
-		final HtmlPage page = webClient.getPage(endpoint.substring(0, endpoint.indexOf(".com") + 4) + url);
+		final HtmlPage page = webClient.getPage(URI.create(endpoint).resolve(url).toString());
+		ReviewPageGuard.check(page);
 
 		final List<Review> foreignComments = new ArrayList<>();
-		page.getByXPath("//article[@class='ReviewCard']").stream().takeWhile(data -> reviews.size() < 10).forEach(item -> {
+		List<?> cards = page.getByXPath("//article[contains(concat(' ', normalize-space(@class), ' '), ' ReviewCard ')]");
+		cards.stream().limit(30).takeWhile(data -> reviews.size() < 10).forEach(item -> {
 			HtmlArticle htmlArticle = (HtmlArticle) item;
 			try {
-				final String name = Optional.ofNullable(htmlArticle.getFirstByXPath(".//div[contains(@class, 'User__name')]//a"))
-					.map(node -> ((DomNode) node).asNormalizedText()).orElse(null);
-				final String strRating = Optional.ofNullable(htmlArticle.getFirstByXPath(".//span[contains(@class, 'RatingStatistics')]"))
-					.map(node -> ((DomNode) node).getAttributes().getNamedItem("aria-label").getNodeValue()).orElse(null);
+				final DomNode nameNode = firstNode(htmlArticle,
+						".//div[contains(@class, 'ReviewerProfile__name')]//a",
+						".//div[contains(@class, 'User__name')]//a");
+				final String name = nameNode == null ? null : nameNode.asNormalizedText();
+				final DomNode ratingNode = firstNode(htmlArticle,
+						".//*[@role='img' and starts-with(@aria-label, 'Rating ')]",
+						".//span[contains(@class, 'RatingStatistics')]");
+				final String strRating = ratingNode == null || ratingNode.getAttributes().getNamedItem("aria-label") == null
+						? null
+						: ratingNode.getAttributes().getNamedItem("aria-label").getNodeValue();
 
 				if (name != null && strRating != null) {
 					final Matcher matcher = Pattern.compile("\\d+").matcher(strRating);
-					matcher.find();
+					if (!matcher.find()) {
+						return;
+					}
 					int rating = Integer.valueOf(matcher.group());
 					String title = "";
-					String strDate = Optional.ofNullable(htmlArticle.getFirstByXPath(".//a[contains(@class, 'ReviewCard__timestamp')]"))
-						.map(node -> ((DomNode) node).asNormalizedText()).orElse(null);
+					DomNode dateNode = firstNode(htmlArticle,
+							".//section[contains(@class, 'ReviewCard__row')]//a[contains(@href, '/review/show/')][1]",
+							".//a[contains(@class, 'ReviewCard__timestamp')]");
+					String strDate = dateNode == null ? null : dateNode.asNormalizedText();
 					LocalDate localDate = LocalDate.parse(strDate, DATE_FORMATTER);
 					Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-					final String comment = Optional.ofNullable(htmlArticle.getFirstByXPath(".//section[contains(@class, 'ReviewText__content')]//div[contains(@class, 'Formatted')]"))
+					final String comment = Optional.ofNullable(htmlArticle.getFirstByXPath(
+							".//section[contains(@class, 'ReviewText__content')]//*[contains(concat(' ', normalize-space(@class), ' '), ' Formatted ')]"))
 						.map(node -> ((DomNode) node).asNormalizedText()).orElse(null);
 
-					final String language = detectLibreTranslatePort.map(libreTranslate -> libreTranslate.detect(comment)).orElse(null);
+					final String language = comment == null || comment.isBlank() ? null : com.martinia.indigo.metadata.application.libretranslate.CachedSpanishTranslation.normalizeLanguage(detectLibreTranslatePort.map(libreTranslate -> libreTranslate.detect(comment)).orElse(null));
 
 					final Review review = Review.builder().comment(comment).name(name).date(date).rating(rating).title(title)
-						.lastMetadataSync(new Date()).provider(ProviderEnum.GOODREADS.name()).build();
-					if (language != null && !language.equals(lang)) {
+						.lastMetadataSync(new Date()).provider(ProviderEnum.GOODREADS.name())
+						.originalLanguage(language).language(language)
+						.sourceUrl(dateNode instanceof HtmlAnchor anchor
+								? page.getFullyQualifiedUrl(anchor.getHrefAttribute()).toString() : page.getUrl().toString()).build();
+					if (language != null && !language.equals(com.martinia.indigo.metadata.application.libretranslate.CachedSpanishTranslation.normalizeLanguage(lang))) {
 						foreignComments.add(review);
 					}
 					else {
@@ -164,15 +180,19 @@ public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseC
 				}
 			}
 			catch (Exception e) {
-				System.out.println(e.getMessage());
+				log.debug("Could not parse Goodreads review", e);
 			}
 		});
 
 		log.debug("Number of reviews: {}, foreign: {}", reviews.size(), foreignComments.size());
 		if (reviews.size() < 10 && !CollectionUtils.isEmpty(foreignComments)) {
 			for (Review review : foreignComments) {
-				review.setComment(translateLibreTranslatePort.map(libreTranslate -> libreTranslate.translate(review.getComment(), lang))
-						.orElse(null));
+			final String translated = translateLibreTranslatePort.map(libreTranslate -> libreTranslate.translate(review.getComment(), lang))
+					.orElse(null);
+			if (StringUtils.isNotBlank(translated)) {
+				review.setComment(translated);
+				review.setLanguage(lang);
+			}
 				reviews.add(review);
 				if (reviews.size() == 10) {
 					break;
@@ -180,9 +200,20 @@ public class FindGoodReadsReviewsUseCaseImpl implements FindGoodReadsReviewsUseC
 			}
 		}
 
-		webClient.close();
-
+		if (!cards.isEmpty() && reviews.isEmpty()) {
+			throw new IllegalStateException("Goodreads review cards were found but none could be parsed");
+		}
 		return reviews;
+	}
+
+	private static DomNode firstNode(final HtmlArticle article, final String... expressions) {
+		for (String expression : expressions) {
+			final DomNode node = article.getFirstByXPath(expression);
+			if (node != null) {
+				return node;
+			}
+		}
+		return null;
 	}
 
 }

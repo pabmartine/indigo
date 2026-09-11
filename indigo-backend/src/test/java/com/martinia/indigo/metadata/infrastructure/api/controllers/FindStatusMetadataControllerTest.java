@@ -24,7 +24,7 @@ public class FindStatusMetadataControllerTest extends BaseIndigoTest {
 	private MockMvc mockMvc;
 
 	@Test
-	@WithMockUser
+	@WithMockUser(authorities = "ADMIN")
 	public void testGetStatus_ThenReturnOkStatusAndMetadata() throws Exception {
 		// Given
 		Map<String, Object> statusMetadata = new HashMap<>();

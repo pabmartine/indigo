@@ -293,7 +293,6 @@
         "metadata": {
           "title": "Metadados",
           "pull": "Fazer um pedido a cada (segundos)",
-          "goodreadskey": "Chave de desenvolvedor do GoodReads",
           "all": {
             "partial": "Atualizar todos os metadados (avaliações, comentários, biografia do autor, etc.) para livros novos",
             "full": "Atualizar todos os metadados (avaliações, comentários, biografia do autor, etc.) para toda a biblioteca. Sobrescrever existentes."
@@ -308,7 +307,7 @@
           "obtaining_metadata_authors": "Obtendo metadados dos autores (5/5) ...",
           "filling_authors": "Preenchendo autores (2/5) ..."
         },
-        "smtp": {
+				"smtp": {
           "title": "Servidor de correio",
           "host": "Servidor",
           "port": "Porta",
@@ -326,8 +325,14 @@
             "gmail": "Gmail",
             "outlook": "Outlook",
             "other": "Outro"
-          }
-        }
+					}
+				},
+				"file": {
+					"title": "Carregamento de novos livros",
+					"uploads": {
+						"path": "Caminho da pasta de carregamento"
+					}
+				}
       }
     },
     "actions": {

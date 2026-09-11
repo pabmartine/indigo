@@ -30,6 +30,8 @@ public class ReviewDtoMapperImplTest {
 		review.setComment("This book is amazing!");
 		review.setRating(5);
 		review.setDate(new Date());
+		review.setLastMetadataSync(new Date());
+		review.setProvider("GOODREADS");
 
 		// Act
 		ReviewDto reviewDto = reviewDtoMapper.domain2Dto(review);
@@ -40,6 +42,8 @@ public class ReviewDtoMapperImplTest {
 		Assertions.assertEquals(review.getComment(), reviewDto.getComment());
 		Assertions.assertEquals(review.getRating(), reviewDto.getRating());
 		Assertions.assertEquals(review.getDate(), reviewDto.getDate());
+		Assertions.assertEquals(review.getLastMetadataSync(), reviewDto.getLastMetadataSync());
+		Assertions.assertEquals(review.getProvider(), reviewDto.getProvider());
 	}
 
 	@Test

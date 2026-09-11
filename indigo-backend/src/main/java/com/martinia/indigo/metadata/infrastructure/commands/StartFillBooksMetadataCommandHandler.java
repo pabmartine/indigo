@@ -18,7 +18,8 @@ public class StartFillBooksMetadataCommandHandler extends CommandHandler<StartFi
 	@Override
 	public Void handle(final StartFillBooksMetadataCommand command) {
 
-		startFillBooksMetadataUseCase.start(command.isOverride());
+		startFillBooksMetadataUseCase.start(command.getScope(), command.getMergePolicy(), command.getDynamicPolicy(),
+				command.getRunId());
 
 		return null;
 	}

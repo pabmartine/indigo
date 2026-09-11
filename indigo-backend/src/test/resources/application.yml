@@ -30,6 +30,9 @@ server:
     max-http-header-size: 40KB
     port: 8080
 
+cors:
+    allowed-origin-patterns: http://localhost:4200
+
 spring:
     main:
         allow-circular-references: true
@@ -65,28 +68,39 @@ spring:
 
 flags:
     amazon: true
-    goodreads: true
+    goodreads-reviews: true
     wikipedia: true
     google: true
+    openlibrary: true
     libretranslate: true
 
 metadata:
+    reviews:
+        queue:
+            worker-enabled: false
     goodreads:
-        pull: 1000
         url: https://www.goodreads.com
         reviews: ${metadata.goodreads.url}/search?q=$title+$author&search_type=books
-        author: ${metadata.goodreads.url}/search.xml?q=$subject&key=$key
-        author-info: ${metadata.goodreads.url}/author/show/$id?format=xml&key=$key
-        book: ${metadata.goodreads.url}/book/title.xml?title=$title&key=$key
-        book-authors: ${metadata.goodreads.url}/book/title.xml?title=$title&key=$key&authors=$authors
     google:
         url: https://www.googleapis.com/books/v1/volumes?q=intitle:$title
+    openlibrary:
+        books: https://openlibrary.org/search.json?title=$title&author=$author&fields=key,title,author_name,edition_key,ratings_average,ratings_count,cover_i&limit=5
+        books-by-isbn: https://openlibrary.org/search.json?isbn=$isbn&fields=key,title,author_name,edition_key,ratings_average,ratings_count&limit=5
+        authors: https://openlibrary.org/search/authors.json?q=$subject&limit=5
+        author-info: https://openlibrary.org/authors/$id.json
+        author-image: https://covers.openlibrary.org/a/olid/$id-L.jpg?default=false
+        dumps:
+            editions-url: https://openlibrary.org/data/ol_dump_editions_latest.txt.gz
+            ratings-url: https://openlibrary.org/data/ol_dump_ratings_latest.txt.gz
+            storage-path: /tmp/indigo-test/openlibrary
+            minimum-free-space-bytes: 0
+            delete-downloads-on-success: true
     libretranslate:
         url: http://192.168.1.40:6000
     amazon:
         url: https://www.amazon.es
         asin: ${metadata.amazon.url}/s?k=$title+$author&i=stripbooks
-        reviews: ${metadata.amazon.url}/product-reviews/$asin/?showViewpoints=0&sortBy=byRankDescending&pageNumber=$numPage
+        reviews: ${metadata.amazon.url}/dp/$asin
     wikipedia:
         url: https://$lang.wikipedia.org
         author: ${metadata.wikipedia.url}/w/api.php?action=query&format=json&list=search&utf8=1&origin=*&srsearch=$subject

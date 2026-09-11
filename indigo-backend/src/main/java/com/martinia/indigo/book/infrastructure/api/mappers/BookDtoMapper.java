@@ -14,13 +14,15 @@ public interface BookDtoMapper {
 
 	@Mappings({
 		@Mapping(target = "pubDate", dateFormat = "dd/MM/yyyy"),
-		@Mapping(target = "lastModified", dateFormat = "dd/MM/yyyy")
+		@Mapping(target = "lastModified", dateFormat = "dd/MM/yyyy"),
+		@Mapping(target = "ratingUpdatedAt", dateFormat = "dd/MM/yyyy")
 	})
 	BookDto domain2Dto(Book domain);
 
 	@Mappings({
 			@Mapping(target = "pubDate", dateFormat = "dd/MM/yyyy"),
-			@Mapping(target = "lastModified", dateFormat = "dd/MM/yyyy")
+			@Mapping(target = "lastModified", dateFormat = "dd/MM/yyyy"),
+			@Mapping(target = "ratingUpdatedAt", dateFormat = "dd/MM/yyyy")
 	})
 	Book dto2domain(BookDto dto);
 

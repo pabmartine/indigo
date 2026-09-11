@@ -32,6 +32,6 @@ public class StartFillReviewsMetadataCommandHandlerTest extends BaseIndigoTest {
 
 		// Then
 		// Verify the method invocation
-		verify(startFillReviewsMetadataUseCase, times(1)).start(override, lang);
+		verify(startFillReviewsMetadataUseCase, times(1)).start(override, lang, 0L);
 	}
 }

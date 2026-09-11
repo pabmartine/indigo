@@ -47,9 +47,9 @@ class UploadEpubFilesUseCaseImplTest {
 
 		uploadEpubFilesUseCase.upload(5L);
 
-		verify(uploadEpubFilesSingleton).start(5L);
-		verify(commandBus, times(2)).execute(any(ExtractEpubFileCommand.class));
-		verifyNoMoreInteractions(uploadEpubFilesSingleton);
+		verify(uploadEpubFilesSingleton).start(2L);
+		verify(commandBus, timeout(1000).times(2)).executeAndWait(any(ExtractEpubFileCommand.class));
+		verify(uploadEpubFilesSingleton, timeout(1000)).stop();
 	}
 
 	@Test
@@ -59,8 +59,9 @@ class UploadEpubFilesUseCaseImplTest {
 
 		uploadEpubFilesUseCase.upload(5L);
 
-		verify(uploadEpubFilesSingleton).start(5L);
-		verify(commandBus, never()).execute(any(ExtractEpubFileCommand.class));
+		verify(uploadEpubFilesSingleton).start(0L);
+		verify(commandBus, never()).executeAndWait(any(ExtractEpubFileCommand.class));
+		verify(uploadEpubFilesSingleton, timeout(1000)).stop();
 	}
 
 	@Test
@@ -73,17 +74,18 @@ class UploadEpubFilesUseCaseImplTest {
 		uploadEpubFilesUseCase.upload(2L);
 
 		verify(uploadEpubFilesSingleton).start(2L);
-		verify(commandBus, times(2)).execute(any(ExtractEpubFileCommand.class));
+		verify(commandBus, timeout(1000).times(2)).executeAndWait(any(ExtractEpubFileCommand.class));
+		verify(uploadEpubFilesSingleton, timeout(1000)).stop();
 	}
 
 	@Test
-	void upload_WhenExceptionOccurs_ShouldStopSingleton() {
+	void upload_WhenSetupFails_ShouldNotStartSingleton() {
 		// Use a null path to force an exception in Files.walk()
 		ReflectionTestUtils.setField(uploadEpubFilesUseCase, "uploadsPath", (String) null);
 
 		uploadEpubFilesUseCase.upload(5L);
 
-		verify(uploadEpubFilesSingleton).stop();
+		verify(uploadEpubFilesSingleton, never()).stop();
 	}
 
 	@Test
@@ -93,7 +95,28 @@ class UploadEpubFilesUseCaseImplTest {
 
 		uploadEpubFilesUseCase.upload(5L);
 
-		verify(uploadEpubFilesSingleton).start(5L);
-		verify(commandBus, never()).execute(any(ExtractEpubFileCommand.class));
+		verify(uploadEpubFilesSingleton).start(0L);
+		verify(commandBus, never()).executeAndWait(any(ExtractEpubFileCommand.class));
+		verify(uploadEpubFilesSingleton, timeout(1000)).stop();
+	}
+
+	@Test
+	void upload_WhenAFileFails_ShouldContinueWithTheRemainingFiles() throws IOException {
+		Files.createFile(tempDir.resolve("book1.epub"));
+		Files.createFile(tempDir.resolve("book2.epub"));
+		when(commandBus.executeAndWait(any(ExtractEpubFileCommand.class))).thenThrow(new RuntimeException("invalid epub")).thenReturn(null);
+
+		uploadEpubFilesUseCase.upload(2L);
+
+		verify(commandBus, timeout(1000).times(2)).executeAndWait(any(ExtractEpubFileCommand.class));
+		verify(uploadEpubFilesSingleton).addExtractError();
+		verify(uploadEpubFilesSingleton, timeout(1000)).stop();
+	}
+
+	@Test
+	void upload_WhenLimitIsNotPositive_ShouldNotStartAProcess() {
+		uploadEpubFilesUseCase.upload(0L);
+
+		verifyNoInteractions(commandBus, uploadEpubFilesSingleton);
 	}
 }

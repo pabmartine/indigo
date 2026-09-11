@@ -29,20 +29,20 @@ public class FindBookCoverByIdUseCaseImpl implements FindBookCoverByIdUseCase {
 		return bookRepository.findById(bookId)
 				.map(BookMongoEntity::getImage)
 				.filter(StringUtils::isNotBlank)
-				.map(this::decodeImage)
+				.flatMap(this::decodeImage)
 				.or(() -> {
 					log.warn("Cover not found for book {}", bookId);
 					return Optional.empty();
 				});
 	}
 
-	private byte[] decodeImage(String image) {
+	private Optional<byte[]> decodeImage(String image) {
 		try {
-			return Base64.getDecoder().decode(image);
+			return Optional.of(Base64.getDecoder().decode(image));
 		}
 		catch (IllegalArgumentException ex) {
 			log.error("Failed to decode cover image", ex);
-			return null;
+			return Optional.empty();
 		}
 	}
 }

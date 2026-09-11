@@ -9,4 +9,5 @@ import lombok.Data;
 public class StartFillAuthorsMetadataCommand extends Command<Void> {
 	private boolean override;
 	private String lang;
+	private long runId;
 }

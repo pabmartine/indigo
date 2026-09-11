@@ -217,3 +217,15 @@
 
 
 
+
+.review-layout-toggle {
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.book .content-body.expanded-review-container > .p-col-12,
+.book .content-body.expanded-review-container > .p-col-12 > .review {
+  width: 100%;
+  min-width: 0 !important;
+  box-sizing: border-box;
+}

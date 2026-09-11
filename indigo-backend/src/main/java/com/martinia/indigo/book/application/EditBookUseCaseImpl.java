@@ -34,17 +34,20 @@ public class EditBookUseCaseImpl implements EditBookUseCase {
 
 	@Resource
 	private ImageUtils imageUtils;
+	@org.springframework.beans.factory.annotation.Autowired(required = false)
+	private com.martinia.indigo.metadata.application.MetadataActivityService activity;
 
 	@Override
 	public void edit(Book book) {
 		bookRepository.findById(book.getId()).ifPresent(source -> {
 
 			final BookMongoEntity target = bookMongoMapper.domain2Entity(book);
+			preserveManagedMetadata(source, target);
 
-			if (StringUtils.isNotEmpty(target.getId()) && target.getImage().startsWith("data:") && !target.getImage().contains("null"))
+			if (StringUtils.isNotEmpty(target.getId()) && target.getImage() != null && target.getImage().startsWith("data:") && !target.getImage().contains("null"))
 				target.setImage(target.getImage().substring(target.getImage().indexOf("/9"), target.getImage().length()));
 
-			if (target.getImage().contains("null"))
+			if (target.getImage() != null && target.getImage().contains("null"))
 				target.setImage(null);
 
 			if (target.getImage()==null && source.getImage()!=null)
@@ -55,7 +58,30 @@ public class EditBookUseCaseImpl implements EditBookUseCase {
 			}
 
 			bookRepository.save(target);
+			if (activity != null) {
+				activity.lock("BOOKS", source.getId(), true);
+			}
 		});
+	}
+
+	private void preserveManagedMetadata(final BookMongoEntity source, final BookMongoEntity target) {
+		target.setIsbn10(source.getIsbn10());
+		target.setIsbn13(source.getIsbn13());
+		target.setIdentifiers(source.getIdentifiers());
+		target.setOpenLibraryWorkId(source.getOpenLibraryWorkId());
+		target.setOpenLibraryEditionId(source.getOpenLibraryEditionId());
+		target.setRatingAverage(source.getRatingAverage());
+		target.setRatingsCount(source.getRatingsCount());
+		target.setRatingDistribution(source.getRatingDistribution());
+		target.setRatingProvider(source.getRatingProvider());
+		target.setRatingUpdatedAt(source.getRatingUpdatedAt());
+		target.setMetadataMatchStatus(source.getMetadataMatchStatus());
+		target.setMetadataMatchConfidence(source.getMetadataMatchConfidence());
+		target.setLastMetadataSync(source.getLastMetadataSync());
+		target.setLastReviewsMetadataSync(source.getLastReviewsMetadataSync());
+		target.setReviewsMetadataStatus(source.getReviewsMetadataStatus());
+		target.setReviewsMetadataError(source.getReviewsMetadataError());
+		target.setReviews(source.getReviews());
 	}
 
 }

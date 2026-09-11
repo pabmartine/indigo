@@ -101,6 +101,100 @@ public class XmlUtilsUnitTest {
     }
 
     @Test
+    void parse_WithSeveralSubjectElements_ShouldReturnAllUniqueCategories() {
+        String xml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <package xmlns="http://www.idpf.org/2007/opf">
+                <metadata>
+                    <dc:title>Multiple categories</dc:title>
+                    <dc:subject>Novela</dc:subject>
+                    <dc:subject>Intriga</dc:subject>
+                    <dc:subject>novela</dc:subject>
+                    <subject>Ciencia ficción; Aventuras</subject>
+                </metadata>
+            </package>
+            """;
+
+        BookOpf result = XmlUtils.parse(new ByteArrayInputStream(xml.getBytes()));
+
+        assertNotNull(result);
+        assertEquals(List.of("Novela", "Intriga", "Ciencia ficción", "Aventuras"), result.getTags());
+    }
+
+    @Test
+    void parse_WithIdentifiers_ShouldNormalizeAndClassifyIsbnValues() {
+        String xml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <package xmlns="http://www.idpf.org/2007/opf">
+                <metadata>
+                    <dc:identifier opf:scheme="ISBN">0-306-40615-2</dc:identifier>
+                    <dc:identifier>urn:isbn:978-0-306-40615-7</dc:identifier>
+                    <dc:identifier>urn:uuid:550e8400-e29b-41d4-a716-446655440000</dc:identifier>
+                    <dc:identifier opf:scheme="ISBN">invalid-isbn</dc:identifier>
+                </metadata>
+            </package>
+            """;
+
+        BookOpf result = XmlUtils.parse(new ByteArrayInputStream(xml.getBytes()));
+
+        assertNotNull(result);
+        assertEquals(List.of("0306406152"), result.getIsbn10());
+        assertEquals(List.of("9780306406157"), result.getIsbn13());
+        assertEquals(List.of("550e8400-e29b-41d4-a716-446655440000"), result.getIdentifiers().get("UUID"));
+        assertEquals(List.of("invalid-isbn"), result.getIdentifiers().get("ISBN"));
+    }
+
+    @Test
+    void parse_WithEpub3IdentifierRefinement_ShouldRecognizeIsbn() {
+        String xml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <package xmlns="http://www.idpf.org/2007/opf">
+                <metadata>
+                    <dc:identifier id="book-id">9780306406157</dc:identifier>
+                    <meta refines="#book-id" property="identifier-type" scheme="onix:codelist5">15</meta>
+                </metadata>
+            </package>
+            """;
+
+        BookOpf result = XmlUtils.parse(new ByteArrayInputStream(xml.getBytes()));
+
+        assertNotNull(result);
+        assertEquals(List.of("9780306406157"), result.getIsbn13());
+    }
+
+    @Test
+    void parse_WithCoverMetadataId_ShouldResolveManifestImageHref() {
+        String xml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <package xmlns="http://www.idpf.org/2007/opf">
+                <metadata><meta name="cover" content="cover-1"/></metadata>
+                <manifest><item id="cover-1" href="Images/cover.jpg" media-type="image/jpeg"/></manifest>
+            </package>
+            """;
+
+        BookOpf result = XmlUtils.parse(new ByteArrayInputStream(xml.getBytes()));
+
+        assertNotNull(result);
+        assertEquals("Images/cover.jpg", result.getBookImageName());
+    }
+
+    @Test
+    void parse_WithEpub3CoverProperty_ShouldResolveManifestImageHref() {
+        String xml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <package xmlns="http://www.idpf.org/2007/opf">
+                <metadata/>
+                <manifest><item id="image" href="Images/front.jpeg" properties="nav cover-image"/></manifest>
+            </package>
+            """;
+
+        BookOpf result = XmlUtils.parse(new ByteArrayInputStream(xml.getBytes()));
+
+        assertNotNull(result);
+        assertEquals("Images/front.jpeg", result.getBookImageName());
+    }
+
+    @Test
     void parse_WithInvalidXml_ShouldReturnNull() {
         // Given
         String invalidXml = "This is not valid XML";

@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.client.RestTemplate;
 
 import jakarta.annotation.Resource;
@@ -14,6 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Service
+@Slf4j
 @ConditionalOnProperty(name = "flags.libretranslate", havingValue="true")
 @Transactional
 public class TranslateLibreTranslateUseCaseImpl implements TranslateLibreTranslateUseCase {
@@ -41,7 +43,8 @@ public class TranslateLibreTranslateUseCaseImpl implements TranslateLibreTransla
 
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			log.debug("Translation is unavailable: {}", e.getMessage());
+			com.martinia.indigo.metadata.application.ProviderDiagnostics.record("LIBRETRANSLATE", "Traducir al español", e);
 		}
 		return ret;
 	}

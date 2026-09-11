@@ -22,7 +22,7 @@ public class StopMetadataControllerIntegrationTest extends BaseIndigoIntegration
 	protected MetadataSingleton metadataSingleton;
 
 	@Test
-	@WithMockUser
+	@WithMockUser(authorities = "ADMIN")
 	public void testStopMetadata() throws Exception {
 
 		//Given
@@ -36,11 +36,11 @@ public class StopMetadataControllerIntegrationTest extends BaseIndigoIntegration
 
 		// Then
 		resultActions.andExpect(MockMvcResultMatchers.status().isOk());
-		assertNull(metadataSingleton.getType());
+		assertEquals("type", metadataSingleton.getType());
 		assertFalse(metadataSingleton.isRunning());
-		assertEquals(0, metadataSingleton.getTotal());
-		assertEquals(0, metadataSingleton.getCurrent());
-		assertNull(metadataSingleton.getMessage());
+		assertEquals(100, metadataSingleton.getTotal());
+		assertEquals(10, metadataSingleton.getCurrent());
+		assertEquals("message", metadataSingleton.getMessage());
 
 	}
 }
