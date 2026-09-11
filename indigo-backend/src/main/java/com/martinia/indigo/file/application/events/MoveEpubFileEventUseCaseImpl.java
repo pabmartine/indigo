@@ -67,7 +67,7 @@ public class MoveEpubFileEventUseCaseImpl implements MoveEpubFileEventUseCase {
 					log.info("Book {} already exists at {}; removed duplicate upload", sourcePath, targetFilePath);
 				}
 				else {
-//					Files.move(sourcePath, targetFilePath);
+					Files.move(sourcePath, targetFilePath);
 					Files.copy(sourcePath, targetFilePath, StandardCopyOption.REPLACE_EXISTING);
 					if (Files.exists(sourceCoverPath)) {
 						Files.move(sourceCoverPath, targetCoverPath, StandardCopyOption.REPLACE_EXISTING);

@@ -265,7 +265,7 @@ public class SaveBookEpubFileExtractedEventUseCaseImpl implements SaveBookEpubFi
 			if (!realSource.startsWith(uploadRoot) || realSource.startsWith(Path.of(endpointBook).toRealPath())) {
 				throw new IOException("Refusing to discard a file outside uploads or inside library");
 			}
-//			Files.delete(source);
+			Files.delete(source);
 			if (updated) uploadEpubFilesSingleton.addUpdatedBook();
 			uploadEpubFilesSingleton.addMove();
 			log.info("{} incoming EPUB {}", updated ? "Updated existing book from" : "Discarded duplicate", source);
