@@ -2,8 +2,8 @@ book:
   library:
     import-workers: ${BOOK_LIBRARY_IMPORT_WORKERS:2}
     path: ${BOOK_LIBRARY_PATH}
-    #uploads: ${BOOK_LIBRARY_UPLOADS:${book.library.path}/uploads}
-    uploads: /home/pablo/Descargas/EPL_Descomprimido
+    uploads: ${BOOK_LIBRARY_UPLOADS:${book.library.path}/uploads}
+    #uploads: /home/pablo/Descargas/EPL_Descomprimido
     reconcile-categories-on-startup: ${BOOK_LIBRARY_RECONCILE_CATEGORIES_ON_STARTUP:true}
 
 logging.level:
