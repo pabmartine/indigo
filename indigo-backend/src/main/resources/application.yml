@@ -34,7 +34,12 @@ spring:
     allow-circular-references: ${SPRING_MAIN_ALLOW_CIRCULAR_REFERENCES:true}
   data:
     mongodb:
-      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017/indigo}
+      host: ${SPRING_DATA_MONGODB_HOST:localhost}
+      port: ${SPRING_DATA_MONGODB_PORT:27017}
+      database: ${SPRING_DATA_MONGODB_DATABASE:indigo}
+      username: ${SPRING_DATA_MONGODB_USERNAME:}
+      password: ${SPRING_DATA_MONGODB_PASSWORD:}
+      authentication-database: ${SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE:admin}
       auto-index-creation: ${SPRING_DATA_MONGODB_AUTO_INDEX_CREATION:true}
   mail:
     properties:
