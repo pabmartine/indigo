@@ -29,6 +29,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.core.query.TextCriteria;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
@@ -102,45 +103,61 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 	@Override
 	public BookPageData findAllPage(Search search, int page, int size, String sort, String order) {
-		List<Bson> pipeline = new ArrayList<>();
+		// Keep sort/limit in the find query so MongoDB can use an ordered index.
+		List<Book> items = findAll(search, page, size, sort, order).stream()
+				.map(this::mapEntityToDomain).toList();
+		return new BookPageData(items, countBooks(search));
+	}
 
-		Bson searchMatch = buildSearchMatchDocument(search);
-		if (searchMatch != null) {
-			pipeline.add(searchMatch);
+	@Override
+	public List<BookMongoEntity> findCategoryBatch(String afterId) {
+		return maintenanceBatch(afterId, "tags", "languages");
+	}
+
+	@Override
+	public List<BookMongoEntity> findReconciliationBatch(String afterId) {
+		return maintenanceBatch(afterId, "path", "tags", "identifiers", "isbn10", "isbn13");
+	}
+
+	private List<BookMongoEntity> maintenanceBatch(String afterId, String... fields) {
+		Query query = new Query().with(Sort.by(Sort.Direction.ASC, "_id")).limit(100);
+		if (afterId != null) query.addCriteria(Criteria.where("id").gt(afterId));
+		query.fields().include("_id");
+		for (String field : fields) query.fields().include(field);
+		return mongoTemplate.find(query, BookMongoEntity.class);
+	}
+
+	@Override
+	public List<BookMongoEntity> findSimilarCandidates(Search search, int page) {
+		Query query = buildSearchQuery(search).with(PageRequest.of(page, 100, Sort.by("_id")));
+		query.fields().include("_id").include("authors");
+		return mongoTemplate.find(query, BookMongoEntity.class);
+	}
+
+	@Override
+	public void updateReconciledMetadata(BookMongoEntity book, boolean tagsChanged, boolean identifiersChanged) {
+		Update update = new Update();
+		if (tagsChanged) update.set("tags", book.getTags());
+		if (identifiersChanged) {
+			update.set("identifiers", book.getIdentifiers()).set("isbn10", book.getIsbn10())
+					.set("isbn13", book.getIsbn13()).set("metadataMatchStatus", null)
+					.set("metadataMatchConfidence", null);
 		}
+		if (tagsChanged || identifiersChanged) updateBook(book.getId(), update);
+	}
 
-		String resolvedSort = resolveSortField(sort);
-		int sortDirection = resolveDirection(order).isAscending() ? 1 : -1;
-		Document projection = new Document("reviews", 0)
-				.append("similar", 0)
-				.append("recommendations", 0);
+	@Override
+	public void updateSimilar(String bookId, List<String> similar) {
+		updateBook(bookId, new Update().set("similar", similar));
+	}
 
-		pipeline.add(new Document("$facet", new Document("items", Arrays.asList(
-				new Document("$sort", new Document(resolvedSort, sortDirection)),
-				new Document("$skip", page * size),
-				new Document("$limit", size),
-				new Document("$project", projection)
-		)).append("total", Arrays.asList(
-				new Document("$count", "count")
-		))));
+	@Override
+	public void updateRecommendations(String bookId, List<String> recommendations) {
+		updateBook(bookId, new Update().set("recommendations", recommendations));
+	}
 
-		Document facet = mongoTemplate.getCollection(collectionName).aggregate(pipeline).first();
-		if (facet == null) {
-			return new BookPageData(Collections.emptyList(), 0L);
-		}
-
-		List<Document> itemDocuments = facet.getList("items", Document.class, Collections.emptyList());
-		List<BookMongoEntity> entities = itemDocuments.stream()
-				.map(document -> mongoTemplate.getConverter().read(BookMongoEntity.class, document))
-				.collect(Collectors.toList());
-		List<Book> items = entities.stream()
-				.map(this::mapEntityToDomain)
-				.collect(Collectors.toList());
-
-		List<Document> totalDocuments = facet.getList("total", Document.class, Collections.emptyList());
-		long total = totalDocuments.isEmpty() ? 0L : Long.parseLong(String.valueOf(totalDocuments.get(0).get("count")));
-
-		return new BookPageData(items, total);
+	private void updateBook(String bookId, Update update) {
+		mongoTemplate.updateFirst(Query.query(Criteria.where("id").is(bookId)), update, BookMongoEntity.class);
 	}
 
 	@Override
@@ -178,6 +195,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 			query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()])));
 
+			query.fields().include("_id");
 			return mongoTemplate.find(query, BookMongoEntity.class);
 		}
 		catch (Exception e) {

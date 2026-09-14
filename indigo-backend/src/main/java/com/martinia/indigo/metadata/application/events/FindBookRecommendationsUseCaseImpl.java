@@ -23,13 +23,13 @@ public class FindBookRecommendationsUseCaseImpl implements FindBookRecommendatio
 	@Override
 	public void findBookRecommendations(final String bookId) {
 
-		bookRepository.findById(bookId).ifPresent(book -> {
+		bookRepository.findRecommendationSource(bookId).ifPresent(book -> {
 
 			List<BookMongoEntity> recommendations = bookRepository.getRecommendationsByBook(book);
 			if (!CollectionUtils.isEmpty(recommendations)) {
 				book.setRecommendations(new ArrayList<>());
 				recommendations.forEach(b -> book.getRecommendations().add(b.getId()));
-				bookRepository.save(book);
+				bookRepository.updateRecommendations(bookId, book.getRecommendations());
 
 				log.info("Found book recommendations for {}", book.getTitle());
 

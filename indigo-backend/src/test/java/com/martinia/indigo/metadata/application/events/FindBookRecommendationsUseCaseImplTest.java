@@ -34,14 +34,14 @@ class FindBookRecommendationsUseCaseImplTest extends BaseIndigoTest {
 		List<BookMongoEntity> mockRecommendations = new ArrayList<>();
 		mockRecommendations.add(mockBook);
 
-		when(bookRepository.findById(bookId)).thenReturn(Optional.of(mockBook));
+		when(bookRepository.findRecommendationSource(bookId)).thenReturn(Optional.of(mockBook));
 		when(bookRepository.getRecommendationsByBook(mockBook)).thenReturn(mockRecommendations);
 
 		// When
 		useCase.findBookRecommendations(bookId);
 
 		// Then
-		verify(bookRepository).save(any());
+		verify(bookRepository).updateRecommendations(org.mockito.ArgumentMatchers.eq(bookId), any());
 		assertEquals(mockRecommendations.size(), mockBook.getRecommendations().size());
 
 	}
@@ -51,13 +51,13 @@ class FindBookRecommendationsUseCaseImplTest extends BaseIndigoTest {
 		// Given
 		String bookId = "nonExistingBookId";
 
-		when(bookRepository.findById(bookId)).thenReturn(Optional.empty());
+		when(bookRepository.findRecommendationSource(bookId)).thenReturn(Optional.empty());
 
 		// When
 		useCase.findBookRecommendations(bookId);
 
 		// Then
-		verify(bookRepository, times(1)).findById(any());
+		verify(bookRepository, times(1)).findRecommendationSource(any());
 	}
 
 }

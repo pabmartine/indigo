@@ -61,7 +61,7 @@ public class FindSimilarBooksMetadataUseCaseImpl implements FindSimilarBooksMeta
 					int page = 0;
 					List<BookMongoEntity> books;
 					do {
-						books = bookRepository.findAll(search, page++, 100, "_id", "asc");
+						books = bookRepository.findSimilarCandidates(search, page++);
 						if (!CollectionUtils.isEmpty(books)) {
 							for (BookMongoEntity book : books) {
 								String _authors = String.join(" ", book.getAuthors());
@@ -95,11 +95,8 @@ public class FindSimilarBooksMetadataUseCaseImpl implements FindSimilarBooksMeta
 			});
 
 			if (!CollectionUtils.isEmpty(ret)) {
-				bookRepository.findById(bookId).ifPresent(book -> {
-					book.setSimilar(ret);
-					bookRepository.save(book);
-					log.info("Found similar books for {}", book.getTitle());
-				});
+				bookRepository.updateSimilar(bookId, ret);
+				log.info("Found similar books for {}", bookId);
 
 			}
 		}

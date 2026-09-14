@@ -4,7 +4,7 @@ book:
     path: ${BOOK_LIBRARY_PATH}
     uploads: ${BOOK_LIBRARY_UPLOADS:${book.library.path}/uploads}
     #uploads: /home/pablo/Descargas/EPL_Descomprimido
-    reconcile-categories-on-startup: ${BOOK_LIBRARY_RECONCILE_CATEGORIES_ON_STARTUP:true}
+    reconcile-categories-on-startup: ${BOOK_LIBRARY_RECONCILE_CATEGORIES_ON_STARTUP:false}
 
 logging.level:
   root: ${LOGGING_LEVEL_ROOT:INFO}

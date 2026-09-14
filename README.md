@@ -146,3 +146,27 @@ actividad de swap, pausas de GC y libros/minuto. Comprobar si el reinicio coinci
 con `OutOfMemoryError` en Java o `OOMKilled` en Docker. Los nombres de hilos G1 y
 la cantidad de swap ocupada por sí solos no demuestran la causa del fallo ni la
 versión exacta de Java. No se ha realizado una prueba de carga con 169.000 EPUBs.
+
+### Lecturas y mantenimiento de MongoDB
+
+El catálogo de categorías se reconstruye en lotes de 100 libros, recorriendo
+`_id` sin saltos por offset y solicitando únicamente categorías e idiomas. La
+memoria del proceso depende del lote y del número de categorías, no de todas
+las portadas de la biblioteca. Los contadores que no cambian no se vuelven a
+escribir. Sigue siendo un recorrido completo al arrancar y al terminar un lote
+de importación, por lo que bibliotecas grandes siguen requiriendo tiempo de I/O.
+
+La revisión de los archivos EPUB durante el arranque queda desactivada por
+defecto. Para reparar categorías e identificadores desde los EPUB, establecer
+`BOOK_LIBRARY_RECONCILE_CATEGORIES_ON_STARTUP=true` y reiniciar; después se puede
+volver a desactivar. Esta revisión también lee MongoDB en lotes de 100 y solo
+actualiza los campos modificados. El catálogo se reconstruye independientemente
+de esa opción. La importación normal sigue leyendo los metadatos de cada EPUB.
+
+Similares y recomendaciones emplean proyecciones y actualizaciones parciales
+para evitar transferir portadas que no necesitan. Las imágenes siguen en Base64.
+El listado usa una consulta paginada y un conteo separado, permitiendo usar
+índices para ordenar cuando sean adecuados. Si hay escrituras concurrentes,
+el total y los elementos pueden corresponder a instantes ligeramente distintos.
+No se han añadido índices ni modificado límites del servidor MongoDB: hace falta
+medir sus planes de ejecución y consumo en el NAS antes de ajustar esos valores.

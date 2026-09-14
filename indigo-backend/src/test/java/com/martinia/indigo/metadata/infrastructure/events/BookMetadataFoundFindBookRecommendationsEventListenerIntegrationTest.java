@@ -24,7 +24,9 @@ public class BookMetadataFoundFindBookRecommendationsEventListenerIntegrationTes
 
 	@BeforeEach
 	public void init(){
-		doNothing().when(bookMetadataFoundFindSimilarBooksEventListener).handle(any(BookMetadataFoundEvent.class));
+		com.martinia.indigo.metadata.infrastructure.events.BookMetadataFoundFindSimilarBooksEventListener target =
+				org.springframework.test.util.AopTestUtils.getUltimateTargetObject(bookMetadataFoundFindSimilarBooksEventListener);
+		doNothing().when(target).handle(any(BookMetadataFoundEvent.class));
 	}
 
 	@Test

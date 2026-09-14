@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.annotation.Resource;
 import java.io.IOException;
@@ -45,7 +44,7 @@ public class SaveTagEpubFileEventUseCaseImpl implements SaveTagEpubFileEventUseC
 	private UploadEpubFilesSingleton uploadEpubFilesSingleton;
 	@Value("${book.library.path}")
 	private String libraryPath;
-	@Value("${book.library.reconcile-categories-on-startup:true}")
+	@Value("${book.library.reconcile-categories-on-startup:false}")
 	private boolean reconcileCategoriesOnStartup;
 	@org.springframework.beans.factory.annotation.Autowired(required = false)
 	private com.martinia.indigo.file.application.PendingImportService pendingImports;
@@ -76,37 +75,44 @@ public class SaveTagEpubFileEventUseCaseImpl implements SaveTagEpubFileEventUseC
 	private void reconcileBookMetadata() {
 		final Path root = Path.of(libraryPath).toAbsolutePath().normalize();
 		int repairedBooks = 0;
-		for (BookMongoEntity book : bookRepository.findAll()) {
-			if (activity != null && activity.isLocked("BOOKS", book.getId())) continue;
-			final Path bookDirectory = Path.of(book.getPath()).toAbsolutePath().normalize();
-			if (!bookDirectory.startsWith(root) || !Files.isDirectory(bookDirectory)) {
-				continue;
-			}
-			final Optional<BookOpf> parsedBook = readBookMetadata(bookDirectory);
-			if (parsedBook.isEmpty()) {
-				continue;
-			}
-			final BookOpf bookOpf = parsedBook.get();
-			boolean changed = false;
-			final List<String> categories = normalizeTags(bookOpf.getTags());
-			if (!categories.isEmpty() && !Objects.equals(categories, normalizeTags(book.getTags()))) {
-				book.setTags(categories);
-				changed = true;
-			}
-			if (bookOpf.getIdentifiers() != null && !bookOpf.getIdentifiers().isEmpty()
-					&& (!Objects.equals(bookOpf.getIdentifiers(), book.getIdentifiers())
-							|| !Objects.equals(bookOpf.getIsbn10(), book.getIsbn10())
-							|| !Objects.equals(bookOpf.getIsbn13(), book.getIsbn13()))) {
-				book.setIdentifiers(bookOpf.getIdentifiers());
-				book.setIsbn10(bookOpf.getIsbn10());
-				book.setIsbn13(bookOpf.getIsbn13());
-				book.setMetadataMatchStatus(null);
-				book.setMetadataMatchConfidence(null);
-				changed = true;
-			}
-			if (changed) {
-				bookRepository.save(book);
-				repairedBooks++;
+		String cursor = null;
+		while (true) {
+			List<BookMongoEntity> batch = bookRepository.findReconciliationBatch(cursor);
+			if (batch.isEmpty()) break;
+			cursor = batch.getLast().getId();
+			for (BookMongoEntity book : batch) {
+				if (activity != null && activity.isLocked("BOOKS", book.getId())) continue;
+				final Path bookDirectory = Path.of(book.getPath()).toAbsolutePath().normalize();
+				if (!bookDirectory.startsWith(root) || !Files.isDirectory(bookDirectory)) {
+					continue;
+				}
+				final Optional<BookOpf> parsedBook = readBookMetadata(bookDirectory);
+				if (parsedBook.isEmpty()) {
+					continue;
+				}
+				final BookOpf bookOpf = parsedBook.get();
+				boolean tagsChanged = false;
+				boolean identifiersChanged = false;
+				final List<String> categories = normalizeTags(bookOpf.getTags());
+				if (!categories.isEmpty() && !Objects.equals(categories, normalizeTags(book.getTags()))) {
+					book.setTags(categories);
+					tagsChanged = true;
+				}
+				if (bookOpf.getIdentifiers() != null && !bookOpf.getIdentifiers().isEmpty()
+						&& (!Objects.equals(bookOpf.getIdentifiers(), book.getIdentifiers())
+								|| !Objects.equals(bookOpf.getIsbn10(), book.getIsbn10())
+								|| !Objects.equals(bookOpf.getIsbn13(), book.getIsbn13()))) {
+					book.setIdentifiers(bookOpf.getIdentifiers());
+					book.setIsbn10(bookOpf.getIsbn10());
+					book.setIsbn13(bookOpf.getIsbn13());
+					book.setMetadataMatchStatus(null);
+					book.setMetadataMatchConfidence(null);
+					identifiersChanged = true;
+				}
+				if (tagsChanged || identifiersChanged) {
+					bookRepository.updateReconciledMetadata(book, tagsChanged, identifiersChanged);
+					repairedBooks++;
+				}
 			}
 		}
 		if (repairedBooks > 0) {
@@ -159,14 +165,21 @@ public class SaveTagEpubFileEventUseCaseImpl implements SaveTagEpubFileEventUseC
 
 	private void rebuildCatalog() {
 		final Map<String, CategoryCount> categories = new LinkedHashMap<>();
-		final List<BookMongoEntity> books = bookRepository.findAll();
-		for (BookMongoEntity book : books) {
-			for (String tag : normalizeTags(book.getTags())) {
-				final CategoryCount count = categories.computeIfAbsent(tag.toLowerCase(Locale.ROOT), key -> new CategoryCount(tag));
-				count.total++;
-				for (String language : Optional.ofNullable(book.getLanguages()).orElseGet(List::of)) {
-					if (StringUtils.isNotBlank(language)) {
-						count.languages.merge(language, 1, Integer::sum);
+		long totalBooks = 0;
+		String cursor = null;
+		while (true) {
+			List<BookMongoEntity> batch = bookRepository.findCategoryBatch(cursor);
+			if (batch.isEmpty()) break;
+			cursor = batch.getLast().getId();
+			totalBooks += batch.size();
+			for (BookMongoEntity book : batch) {
+				for (String tag : normalizeTags(book.getTags())) {
+					final CategoryCount count = categories.computeIfAbsent(tag.toLowerCase(Locale.ROOT), key -> new CategoryCount(tag));
+					count.total++;
+					for (String language : Optional.ofNullable(book.getLanguages()).orElseGet(List::of)) {
+						if (StringUtils.isNotBlank(language)) {
+							count.languages.merge(language, 1, Integer::sum);
+						}
 					}
 				}
 			}
@@ -182,10 +195,14 @@ public class SaveTagEpubFileEventUseCaseImpl implements SaveTagEpubFileEventUseC
 				uploadEpubFilesSingleton.addTag();
 				return TagMongoEntity.builder().name(count.name).build();
 			});
-			tag.setNumBooks(NumBooksMongo.builder().total(count.total).languages(count.languages).build());
-			tagRepository.save(tag);
+			NumBooksMongo totals = NumBooksMongo.builder().total(count.total).languages(count.languages).build();
+			if (tag.getNumBooks() == null || tag.getNumBooks().getTotal() != totals.getTotal()
+					|| !Objects.equals(tag.getNumBooks().getLanguages(), totals.getLanguages())) {
+				tag.setNumBooks(totals);
+				tagRepository.save(tag);
+			}
 		}
-		log.info("Category catalog synchronized: {} categories from {} books", categories.size(), books.size());
+		log.info("Category catalog synchronized: {} categories from {} books", categories.size(), totalBooks);
 	}
 
 	private static final class CategoryCount {

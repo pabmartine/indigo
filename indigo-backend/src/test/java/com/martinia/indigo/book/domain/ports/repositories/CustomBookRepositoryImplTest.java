@@ -55,8 +55,8 @@ class CustomBookRepositoryImplTest {
 		List<Criteria> criterias = new ArrayList<>();
 
 		criterias.add(Criteria.where("path").regex(search.getPath(), "i"));
-        String textToSearch = Optional.ofNullable(search.getTitle()).orElse("") + " " + Optional.ofNullable(search.getAuthor()).orElse("");
-        query.addCriteria(TextCriteria.forDefaultLanguage().matching(textToSearch));
+		criterias.add(Criteria.where("title").regex(java.util.regex.Pattern.quote(search.getTitle()), "i"));
+		criterias.add(Criteria.where("authors").regex(java.util.regex.Pattern.quote(search.getAuthor()), "i"));
 		criterias.add(Criteria.where("pubDate").gte(search.getIni()));
 
 		Calendar cEnd = Calendar.getInstance();
@@ -70,7 +70,7 @@ class CustomBookRepositoryImplTest {
 
 		criterias.add(Criteria.where("tags").in(search.getSelectedTags()));
 
-		criterias.add(Criteria.where("serie.name").is(search.getSerie()));
+		criterias.add(Criteria.where("serie.name").regex(java.util.regex.Pattern.quote(search.getSerie()), "i"));
 
 		criterias.add(Criteria.where("languages").in(search.getLanguages()));
 
@@ -110,8 +110,8 @@ class CustomBookRepositoryImplTest {
 		List<Criteria> criterias = new ArrayList<>();
 
 		criterias.add(Criteria.where("path").regex(search.getPath(), "i"));
-        String textToSearch = Optional.ofNullable(search.getTitle()).orElse("") + " " + Optional.ofNullable(search.getAuthor()).orElse("");
-        query.addCriteria(TextCriteria.forDefaultLanguage().matching(textToSearch));
+		criterias.add(Criteria.where("title").regex(java.util.regex.Pattern.quote(search.getTitle()), "i"));
+		criterias.add(Criteria.where("authors").regex(java.util.regex.Pattern.quote(search.getAuthor()), "i"));
 
 		criterias.add(Criteria.where("pubDate").gte(search.getIni()));
 
@@ -126,11 +126,13 @@ class CustomBookRepositoryImplTest {
 
 		criterias.add(Criteria.where("tags").in(search.getSelectedTags()));
 
-		criterias.add(Criteria.where("serie.name").is(search.getSerie()));
+		criterias.add(Criteria.where("serie.name").regex(java.util.regex.Pattern.quote(search.getSerie()), "i"));
 
 		criterias.add(Criteria.where("languages").in(search.getLanguages()));
 
 		query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[0])));
+
+		query.fields().exclude("reviews").exclude("similar").exclude("recommendations");
 
 		List<BookMongoEntity> expectedBooks = new ArrayList<>();
 		expectedBooks.add(new BookMongoEntity());
@@ -178,6 +180,7 @@ class CustomBookRepositoryImplTest {
 		List<BookMongoEntity> expectedRecommendations = new ArrayList<>();
 		expectedRecommendations.add(new BookMongoEntity());
 		expectedRecommendations.add(new BookMongoEntity());
+		query.fields().include("_id");
 		when(mongoTemplate.find(query, BookMongoEntity.class)).thenReturn(expectedRecommendations);
 
 		List<BookMongoEntity> recommendations = customBookRepository.getRecommendationsByBook(book);

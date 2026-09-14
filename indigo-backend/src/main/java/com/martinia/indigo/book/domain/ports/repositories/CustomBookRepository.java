@@ -11,6 +11,19 @@ import com.martinia.indigo.serie.domain.model.SeriePageData;
 
 public interface CustomBookRepository {
 
+	// Maintenance reads are bounded and exclude covers and reviews.
+	List<BookMongoEntity> findCategoryBatch(String afterId);
+
+	List<BookMongoEntity> findReconciliationBatch(String afterId);
+
+	void updateReconciledMetadata(BookMongoEntity book, boolean tagsChanged, boolean identifiersChanged);
+
+	void updateSimilar(String bookId, List<String> similar);
+
+	void updateRecommendations(String bookId, List<String> recommendations);
+
+	List<BookMongoEntity> findSimilarCandidates(Search search, int page);
+
 	List<BookMongoEntity> findAll(Search search, int page, int size, String sort, String order);
 
 	BookPageData findAllPage(Search search, int page, int size, String sort, String order);
