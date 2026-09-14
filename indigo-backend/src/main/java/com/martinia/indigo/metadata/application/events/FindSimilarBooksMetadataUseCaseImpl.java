@@ -55,35 +55,42 @@ public class FindSimilarBooksMetadataUseCaseImpl implements FindSimilarBooksMeta
 							.replace("[", "")
 							.replace("]", "").trim());
 
-					List<BookMongoEntity> books = bookRepository.findAll(search, 0, Integer.MAX_VALUE, "_id", "asc");
-					if (!CollectionUtils.isEmpty(books)) {
-						for (BookMongoEntity book : books) {
-							String _authors = String.join(" ", book.getAuthors());
+					if (search.getTitle().isBlank()) {
+						continue;
+					}
+					int page = 0;
+					List<BookMongoEntity> books;
+					do {
+						books = bookRepository.findAll(search, page++, 100, "_id", "asc");
+						if (!CollectionUtils.isEmpty(books)) {
+							for (BookMongoEntity book : books) {
+								String _authors = String.join(" ", book.getAuthors());
 
-							String filterSimilarAuthor = StringUtils.stripAccents(author)
-									.replaceAll("[^a-zA-Z0-9]", " ")
-									.replaceAll("\\s+", " ")
-									.toLowerCase()
-									.trim();
+								String filterSimilarAuthor = StringUtils.stripAccents(author)
+										.replaceAll("[^a-zA-Z0-9]", " ")
+										.replaceAll("\\s+", " ")
+										.toLowerCase()
+										.trim();
 
-							String[] similarTerms = StringUtils.stripAccents(_authors)
-									.replaceAll("[^a-zA-Z0-9]", " ")
-									.replaceAll("\\s+", " ")
-									.split(" ");
+								String[] similarTerms = StringUtils.stripAccents(_authors)
+										.replaceAll("[^a-zA-Z0-9]", " ")
+										.replaceAll("\\s+", " ")
+										.split(" ");
 
-							boolean similarContains = true;
-							for (String similarTerm : similarTerms) {
-								similarTerm = StringUtils.stripAccents(similarTerm).toLowerCase().trim();
-								if (!filterSimilarAuthor.contains(similarTerm)) {
-									similarContains = false;
+								boolean similarContains = true;
+								for (String similarTerm : similarTerms) {
+									similarTerm = StringUtils.stripAccents(similarTerm).toLowerCase().trim();
+									if (!filterSimilarAuthor.contains(similarTerm)) {
+										similarContains = false;
+									}
+								}
+
+								if (similarContains) {
+									ret.add(book.getId());
 								}
 							}
-
-							if (similarContains) {
-								ret.add(book.getId());
-							}
 						}
-					}
+					} while (books.size() == 100);
 				}
 			});
 

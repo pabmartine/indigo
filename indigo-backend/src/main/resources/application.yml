@@ -1,6 +1,6 @@
 book:
   library:
-    import-workers: ${BOOK_LIBRARY_IMPORT_WORKERS:2}
+    import-workers: ${BOOK_LIBRARY_IMPORT_WORKERS:1}
     path: ${BOOK_LIBRARY_PATH}
     uploads: ${BOOK_LIBRARY_UPLOADS:${book.library.path}/uploads}
     #uploads: /home/pablo/Descargas/EPL_Descomprimido
@@ -127,3 +127,7 @@ retries:
 
 cors:
   allowed-origin-patterns: ${CORS_ALLOWED_ORIGIN_PATTERNS:http://localhost:4200,http://krahen.synology.me:8080,http://krahen.synology.me:8081}
+
+events:
+  workers: ${EVENTS_WORKERS:1}
+  queue-capacity: ${EVENTS_QUEUE_CAPACITY:32}

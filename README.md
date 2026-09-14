@@ -110,3 +110,39 @@ Please refer to the contribution guidelines for more information.
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
+### Consumo de memoria en NAS
+
+Las portadas siguen almacenándose como miniaturas JPEG en Base64 en MongoDB.
+La importación usa un trabajador por defecto (`BOOK_LIBRARY_IMPORT_WORKERS=1`,
+máximo 8). Los metadatos de libros ya se procesan secuencialmente, con una lista
+inicial de identificadores, sin cargar todas las portadas.
+
+El bus de eventos usa `EVENTS_WORKERS=1` (máximo 8) y una cola limitada por
+`EVENTS_QUEUE_CAPACITY=32`. Al llenarse, el publicador ejecuta la tarea, frenando
+la producción sin descartar eventos. Esto puede alargar peticiones que publiquen
+eventos; no establece un límite global de un único hilo para toda la aplicación.
+Las búsquedas de libros similares recorren páginas de 100 resultados.
+
+Para un NAS de 6 GB compartido con otros servicios, un punto de partida a validar
+es limitar el contenedor backend a 1536 MiB y establecer esta variable de entorno:
+
+```text
+JAVA_TOOL_OPTIONS=-Xms256m -Xmx1024m -XX:ActiveProcessorCount=2 -Xlog:gc=info
+```
+
+El Dockerfile actual permite usar `JAVA_TOOL_OPTIONS` sin cambiar el entrypoint.
+El heap no incluye toda la memoria de Java: hay que reservar margen para memoria
+nativa, pilas y otros componentes. `ActiveProcessorCount` afecta al dimensionado
+de pools de la JVM, no impone una cuota dura de CPU. Estos límites deben aplicarse
+en la configuración real de Container Manager; no se aplican automáticamente.
+
+En MongoDB, `--wiredTigerCacheSizeGB 0.5` puede servir de punto de partida, pero
+solo limita su caché interna, no toda la RAM del proceso. Véanse la documentación
+oficial de [Java 25](https://docs.oracle.com/en/java/javase/25/docs/specs/man/java.html)
+y [WiredTiger](https://www.mongodb.com/docs/manual/core/wiredtiger/).
+
+Validar con la misma carga antes y después: memoria de los contenedores, CPU,
+actividad de swap, pausas de GC y libros/minuto. Comprobar si el reinicio coincide
+con `OutOfMemoryError` en Java o `OOMKilled` en Docker. Los nombres de hilos G1 y
+la cantidad de swap ocupada por sí solos no demuestran la causa del fallo ni la
+versión exacta de Java. No se ha realizado una prueba de carga con 169.000 EPUBs.

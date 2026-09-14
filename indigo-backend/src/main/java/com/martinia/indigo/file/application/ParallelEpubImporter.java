@@ -15,7 +15,7 @@ public class ParallelEpubImporter {
     @Resource private SaveBookEpubFileExtractedEventUseCase saver;
     @Resource private PendingImportService pending;
     @Resource private UploadEpubFilesSingleton progress;
-    @Value("${book.library.import-workers:2}") private int workers;
+    @Value("${book.library.import-workers:1}") private int workers;
     private final Object persistenceLock = new Object();
 
     public void process(List<Path> paths) {
