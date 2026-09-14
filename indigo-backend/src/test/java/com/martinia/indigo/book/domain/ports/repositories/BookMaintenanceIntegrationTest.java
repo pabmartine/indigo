@@ -11,6 +11,47 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BookMaintenanceIntegrationTest extends BaseIndigoTest {
+  @jakarta.annotation.Resource
+  private org.springframework.test.web.servlet.MockMvc mockMvc;
+
+  @Test
+  @org.springframework.security.test.context.support.WithMockUser
+  void summariesExcludeHeavyFieldsAndCoverReadsOnlyImage() throws Exception {
+    var book = new BookMongoEntity();
+    book.setTitle("Summary book");
+    book.setImage(java.util.Base64.getEncoder().encodeToString("cover-bytes".getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+    book.setComment("A large description");
+    book.setAuthors(List.of("Author"));
+    book.setTags(List.of("Fiction"));
+    book.setLanguages(List.of("spa"));
+    book.setPages(321);
+    book = bookRepository.save(book);
+    var summary = bookRepository.findSummary(null, 0, 10, "id", "desc").getFirst();
+    assertEquals(book.getId(), summary.getId());
+    assertEquals(List.of("Author"), summary.getAuthors());
+    assertEquals(321, summary.getPages());
+    assertNull(summary.getImage());
+    assertNull(summary.getComment());
+    var page = bookRepository.findSummaryPage(null, 0, 10, "id", "desc");
+    assertEquals(1, page.total());
+    assertNull(page.items().getFirst().getImage());
+    var cover = bookRepository.findCoverById(book.getId()).orElseThrow();
+    assertEquals(book.getImage(), cover.getImage());
+    assertNull(cover.getTitle());
+    assertNull(cover.getAuthors());
+    assertNull(cover.getComment());
+    for (String suffix : List.of("/summary", "/summary/page")) {
+      String itemPath = suffix.endsWith("page") ? "$.items[0]" : "$[0]";
+      mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+          .post("/api/book/all/advance" + suffix)
+          .contentType(org.springframework.http.MediaType.APPLICATION_JSON).content("{}")
+          .param("page", "0").param("size", "10").param("sort", "id").param("order", "desc"))
+          .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isOk())
+          .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath(itemPath + ".title").value("Summary book"))
+          .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath(itemPath + ".image").doesNotExist());
+    }
+  }
+
   @Test
   void maintenanceTraversesObjectIdsWithoutLoadingCoversAndUpdatesOnlyChangedFields() {
     var books = new ArrayList<BookMongoEntity>();

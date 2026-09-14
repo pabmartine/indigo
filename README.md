@@ -170,3 +170,25 @@ El listado usa una consulta paginada y un conteo separado, permitiendo usar
 el total y los elementos pueden corresponder a instantes ligeramente distintos.
 No se han añadido índices ni modificado límites del servidor MongoDB: hace falta
 medir sus planes de ejecución y consumo en el NAS antes de ajustar esos valores.
+
+### Diagnóstico de la primera carga de libros
+
+Los endpoints `/api/book/all/advance/summary` y `/summary/page` leen solo los
+campos de las tarjetas: no transfieren portadas ni comentarios desde MongoDB.
+`/api/book/cover/{id}` lee únicamente la imagen, que permanece en Base64 en la
+base de datos. El endpoint de libros completos conserva su comportamiento.
+
+Buscar `Book summary page=` en el log del backend para comparar la primera
+petición con las siguientes usando los mismos filtros, orden y tamaño:
+
+- `queryMs`: consulta de los elementos de la página y conversión de MongoDB.
+- `countMs`: conteo exacto de todas las coincidencias.
+- `mappingMs`: conversión al modelo de dominio.
+- `totalMs`: suma de esas fases; no incluye serialización HTTP, red ni portadas.
+
+Las operaciones de al menos un segundo se registran en INFO; las demás en DEBUG
+(logger `com.martinia.indigo.book.domain.ports.repositories.CustomBookRepositoryImpl`).
+Los tiempos se miden con reloj monotónico y no incluyen el texto de búsqueda.
+El conteo sigue siendo exacto y la respuesta espera a que termine. Estos datos
+permiten comprobar si el retraso viene de la página o del conteo antes de añadir
+cachés o cambiar índices. No se ha medido aún el rendimiento en frío del NAS.

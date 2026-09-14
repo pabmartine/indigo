@@ -26,6 +26,10 @@ public interface CustomBookRepository {
 
 	List<BookMongoEntity> findAll(Search search, int page, int size, String sort, String order);
 
+	List<BookMongoEntity> findSummary(Search search, int page, int size, String sort, String order);
+
+	BookPageData findSummaryPage(Search search, int page, int size, String sort, String order);
+
 	BookPageData findAllPage(Search search, int page, int size, String sort, String order);
 
 	long countBooks(Search search);

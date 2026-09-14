@@ -26,7 +26,7 @@ public class FindBookCoverByIdUseCaseImpl implements FindBookCoverByIdUseCase {
 			return Optional.empty();
 		}
 
-		return bookRepository.findById(bookId)
+		return bookRepository.findCoverById(bookId)
 				.map(BookMongoEntity::getImage)
 				.filter(StringUtils::isNotBlank)
 				.flatMap(this::decodeImage)

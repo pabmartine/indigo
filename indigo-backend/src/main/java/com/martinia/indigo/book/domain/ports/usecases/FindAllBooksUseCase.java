@@ -10,6 +10,10 @@ public interface FindAllBooksUseCase {
 
 	List<Book> findAll(Search search, int page, int size, String sort, String order);
 
+	List<Book> findSummary(Search search, int page, int size, String sort, String order);
+
+	BookPageData findSummaryPage(Search search, int page, int size, String sort, String order);
+
 	BookPageData findAllPage(Search search, int page, int size, String sort, String order);
 
 }

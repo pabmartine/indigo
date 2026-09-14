@@ -29,6 +29,16 @@ public class FindAllBooksUseCaseImpl implements FindAllBooksUseCase {
 	}
 
 	@Override
+	public List<Book> findSummary(Search search, int page, int size, String sort, String order) {
+		return bookMongoMapper.entities2Domains(bookRepository.findSummary(search, page, size, sort, order));
+	}
+
+	@Override
+	public BookPageData findSummaryPage(Search search, int page, int size, String sort, String order) {
+		return bookRepository.findSummaryPage(search, page, size, sort, order);
+	}
+
+	@Override
 	public BookPageData findAllPage(Search search, int page, int size, String sort, String order) {
 		return bookRepository.findAllPage(search, page, size, sort, order);
 	}

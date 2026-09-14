@@ -102,6 +102,34 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 	}
 
 	@Override
+	public List<BookMongoEntity> findSummary(Search search, int page, int size, String sort, String order) {
+		Query query = buildSearchQuery(search)
+				.with(PageRequest.of(page, size, Sort.by(resolveDirection(order), resolveSortField(sort))));
+		query.fields().include("_id").include("title").include("path").include("serie")
+				.include("pubDate").include("pages").include("rating").include("authors")
+				.include("tags").include("languages");
+		return mongoTemplate.find(query, BookMongoEntity.class);
+	}
+
+	@Override
+	public BookPageData findSummaryPage(Search search, int page, int size, String sort, String order) {
+		long started = System.nanoTime();
+		List<BookMongoEntity> entities = findSummary(search, page, size, sort, order);
+		long queried = System.nanoTime();
+		long total = countBooks(search);
+		long counted = System.nanoTime();
+		List<Book> items = entities.stream().map(this::mapEntityToDomain).toList();
+		long finished = System.nanoTime();
+		// No search text or book data in diagnostic logs.
+		var timingLog = finished - started >= 1_000_000_000L ? log.atInfo() : log.atDebug();
+		timingLog.log("Book summary page={} size={} items={} total={} queryMs={} countMs={} mappingMs={} totalMs={}",
+				page, size, items.size(), total, (queried - started) / 1_000_000L,
+				(counted - queried) / 1_000_000L, (finished - counted) / 1_000_000L,
+				(finished - started) / 1_000_000L);
+		return new BookPageData(items, total);
+	}
+
+	@Override
 	public BookPageData findAllPage(Search search, int page, int size, String sort, String order) {
 		// Keep sort/limit in the find query so MongoDB can use an ordered index.
 		List<Book> items = findAll(search, page, size, sort, order).stream()

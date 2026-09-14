@@ -78,7 +78,7 @@ public class FindAllBooksController {
 			@Parameter(description = "Number of books per page", example = "10") @RequestParam int size,
 			@Parameter(description = "Field to sort by (e.g., 'title')", example = "title") @RequestParam String sort,
 			@Parameter(description = "Sort order (asc or desc)", example = "asc") @RequestParam String order) {
-		List<Book> books = useCase.findAll(search, page, size, sort, order);
+		List<Book> books = useCase.findSummary(search, page, size, sort, order);
 		List<BookSummaryDto> booksDto = summaryMapper.domains2Dtos(books);
 		return new ResponseEntity<>(booksDto, HttpStatus.OK);
 	}
@@ -99,7 +99,7 @@ public class FindAllBooksController {
 			@Parameter(description = "Number of books per page", example = "10") @RequestParam int size,
 			@Parameter(description = "Field to sort by (e.g., 'title')", example = "title") @RequestParam String sort,
 			@Parameter(description = "Sort order (asc or desc)", example = "asc") @RequestParam String order) {
-		BookPageData booksPage = useCase.findAllPage(search, page, size, sort, order);
+		BookPageData booksPage = useCase.findSummaryPage(search, page, size, sort, order);
 		List<BookSummaryDto> booksDto = summaryMapper.domains2Dtos(booksPage.items());
 		return new ResponseEntity<>(new BookSummaryPageDto(booksDto, booksPage.total(), page, size), HttpStatus.OK);
 	}
