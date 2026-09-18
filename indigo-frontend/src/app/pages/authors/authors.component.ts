@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
 import { SelectItem } from 'primeng/api/selectitem';
-import { forkJoin, of, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Author } from 'src/app/domain/author';
 import { Book } from 'src/app/domain/book';
@@ -92,7 +92,7 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit(): void {
     this.initializeSortOptions();
     this.reset();
-    this.loadInitialDataInParallel();
+    this.loadInitialData();
   }
 
   ngAfterViewInit(): void {
@@ -117,7 +117,7 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
       this.authorColumns = 4;
       this.authorRowHeight = 180;
     } else {
-      this.size = 80;
+      this.size = 60;
       this.authorColumns = 5;
       this.authorRowHeight = 190;
     }
@@ -159,58 +159,35 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
-  private loadInitialDataInParallel(): void {
+  private loadInitialData(): void {
     this.isLoading = true;
     this.cdr.detectChanges();
 
-    const count$ = this.authorService.count(this.user.languageBooks);
-    const authors$ = this.authorService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order);
-    const favorites$ = (this.user && this.user.username)
-      ? this.authorService.getFavorites(this.user.username)
-      : of([]);
+    if (this.user && this.user.username) {
+      this.getFavorites();
+    }
 
-    forkJoin({ count: count$, authors: authors$, favorites: favorites$ })
+    this.authorService.getSummaryPage(this.user.languageBooks, this.page, this.size, this.sort, this.order)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: ({ count, authors, favorites }) => {
-          // Process Count
-          this.total = count;
+        next: (response) => {
+          this.total = response.total || 0;
           this.lastPage = this.total / this.size;
           this.title = this.translate.instant('locale.authors.title') + " (" + this.total + ")";
 
-          // Process Authors
-          const cacheKey = `${this.page}-${this.size}-${this.sort}-${this.order}-${this.user.languageBooks?.join(',')}`;
-          const authorsWithoutImages = authors.map(author => ({
-            ...author,
-            image: null,
-            originalImage: author.image
-          }));
-          Array.prototype.push.apply(this.authors, authorsWithoutImages);
+          const processedAuthors = this.mapAuthorsWithCover(response.items || []);
+          Array.prototype.push.apply(this.authors, processedAuthors);
           this.updateAuthorRows();
           this.page++;
-          this.cdr.detectChanges();
-          this.processAuthorsImagesAsync(authorsWithoutImages, 0);
-          const processedData = this.processAuthors(authors);
-          this.authorsCache.set(cacheKey, processedData);
 
-          // Process Favorites
-          if (favorites && favorites.length > 0) {
-            const favoritesWithoutImages = favorites.map(author => ({
-              ...author,
-              image: null,
-              originalImage: author.image
-            }));
-            this.favorites = favoritesWithoutImages;
-            this.processFavoritesImagesAsync(favoritesWithoutImages);
-            const processedFavorites = this.processAuthors(favorites);
-            this.favoritesCache = [...processedFavorites];
-          }
+          const cacheKey = `${this.page - 1}-${this.size}-${this.sort}-${this.order}-${this.user.languageBooks?.join(',')}`;
+          this.authorsCache.set(cacheKey, processedAuthors);
 
           this.isLoading = false;
           this.cdr.detectChanges();
         },
         error: (error) => {
-          console.error('Error loading initial data in parallel:', error);
+          console.error('Error loading initial authors data:', error);
           this.isLoading = false;
           this.messageService.clear();
           this.messageService.add({
@@ -290,33 +267,25 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     this.isScrolling = true;
-    this.authorService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order)
+    this.authorService.getSummaryPage(this.user.languageBooks, this.page, this.size, this.sort, this.order)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data) => {
-          // INMEDIATAMENTE mostrar autores sin procesar imágenes
-          const authorsWithoutImages = data.map(author => ({
-            ...author,
-            image: null, // Temporalmente sin imagen
-            originalImage: author.image // Guardar imagen original
-          }));
+        next: (response) => {
+          this.total = response.total || 0;
+          this.lastPage = this.total / this.size;
+          this.title = this.translate.instant('locale.authors.title') + " (" + this.total + ")";
 
-          // Mostrar datos inmediatamente
-          Array.prototype.push.apply(this.authors, authorsWithoutImages);
+          const processedAuthors = this.mapAuthorsWithCover(response.items || []);
+          Array.prototype.push.apply(this.authors, processedAuthors);
           this.updateAuthorRows();
           this.page++;
-          this.cdr.detectChanges();
 
-          // Procesar imágenes de forma asíncrona
-          this.processAuthorsImagesAsync(authorsWithoutImages, this.authors.length - authorsWithoutImages.length);
-
-          // Guardar en cache con imágenes procesadas para futuras cargas
-          const processedData = this.processAuthors(data);
-          this.authorsCache.set(cacheKey, processedData);
+          this.authorsCache.set(cacheKey, processedAuthors);
           this.isScrolling = false;
+          this.cdr.detectChanges();
         },
         error: (error) => {
-          console.log(error);
+          console.error('Error loading authors page:', error);
           this.messageService.clear();
           this.messageService.add({
             severity: 'error',
@@ -329,78 +298,12 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
-  private processAuthors(data: Author[]): Author[] {
-    return data.map(author => {
-      if (author.image) {
-        author.image = this.imageService.toDataUrlSafe(author.image);
-      }
-      return author;
-    });
-  }
-
-  private processAuthorsImagesAsync(authors: any[], startIndex: number): void {
-    // Procesar imágenes en pequeños lotes para no bloquear la UI
-    const batchSize = 3;
-    let currentIndex = 0;
-
-    const processBatch = () => {
-      const endIndex = Math.min(currentIndex + batchSize, authors.length);
-      let hasUpdates = false;
-
-      for (let i = currentIndex; i < endIndex; i++) {
-        const author = authors[i];
-        const targetIndex = startIndex + i;
-
-        if (author.originalImage && targetIndex < this.authors.length) {
-          this.authors[targetIndex].image = this.imageService.toDataUrlSafe(author.originalImage);
-          hasUpdates = true;
-        }
-      }
-
-      if (hasUpdates) {
-        this.cdr.detectChanges();
-      }
-
-      currentIndex = endIndex;
-
-      // Continuar con el siguiente lote si hay más imágenes
-      if (currentIndex < authors.length) {
-        setTimeout(processBatch, 100); // Pausa entre lotes
-      }
-    };
-
-    // Iniciar procesamiento
-    setTimeout(processBatch, 150);
-  }
-
-  private processFavoritesImagesAsync(favorites: any[]): void {
-    const batchSize = 4;
-    let currentIndex = 0;
-
-    const processBatch = () => {
-      const endIndex = Math.min(currentIndex + batchSize, favorites.length);
-      let hasUpdates = false;
-
-      for (let i = currentIndex; i < endIndex; i++) {
-        const author = favorites[i];
-        if (author.originalImage && i < this.favorites.length) {
-          this.favorites[i].image = this.imageService.toDataUrlSafe(author.originalImage);
-          hasUpdates = true;
-        }
-      }
-
-      if (hasUpdates) {
-        this.cdr.detectChanges();
-      }
-
-      currentIndex = endIndex;
-
-      if (currentIndex < favorites.length) {
-        setTimeout(processBatch, 75);
-      }
-    };
-
-    setTimeout(processBatch, 75);
+  private mapAuthorsWithCover(authors: Author[]): Author[] {
+    return (authors || []).map(author => ({
+      ...author,
+      image: undefined,
+      originalImage: this.authorService.buildCoverImageUrl(author.id) || undefined
+    }));
   }
 
   getBooksByAuthor(author: Author): void {
@@ -417,17 +320,15 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private getFavoritesAsync(): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       // Si el usuario no está logueado, no hay favoritos que cargar
       if (!this.user || !this.user.username) {
-        console.log('User or username not available, not fetching favorites.');
         this.favorites = [];
         this.cdr.detectChanges();
         resolve();
         return;
       }
 
-      console.log('Fetching author favorites for user:', this.user.username);
       // Usar cache si está disponible
       if (this.favoritesCache) {
         this.favorites = [...this.favoritesCache];
@@ -440,32 +341,14 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (data) => {
-            // INMEDIATAMENTE mostrar favoritos sin imágenes procesadas
-            const favoritesWithoutImages = data.map(author => ({
-              ...author,
-              image: null,
-              originalImage: author.image
-            }));
-
-            Array.prototype.push.apply(this.favorites, favoritesWithoutImages);
+            const favoritesWithCovers = this.mapAuthorsWithCover(data || []);
+            this.favorites = favoritesWithCovers;
+            this.favoritesCache = [...favoritesWithCovers];
             this.cdr.detectChanges();
-
-            // Procesar imágenes de favoritos de forma asíncrona
-            this.processFavoritesImagesAsync(favoritesWithoutImages);
-
-            // Guardar en cache con imágenes procesadas para futuras cargas
-            const processedFavorites = data.map(author => {
-              if (author.image) {
-                author.image = this.imageService.toDataUrlSafe(author.image);
-              }
-              return author;
-            });
-            this.favoritesCache = [...processedFavorites];
-
             resolve();
           },
           error: (error) => {
-            console.log(error);
+            console.error('Error fetching favorites:', error);
             resolve(); // No rechazar, solo continuar
           }
         });
@@ -498,8 +381,36 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
   showDetails(author: Author): void {
     if (!author || !this.authorComponent) return;
 
-    this.authorComponent.showDetails(author);
-    this.showDetail = true;
+    if (!author.description && author.sort) {
+      this.authorService.getByName(author.sort)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (data) => {
+            const authorData = data ? { ...data } : { ...author };
+            if (!authorData.image && author.id) {
+              authorData.image = this.authorService.buildCoverImageUrl(author.id);
+            } else if (authorData.image) {
+              authorData.image = this.imageService.toDataUrlSafe(authorData.image);
+            }
+            this.authorComponent.showDetails(authorData);
+            this.showDetail = true;
+            this.cdr.detectChanges();
+          },
+          error: () => {
+            const fallback = { ...author };
+            fallback.image = fallback.image || this.authorService.buildCoverImageUrl(fallback.id);
+            this.authorComponent.showDetails(fallback);
+            this.showDetail = true;
+            this.cdr.detectChanges();
+          }
+        });
+    } else {
+      const authorCopy = { ...author };
+      authorCopy.image = authorCopy.image || this.authorService.buildCoverImageUrl(authorCopy.id);
+      this.authorComponent.showDetails(authorCopy);
+      this.showDetail = true;
+      this.cdr.detectChanges();
+    }
   }
 
   closeDetails(): void {
@@ -527,11 +438,15 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
       .subscribe({
         next: (data) => {
           if (data) {
-            if (data.image) {
-              data.image = this.imageService.toDataUrlSafe(data.image);
+            const authorData = { ...data };
+            if (!authorData.image && authorData.id) {
+              authorData.image = this.authorService.buildCoverImageUrl(authorData.id);
+            } else if (authorData.image) {
+              authorData.image = this.imageService.toDataUrlSafe(authorData.image);
             }
-            this.authorComponent.showDetails(data);
+            this.authorComponent.showDetails(authorData);
             this.showDetail = true;
+            this.cdr.detectChanges();
           }
         },
         error: (error) => {
@@ -543,17 +458,23 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
   refreshAuthor(author: Author): void {
     if (!author) return;
 
+    const coverUrl = this.authorService.buildCoverImageUrl(author.id);
+    const updatedAuthor = {
+      ...author,
+      image: coverUrl || author.image,
+      originalImage: coverUrl || author.originalImage
+    };
+
     const index = this.authors.findIndex((a) => a.id === author.id);
     if (index !== -1) {
-      this.authors[index] = author;
+      this.authors[index] = updatedAuthor;
       this.cdr.detectChanges();
     }
 
     // También actualizar en favoritos si existe
     const favIndex = this.favorites.findIndex((a) => a.id === author.id);
     if (favIndex !== -1) {
-      this.favorites[favIndex] = author;
-      // Limpiar cache de favoritos para refrescar
+      this.favorites[favIndex] = updatedAuthor;
       this.favoritesCache = null;
       this.cdr.detectChanges();
     }

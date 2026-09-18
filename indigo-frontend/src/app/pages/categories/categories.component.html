@@ -19,10 +19,21 @@
     </div>
   </div>
 
-  <div class="categories-grid">
-    <div *ngFor="let tag of tags" class="category-item" (click)="getBooksByTag(tag)">
+  <!-- Loading state -->
+  <div *ngIf="isLoading" class="loading-container">
+    <span class="loading">{{'locale.search.searching' | translate}}</span>
+  </div>
+
+  <div class="categories-grid" *ngIf="!isLoading">
+    <div *ngFor="let tag of tags; trackBy: trackByTagId" class="category-item" (click)="getBooksByTag(tag)">
       <div class="category-cover-container">
-        <img [src]="tag.image || './assets/images/unknown.jpg'" class="category-cover" alt="{{ tag.name }}"/>
+        <img [appLazyImage]="tag.image"
+             [lazySource]="tag.originalImage"
+             [lazyPlaceholder]="'./assets/images/unknown.jpg'"
+             (lazyLoaded)="tag.image = $event"
+             class="category-cover"
+             (error)="tag.image = './assets/images/unknown.jpg'"
+             alt="{{ tag.name }}"/>
       </div>
       <div class="category-info-top">
         <span class="title" title="{{ tag.name }}">{{tag.name}}</span>
@@ -35,6 +46,8 @@
       </div>
     </div>
   </div>
+
+  <div #scrollSentinel class="scroll-sentinel" style="height: 20px;"></div>
 </p-card>
 
 <p-tieredMenu #menu [model]="items" [popup]="true"></p-tieredMenu>

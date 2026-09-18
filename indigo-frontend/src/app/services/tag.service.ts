@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Tag } from '../domain/tag';
+import { TagSummaryPage } from '../domain/tagSummaryPage';
 
 
 @Injectable({
@@ -17,12 +18,23 @@ export class TagService {
     this.endpoint=environment.endpoint+this.service;
    }
 
- getAll(languages: string[], sort: string, order: string) : Observable<any> {
+  getAll(languages: string[], sort: string, order: string) : Observable<any> {
     return this.http.get<any>(this.endpoint+"/all?languages=" + languages.map(x=>x).join(",") + "&sort=" + sort + "&order=" + order);
   }
 
   getAllPaged(languages: string[], page: number, size: number, sort: string, order: string) : Observable<any> {
     return this.http.get<any>(this.endpoint+"/all/paged?languages=" + languages.map(x=>x).join(",") + "&page=" + page + "&size=" + size + "&sort=" + sort + "&order=" + order);
+  }
+
+  getSummaryPage(languages: string[], page: number, size: number, sort: string, order: string): Observable<TagSummaryPage> {
+    return this.http.get<TagSummaryPage>(this.endpoint + "/summary/page?languages=" + languages.map(x => x).join(",") + "&page=" + page + "&size=" + size + "&sort=" + sort + "&order=" + order);
+  }
+
+  buildCoverUrl(id: string | number): string {
+    if (id === undefined || id === null || id === '') {
+      return null;
+    }
+    return `${this.endpoint}/cover/${encodeURIComponent(id)}`;
   }
 
   rename(source:number, target: string) : Observable<any> {

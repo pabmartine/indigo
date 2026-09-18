@@ -16,4 +16,7 @@ public interface AuthorRepository extends MongoRepository<AuthorMongoEntity, Str
 
 	@Query("{ 'sort' : ?0 }")
 	Optional<AuthorMongoEntity> findBySort(String sort);
+
+	@Query(value = "{ '_id': ?0 }", fields = "{ 'image': 1 }")
+	Optional<AuthorMongoEntity> findCoverById(String id);
 }

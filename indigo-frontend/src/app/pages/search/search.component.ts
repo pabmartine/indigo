@@ -47,17 +47,18 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   getAllTags() {
     this.tags.length = 0;
-    this.tagService.getAllPaged(this.user.languageBooks, 0, 500, "name", "asc")
+    this.tagService.getSummaryPage(this.user.languageBooks, 0, 500, "name", "asc")
       .pipe(takeUntil(this.destroy$))
       .subscribe(
         data => {
-          data.forEach((tag) => {
+          (data.items || []).forEach((tag) => {
             this.tags.push({ label: tag.name, value: tag.name });
           });
         }
       );
 
   }
+
 
   ngOnDestroy(): void {
     this.destroy$.next();

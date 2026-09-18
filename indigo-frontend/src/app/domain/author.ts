@@ -7,7 +7,9 @@ export class Author {
         public description?: any,
         public provider?: string,
         public image?:string,
-        public numBooks?: number
+        public numBooks?: number,
+        public coverUrl?: string,
+        public originalImage?: string
         ) {
     }
 }

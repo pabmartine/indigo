@@ -3,6 +3,9 @@ package com.martinia.indigo.tag.infrastructure.api.controllers;
 import com.martinia.indigo.tag.infrastructure.api.model.TagDto;
 import com.martinia.indigo.tag.infrastructure.api.mappers.TagDtoMapper;
 import com.martinia.indigo.tag.domain.ports.usecases.FindAllTagsUseCase;
+import com.martinia.indigo.tag.domain.model.TagPageData;
+import com.martinia.indigo.tag.infrastructure.api.mappers.TagSummaryDtoMapper;
+import com.martinia.indigo.tag.infrastructure.api.model.TagSummaryPageDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,6 +33,10 @@ public class FindAllTagsController {
 
 	@Resource
 	private TagDtoMapper mapper;
+
+	@Resource
+	private TagSummaryDtoMapper summaryMapper;
+
 
 	@Operation(summary = "Find all tags",
 			description = "Retrieves a list of all tags, optionally filtered by language and sorted.",
@@ -67,4 +74,23 @@ public class FindAllTagsController {
 		return new ResponseEntity<>(tagsDto, HttpStatus.OK);
 	}
 
+	@Operation(summary = "Find tag summaries paged",
+			description = "Retrieves a lightweight paginated list of tags without heavy image payloads.",
+			responses = {
+					@ApiResponse(responseCode = "200", description = "Successfully retrieved paginated tag summaries",
+							content = @Content(mediaType = "application/json",
+									schema = @Schema(implementation = TagSummaryPageDto.class)))
+			})
+	@GetMapping(value = "/summary/page", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<TagSummaryPageDto> getSummaryPage(
+			@Parameter(description = "List of languages to filter tags by (e.g., 'en', 'es')", example = "[\"en\"]") @RequestParam final List<String> languages,
+			@Parameter(description = "Page number for pagination (0-indexed)", example = "0") @RequestParam int page,
+			@Parameter(description = "Number of tags per page", example = "60") @RequestParam int size,
+			@Parameter(description = "Field to sort by (e.g., 'name', 'numBooks')", example = "name") @RequestParam String sort,
+			@Parameter(description = "Sort order (asc or desc)", example = "asc") @RequestParam String order) {
+		final TagPageData pageData = useCase.findSummaryPage(languages, page, size, sort, order);
+		return new ResponseEntity<>(summaryMapper.pageData2Dto(pageData), HttpStatus.OK);
+	}
+
 }
+

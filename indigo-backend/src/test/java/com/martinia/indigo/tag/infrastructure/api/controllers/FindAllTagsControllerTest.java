@@ -8,12 +8,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.martinia.indigo.BaseIndigoTest;
-import com.martinia.indigo.tag.infrastructure.api.controllers.FindAllTagsController;
-import com.martinia.indigo.tag.infrastructure.api.model.TagDto;
-import com.martinia.indigo.tag.infrastructure.api.mappers.TagDtoMapper;
 import com.martinia.indigo.common.domain.model.NumBooks;
 import com.martinia.indigo.tag.domain.model.Tag;
+import com.martinia.indigo.tag.domain.model.TagPageData;
 import com.martinia.indigo.tag.domain.ports.usecases.FindAllTagsUseCase;
+import com.martinia.indigo.tag.infrastructure.api.mappers.TagDtoMapper;
+import com.martinia.indigo.tag.infrastructure.api.mappers.TagSummaryDtoMapper;
+import com.martinia.indigo.tag.infrastructure.api.model.TagDto;
+import com.martinia.indigo.tag.infrastructure.api.model.TagSummaryDto;
+import com.martinia.indigo.tag.infrastructure.api.model.TagSummaryPageDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -23,9 +26,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import jakarta.annotation.Resource;
 
-
 public class FindAllTagsControllerTest extends BaseIndigoTest {
-
 
 	@Resource
 	private MockMvc mockMvc;
@@ -36,12 +37,14 @@ public class FindAllTagsControllerTest extends BaseIndigoTest {
 	@MockBean
 	private TagDtoMapper tagDtoMapper;
 
+	@MockBean
+	private TagSummaryDtoMapper tagSummaryDtoMapper;
+
 	@Resource
 	private FindAllTagsController findAllTagsController;
 
 	@BeforeEach
 	public void setup() {
-		// Configure MockMvc standalone setup
 		mockMvc = MockMvcBuilders.standaloneSetup(findAllTagsController).build();
 	}
 
@@ -71,5 +74,36 @@ public class FindAllTagsControllerTest extends BaseIndigoTest {
 				.andExpect(jsonPath("$[0].numBooks").value(tagDto1.getNumBooks())).andExpect(jsonPath("$[1].id").value(tagDto2.getId()))
 				.andExpect(jsonPath("$[1].name").value(tagDto2.getName())).andExpect(jsonPath("$[1].image").value(tagDto2.getImage()))
 				.andExpect(jsonPath("$[1].numBooks").value(tagDto2.getNumBooks()));
+	}
+
+	@Test
+	public void testGetSummaryPage() throws Exception {
+		List<String> languages = List.of("en");
+		Tag tag1 = new Tag("1", "Tag 1", null, new NumBooks());
+		TagPageData pageData = new TagPageData(List.of(tag1), 1L, 0, 60);
+		TagSummaryPageDto pageDto = new TagSummaryPageDto(
+				List.of(new TagSummaryDto("1", "Tag 1", 3)),
+				1L,
+				0,
+				60
+		);
+
+		when(findAllTagsUseCase.findSummaryPage(languages, 0, 60, "name", "asc")).thenReturn(pageData);
+		when(tagSummaryDtoMapper.pageData2Dto(pageData)).thenReturn(pageDto);
+
+		mockMvc.perform(get("/api/tag/summary/page")
+						.param("languages", "en")
+						.param("page", "0")
+						.param("size", "60")
+						.param("sort", "name")
+						.param("order", "asc")
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.total").value(1))
+				.andExpect(jsonPath("$.page").value(0))
+				.andExpect(jsonPath("$.size").value(60))
+				.andExpect(jsonPath("$.items[0].id").value("1"))
+				.andExpect(jsonPath("$.items[0].name").value("Tag 1"))
+				.andExpect(jsonPath("$.items[0].numBooks").value(3));
 	}
 }

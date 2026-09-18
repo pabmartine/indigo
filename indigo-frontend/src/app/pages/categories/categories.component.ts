@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { TagService } from 'src/app/services/tag.service';
 import { Router } from '@angular/router';
 import { Tag } from 'src/app/domain/tag';
@@ -12,11 +12,6 @@ import { takeUntil } from 'rxjs/operators';
 import { AuthStateService } from 'src/app/services/auth-state.service';
 import { User } from 'src/app/domain/user';
 
-// Interfaz para tags con imagen temporal
-interface TagWithTempImage extends Tag {
-  originalImage?: string;
-}
-
 @Component({
   selector: 'app-categories',
   templateUrl: './categories.component.html',
@@ -24,7 +19,9 @@ interface TagWithTempImage extends Tag {
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [MessageService]
 })
-export class CategoriesComponent implements OnInit, OnDestroy {
+export class CategoriesComponent implements OnInit, OnDestroy, AfterViewInit {
+
+  @ViewChild('scrollSentinel') scrollSentinel?: ElementRef<HTMLDivElement>;
 
   items: MenuItem[];
 
@@ -36,7 +33,9 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   background_image: string;
 
   title: string;
-  total: number;
+  total: number = 0;
+  private page: number = 0;
+  private size: number = 60;
   private sort: string;
   private order: string;
 
@@ -58,6 +57,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
 
   // Estado de carga
   isLoading: boolean = false;
+  isScrolling: boolean = false;
 
   user: User;
 
@@ -65,7 +65,8 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   // Cache para optimizar rendimiento
-  private tagsCache: Tag[] = null;
+  private tagsCache = new Map<string, Tag[]>();
+  private scrollObserver?: IntersectionObserver;
 
   constructor(
     private tagService: TagService,
@@ -73,21 +74,42 @@ export class CategoriesComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     public translate: TranslateService,
     private cdr: ChangeDetectorRef,
+    private ngZone: NgZone,
     private authState: AuthStateService
   ) {
     this.user = this.authState.getCurrentUser() || { languageBooks: ['en'], role: 'USER', username: '' } as User;
+    if (!this.user.languageBooks || this.user.languageBooks.length === 0) {
+      this.user.languageBooks = this.authState.getLanguageBooks();
+    }
+    this.initializeScreenSize();
   }
 
   ngOnInit(): void {
     this.initializeSortOptions();
     this.initializeMenuItems();
     this.reset();
-    this.loadData();
+    this.loadInitialData();
+  }
+
+  ngAfterViewInit(): void {
+    this.setupScrollObserver();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.tagsCache.clear();
+    this.scrollObserver?.disconnect();
+  }
+
+  private initializeScreenSize(): void {
+    if (window.screen.width < 640) {
+      this.size = 20;
+    } else if (window.screen.width < 1024) {
+      this.size = 40;
+    } else {
+      this.size = 60;
+    }
   }
 
   private initializeSortOptions(): void {
@@ -143,61 +165,28 @@ export class CategoriesComponent implements OnInit, OnDestroy {
     ];
   }
 
-  private loadData(): void {
-    // Usar cache si está disponible
-    if (this.tagsCache) {
-      this.tags = [...this.tagsCache];
-      this.title = this.translate.instant('locale.tags.title') + " (" + this.tags.length + ")";
-      this.cdr.detectChanges();
-      return;
-    }
-
+  private loadInitialData(): void {
     this.isLoading = true;
     this.cdr.detectChanges();
 
-    this.getAll();
-  }
-
-  // Método para trackBy en ngFor
-  trackByTagId(index: number, tag: Tag): string {
-    return tag.id ? tag.id.toString() : index.toString();
-  }
-
-  onChange(event): void {
-    const index = this.selectedSort.indexOf(",");
-    this.sort = this.selectedSort.slice(0, index);
-    this.order = this.selectedSort.slice(index + 1);
-
-    sessionStorage.setItem('tags_order', this.selectedSort);
-
-    this.tags.length = 0;
-    this.tagsCache = null; // Limpiar cache cuando cambia el orden
-
-    this.getAll();
-  }
-
-  getAll(): void {
-    this.tagService.getAllPaged(this.user.languageBooks, 0, 500, this.sort, this.order)
+    this.tagService.getSummaryPage(this.user.languageBooks, this.page, this.size, this.sort, this.order)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data) => {
-          // INMEDIATAMENTE mostrar tags sin procesar imágenes
-          const tagsWithoutImages: TagWithTempImage[] = data.map(tag => ({
-            ...tag,
-            image: tag.image || './assets/images/unknown.jpg',
-            originalImage: tag.image
-          }));
+        next: (response) => {
+          this.total = response.total;
+          this.title = this.translate.instant('locale.tags.title') + " (" + this.total + ")";
 
-          this.tags = tagsWithoutImages;
-          this.title = this.translate.instant('locale.tags.title') + " (" + this.tags.length + ")";
+          const cacheKey = `${this.page}-${this.size}-${this.sort}-${this.order}-${this.user.languageBooks?.join(',')}`;
+          const processedTags = this.mapTagsWithCover(response.items || []);
+          Array.prototype.push.apply(this.tags, processedTags);
+          this.page++;
+          this.tagsCache.set(cacheKey, processedTags);
+
           this.isLoading = false;
           this.cdr.detectChanges();
-
-          const processedTags = this.processTags(data);
-          this.tagsCache = [...processedTags];
         },
         error: (error) => {
-          console.log(error);
+          console.error('Error loading initial tags data:', error);
           this.isLoading = false;
           this.messageService.clear();
           this.messageService.add({
@@ -211,14 +200,94 @@ export class CategoriesComponent implements OnInit, OnDestroy {
       });
   }
 
-  private processTags(data: Tag[]): Tag[] {
-    return data.map(tag => {
-      const processedTag = { ...tag };
-      if (!processedTag.image) {
-        processedTag.image = './assets/images/unknown.jpg';
-      }
-      return processedTag;
+  private setupScrollObserver(): void {
+    if (!this.scrollSentinel || typeof window === 'undefined') {
+      return;
+    }
+
+    this.ngZone.runOutsideAngular(() => {
+      this.scrollObserver?.disconnect();
+      this.scrollObserver = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            this.ngZone.run(() => this.onScroll());
+          }
+        },
+        { rootMargin: '400px 0px' }
+      );
+
+      this.scrollObserver.observe(this.scrollSentinel.nativeElement);
     });
+  }
+
+  onScroll(): void {
+    if (this.tags.length < this.total && !this.isScrolling) {
+      this.getAll();
+    }
+  }
+
+  getAll(): void {
+    const cacheKey = `${this.page}-${this.size}-${this.sort}-${this.order}-${this.user.languageBooks?.join(',')}`;
+
+    if (this.tagsCache.has(cacheKey)) {
+      const cachedData = this.tagsCache.get(cacheKey);
+      Array.prototype.push.apply(this.tags, cachedData);
+      this.page++;
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.isScrolling = true;
+    this.tagService.getSummaryPage(this.user.languageBooks, this.page, this.size, this.sort, this.order)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          const processedTags = this.mapTagsWithCover(response.items || []);
+          Array.prototype.push.apply(this.tags, processedTags);
+          this.page++;
+          this.tagsCache.set(cacheKey, processedTags);
+          this.isScrolling = false;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          console.log(error);
+          this.messageService.clear();
+          this.messageService.add({
+            severity: 'error',
+            detail: this.translate.instant('locale.tags.error.data'),
+            closable: false,
+            life: 5000
+          });
+          this.isScrolling = false;
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  private mapTagsWithCover(tags: Tag[]): Tag[] {
+    return tags.map(tag => ({
+      ...tag,
+      image: undefined,
+      originalImage: this.tagService.buildCoverUrl(tag.id)
+    }));
+  }
+
+  trackByTagId(index: number, tag: Tag): string {
+    return tag.id ? tag.id.toString() : index.toString();
+  }
+
+  onChange(event): void {
+    const index = this.selectedSort.indexOf(",");
+    this.sort = this.selectedSort.slice(0, index);
+    this.order = this.selectedSort.slice(index + 1);
+
+    sessionStorage.setItem('tags_order', this.selectedSort);
+
+    this.page = 0;
+    this.tags.length = 0;
+    this.tagsCache.clear();
+
+    this.loadInitialData();
   }
 
   getBooksByTag(tag: Tag): void {
@@ -368,8 +437,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (data) => {
           this.reset();
-          this.tagsCache = null; // Limpiar cache
-          this.getAll();
+          this.loadInitialData();
         },
         error: (error) => {
           console.log(error);
@@ -394,8 +462,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (data) => {
           this.reset();
-          this.tagsCache = null; // Limpiar cache
-          this.getAll();
+          this.loadInitialData();
         },
         error: (error) => {
           console.log(error);
@@ -420,8 +487,7 @@ export class CategoriesComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (data) => {
           this.reset();
-          this.tagsCache = null; // Limpiar cache
-          this.getAll();
+          this.loadInitialData();
         },
         error: (error) => {
           console.log(error);
@@ -443,6 +509,8 @@ export class CategoriesComponent implements OnInit, OnDestroy {
   private reset(): void {
     this.tags.length = 0;
     this.total = 0;
+    this.page = 0;
+    this.tagsCache.clear();
 
     this.selectedSort = sessionStorage.getItem('tags_order');
     if (!this.selectedSort) {

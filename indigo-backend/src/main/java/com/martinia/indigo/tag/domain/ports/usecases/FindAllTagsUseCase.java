@@ -1,6 +1,7 @@
 package com.martinia.indigo.tag.domain.ports.usecases;
 
 import com.martinia.indigo.tag.domain.model.Tag;
+import com.martinia.indigo.tag.domain.model.TagPageData;
 
 import java.util.List;
 
@@ -10,4 +11,7 @@ public interface FindAllTagsUseCase {
 
 	List<Tag> findAll(final List<String> languages, final int page, final int size, final String sort, final String order);
 
+	TagPageData findSummaryPage(final List<String> languages, final int page, final int size, final String sort, final String order);
+
 }
+

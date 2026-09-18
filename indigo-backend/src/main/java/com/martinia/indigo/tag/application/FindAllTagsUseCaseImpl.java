@@ -5,7 +5,9 @@ import com.martinia.indigo.tag.domain.model.Tag;
 import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
 import com.martinia.indigo.tag.domain.ports.usecases.FindAllTagsUseCase;
 import com.martinia.indigo.tag.infrastructure.mongo.entities.TagMongoEntity;
+import com.martinia.indigo.tag.domain.model.TagPageData;
 import com.martinia.indigo.tag.infrastructure.mongo.mappers.TagMongoMapper;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +36,15 @@ public class FindAllTagsUseCaseImpl implements FindAllTagsUseCase {
 		List<TagMongoEntity> tags = tagRepository.findAll(languages, page, size, Sort.by(Sort.Direction.fromString(order), sort));
 		return mapTags(languages, tags);
 	}
+
+	@Override
+	public TagPageData findSummaryPage(final List<String> languages, final int page, final int size, final String sort, final String order) {
+		Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
+		String sortField = "numBooks".equalsIgnoreCase(sort) ? "numBooks.total" : sort;
+		PageRequest pageRequest = PageRequest.of(page, size, Sort.by(direction, sortField));
+		return tagRepository.findSummaryPage(languages, pageRequest);
+	}
+
 
 	private List<Tag> mapTags(List<String> languages, List<TagMongoEntity> tags) {
 		tags.forEach(tag -> {

@@ -14,11 +14,13 @@
         <div class="authors-grid">
           <div *ngFor="let author of favorites; trackBy: trackByAuthorId" class="author-item" (click)="showDetails(author)">
             <div class="user_avatar">
-              <img [src]="author.image || './assets/images/avatar3.jpg'"
+              <img [appLazyImage]="author.image"
+                   [lazySource]="author.originalImage"
+                   [lazyPlaceholder]="'./assets/images/avatar3.jpg'"
+                   (lazyLoaded)="author.image = $event"
                    class="avatar"
                    (click)="showDetails(author)"
                    style="cursor: pointer;"
-                   loading="lazy"
                    [alt]="author.name"
                    [class.loading-image]="!author.image" />
 
@@ -68,11 +70,13 @@
             <div *ngFor="let author of authors; trackBy: trackByAuthorId" class="author-item" (click)="showDetails(author)">
 
               <div class="user_avatar">
-                <img [src]="author.image || './assets/images/avatar3.jpg'"
+                <img [appLazyImage]="author.image"
+                     [lazySource]="author.originalImage"
+                     [lazyPlaceholder]="'./assets/images/avatar3.jpg'"
+                     (lazyLoaded)="author.image = $event"
                      class="avatar"
                      (click)="showDetails(author)"
                      style="cursor: pointer;"
-                     loading="lazy"
                      [alt]="author.name"
                      [class.loading-image]="!author.image" />
 

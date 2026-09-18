@@ -2,14 +2,22 @@ package com.martinia.indigo.tag.domain.ports.repositories;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import com.martinia.indigo.tag.domain.model.TagPageData;
 import com.martinia.indigo.tag.infrastructure.mongo.entities.TagMongoEntity;
 
-
 public interface CustomTagRepository {
+
+	long count(List<String> languages);
 
 	List<TagMongoEntity> findAll(List<String> languages, Sort sort);
 
 	List<TagMongoEntity> findAll(List<String> languages, int page, int size, Sort sort);
+
+	List<TagMongoEntity> findSummary(List<String> languages, Pageable page);
+
+	TagPageData findSummaryPage(List<String> languages, Pageable page);
 }
+

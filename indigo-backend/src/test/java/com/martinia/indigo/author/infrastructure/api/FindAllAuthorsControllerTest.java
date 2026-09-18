@@ -2,8 +2,11 @@ package com.martinia.indigo.author.infrastructure.api;
 
 import com.martinia.indigo.BaseIndigoTest;
 import com.martinia.indigo.author.infrastructure.api.model.AuthorDto;
+import com.martinia.indigo.author.infrastructure.api.model.AuthorSummaryDto;
 import com.martinia.indigo.author.infrastructure.api.mappers.AuthorDtoMapper;
+import com.martinia.indigo.author.infrastructure.api.mappers.AuthorSummaryDtoMapper;
 import com.martinia.indigo.author.domain.model.Author;
+import com.martinia.indigo.author.domain.model.AuthorPageData;
 import com.martinia.indigo.author.domain.ports.usecases.FindAllAuthorsUseCase;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,6 +28,9 @@ public class FindAllAuthorsControllerTest extends BaseIndigoTest {
 
 	@MockBean
 	private AuthorDtoMapper mockMapper;
+
+	@MockBean
+	private AuthorSummaryDtoMapper mockSummaryMapper;
 
 	@Resource
 	private MockMvc mockMvc;
@@ -69,5 +75,49 @@ public class FindAllAuthorsControllerTest extends BaseIndigoTest {
 		// Then
 		Mockito.verify(mockUseCase).findAll(languages, page, size, sort, order);
 		Mockito.verify(mockMapper).domains2Dtos(authors);
+	}
+
+	@Test
+	@WithMockUser
+	public void testGetSummaryPage_WhenRequestParamsProvided_ThenReturnOkStatusAndAuthorSummaryPageDto() throws Exception {
+		// Given
+		List<String> languages = new ArrayList<>();
+		languages.add("English");
+		languages.add("Spanish");
+		int page = 0;
+		int size = 20;
+		String sort = "name";
+		String order = "asc";
+
+		List<Author> authors = new ArrayList<>();
+		Author author1 = new Author();
+		author1.setId("1");
+		author1.setName("John Doe");
+		authors.add(author1);
+
+		List<AuthorSummaryDto> summaryDtos = new ArrayList<>();
+		AuthorSummaryDto summary1 = AuthorSummaryDto.builder().id("1").name("John Doe").numBooks(5).build();
+		summaryDtos.add(summary1);
+
+		Mockito.when(mockUseCase.findSummaryPage(languages, page, size, sort, order))
+				.thenReturn(new AuthorPageData(authors, 1L));
+		Mockito.when(mockSummaryMapper.domains2Dtos(authors)).thenReturn(summaryDtos);
+
+		// When
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/author/summary/page")
+						.param("languages", "English", "Spanish")
+						.param("page", "0")
+						.param("size", "20")
+						.param("sort", "name")
+						.param("order", "asc")
+						.contentType(MediaType.APPLICATION_JSON))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath("$.total").value(1))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.items[0].name").value("John Doe"))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.items[0].numBooks").value(5));
+
+		// Then
+		Mockito.verify(mockUseCase).findSummaryPage(languages, page, size, sort, order);
+		Mockito.verify(mockSummaryMapper).domains2Dtos(authors);
 	}
 }

@@ -1,6 +1,7 @@
 package com.martinia.indigo.author.application;
 
 import com.martinia.indigo.author.domain.model.Author;
+import com.martinia.indigo.author.domain.model.AuthorPageData;
 import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
 import com.martinia.indigo.author.domain.ports.usecases.FindAllAuthorsUseCase;
 import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
@@ -49,6 +50,23 @@ public class FindAllAuthorsUseCaseImpl implements FindAllAuthorsUseCase {
 		}).collect(Collectors.toList());
 
 		return authorMongoMapper.entities2Domains(authors);
+	}
+
+	@Override
+	public AuthorPageData findSummaryPage(List<String> languages, int page, int size, String sort, String order) {
+		AuthorPageData pageData = authorRepository.findSummaryPage(languages,
+				PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(order), sort)));
+
+		List<Author> authors = pageData.items().stream().map(author -> {
+			if (author.getNumBooks() != null && author.getNumBooks().getLanguages() != null && languages != null && !languages.isEmpty()) {
+				author.getNumBooks().setTotal(author.getNumBooks().getLanguages().keySet().stream()
+						.filter(lang -> languages.stream().anyMatch(requested -> LanguageCodeUtils.variants(requested).contains(lang)))
+						.mapToInt(lang -> author.getNumBooks().getLanguages().get(lang)).sum());
+			}
+			return author;
+		}).collect(Collectors.toList());
+
+		return new AuthorPageData(authors, pageData.total());
 	}
 
 }
