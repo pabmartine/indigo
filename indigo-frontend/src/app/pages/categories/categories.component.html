@@ -20,7 +20,7 @@
   </div>
 
 
-  <div class="categories-grid">
+  <div #catalogGrid class="categories-grid">
     <div *ngFor="let tag of tags; trackBy: trackByTagId" class="category-item" (click)="getBooksByTag(tag)">
       <div class="category-cover-container">
         <img [appLazyImage]="tag.image"
@@ -28,7 +28,6 @@
              [lazyPlaceholder]="'./assets/images/unknown.jpg'"
              (lazyLoaded)="tag.image = $event"
              class="category-cover"
-             (error)="tag.image = './assets/images/unknown.jpg'"
              alt="{{ tag.name }}"/>
       </div>
       <div class="category-info-top">

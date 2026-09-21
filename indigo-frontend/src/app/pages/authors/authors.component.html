@@ -62,7 +62,7 @@
 
 
         <!-- Authors grid -->
-        <div class="authors-grid">
+        <div #catalogGrid class="authors-grid">
             <div *ngFor="let author of authors; trackBy: trackByAuthorId" class="author-item" (click)="showDetails(author)">
 
               <div class="user_avatar">

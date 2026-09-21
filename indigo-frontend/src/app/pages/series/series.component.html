@@ -20,7 +20,7 @@
   </div>
 
   <!-- Series grid -->
-  <div class="series-grid">
+  <div #catalogGrid class="series-grid">
     <div class="serie-item"
          *ngFor="let serie of series; trackBy: trackBySerieId">
       <div class="stack twisted">
@@ -31,7 +31,6 @@
              class="list-image"
              (click)="getBooksBySerie(serie.name)"
              style="cursor: pointer;"
-             (error)="serie.image = './assets/images/unknown.jpg'"
              [alt]="serie.name" />
       </div>
       <div class="center">

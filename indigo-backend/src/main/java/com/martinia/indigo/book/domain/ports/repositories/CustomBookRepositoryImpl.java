@@ -258,7 +258,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 		List<Document> list = Arrays.asList(
 				new Document("$match", buildSerieMatchDocument(languages)),
-				new Document("$project", new Document("serie.name", 1L)),
+				new Document("$project", new Document("serie.name", 1L).append("_id", 0L)),
 				new Document("$group", new Document("_id", "$serie.name").append("count", new Document("$sum", 1L))),
 				new Document("$sort", new Document("numBooks".equals(sort) ? "count" : "_id", "asc".equalsIgnoreCase(order) ? 1 : -1)),
 				new Document("$skip", page * size), new Document("$limit", size));
@@ -288,7 +288,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 		Long ret = 0L;
 		List<Document> list = Arrays.asList(
 				new Document("$match", buildSerieMatchDocument(languages)),
-				new Document("$project", new Document("serie.name", 1L)),
+				new Document("$project", new Document("serie.name", 1L).append("_id", 0L)),
 				new Document("$group", new Document("_id", "$serie.name").append("count", new Document("$sum", 1L))),
 				new Document("$count", "count"));
 
@@ -313,7 +313,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 		List<Document> list = Arrays.asList(
 				new Document("$match", buildSerieMatchDocument(languages)),
-				new Document("$project", new Document("serie.name", 1L)),
+				new Document("$project", new Document("serie.name", 1L).append("_id", 0L)),
 				new Document("$group", new Document("_id", "$serie.name").append("count", new Document("$sum", 1L))),
 				new Document("$facet", new Document("items", Arrays.asList(
 						new Document("$sort", new Document("numBooks".equals(sort) ? "count" : "_id", "asc".equalsIgnoreCase(order) ? 1 : -1)),

@@ -1,3 +1,4 @@
+import { CatalogViewport } from 'src/app/utils/catalog-viewport';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { TagService } from 'src/app/services/tag.service';
 import { Router } from '@angular/router';
@@ -21,6 +22,10 @@ import { User } from 'src/app/domain/user';
 })
 export class CategoriesComponent implements OnInit, OnDestroy, AfterViewInit {
 
+  @ViewChild('catalogGrid') catalogGrid?: ElementRef<HTMLDivElement>;
+  private viewport?: CatalogViewport;
+  private initialFrame?: number;
+
   @ViewChild('scrollSentinel') scrollSentinel?: ElementRef<HTMLDivElement>;
 
   items: MenuItem[];
@@ -34,6 +39,7 @@ export class CategoriesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   title: string;
   total: number = 0;
+  private exhausted = false;
   private page: number = 0;
   private size: number = 60;
   private sort: string;
@@ -67,7 +73,6 @@ export class CategoriesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Cache para optimizar rendimiento
   private tagsCache = new Map<string, Tag[]>();
-  private scrollObserver?: IntersectionObserver;
 
   constructor(
     private tagService: TagService,
@@ -82,18 +87,22 @@ export class CategoriesComponent implements OnInit, OnDestroy, AfterViewInit {
     if (!this.user.languageBooks || this.user.languageBooks.length === 0) {
       this.user.languageBooks = this.authState.getLanguageBooks();
     }
-    this.initializeScreenSize();
   }
 
   ngOnInit(): void {
     this.initializeSortOptions();
     this.initializeMenuItems();
     this.reset();
-    this.loadInitialData();
   }
 
   ngAfterViewInit(): void {
-    this.setupScrollObserver();
+    this.initialFrame = requestAnimationFrame(() => {
+      this.viewport = new CatalogViewport(this.catalogGrid!.nativeElement,
+        this.scrollSentinel!.nativeElement, () => this.ngZone.run(() => this.onScroll()));
+      this.size = this.viewport.pageSize(216);
+      this.ngZone.runOutsideAngular(() => this.viewport!.start());
+      this.loadInitialData();
+    });
   }
 
   ngOnDestroy(): void {
@@ -101,17 +110,8 @@ export class CategoriesComponent implements OnInit, OnDestroy, AfterViewInit {
     this.destroy$.complete();
     this.resetPages$.complete();
     this.tagsCache.clear();
-    this.scrollObserver?.disconnect();
-  }
-
-  private initializeScreenSize(): void {
-    if (window.screen.width < 640) {
-      this.size = 10;
-    } else if (window.screen.width < 1024) {
-      this.size = 20;
-    } else {
-      this.size = 20;
-    }
+    this.viewport?.destroy();
+    if (this.initialFrame !== undefined) cancelAnimationFrame(this.initialFrame);
   }
 
   private initializeSortOptions(): void {
@@ -175,6 +175,7 @@ export class CategoriesComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(takeUntil(this.destroy$), takeUntil(this.resetPages$))
       .subscribe({
         next: (response) => {
+          this.exhausted = (response.items || []).length < this.size;
           this.total = response.total;
           this.title = this.translate.instant('locale.tags.title') + " (" + this.total + ")";
 
@@ -182,6 +183,7 @@ export class CategoriesComponent implements OnInit, OnDestroy, AfterViewInit {
           const processedTags = this.mapTagsWithCover(response.items || []);
           Array.prototype.push.apply(this.tags, processedTags);
           this.page++;
+          this.viewport?.refresh();
           this.tagsCache.set(cacheKey, processedTags);
 
           this.isLoading = false;
@@ -202,28 +204,8 @@ export class CategoriesComponent implements OnInit, OnDestroy, AfterViewInit {
       });
   }
 
-  private setupScrollObserver(): void {
-    if (!this.scrollSentinel || typeof window === 'undefined') {
-      return;
-    }
-
-    this.ngZone.runOutsideAngular(() => {
-      this.scrollObserver?.disconnect();
-      this.scrollObserver = new IntersectionObserver(
-        (entries) => {
-          if (entries.some((entry) => entry.isIntersecting)) {
-            this.ngZone.run(() => this.onScroll());
-          }
-        },
-        { rootMargin: '400px 0px' }
-      );
-
-      this.scrollObserver.observe(this.scrollSentinel.nativeElement);
-    });
-  }
-
   onScroll(): void {
-    if (this.tags.length < this.total && !this.isLoading && !this.isScrolling) {
+    if (!this.exhausted && this.tags.length < this.total && !this.isLoading && !this.isScrolling) {
       this.getAll();
     }
   }
@@ -238,6 +220,7 @@ export class CategoriesComponent implements OnInit, OnDestroy, AfterViewInit {
       const cachedData = this.tagsCache.get(cacheKey);
       Array.prototype.push.apply(this.tags, cachedData);
       this.page++;
+      this.viewport?.refresh();
       this.cdr.detectChanges();
       return;
     }
@@ -247,9 +230,13 @@ export class CategoriesComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(takeUntil(this.destroy$), takeUntil(this.resetPages$))
       .subscribe({
         next: (response) => {
+          this.exhausted = (response.items || []).length < this.size;
+          this.total = response.total;
+          this.title = this.translate.instant('locale.tags.title') + ' (' + this.total + ')';
           const processedTags = this.mapTagsWithCover(response.items || []);
           Array.prototype.push.apply(this.tags, processedTags);
           this.page++;
+          this.viewport?.refresh();
           this.tagsCache.set(cacheKey, processedTags);
           this.isScrolling = false;
           this.cdr.detectChanges();
@@ -282,6 +269,7 @@ export class CategoriesComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onChange(event): void {
+    this.exhausted = false;
     this.resetPages$.next();
     this.isLoading = false;
     this.isScrolling = false;
@@ -515,6 +503,7 @@ export class CategoriesComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private reset(): void {
+    this.exhausted = false;
     this.resetPages$.next();
     this.isLoading = false;
     this.isScrolling = false;

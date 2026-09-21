@@ -1,3 +1,4 @@
+import { CatalogViewport } from 'src/app/utils/catalog-viewport';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -26,6 +27,10 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild(AuthorComponent) authorComponent: AuthorComponent;
   @ViewChild(DetailComponent) detailComponent: DetailComponent;
+  @ViewChild('catalogGrid') catalogGrid?: ElementRef<HTMLDivElement>;
+  private viewport?: CatalogViewport;
+  private initialFrame?: number;
+
   @ViewChild('scrollSentinel') scrollSentinel?: ElementRef<HTMLDivElement>;
 
   authors: Author[] = [];
@@ -36,6 +41,7 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   total: number = 0;
 
+  private exhausted = false;
   private page: number = 0;
   private lastPage: number = 0;
 
@@ -56,7 +62,6 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
   // Cache para optimizar rendimiento
   private authorsCache = new Map<string, Author[]>();
   private favoritesCache: Author[] = null;
-  private scrollObserver?: IntersectionObserver;
 
   // Subject para manejar la destrucción del componente
   private destroy$ = new Subject<void>();
@@ -87,17 +92,21 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
     if (!this.user.languageBooks || this.user.languageBooks.length === 0) {
       this.user.languageBooks = this.authState.getLanguageBooks();
     }
-    this.initializeScreenSize();
   }
 
   ngOnInit(): void {
     this.initializeSortOptions();
     this.reset();
-    this.loadInitialData();
   }
 
   ngAfterViewInit(): void {
-    this.setupScrollObserver();
+    this.initialFrame = requestAnimationFrame(() => {
+      this.viewport = new CatalogViewport(this.catalogGrid!.nativeElement,
+        this.scrollSentinel!.nativeElement, () => this.ngZone.run(() => this.onScroll()));
+      this.size = this.viewport.pageSize(185);
+      this.ngZone.runOutsideAngular(() => this.viewport!.start());
+      this.loadInitialData();
+    });
   }
 
   ngOnDestroy(): void {
@@ -105,24 +114,8 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
     this.destroy$.complete();
     this.resetPages$.complete();
     this.authorsCache.clear();
-    this.scrollObserver?.disconnect();
-  }
-
-  private initializeScreenSize(): void {
-    // Define el número de elementos según el ancho de pantalla
-    if (window.screen.width <= 640) {
-      this.size = 10;
-      this.authorColumns = 2;
-      this.authorRowHeight = 170;
-    } else if (window.screen.width <= 1024) {
-      this.size = 20;
-      this.authorColumns = 4;
-      this.authorRowHeight = 180;
-    } else {
-      this.size = 20;
-      this.authorColumns = 5;
-      this.authorRowHeight = 190;
-    }
+    this.viewport?.destroy();
+    if (this.initialFrame !== undefined) cancelAnimationFrame(this.initialFrame);
   }
 
   private updateAuthorRows(): void {
@@ -173,6 +166,7 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(takeUntil(this.destroy$), takeUntil(this.resetPages$))
       .subscribe({
         next: (response) => {
+          this.exhausted = (response.items || []).length < this.size;
           this.total = response.total || 0;
           this.lastPage = this.total / this.size;
           this.title = this.translate.instant('locale.authors.title') + " (" + this.total + ")";
@@ -181,6 +175,7 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
           Array.prototype.push.apply(this.authors, processedAuthors);
           this.updateAuthorRows();
           this.page++;
+          this.viewport?.refresh();
 
           const cacheKey = `${this.page - 1}-${this.size}-${this.sort}-${this.order}-${this.user.languageBooks?.join(',')}`;
           this.authorsCache.set(cacheKey, processedAuthors);
@@ -209,6 +204,7 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onChange(event): void {
+    this.exhausted = false;
     this.resetPages$.next();
     this.isLoading = false;
     this.isScrolling = false;
@@ -226,28 +222,8 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
     this.getAll();
   }
 
-  private setupScrollObserver(): void {
-    if (!this.scrollSentinel || typeof window === 'undefined') {
-      return;
-    }
-
-    this.ngZone.runOutsideAngular(() => {
-      this.scrollObserver?.disconnect();
-      this.scrollObserver = new IntersectionObserver(
-        (entries) => {
-          if (entries.some((entry) => entry.isIntersecting)) {
-            this.ngZone.run(() => this.onScroll());
-          }
-        },
-        { rootMargin: '400px 0px' }
-      );
-
-      this.scrollObserver.observe(this.scrollSentinel.nativeElement);
-    });
-  }
-
   onScroll(): void {
-    if (this.authors.length < this.total && !this.isLoading && !this.isScrolling) {
+    if (!this.exhausted && this.authors.length < this.total && !this.isLoading && !this.isScrolling) {
       this.getAll();
     }
   }
@@ -271,6 +247,7 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
       Array.prototype.push.apply(this.authors, cachedData);
       this.updateAuthorRows();
       this.page++;
+      this.viewport?.refresh();
       this.cdr.detectChanges();
       return;
     }
@@ -280,6 +257,7 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(takeUntil(this.destroy$), takeUntil(this.resetPages$))
       .subscribe({
         next: (response) => {
+          this.exhausted = (response.items || []).length < this.size;
           this.total = response.total || 0;
           this.lastPage = this.total / this.size;
           this.title = this.translate.instant('locale.authors.title') + " (" + this.total + ")";
@@ -288,6 +266,7 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
           Array.prototype.push.apply(this.authors, processedAuthors);
           this.updateAuthorRows();
           this.page++;
+          this.viewport?.refresh();
 
           this.authorsCache.set(cacheKey, processedAuthors);
           this.isScrolling = false;
@@ -369,6 +348,7 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private reset(): void {
+    this.exhausted = false;
     this.resetPages$.next();
     this.isLoading = false;
     this.isScrolling = false;

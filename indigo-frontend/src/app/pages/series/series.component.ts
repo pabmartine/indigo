@@ -1,3 +1,4 @@
+import { CatalogViewport } from 'src/app/utils/catalog-viewport';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { SelectItem } from 'primeng/api/selectitem';
 import { Serie } from 'src/app/domain/serie';
@@ -19,6 +20,10 @@ import { User } from 'src/app/domain/user';
 })
 export class SeriesComponent implements OnInit, OnDestroy, AfterViewInit {
 
+  @ViewChild('catalogGrid') catalogGrid?: ElementRef<HTMLDivElement>;
+  private viewport?: CatalogViewport;
+  private initialFrame?: number;
+
   @ViewChild('scrollSentinel') scrollSentinel?: ElementRef<HTMLDivElement>;
 
   series: Serie[] = [];
@@ -27,6 +32,7 @@ export class SeriesComponent implements OnInit, OnDestroy, AfterViewInit {
   title: string;
   total: number;
 
+  private exhausted = false;
   private page: number;
   private lastPage: number;
   private size: number;
@@ -51,10 +57,10 @@ export class SeriesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Subject para manejar la destrucción del componente
   private destroy$ = new Subject<void>();
+  private resetPages$ = new Subject<void>();
 
   // Cache para optimizar rendimiento
   private seriesCache = new Map<string, Serie[]>();
-  private scrollObserver?: IntersectionObserver;
 
   constructor(
     private serieService: SerieService,
@@ -70,41 +76,30 @@ export class SeriesComponent implements OnInit, OnDestroy, AfterViewInit {
     if (!this.user.languageBooks || this.user.languageBooks.length === 0) {
       this.user.languageBooks = this.authState.getLanguageBooks();
     }
-    this.initializeScreenSize();
   }
 
   ngOnInit(): void {
     this.initializeSortOptions();
     this.reset();
-    this.loadInitialDataInParallel();
   }
 
   ngAfterViewInit(): void {
-    this.setupScrollObserver();
+    this.initialFrame = requestAnimationFrame(() => {
+      this.viewport = new CatalogViewport(this.catalogGrid!.nativeElement,
+        this.scrollSentinel!.nativeElement, () => this.ngZone.run(() => this.onScroll()));
+      this.size = this.viewport.pageSize(280);
+      this.ngZone.runOutsideAngular(() => this.viewport!.start());
+      this.loadInitialDataInParallel();
+    });
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.resetPages$.complete();
     this.seriesCache.clear();
-    this.scrollObserver?.disconnect();
-  }
-
-  private initializeScreenSize(): void {
-    // Define el número de elementos según el ancho de pantalla
-    if (window.screen.width < 640) {
-      this.size = 10;
-      this.seriesColumns = 2;
-      this.seriesRowHeight = 230;
-    } else if (window.screen.width < 1024) {
-      this.size = 20;
-      this.seriesColumns = 4;
-      this.seriesRowHeight = 245;
-    } else {
-      this.size = 20;
-      this.seriesColumns = 6;
-      this.seriesRowHeight = 260;
-    }
+    this.viewport?.destroy();
+    if (this.initialFrame !== undefined) cancelAnimationFrame(this.initialFrame);
   }
 
   private updateSeriesRows(): void {
@@ -153,6 +148,9 @@ export class SeriesComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onChange(event): void {
+    this.exhausted = false;
+    this.resetPages$.next();
+    this.isScrolling = false;
     const index = this.selectedSort.indexOf(",");
     this.sort = this.selectedSort.slice(0, index);
     this.order = this.selectedSort.slice(index + 1);
@@ -166,28 +164,8 @@ export class SeriesComponent implements OnInit, OnDestroy, AfterViewInit {
     this.getAll();
   }
 
-  private setupScrollObserver(): void {
-    if (!this.scrollSentinel || typeof window === 'undefined') {
-      return;
-    }
-
-    this.ngZone.runOutsideAngular(() => {
-      this.scrollObserver?.disconnect();
-      this.scrollObserver = new IntersectionObserver(
-        (entries) => {
-          if (entries.some((entry) => entry.isIntersecting)) {
-            this.ngZone.run(() => this.onScroll());
-          }
-        },
-        { rootMargin: '400px 0px' }
-      );
-
-      this.scrollObserver.observe(this.scrollSentinel.nativeElement);
-    });
-  }
-
   onScroll(): void {
-    if (this.total > 0 && this.series.length < this.total && !this.isScrolling) {
+    if (!this.exhausted && this.total > 0 && this.series.length < this.total && !this.isScrolling) {
       this.getAll();
     }
   }
@@ -200,6 +178,7 @@ export class SeriesComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   getAll(): void {
+    if (this.isScrolling) return;
     const cacheKey = `${this.page}-${this.size}-${this.sort}-${this.order}-${this.user.languageBooks?.join(',')}`;
 
     // Verificar cache
@@ -208,15 +187,17 @@ export class SeriesComponent implements OnInit, OnDestroy, AfterViewInit {
       Array.prototype.push.apply(this.series, cachedData);
       this.updateSeriesRows();
       this.page++;
+      this.viewport?.refresh();
       this.cdr.detectChanges();
       return;
     }
 
     this.isScrolling = true;
     this.serieService.getPage(this.user.languageBooks, this.page, this.size, this.sort, this.order)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this.destroy$), takeUntil(this.resetPages$))
       .subscribe({
         next: (response) => {
+          this.exhausted = (response.items || []).length < this.size;
           this.total = response.total || 0;
           this.lastPage = this.total / this.size;
           this.title = this.translate.instant('locale.series.title') + " (" + this.total + ")";
@@ -225,6 +206,7 @@ export class SeriesComponent implements OnInit, OnDestroy, AfterViewInit {
           Array.prototype.push.apply(this.series, processedSeries);
           this.updateSeriesRows();
           this.page++;
+          this.viewport?.refresh();
           this.cdr.detectChanges();
           this.isScrolling = false;
           this.seriesCache.set(cacheKey, processedSeries);
@@ -260,6 +242,7 @@ export class SeriesComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private reset(): void {
+    this.exhausted = false;
     this.series.length = 0;
     this.total = 0;
     this.page = 0;

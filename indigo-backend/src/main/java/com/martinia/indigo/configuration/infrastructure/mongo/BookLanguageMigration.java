@@ -103,7 +103,8 @@ public class BookLanguageMigration implements ApplicationRunner {
 				Document stats = counts.getOrDefault(nameKey(item.getString("name"), "tags".equals(collection)),
 						new Document("total", 0).append("languages", new Document()));
 				updates.add(new UpdateOneModel<>(new Document("_id", item.get("_id")),
-						new Document("$set", new Document("numBooks", stats))));
+						new Document("$set", new Document("numBooks", stats)
+								.append("catalogLanguages", CatalogLanguages.from(new Document("numBooks", stats))))));
 				if (updates.size() == 500) {
 					target.bulkWrite(updates);
 					updates.clear();

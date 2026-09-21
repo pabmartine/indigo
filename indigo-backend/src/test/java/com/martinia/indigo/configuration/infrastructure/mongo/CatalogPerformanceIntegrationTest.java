@@ -126,6 +126,114 @@ class CatalogPerformanceIntegrationTest {
 	}
 
 	@Test
+	void catalogLanguagesAreBackfilledAndFollowFutureCounterChanges() {
+		try (var client = MongoClients.create(MONGO.getReplicaSetUrl())) {
+			MongoTemplate template = new MongoTemplate(client, "catalog_language_migration");
+			for (String collection : List.of("authors", "tags")) {
+				template.getCollection(collection).insertOne(new Document("name", "Example").append("image", "unchanged")
+						.append("numBooks", new Document("total", 4).append("languages",
+								new Document("en-GB", 2).append("eng", 2).append("fr", 0).append("es", -1))));
+			}
+			var migration = new CatalogLanguageMigration(template);
+			migration.run(null);
+			migration.run(null);
+			for (String collection : List.of("authors", "tags")) {
+				Document document = template.getCollection(collection).find().first();
+				assertThat(document.getList("catalogLanguages", String.class)).containsExactly("en", "eng");
+				assertThat(document.getString("image")).isEqualTo("unchanged");
+				assertThat(document.get("numBooks", Document.class).getInteger("total")).isEqualTo(4);
+			}
+			template.setEntityCallbacks(org.springframework.data.mapping.callback.EntityCallbacks.create(new CatalogLanguages()));
+			var counts = com.martinia.indigo.common.infrastructure.mongo.entities.NumBooksMongo.builder()
+					.total(1).languages(new java.util.HashMap<>(java.util.Map.of("es", 1))).build();
+			var author = template.save(AuthorMongoEntity.builder().name("New").numBooks(counts).build());
+			var tag = template.save(TagMongoEntity.builder().name("New").numBooks(counts).build());
+			assertThat(template.getCollection("authors").find(new Document("name", "New")).first()
+					.getList("catalogLanguages", String.class)).containsExactly("es");
+			assertThat(template.getCollection("tags").find(new Document("name", "New")).first()
+					.getList("catalogLanguages", String.class)).containsExactly("es");
+			counts.getLanguages().clear();
+			counts.getLanguages().put("fr", 1);
+			template.save(author);
+			template.save(tag);
+			for (String collection : List.of("authors", "tags")) {
+				assertThat(template.getCollection(collection).find(new Document("name", "New")).first()
+						.getList("catalogLanguages", String.class)).containsExactly("fr");
+			}
+		}
+	}
+
+	@Test
+	void seriesGroupingUsesOnlyIndexedFields() {
+		try (var client = MongoClients.create(MONGO.getReplicaSetUrl())) {
+			MongoTemplate template = new MongoTemplate(client, "series_performance");
+			template.getConverter().getMappingContext().getPersistentEntity(BookMongoEntity.class);
+			BookRepository books = mock(BookRepository.class);
+			when(books.getBookLanguages()).thenReturn(List.of("en"));
+			new MongoIndexInitializer(template, mock(AuthorRepository.class), mock(TagRepository.class), books).run(null);
+			template.getCollection("books").insertMany(List.of(
+					new Document("path", "a").append("serie", new Document("name", "A")).append("languages", List.of("en", "eng"))
+							.append("image", "x".repeat(65536)),
+					new Document("path", "b").append("serie", new Document("name", "A")).append("languages", List.of("eng")),
+					new Document("path", "c").append("serie", new Document("name", "B")).append("languages", List.of("en")),
+					new Document("path", "d").append("serie", new Document("name", "C")).append("languages", List.of("fr"))));
+			var repository = new CustomBookRepositoryImpl();
+			ReflectionTestUtils.setField(repository, "mongoTemplate", template);
+			ReflectionTestUtils.setField(repository, "collectionName", "books");
+			var page = repository.getSeriesPage(List.of("en"), 0, 1, "_id", "asc");
+			assertThat(page.total()).isEqualTo(2);
+			assertThat(page.items()).containsExactlyEntriesOf(java.util.Map.of("A", 2L));
+			assertThat(repository.getSeriesPage(List.of("en"), 1, 1, "_id", "asc").items())
+					.containsExactlyEntriesOf(java.util.Map.of("B", 1L));
+			Document plan = template.executeCommand(new Document("explain", new Document("find", "books")
+					.append("filter", new Document("serie.name", new Document("$gt", ""))
+							.append("languages", new Document("$in", List.of("en", "eng"))))
+					.append("projection", new Document("serie.name", 1).append("_id", 0)))
+					.append("verbosity", "executionStats"));
+			assertThat(plan.get("executionStats", Document.class).getInteger("totalDocsExamined")).isZero();
+		}
+	}
+
+	@Test
+	void selectiveLanguagePagesSkipUnrelatedHeavyDocuments() {
+		try (var client = MongoClients.create(MONGO.getReplicaSetUrl())) {
+			MongoTemplate template = new MongoTemplate(client, "selective_catalog");
+			BookRepository books = mock(BookRepository.class);
+			when(books.getBookLanguages()).thenReturn(List.of("en", "fr"));
+			for (Class<?> type : List.of(AuthorMongoEntity.class, TagMongoEntity.class)) {
+				template.getConverter().getMappingContext().getPersistentEntity(type);
+			}
+			new MongoIndexInitializer(template, mock(AuthorRepository.class), mock(TagRepository.class), books).run(null);
+			for (String collection : List.of("authors", "tags")) {
+				List<Document> docs = new ArrayList<>();
+				for (int i = 0; i < 1000; i++) {
+					docs.add(new Document("name", String.format("Name %04d", i)).append("image", "x".repeat(16384))
+							.append("numBooks", new Document("total", i + 1).append("languages",
+									new Document(i % 10 == 0 ? (i % 20 == 0 ? "en" : "eng") : "fr", 1))));
+				}
+				docs.forEach(doc -> doc.put("catalogLanguages", CatalogLanguages.from(doc)));
+				template.getCollection(collection).insertMany(docs);
+				Document filter = new Document("catalogLanguages", new Document("$in", List.of("en", "eng")));
+				for (String sort : List.of("name", "numBooks.total")) {
+					for (int direction : List.of(1, -1)) {
+						Document plan = template.executeCommand(new Document("explain", new Document("find", collection)
+								.append("filter", filter).append("sort", new Document(sort, direction)).append("limit", 20)
+								.append("projection", new Document("name", 1).append("numBooks", 1)))
+								.append("verbosity", "executionStats"));
+						assertThat(plan.get("queryPlanner", Document.class).get("winningPlan").toString())
+								.doesNotContain("stage=SORT,").doesNotContain("COLLSCAN");
+						assertThat(plan.get("executionStats", Document.class).getInteger("totalDocsExamined"))
+								.isLessThanOrEqualTo(22);
+					}
+				}
+				Document count = template.executeCommand(new Document("explain",
+						new Document("count", collection).append("query", filter)).append("verbosity", "executionStats"));
+				assertThat(count.get("executionStats", Document.class).getInteger("totalDocsExamined")).isZero();
+			}
+		}
+	}
+
+	@Test
 	void coldCatalogQueriesUseIndexesAndDoNotLoadImages() {
 		try (var client = MongoClients.create(MONGO.getReplicaSetUrl())) {
 			MongoTemplate template = spy(new MongoTemplate(client, "catalog_performance"));
@@ -155,6 +263,7 @@ class CatalogPerformanceIntegrationTest {
 						.append("numBooks", new Document("total", 1)
 								.append("languages", new Document(i % 2 == 0 ? "en" : "eng", 1))));
 				}
+				documents.forEach(doc -> doc.put("catalogLanguages", CatalogLanguages.from(doc)));
 				template.getCollection(collection).insertMany(documents);
 				Document explain = template.executeCommand(new Document("explain",
 						new Document("find", collection).append("filter", new Document())
@@ -164,12 +273,21 @@ class CatalogPerformanceIntegrationTest {
 						.contains("IXSCAN").doesNotContain("COLLSCAN").doesNotContain("stage=SORT");
 				assertThat(explain.get("executionStats", Document.class).getInteger("totalDocsExamined")).isEqualTo(20);
 				Document filtered = template.executeCommand(new Document("explain",
-						new Document("find", collection).append("filter", new Document("$or", List.of(
-								new Document("numBooks.languages.en", new Document("$gt", 0)),
-								new Document("numBooks.languages.eng", new Document("$gt", 0))))))
+						new Document("find", collection).append("filter", new Document("catalogLanguages", new Document("$in", List.of("en", "eng")))))
 						.append("verbosity", "executionStats"));
 				assertThat(filtered.get("queryPlanner", Document.class).get("winningPlan").toString())
 						.contains("IXSCAN").doesNotContain("COLLSCAN");
+				for (String sortField : List.of("name", "numBooks.total")) {
+					Document ordered = template.executeCommand(new Document("explain",
+							new Document("find", collection).append("filter", new Document("catalogLanguages", new Document("$in", List.of("en", "eng"))))
+									.append("sort", new Document(sortField, 1)).append("limit", 20)
+									.append("projection", new Document("name", 1).append("numBooks", 1)))
+							.append("verbosity", "executionStats"));
+					assertThat(ordered.get("queryPlanner", Document.class).get("winningPlan").toString())
+							.contains("IXSCAN").doesNotContain("COLLSCAN").doesNotContain("stage=SORT,");
+					assertThat(ordered.get("executionStats", Document.class).getInteger("totalDocsExamined"))
+							.isLessThanOrEqualTo(22);
+				}
 			}
 			CustomAuthorRepositoryImpl authors = new CustomAuthorRepositoryImpl();
 			ReflectionTestUtils.setField(authors, "mongoTemplate", template);

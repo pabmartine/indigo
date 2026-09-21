@@ -43,17 +43,8 @@ public class CustomAuthorRepositoryImpl implements CustomAuthorRepository {
 	private Query buildLanguageQuery(List<String> languages) {
 		Query query = new Query();
 		if (!CollectionUtils.isEmpty(languages)) {
-			List<Criteria> criterias = languages.stream()
-					.flatMap(language -> LanguageCodeUtils.variants(language).stream())
-					.distinct()
-					.map(lang -> Criteria.where("numBooks.languages." + lang).gt(0))
-					.toList();
-			if (criterias.size() == 1) {
-				query.addCriteria(criterias.get(0));
-			}
-			else if (criterias.size() > 1) {
-				query.addCriteria(new Criteria().orOperator(criterias.toArray(new Criteria[0])));
-			}
+			List<String> variants = LanguageCodeUtils.expand(languages);
+			if (!variants.isEmpty()) query.addCriteria(Criteria.where("catalogLanguages").in(variants));
 		}
 		return query;
 	}

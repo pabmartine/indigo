@@ -4,7 +4,6 @@ import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
 import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
-import com.martinia.indigo.common.util.LanguageCodeUtils;
 import com.martinia.indigo.tag.domain.ports.repositories.TagRepository;
 import com.martinia.indigo.tag.infrastructure.mongo.entities.TagMongoEntity;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +19,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Component
 @Slf4j
@@ -62,24 +59,18 @@ public class MongoIndexInitializer implements ApplicationRunner {
 		}
 		for (Class<?> type : List.of(AuthorMongoEntity.class, TagMongoEntity.class)) {
 			ensureIndex(type, new Index().on("numBooks.total", Sort.Direction.DESC));
+			for (String sort : List.of("name", "numBooks.total")) {
+				ensureIndex(type, new Index().on("catalogLanguages", Sort.Direction.ASC)
+						.on(sort, Sort.Direction.ASC).on("_id", Sort.Direction.ASC));
+			}
 		}
 		ensureIndex(BookMongoEntity.class,
 				new Index().on("serie.name", Sort.Direction.ASC).on("serie.index", Sort.Direction.ASC));
 		ensureIndex(BookMongoEntity.class, new Index().on("authors", Sort.Direction.ASC));
+		ensureIndex(BookMongoEntity.class, new Index().on("languages", Sort.Direction.ASC)
+				.on("serie.name", Sort.Direction.ASC));
 		try {
 			List<String> languages = bookRepository.getBookLanguages();
-			Set<String> variants = new LinkedHashSet<>();
-			languages.forEach(language -> variants.addAll(LanguageCodeUtils.variants(language)));
-			for (String language : variants) {
-				if (!language.matches("[a-z]{2,3}")) {
-					continue;
-				}
-				// A range on the first key of (language count, name) cannot provide name ordering.
-				// Only create filter/count indexes for languages actually present in the library.
-				for (Class<?> type : List.of(AuthorMongoEntity.class, TagMongoEntity.class)) {
-					ensureIndex(type, new Index().on("numBooks.languages." + language, Sort.Direction.DESC).sparse());
-				}
-			}
 			if (warmUpOnStartup) {
 				// Explicit opt-in on the startup thread, never the JVM common pool.
 				authorRepository.count(List.of());
