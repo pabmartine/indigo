@@ -32,6 +32,8 @@ public class UploadEpubFilesUseCaseImpl implements UploadEpubFilesUseCase {
 	private UploadEpubFilesSingleton uploadEpubFilesSingleton;
 	@org.springframework.beans.factory.annotation.Autowired(required = false)
 	private ParallelEpubImporter parallelImporter;
+	@org.springframework.beans.factory.annotation.Autowired(required = false)
+	private PendingImportService pendingImports;
 
 	@Override
 	public synchronized void upload(final Long number) {
@@ -89,6 +91,7 @@ public class UploadEpubFilesUseCaseImpl implements UploadEpubFilesUseCase {
 		finally {
 			if (parallelImporter != null) uploadEpubFilesSingleton.endManagedProcessing();
 			else uploadEpubFilesSingleton.stop();
+			if (pendingImports != null) pendingImports.resumeAfterBatch();
 		}
 	}
 

@@ -1,6 +1,7 @@
 package com.martinia.indigo.file.application.events;
 
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
+import com.martinia.indigo.file.application.ImportPaths;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.book.infrastructure.mongo.entities.SerieMongo;
 import com.martinia.indigo.common.bus.event.domain.ports.EventBus;
@@ -170,6 +171,9 @@ public class SaveBookEpubFileExtractedEventUseCaseImpl implements SaveBookEpubFi
 	}
 
 	private void importExisting(BookMongoEntity book, BookOpf incoming, Path source, Path libraryRoot) {
+		Path directory = Path.of(book.getPath()).toAbsolutePath().normalize();
+		try { ImportPaths.libraryDirectory(directory, Path.of(uploadsPath), libraryRoot); }
+		catch (IOException exception) { throw new IllegalStateException("Invalid installed book directory", exception); }
 		if (!EpubImportPolicy.upgrade(incoming.getVersion(), book.getVersion())) {
 			// A database row alone is not proof that the initial import installed its file.
 			try (var installed = Files.list(Path.of(book.getPath()))) {
@@ -181,17 +185,12 @@ public class SaveBookEpubFileExtractedEventUseCaseImpl implements SaveBookEpubFi
 			afterCommit(() -> discard(source, false));
 			return;
 		}
-		Path directory = Path.of(book.getPath()).toAbsolutePath().normalize();
-		if (!directory.startsWith(libraryRoot)) throw new IllegalStateException("Book path outside library");
 		Path backup = null;
 		Path target = null;
 		float previousVersion = book.getVersion();
 		try {
-			if (!source.toRealPath().startsWith(Path.of(uploadsPath).toRealPath())
-					|| source.toRealPath().startsWith(libraryRoot.toRealPath())
-					|| !directory.toRealPath().startsWith(libraryRoot.toRealPath())) {
-				throw new IOException("Invalid EPUB source or destination");
-			}
+			ImportPaths.upload(source, Path.of(uploadsPath), libraryRoot);
+			ImportPaths.libraryDirectory(directory, Path.of(uploadsPath), libraryRoot);
 			try (var files = Files.list(directory)) {
 				var epubs = files.filter(Files::isRegularFile)
 						.filter(file -> file.toString().toLowerCase(java.util.Locale.ROOT).endsWith(".epub")).toList();
@@ -261,11 +260,7 @@ public class SaveBookEpubFileExtractedEventUseCaseImpl implements SaveBookEpubFi
 
 	private void discard(Path source, boolean updated) {
 		try {
-			Path uploadRoot = Path.of(uploadsPath).toRealPath();
-			Path realSource = source.toRealPath();
-			if (!realSource.startsWith(uploadRoot) || realSource.startsWith(Path.of(endpointBook).toRealPath())) {
-				throw new IOException("Refusing to discard a file outside uploads or inside library");
-			}
+			ImportPaths.upload(source, Path.of(uploadsPath), Path.of(endpointBook));
 			Files.delete(source);
 			if (updated) uploadEpubFilesSingleton.addUpdatedBook();
 			uploadEpubFilesSingleton.addMove();

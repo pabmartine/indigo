@@ -49,15 +49,15 @@ public class ImportRecoveryJournal {
     private void recoverEntry(Path journal) {
         try {
             Entry entry = mapper.readValue(journal.toFile(), Entry.class);
-            Path root = Path.of(library).toRealPath();
+
             Path backup = Path.of(entry.backup()).toAbsolutePath().normalize();
             Path target = Path.of(entry.target()).toAbsolutePath().normalize();
             Path source = Path.of(entry.source()).toAbsolutePath().normalize();
+            ImportPaths.upload(source, Path.of(uploads), Path.of(library));
+            ImportPaths.libraryDirectory(target.getParent(), Path.of(uploads), Path.of(library));
             if (!marker(backup).equals(journal.toAbsolutePath().normalize())
-                    || !target.getParent().toRealPath().startsWith(root)
                     || !backup.getParent().equals(target.getParent())
-                    || !source.getParent().toRealPath().startsWith(Path.of(uploads).toRealPath())
-                    || source.startsWith(root) || Files.isSymbolicLink(target) || Files.isSymbolicLink(backup)
+                    || Files.isSymbolicLink(target) || Files.isSymbolicLink(backup)
                     || Files.isSymbolicLink(source)) throw new IOException("Unsafe recovery paths");
             var book = books.findById(entry.bookId()).orElse(null);
             if (book != null && Float.compare(book.getVersion(), entry.version()) >= 0) {

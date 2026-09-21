@@ -119,4 +119,15 @@ class UploadEpubFilesUseCaseImplTest {
 
 		verifyNoInteractions(commandBus, uploadEpubFilesSingleton);
 	}
+	@Test
+	void deferredRecoveryRunsAfterBatchStateIsReleased() {
+		var pending = org.mockito.Mockito.mock(PendingImportService.class);
+		ReflectionTestUtils.setField(uploadEpubFilesUseCase, "pendingImports", pending);
+		uploadEpubFilesUseCase.upload(1L);
+		verify(pending, timeout(1000)).resumeAfterBatch();
+		var order = org.mockito.Mockito.inOrder(uploadEpubFilesSingleton, pending);
+		order.verify(uploadEpubFilesSingleton).stop();
+		order.verify(pending).resumeAfterBatch();
+	}
+
 }

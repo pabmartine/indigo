@@ -100,14 +100,33 @@ public class PendingImportService {
                 Document.class, "pendingImports");
         if (entry != null) complete(entry.getString("bookId"), "fileDone");
     }
+    private volatile boolean resumeDeferred;
+
+    public void resumeAfterBatch() {
+        if (resumeDeferred) resume();
+    }
+
     @EventListener(ApplicationReadyEvent.class)
-    public void resume() {
+    public synchronized void resume() {
+        if (uploadState.isRunning() || uploadState.isManagedProcessing()) {
+            resumeDeferred = true;
+            log.info("Pending import recovery deferred until the active batch finishes");
+            return;
+        }
+        resumeDeferred = false;
         var query = new Query();
         for (Document entry : mongo.find(query, Document.class, "pendingImports")) {
             try {
                 String id = entry.getString("bookId");
                 if (done(id, "fileDone") && done(id, "authorsDone") && done(id, "tagsDone")) continue;
                 retry(id);
+            } catch (org.springframework.web.server.ResponseStatusException exception) {
+                if (exception.getStatusCode().value() == 409) {
+                    resumeDeferred = true;
+                    log.info("Pending import recovery deferred because another batch started");
+                    return;
+                }
+                log.error("Pending import requires attention: {}", entry.getString("bookId"), exception);
             } catch (RuntimeException exception) { log.error("Pending import requires attention: {}", entry.getString("bookId"), exception); }
         }
     }

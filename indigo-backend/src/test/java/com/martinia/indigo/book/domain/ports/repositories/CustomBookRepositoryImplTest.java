@@ -37,6 +37,24 @@ class CustomBookRepositoryImplTest {
 	}
 
 	@Test
+	void unfilteredCountUsesIdIndex() {
+		when(mongoTemplate.count(org.mockito.ArgumentMatchers.any(Query.class), org.mockito.ArgumentMatchers.eq(BookMongoEntity.class))).thenReturn(90_826L);
+		assertEquals(90_826L, customBookRepository.countBooks(new Search()));
+		var query = org.mockito.ArgumentCaptor.forClass(Query.class);
+		verify(mongoTemplate).count(query.capture(), org.mockito.ArgumentMatchers.eq(BookMongoEntity.class));
+		assertEquals("_id_", query.getValue().getHint());
+	}
+
+	@Test
+	void emptyFirstPageAvoidsCountButPageBeyondEndStillCounts() {
+		when(mongoTemplate.find(org.mockito.ArgumentMatchers.any(Query.class), org.mockito.ArgumentMatchers.eq(BookMongoEntity.class))).thenReturn(List.of());
+		assertEquals(0, customBookRepository.findSummaryPage(new Search(), 0, 60, "title", "asc").total());
+		org.mockito.Mockito.verify(mongoTemplate, org.mockito.Mockito.never()).count(org.mockito.ArgumentMatchers.any(Query.class), org.mockito.ArgumentMatchers.eq(BookMongoEntity.class));
+		when(mongoTemplate.count(org.mockito.ArgumentMatchers.any(Query.class), org.mockito.ArgumentMatchers.eq(BookMongoEntity.class))).thenReturn(100L);
+		assertEquals(100, customBookRepository.findSummaryPage(new Search(), 3, 60, "title", "asc").total());
+	}
+
+	@Test
 	void count_WithSearchCriteria_ShouldReturnCount() {
 		Search search = new Search();
 		search.setPath("path");

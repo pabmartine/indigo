@@ -93,6 +93,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 	public long countBooks(Search search) {
 		Query query = buildSearchQuery(search);
+		if (query.getQueryObject().isEmpty()) query.withHint("_id_");
 		return mongoTemplate.count(query, BookMongoEntity.class);
 	}
 
@@ -133,7 +134,8 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 		long started = System.nanoTime();
 		List<BookMongoEntity> entities = findSummary(search, page, size, sort, order);
 		long queried = System.nanoTime();
-		long total = countBooks(search);
+		long total = entities.size() < size && (page == 0 || !entities.isEmpty())
+				? (long) page * size + entities.size() : countBooks(search);
 		long counted = System.nanoTime();
 		List<Book> items = entities.stream().map(this::mapEntityToDomain).toList();
 		long finished = System.nanoTime();

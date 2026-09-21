@@ -86,6 +86,24 @@ public class SaveBookEpubFileExtractedEventUseCaseImplUnitTest {
         assertEquals(2, existingBook.getVersion());
     }
 
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.ValueSource(booleans = {false, true})
+    void acceptsUploadsInsideLibraryForDuplicatesAndUpgrades(boolean upgrade, @org.junit.jupiter.api.io.TempDir Path root) throws Exception {
+        prepareExistingFiles(root);
+        Path uploads = java.nio.file.Files.createDirectories(root.resolve("library/uploads/.import-test"));
+        testPath = java.nio.file.Files.move(testPath, uploads.resolve("incoming.epub"));
+        ReflectionTestUtils.setField(useCase, "uploadsPath", uploads.getParent().toString());
+        existingBook.setVersion(2);
+        bookOpf.setVersion(upgrade ? 3 : 2);
+        when(bookRepository.findByAnyIsbn(any())).thenReturn(List.of(existingBook));
+        if (upgrade) when(bookRepository.save(any())).thenReturn(existingBook);
+        useCase.save(bookOpf, testPath);
+        assertEquals(false, java.nio.file.Files.exists(testPath));
+        assertEquals(upgrade ? "new" : "old", java.nio.file.Files.readString(Path.of(existingBook.getPath()).resolve("old-name.epub")));
+        verify(uploadEpubFilesSingleton, never()).addMoveError();
+        if (!upgrade) verify(bookRepository, never()).save(any());
+    }
+
     @Test
     void failedDatabaseUpdateRestoresFile(@org.junit.jupiter.api.io.TempDir Path root) throws Exception {
         prepareExistingFiles(root);

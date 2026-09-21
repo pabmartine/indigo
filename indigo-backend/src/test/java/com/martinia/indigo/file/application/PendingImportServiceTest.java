@@ -64,4 +64,29 @@ class PendingImportServiceTest {
         assertNotNull(service.retry("1").getString("lastError"));
         verifyNoInteractions(mover, authors, tags);
     }
+    @Test void startupRecoveryWaitsForBatchAndResumesOnlyOnce() {
+        when(uploads.isManagedProcessing()).thenReturn(true);
+        service.resume();
+        verifyNoInteractions(mongo, mover, authors, tags);
+        when(uploads.isManagedProcessing()).thenReturn(false);
+        when(mongo.find(any(org.springframework.data.mongodb.core.query.Query.class), eq(Document.class), eq("pendingImports")))
+                .thenReturn(java.util.List.of());
+        service.resumeAfterBatch();
+        service.resumeAfterBatch();
+        verify(mongo, times(1)).find(any(org.springframework.data.mongodb.core.query.Query.class), eq(Document.class), eq("pendingImports"));
+    }
+
+    @Test void batchStartingDuringRecoveryDefersRemainingEntries() {
+        when(uploads.isRunning()).thenReturn(false, true);
+        when(mongo.find(any(org.springframework.data.mongodb.core.query.Query.class), eq(Document.class), eq("pendingImports")))
+                .thenReturn(java.util.List.of(new Document("bookId", "1"), new Document("bookId", "2")));
+        service.resume();
+        verifyNoInteractions(mover, authors, tags);
+        verify(mongo, never()).findById("book:2:fileDone", Document.class, "pendingImportTasks");
+        when(uploads.isRunning()).thenReturn(false);
+        when(mongo.findById(anyString(), eq(Document.class), eq("pendingImportTasks"))).thenReturn(new Document());
+        service.resumeAfterBatch();
+        verify(mongo).findById("book:2:fileDone", Document.class, "pendingImportTasks");
+    }
+
 }

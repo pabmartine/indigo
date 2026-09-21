@@ -12,10 +12,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class ImportRecoveryJournalTest {
-    @ParameterizedTest @ValueSource(booleans = {true, false})
-    void restartRecoversAccordingToDatabaseCommit(boolean committed, @TempDir Path root) throws Exception {
+    @ParameterizedTest @org.junit.jupiter.params.provider.CsvSource({"true,true", "true,false", "false,true", "false,false"})
+    void restartRecoversAccordingToDatabaseCommit(boolean committed, boolean nested, @TempDir Path root) throws Exception {
         Path library = Files.createDirectory(root.resolve("library"));
-        Path uploads = Files.createDirectory(root.resolve("uploads"));
+        Path uploads = Files.createDirectory((nested ? library : root).resolve("uploads"));
         Path source = Files.writeString(uploads.resolve("new.epub"), "new");
         Path target = Files.writeString(library.resolve("book.epub"), "new");
         Path backup = Files.writeString(library.resolve(".import-test.bak"), "old");
