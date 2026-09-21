@@ -80,9 +80,11 @@ spring:
       # Base de datos de autenticación de MongoDB (generalmente 'admin').
       authentication-database: ${SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE:admin}
       # Habilita la creación automática de índices de MongoDB definidos en las entidades @Document.
-      auto-index-creation: ${SPRING_DATA_MONGODB_AUTO_INDEX_CREATION:true}
-      # Habilita el precalentamiento asíncrono de cachés e índices dinámicos de MongoDB en el arranque.
-      warm-up-on-startup: ${SPRING_DATA_MONGODB_WARM_UP_ON_STARTUP:true}
+      # Se desactiva por defecto (false) para evitar IndexOptionsConflict con índices existentes en producción;
+      # los índices se aseguran de forma segura e idempotente en MongoIndexInitializer.
+      auto-index-creation: ${SPRING_DATA_MONGODB_AUTO_INDEX_CREATION:false}
+      # Precalentamiento opcional de conteos antes de completar el arranque; los índices se aseguran siempre.
+      warm-up-on-startup: ${SPRING_DATA_MONGODB_WARM_UP_ON_STARTUP:false}
   mail:
     properties:
       mail:

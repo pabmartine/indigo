@@ -1,6 +1,5 @@
 package com.martinia.indigo.tag.domain.ports.repositories;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.martinia.indigo.common.util.LanguageCodeUtils;
@@ -68,6 +67,10 @@ public class CustomTagRepositoryImpl implements CustomTagRepository {
 			return cached.count();
 		}
 		Query query = buildLanguageQuery(languages);
+		if (query.getQueryObject().isEmpty()) {
+			// Exact count using the always-present _id index, without reading image-heavy documents.
+			query.withHint("_id_");
+		}
 		long total = mongoTemplate.count(query, TagMongoEntity.class);
 		countCache.put(key, new CachedCount(total, System.currentTimeMillis()));
 		return total;
@@ -95,14 +98,11 @@ public class CustomTagRepositoryImpl implements CustomTagRepository {
 	@Override
 	public TagPageData findSummaryPage(List<String> languages, Pageable page) {
 		long started = System.nanoTime();
-		java.util.concurrent.CompletableFuture<List<TagMongoEntity>> entitiesFuture =
-				java.util.concurrent.CompletableFuture.supplyAsync(() -> findSummary(languages, page));
-		java.util.concurrent.CompletableFuture<Long> totalFuture =
-				java.util.concurrent.CompletableFuture.supplyAsync(() -> count(languages));
-
-		List<TagMongoEntity> entities = entitiesFuture.join();
+		List<TagMongoEntity> entities = findSummary(languages, page);
 		long queried = System.nanoTime();
-		long total = totalFuture.join();
+		// Infer the total only when this is provably the last page.
+		long total = entities.size() < page.getPageSize() && (page.getOffset() == 0 || !entities.isEmpty())
+				? page.getOffset() + entities.size() : count(languages);
 		long counted = System.nanoTime();
 
 		java.util.Set<String> requestedVariants = (languages == null || languages.isEmpty())
@@ -114,9 +114,6 @@ public class CustomTagRepositoryImpl implements CustomTagRepository {
 				return;
 			}
 			if (requestedVariants.isEmpty()) {
-				if (tag.getNumBooks().getLanguages() != null) {
-					tag.getNumBooks().setTotal(tag.getNumBooks().getLanguages().values().stream().mapToInt(Integer::intValue).sum());
-				}
 				return;
 			}
 			int langTotal = 0;

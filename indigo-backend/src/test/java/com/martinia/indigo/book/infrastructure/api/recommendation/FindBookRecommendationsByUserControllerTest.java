@@ -21,6 +21,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@org.springframework.security.test.context.support.WithMockUser(username = "example_user")
 class FindBookRecommendationsByUserControllerTest extends BaseIndigoTest {
 
 	@MockBean
@@ -34,6 +35,21 @@ class FindBookRecommendationsByUserControllerTest extends BaseIndigoTest {
 
 	@Resource
 	private MockMvc mockMvc;
+
+	@Test
+	void summaryReturnsPageAndTotalAndRejectsAnotherUsersHistory() throws Exception {
+		when(useCase.getSummaryPage("example_user", 0, 20, "count", "desc"))
+				.thenReturn(new com.martinia.indigo.book.domain.model.BookPageData(List.of(), 0));
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/book/recommendations/user/summary/page").param("user", "example_user"))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath("$.items").isEmpty())
+				.andExpect(MockMvcResultMatchers.jsonPath("$.total").value(0));
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/book/recommendations/user/summary/page").param("user", "someone_else"))
+				.andExpect(MockMvcResultMatchers.status().isForbidden());
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/book/recommendations/user/summary/page")
+				.param("user", "example_user").param("size", "0"))
+				.andExpect(MockMvcResultMatchers.status().isBadRequest());
+	}
 
 	@Test
 	void testGetBookRecommendationsByUser() throws Exception {

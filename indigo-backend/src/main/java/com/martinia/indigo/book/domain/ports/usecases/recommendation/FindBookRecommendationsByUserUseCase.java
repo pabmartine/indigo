@@ -1,5 +1,7 @@
 package com.martinia.indigo.book.domain.ports.usecases.recommendation;
 
+import com.martinia.indigo.book.domain.model.BookPageData;
+
 import com.martinia.indigo.book.domain.model.Book;
 
 import java.util.List;
@@ -7,5 +9,7 @@ import java.util.List;
 public interface FindBookRecommendationsByUserUseCase {
 
 	List<Book> getRecommendationsByUser(String user, int page, int size, String sort, String order);
+
+	BookPageData getSummaryPage(String user, int page, int size, String sort, String order);
 
 }

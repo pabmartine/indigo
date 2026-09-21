@@ -14,6 +14,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@org.springframework.security.test.context.support.WithMockUser(username = "example_user")
 class CountBookRecommendationsByUserControllerTest extends BaseIndigoTest {
 
 	@MockBean

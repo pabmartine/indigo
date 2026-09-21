@@ -89,6 +89,7 @@ public class SecurityConfiguration {
 						.requestMatchers("/api/book/sent").authenticated()
 						.requestMatchers("/api/book/recommendations/user").authenticated()
 						.requestMatchers("/api/book/recommendations/user/count").authenticated()
+						.requestMatchers("/api/book/recommendations/user/**").authenticated()
 						.requestMatchers(HttpMethod.GET, "/**").permitAll()
 						.anyRequest().authenticated()
 				)

@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.Arrays;
 import java.util.UUID;
 
+@org.springframework.security.test.context.support.WithMockUser(username = "user")
 class CountBookRecommendationsByUserControllerIntegrationTest extends BaseIndigoIntegrationTest {
 
 	private UserMongoEntity userMongoEntity;

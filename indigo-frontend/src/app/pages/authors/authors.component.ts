@@ -60,6 +60,7 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Subject para manejar la destrucción del componente
   private destroy$ = new Subject<void>();
+  private resetPages$ = new Subject<void>();
 
   // Estados de diálogos
   showDetail: boolean = false;
@@ -102,6 +103,7 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.resetPages$.complete();
     this.authorsCache.clear();
     this.scrollObserver?.disconnect();
   }
@@ -168,7 +170,7 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     this.authorService.getSummaryPage(this.user.languageBooks, this.page, this.size, this.sort, this.order)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this.destroy$), takeUntil(this.resetPages$))
       .subscribe({
         next: (response) => {
           this.total = response.total || 0;
@@ -207,6 +209,9 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onChange(event): void {
+    this.resetPages$.next();
+    this.isLoading = false;
+    this.isScrolling = false;
     const index = this.selectedSort.indexOf(",");
     this.sort = this.selectedSort.slice(0, index);
     this.order = this.selectedSort.slice(index + 1);
@@ -215,6 +220,7 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.page = 0;
     this.authors.length = 0;
+    this.authorRows = [];
     this.authorsCache.clear(); // Limpiar cache cuando cambia el orden
 
     this.getAll();
@@ -241,7 +247,7 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onScroll(): void {
-    if (this.authors.length < this.total && !this.isScrolling) {
+    if (this.authors.length < this.total && !this.isLoading && !this.isScrolling) {
       this.getAll();
     }
   }
@@ -254,6 +260,9 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   getAll(): void {
+    if (this.isLoading || this.isScrolling) {
+      return;
+    }
     const cacheKey = `${this.page}-${this.size}-${this.sort}-${this.order}-${this.user.languageBooks?.join(',')}`;
 
     // Verificar cache
@@ -268,7 +277,7 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.isScrolling = true;
     this.authorService.getSummaryPage(this.user.languageBooks, this.page, this.size, this.sort, this.order)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this.destroy$), takeUntil(this.resetPages$))
       .subscribe({
         next: (response) => {
           this.total = response.total || 0;
@@ -360,6 +369,9 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private reset(): void {
+    this.resetPages$.next();
+    this.isLoading = false;
+    this.isScrolling = false;
     this.authors.length = 0;
     this.favorites.length = 0;
     this.total = 0;
@@ -468,6 +480,7 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
     const index = this.authors.findIndex((a) => a.id === author.id);
     if (index !== -1) {
       this.authors[index] = updatedAuthor;
+      this.updateAuthorRows();
       this.cdr.detectChanges();
     }
 

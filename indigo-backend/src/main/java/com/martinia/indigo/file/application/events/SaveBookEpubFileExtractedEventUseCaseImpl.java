@@ -55,6 +55,7 @@ public class SaveBookEpubFileExtractedEventUseCaseImpl implements SaveBookEpubFi
 	@Override
 	@Transactional
 	public synchronized void save(final BookOpf bookOpf, final Path path) {
+		bookOpf.setLanguage(com.martinia.indigo.common.util.LanguageCodeUtils.normalize(bookOpf.getLanguage()));
 
 		final Path libraryRoot = Path.of(endpointBook).toAbsolutePath().normalize();
 		final String authorPath = sanitizePathSegment(getAuthorPath(bookOpf.getAuthors()));

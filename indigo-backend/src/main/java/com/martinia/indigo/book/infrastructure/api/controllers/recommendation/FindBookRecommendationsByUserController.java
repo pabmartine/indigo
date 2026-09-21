@@ -1,5 +1,11 @@
 package com.martinia.indigo.book.infrastructure.api.controllers.recommendation;
 
+import org.springframework.security.core.Authentication;
+
+import com.martinia.indigo.book.infrastructure.api.mappers.BookSummaryDtoMapper;
+
+import com.martinia.indigo.book.infrastructure.api.model.BookSummaryPageDto;
+
 import com.martinia.indigo.book.infrastructure.api.model.BookDto;
 import com.martinia.indigo.book.infrastructure.api.mappers.BookDtoMapper;
 import com.martinia.indigo.book.domain.model.Book;
@@ -31,6 +37,26 @@ public class FindBookRecommendationsByUserController {
 
 	@Resource
 	private BookDtoMapper mapper;
+
+	@Resource
+	private BookSummaryDtoMapper summaryMapper;
+
+	@GetMapping(value = "/recommendations/user/summary/page", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<BookSummaryPageDto> getSummaryPage(
+			@RequestParam String user, @RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "20") int size, @RequestParam(defaultValue = "count") String sort,
+			@RequestParam(defaultValue = "desc") String order,
+			Authentication authentication) {
+		if (authentication == null || !user.equals(authentication.getName())) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+		}
+		if (page < 0 || size < 1 || size > 200) {
+			return ResponseEntity.badRequest().build();
+		}
+		var result = useCase.getSummaryPage(user, page, size, sort, order);
+		return ResponseEntity.ok(new BookSummaryPageDto(
+				summaryMapper.domains2Dtos(result.items()), result.total(), page, size));
+	}
 
 	@Operation(summary = "Get book recommendations by user",
 			description = "Retrieves a paginated and sortable list of recommended books for a specific user.",

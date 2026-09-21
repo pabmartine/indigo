@@ -72,7 +72,7 @@ class CustomBookRepositoryImplTest {
 
 		criterias.add(Criteria.where("serie.name").regex(java.util.regex.Pattern.quote(search.getSerie()), "i"));
 
-		criterias.add(Criteria.where("languages").in(search.getLanguages()));
+		criterias.add(Criteria.where("languages").in(com.martinia.indigo.common.util.LanguageCodeUtils.expand(search.getLanguages())));
 
 		query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[0])));
 
@@ -128,7 +128,7 @@ class CustomBookRepositoryImplTest {
 
 		criterias.add(Criteria.where("serie.name").regex(java.util.regex.Pattern.quote(search.getSerie()), "i"));
 
-		criterias.add(Criteria.where("languages").in(search.getLanguages()));
+		criterias.add(Criteria.where("languages").in(com.martinia.indigo.common.util.LanguageCodeUtils.expand(search.getLanguages())));
 
 		query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[0])));
 
@@ -146,47 +146,9 @@ class CustomBookRepositoryImplTest {
 	}
 
 	@Test
-	void getRecommendationsByBook_WithBook_ShouldReturnRecommendations() {
-		BookMongoEntity book = new BookMongoEntity();
-		book.setId("bookId");
-		book.setTags(Arrays.asList("tag1", "tag2"));
-		book.setPubDate(Calendar.getInstance().getTime());
-		book.setPages(200);
-
-		Query query = new Query();
-
-		List<Criteria> criterias = new ArrayList<>();
-
-		criterias.add(Criteria.where("id").ne(book.getId()));
-		criterias.add(Criteria.where("tags").all(book.getTags()));
-
-		Calendar cIni = Calendar.getInstance();
-		cIni.setTime(book.getPubDate());
-		cIni.add(Calendar.YEAR, -5);
-		criterias.add(Criteria.where("pubDate").gte(cIni.getTime()));
-
-		Calendar cEnd = Calendar.getInstance();
-		cEnd.setTime(book.getPubDate());
-		cEnd.set(Calendar.HOUR_OF_DAY, 23);
-		cEnd.set(Calendar.MINUTE, 59);
-		cEnd.add(Calendar.YEAR, 5);
-		criterias.add(Criteria.where("pubDate").lte(cEnd.getTime()));
-
-		criterias.add(Criteria.where("pages").gte(book.getPages() - ((book.getPages() * 25) / 100)));
-		criterias.add(Criteria.where("pages").lte(book.getPages() + ((book.getPages() * 25) / 100)));
-
-		query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[0])));
-
-		List<BookMongoEntity> expectedRecommendations = new ArrayList<>();
-		expectedRecommendations.add(new BookMongoEntity());
-		expectedRecommendations.add(new BookMongoEntity());
-		query.fields().include("_id");
-		when(mongoTemplate.find(query, BookMongoEntity.class)).thenReturn(expectedRecommendations);
-
-		List<BookMongoEntity> recommendations = customBookRepository.getRecommendationsByBook(book);
-
-		assertEquals(expectedRecommendations, recommendations);
-		verify(mongoTemplate).find(query, BookMongoEntity.class);
+	void getRecommendationsWithoutAffinityDoesNotScanLibrary() {
+		assertEquals(List.of(), customBookRepository.getRecommendationsByBook(new BookMongoEntity()));
+		org.mockito.Mockito.verifyNoInteractions(mongoTemplate);
 	}
 
 	@Test
@@ -198,7 +160,7 @@ class CustomBookRepositoryImplTest {
 
 		List<Criteria> criterias = new ArrayList<>();
 		criterias.add(Criteria.where("serie.name").is(serie));
-		criterias.add(Criteria.where("languages").in(languages));
+		criterias.add(Criteria.where("languages").in(com.martinia.indigo.common.util.LanguageCodeUtils.expand(languages)));
 		query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[0])));
 
 		List<BookMongoEntity> expectedBooks = new ArrayList<>();

@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.Arrays;
 import java.util.UUID;
 
+@org.springframework.security.test.context.support.WithMockUser(username = "user")
 class FindBookRecommendationsByUserControllerIntegrationTest extends BaseIndigoIntegrationTest {
 
 	private UserMongoEntity userMongoEntity;
@@ -78,7 +79,7 @@ class FindBookRecommendationsByUserControllerIntegrationTest extends BaseIndigoI
 
 		// Then
 		result.andExpect(MockMvcResultMatchers.status().isOk());
-		result.andExpect(MockMvcResultMatchers.jsonPath("$").doesNotExist());
+		result.andExpect(MockMvcResultMatchers.jsonPath("$").isEmpty());
 
 	}
 

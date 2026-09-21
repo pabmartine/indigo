@@ -70,7 +70,6 @@ public class FindAllTagsUseCaseImpl implements FindAllTagsUseCase {
 				return;
 			}
 			if (requestedVariants.isEmpty()) {
-				tag.getNumBooks().setTotal(tag.getNumBooks().getLanguages().values().stream().mapToInt(Integer::intValue).sum());
 				return;
 			}
 			int total = tag.getNumBooks().getLanguages().entrySet().stream()

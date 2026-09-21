@@ -1,9 +1,9 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageService, SelectItem } from 'primeng/api';
 import { Subject } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 import { Author } from 'src/app/domain/author';
 import { Book } from 'src/app/domain/book';
 import { Search } from 'src/app/domain/search';
@@ -14,11 +14,6 @@ import { DetailComponent } from '../detail/detail.component';
 import { AuthStateService } from 'src/app/services/auth-state.service';
 import { User } from 'src/app/domain/user';
 import { ImageService } from 'src/app/utils/image.service';
-
-// Interfaz para libros con imagen temporal
-interface BookWithTempImage extends Book {
-  originalImage?: string;
-}
 
 @Component({
   selector: 'app-recommendations',
@@ -39,7 +34,6 @@ export class RecommendationsComponent implements OnInit, OnDestroy, AfterViewIni
   total: number;
 
   private page: number;
-  private lastPage: number;
   private size: number;
   private sort: string;
   private order: string;
@@ -58,7 +52,8 @@ export class RecommendationsComponent implements OnInit, OnDestroy, AfterViewIni
   private destroy$ = new Subject<void>();
 
   // Cache para optimizar rendimiento
-  private booksCache = new Map<string, Book[]>();
+  private resetPages$ = new Subject<void>();
+  private hasMore = true;
   private scrollObserver?: IntersectionObserver;
 
   private user: User;
@@ -66,7 +61,6 @@ export class RecommendationsComponent implements OnInit, OnDestroy, AfterViewIni
   constructor(
     private bookService: BookService,
     private router: Router,
-    private route: ActivatedRoute,
     private authorService: AuthorService,
     private messageService: MessageService,
     public translate: TranslateService,
@@ -81,7 +75,6 @@ export class RecommendationsComponent implements OnInit, OnDestroy, AfterViewIni
       this.user.languageBooks = this.authState.getLanguageBooks();
     }
     this.initializeScreenSize();
-    this.initializeNavigation();
   }
 
   ngOnInit(): void {
@@ -97,7 +90,7 @@ export class RecommendationsComponent implements OnInit, OnDestroy, AfterViewIni
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    this.booksCache.clear();
+    this.resetPages$.complete();
     this.scrollObserver?.disconnect();
   }
 
@@ -108,7 +101,7 @@ export class RecommendationsComponent implements OnInit, OnDestroy, AfterViewIni
     } else if (window.screen.width < 1024) {
       this.size = 20;
     } else {
-      this.size = 60;
+      this.size = 20;
     }
   }
 
@@ -123,18 +116,6 @@ export class RecommendationsComponent implements OnInit, OnDestroy, AfterViewIni
       { label: this.translate.instant('locale.books.order_by.rating.asc'), value: 'rating,asc' }
     ];
 
-  }
-
-  private initializeNavigation(): void {
-    // Suscribirse a eventos de navegación de forma más limpia
-    this.router.events.pipe(
-      filter(e => e instanceof NavigationEnd),
-      takeUntil(this.destroy$)
-    ).subscribe((e: NavigationEnd) => {
-      if (e.url === "/recommendations" && !sessionStorage.getItem("position")) {
-        this.doSearch();
-      }
-    });
   }
 
   // Método para trackBy en ngFor
@@ -175,116 +156,42 @@ export class RecommendationsComponent implements OnInit, OnDestroy, AfterViewIni
   }
 
   onChange(event): void {
-    const index = this.selectedSort.indexOf(",");
-    this.sort = this.selectedSort.slice(0, index);
-    this.order = this.selectedSort.slice(index + 1);
-
-    sessionStorage.setItem('books_order', this.selectedSort);
-
-    this.page = 0;
-    this.books.length = 0;
-    this.booksCache.clear(); // Limpiar cache cuando cambia el orden
-
-    this.getAll();
+    sessionStorage.setItem('recommendations_order', this.selectedSort);
+    this.doSearch();
   }
 
   onScroll(): void {
-    if (this.books.length > 0 && this.books.length < this.total) {
+    if (this.hasMore && !this.isLoading && this.books.length > 0) {
       this.getAll();
     }
   }
 
-  count(): void {
-    // Este método se mantiene para compatibilidad, pero la lógica principal está en doSearch()
-    this.bookService.countRecommendationsByUser(this.user.username)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (data) => {
-          // Validar que data existe y es un número válido
-          this.total = (data && typeof data === 'number') ? data : 0;
-          this.lastPage = this.total / this.size;
-          this.title = this.translate.instant('locale.books.recommendations.title2') + " (" + this.total + ")";
-          this.cdr.detectChanges();
-        },
-        error: (error) => {
-          this.total = 0;
-          this.title = this.translate.instant('locale.books.recommendations.title2') + " (0)";
-          this.messageService.clear();
-          this.messageService.add({
-            severity: 'error',
-            detail: this.translate.instant('locale.books.error.data'),
-            closable: false,
-            life: 5000
-          });
-          this.cdr.detectChanges();
-        }
-      });
-  }
-
   getAll(): void {
-    // No intentar obtener datos si no hay total
-    if (this.total === 0) {
-      this.isLoading = false;
-      this.cdr.detectChanges();
+    if (this.isLoading || !this.hasMore || !this.user.username) {
       return;
     }
-
-    const cacheKey = `${this.page}-${this.size}-${this.sort}-${this.order}-${this.user.username}`;
-
-    // Verificar cache
-    if (this.booksCache.has(cacheKey)) {
-      const cachedData = this.booksCache.get(cacheKey);
-      if (cachedData && Array.isArray(cachedData)) {
-        Array.prototype.push.apply(this.books, cachedData);
-        this.page++;
-        this.cdr.detectChanges();
-        this.restoreScrollPosition();
-      }
-      return;
-    }
-
-    this.bookService.getRecommendationsByUser(this.user.username, this.page, this.size, this.sort, this.order)
-      .pipe(takeUntil(this.destroy$))
+    this.isLoading = true;
+    this.bookService.getRecommendationSummaryPage(this.user.username, this.page, this.size, this.sort, this.order)
+      .pipe(takeUntil(this.destroy$), takeUntil(this.resetPages$))
       .subscribe({
-        next: (data) => {
-          if (!data || !Array.isArray(data)) {
-            // Si no hay datos válidos, marcar como completado
-            this.isLoading = false;
-            this.cdr.detectChanges();
-            return;
-          }
-
-          // Si el array está vacío, no hay más datos
-          if (data.length === 0) {
-            this.isLoading = false;
-            this.cdr.detectChanges();
-            return;
-          }
-
-          // INMEDIATAMENTE añadir los datos SIN procesar imágenes
-          const booksWithoutImages: BookWithTempImage[] = data.map(book => {
-            const coverUrl = this.bookService.buildCoverImageUrl(book.id);
-            return {
-              ...book,
-              image: null,
-              originalImage: coverUrl || null,
-              rating: book.rating ? Math.round(book.rating) : book.rating
-            }
-          });
-
-          // Mostrar datos inmediatamente
-          Array.prototype.push.apply(this.books, booksWithoutImages);
+        next: (response) => {
+          const items = response.items || [];
+          const seen = new Set(this.books.map(book => book.id));
+          this.books.push(...items.filter(book => !seen.has(book.id)).map(book => ({
+            ...book,
+            image: null,
+            originalImage: this.bookService.buildCoverImageUrl(book.id),
+            rating: book.rating ? Math.round(book.rating) : book.rating
+          })));
+          this.total = response.total;
+          this.title = this.translate.instant('locale.books.recommendations.title2') + " (" + this.total + ")";
           this.page++;
+          this.hasMore = items.length === this.size && this.page * this.size < this.total;
           this.isLoading = false;
           this.cdr.detectChanges();
           this.restoreScrollPosition();
-
-          // Guardar en cache para futuras cargas
-          this.processBooks(data).then(processedData => {
-            this.booksCache.set(cacheKey, processedData);
-          });
         },
-        error: (error) => {
+        error: () => {
           this.isLoading = false;
           this.messageService.clear();
           this.messageService.add({
@@ -296,35 +203,6 @@ export class RecommendationsComponent implements OnInit, OnDestroy, AfterViewIni
           this.cdr.detectChanges();
         }
       });
-  }
-
-  private processBooks(data: Book[]): Promise<Book[]> {
-    return new Promise((resolve) => {
-      // Validar que data existe y es un array
-      if (!data || !Array.isArray(data)) {
-        resolve([]);
-        return;
-      }
-
-      const processedBooks = data.map(book => {
-        if (!book) return null; // Saltar libros nulos/undefined
-
-        const coverUrl = this.bookService.buildCoverImageUrl(book.id);
-        const processedBook = {
-          ...book,
-          image: null,
-          originalImage: coverUrl || book.image
-        };
-
-        if (book.rating) {
-          processedBook.rating = Math.round(book.rating);
-        }
-
-        return processedBook;
-      }).filter(book => book !== null); // Filtrar libros nulos
-
-      resolve(processedBooks);
-    });
   }
 
   showDetails(book: Book): void {
@@ -380,40 +258,7 @@ export class RecommendationsComponent implements OnInit, OnDestroy, AfterViewIni
 
   private doSearch(): void {
     this.reset();
-    this.isLoading = true;
-    this.cdr.detectChanges();
-
-    // Primero hacer count, luego getAll solo si hay datos
-    this.bookService.countRecommendationsByUser(this.user.username)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (count) => {
-          this.total = (count && typeof count === 'number') ? count : 0;
-          this.lastPage = this.total / this.size;
-          this.title = this.translate.instant('locale.books.recommendations.title2') + " (" + this.total + ")";
-
-          // Solo llamar getAll si hay recomendaciones
-          if (this.total > 0) {
-            this.getAll();
-          } else {
-            this.isLoading = false;
-            this.cdr.detectChanges();
-          }
-        },
-        error: (error) => {
-          this.total = 0;
-          this.title = this.translate.instant('locale.books.recommendations.title2') + " (0)";
-          this.isLoading = false;
-          this.messageService.clear();
-          this.messageService.add({
-            severity: 'error',
-            detail: this.translate.instant('locale.books.error.data'),
-            closable: false,
-            life: 5000
-          });
-          this.cdr.detectChanges();
-        }
-      });
+    this.getAll();
   }
 
   getBooksByAuthor(author: string): void {
@@ -428,21 +273,16 @@ export class RecommendationsComponent implements OnInit, OnDestroy, AfterViewIni
   }
 
   private reset(): void {
+    this.resetPages$.next();
+    this.isLoading = false;
+    this.hasMore = true;
     this.total = 0;
     this.page = 0;
-    this.lastPage = 0;
-    this.selectedSort = sessionStorage.getItem('books_order');
-
-    if (!this.selectedSort) {
-      this.sort = "count";
-      this.order = "desc";
-      this.selectedSort = this.sort + "," + this.order;
-    } else {
-      const index = this.selectedSort.indexOf(",");
-      this.sort = this.selectedSort.slice(0, index);
-      this.order = this.selectedSort.slice(index + 1);
-    }
-
-    this.books.length = 0;
+    this.books = [];
+    const storedSort = sessionStorage.getItem('recommendations_order');
+    this.selectedSort = this.sorts.some(option => option.value === storedSort) ? storedSort : 'count,desc';
+    [this.sort, this.order] = this.selectedSort.split(',');
+    this.title = this.translate.instant('locale.books.recommendations.title2');
+    this.cdr.detectChanges();
   }
 }

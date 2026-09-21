@@ -32,7 +32,7 @@ public interface BookRepository extends MongoRepository<BookMongoEntity, String>
 	@Query(value = "{ '_id': ?0 }", fields = "{ 'image': 1 }")
 	Optional<BookMongoEntity> findCoverById(String id);
 
-	@Query(value = "{ '_id': ?0 }", fields = "{ 'title': 1, 'tags': 1, 'pubDate': 1, 'pages': 1 }")
+	@Query(value = "{ '_id': ?0 }", fields = "{ 'title': 1, 'tags': 1, 'authors': 1, 'languages': 1 }")
 	Optional<BookMongoEntity> findRecommendationSource(String id);
 
 	@Query("{ 'serie.name' : ?0 }")

@@ -1,5 +1,7 @@
 package com.martinia.indigo.book.application.recommendation;
 
+import com.martinia.indigo.book.domain.model.BookPageData;
+
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.domain.ports.usecases.recommendation.FindBookRecommendationsByUserUseCase;
@@ -25,7 +27,7 @@ public class FindBookRecommendationsByUserUseCaseImpl implements FindBookRecomme
 
 	@Override
 	public List<Book> getRecommendationsByUser(String user, int page, int size, String sort, String order) {
-		List<Book> ret = null;
+		List<Book> ret = List.of();
 
 		List<Book> books = bookMongoMapper.entities2Domains(bookRepository.getRecommendationsByUser(user, page, size, sort, order));
 
@@ -36,6 +38,11 @@ public class FindBookRecommendationsByUserUseCaseImpl implements FindBookRecomme
 		}
 
 		return ret;
+	}
+
+	@Override
+	public BookPageData getSummaryPage(String user, int page, int size, String sort, String order) {
+		return bookRepository.getRecommendationSummaryPage(user, page, size, sort, order);
 	}
 
 }

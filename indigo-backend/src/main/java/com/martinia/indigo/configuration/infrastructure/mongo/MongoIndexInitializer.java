@@ -13,24 +13,21 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
-import org.springframework.data.mongodb.core.index.IndexOperations;
+import org.springframework.data.mongodb.core.index.IndexDefinition;
+import org.springframework.data.mongodb.core.index.MongoPersistentEntityIndexResolver;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 @Component
 @Slf4j
 public class MongoIndexInitializer implements ApplicationRunner {
-
-	private static final Set<String> BASE_LANGUAGES = Set.of(
-			"es", "spa", "en", "eng", "fr", "fra", "de", "deu", "it", "ita", "pt", "por", "ca", "cat"
-	);
 
 	private final MongoTemplate mongoTemplate;
 	private final AuthorRepository authorRepository;
@@ -48,118 +45,93 @@ public class MongoIndexInitializer implements ApplicationRunner {
 		this.bookRepository = bookRepository;
 	}
 
-	@org.springframework.beans.factory.annotation.Value("${spring.data.mongodb.warm-up-on-startup:true}")
+	@org.springframework.beans.factory.annotation.Value("${spring.data.mongodb.warm-up-on-startup:false}")
 	private boolean warmUpOnStartup;
 
 	@Override
 	public void run(ApplicationArguments args) {
+		// With automatic creation disabled, retain all declared indexes, including text and unique indexes.
+		var context = mongoTemplate.getConverter().getMappingContext();
+		var resolver = new MongoPersistentEntityIndexResolver(context);
+		for (var entity : context.getPersistentEntities()) {
+			if (entity.isAnnotationPresent(org.springframework.data.mongodb.core.mapping.Document.class)) {
+				for (IndexDefinition index : resolver.resolveIndexFor(entity.getType())) {
+					ensureIndex(entity.getType(), index);
+				}
+			}
+		}
+		for (Class<?> type : List.of(AuthorMongoEntity.class, TagMongoEntity.class)) {
+			ensureIndex(type, new Index().on("numBooks.total", Sort.Direction.DESC));
+		}
+		ensureIndex(BookMongoEntity.class,
+				new Index().on("serie.name", Sort.Direction.ASC).on("serie.index", Sort.Direction.ASC));
+		ensureIndex(BookMongoEntity.class, new Index().on("authors", Sort.Direction.ASC));
 		try {
-			ensureAuthorIndexes();
-			ensureTagIndexes();
-			ensureBookIndexes();
-			ensureLanguageIndexes(BASE_LANGUAGES);
-
+			List<String> languages = bookRepository.getBookLanguages();
+			Set<String> variants = new LinkedHashSet<>();
+			languages.forEach(language -> variants.addAll(LanguageCodeUtils.variants(language)));
+			for (String language : variants) {
+				if (!language.matches("[a-z]{2,3}")) {
+					continue;
+				}
+				// A range on the first key of (language count, name) cannot provide name ordering.
+				// Only create filter/count indexes for languages actually present in the library.
+				for (Class<?> type : List.of(AuthorMongoEntity.class, TagMongoEntity.class)) {
+					ensureIndex(type, new Index().on("numBooks.languages." + language, Sort.Direction.DESC).sparse());
+				}
+			}
 			if (warmUpOnStartup) {
-				CompletableFuture.runAsync(this::warmUpCachesAndDynamicIndexes);
-			}
-		}
-		catch (Exception e) {
-			log.warn("Non-fatal error while ensuring MongoDB indexes: {}", e.getMessage());
-		}
-	}
-
-	private void ensureAuthorIndexes() {
-		try {
-			IndexOperations ops = mongoTemplate.indexOps(AuthorMongoEntity.class);
-			ops.ensureIndex(new Index().on("name", Sort.Direction.ASC).named("author_name_idx"));
-			ops.ensureIndex(new CompoundIndexDefinition(new Document("numBooks.total", -1)).named("author_numbooks_total_idx"));
-			log.info("Ensured author indexes in MongoDB");
-		}
-		catch (Exception e) {
-			log.warn("Could not ensure author indexes: {}", e.getMessage());
-		}
-	}
-
-	private void ensureTagIndexes() {
-		try {
-			IndexOperations ops = mongoTemplate.indexOps(TagMongoEntity.class);
-			ops.ensureIndex(new Index().on("name", Sort.Direction.ASC).named("tag_name_idx"));
-			ops.ensureIndex(new CompoundIndexDefinition(new Document("numBooks.total", -1)).named("tag_numbooks_total_idx"));
-			log.info("Ensured tag indexes in MongoDB");
-		}
-		catch (Exception e) {
-			log.warn("Could not ensure tag indexes: {}", e.getMessage());
-		}
-	}
-
-	private void ensureBookIndexes() {
-		try {
-			IndexOperations ops = mongoTemplate.indexOps(BookMongoEntity.class);
-			ops.ensureIndex(new CompoundIndexDefinition(new Document("languages", 1).append("serie.name", 1)).named("language_serie_idx"));
-			ops.ensureIndex(new CompoundIndexDefinition(new Document("serie.name", 1).append("languages", 1)).named("serie_language_idx"));
-			ops.ensureIndex(new CompoundIndexDefinition(new Document("serie.name", 1).append("serie.index", 1)).named("serie_name_index_idx"));
-			ops.ensureIndex(new CompoundIndexDefinition(new Document("languages", 1).append("pubDate", -1)).named("languages_pubdate_idx"));
-			ops.ensureIndex(new CompoundIndexDefinition(new Document("languages", 1).append("rating", -1)).named("languages_rating_idx"));
-			log.info("Ensured book indexes in MongoDB");
-		}
-		catch (Exception e) {
-			log.warn("Could not ensure book indexes: {}", e.getMessage());
-		}
-	}
-
-	private void ensureLanguageIndexes(Set<String> languages) {
-		if (languages == null || languages.isEmpty()) {
-			return;
-		}
-		IndexOperations authorOps = mongoTemplate.indexOps(AuthorMongoEntity.class);
-		IndexOperations tagOps = mongoTemplate.indexOps(TagMongoEntity.class);
-
-		for (String lang : languages) {
-			if (lang == null || lang.isBlank() || lang.contains("$")) {
-				continue;
-			}
-			try {
-				String field = "numBooks.languages." + lang;
-				authorOps.ensureIndex(new CompoundIndexDefinition(new Document(field, 1).append("name", 1)).sparse().named("author_lang_" + lang + "_name_idx"));
-				authorOps.ensureIndex(new Index().on(field, Sort.Direction.DESC).sparse().named("author_lang_" + lang + "_idx"));
-
-				tagOps.ensureIndex(new CompoundIndexDefinition(new Document(field, 1).append("name", 1)).sparse().named("tag_lang_" + lang + "_name_idx"));
-				tagOps.ensureIndex(new Index().on(field, Sort.Direction.DESC).sparse().named("tag_lang_" + lang + "_idx"));
-			}
-			catch (Exception e) {
-				log.debug("Could not ensure language index for {}: {}", lang, e.getMessage());
-			}
-		}
-	}
-
-	private void warmUpCachesAndDynamicIndexes() {
-		try {
-			List<String> bookLanguages = bookRepository.getBookLanguages();
-			Set<String> allVariants = new LinkedHashSet<>(BASE_LANGUAGES);
-			if (bookLanguages != null) {
-				for (String bl : bookLanguages) {
-					allVariants.addAll(LanguageCodeUtils.variants(bl));
+				// Explicit opt-in on the startup thread, never the JVM common pool.
+				authorRepository.count(List.of());
+				tagRepository.count(List.of());
+				for (String language : languages) {
+					authorRepository.count(List.of(language));
+					tagRepository.count(List.of(language));
 				}
 			}
-			ensureLanguageIndexes(allVariants);
-
-			// Pre-warm counts and series queries
-			authorRepository.count(List.of());
-			tagRepository.count(List.of());
-			bookRepository.getSeriesPage(List.of(), 0, 60, "_id", "asc");
-
-			if (bookLanguages != null) {
-				for (String bl : bookLanguages) {
-					List<String> langList = List.of(bl);
-					authorRepository.count(langList);
-					tagRepository.count(langList);
-					bookRepository.getSeriesPage(langList, 0, 60, "_id", "asc");
-				}
-			}
-			log.info("Caches pre-warmed for {} book languages", bookLanguages != null ? bookLanguages.size() : 0);
 		}
 		catch (Exception e) {
-			log.debug("Warm-up completed with notice: {}", e.getMessage());
+			log.warn("Could not initialize language indexes/counts", e);
 		}
+	}
+
+	void ensureIndex(Class<?> type, IndexDefinition index) {
+		try {
+			List<Document> existing = mongoTemplate.getCollection(mongoTemplate.getCollectionName(type))
+					.listIndexes().into(new ArrayList<>());
+			if (existing.stream().noneMatch(current -> equivalent(current, index))) {
+				mongoTemplate.indexOps(type).ensureIndex(index);
+			}
+		}
+		catch (Exception e) {
+			// One conflict must not prevent creation of the remaining indexes.
+			log.warn("Could not ensure index {} on {}", index.getIndexKeys(), type.getSimpleName(), e);
+		}
+	}
+
+	static boolean equivalent(Document existing, IndexDefinition requested) {
+		Document keys = requested.getIndexKeys();
+		Document options = requested.getIndexOptions();
+		boolean sameKeys = keys.entrySet().stream().toList()
+				.equals(existing.get("key", Document.class).entrySet().stream().toList());
+		// MongoDB represents text keys internally as _fts/_ftsx.
+		if (keys.containsValue("text")) {
+			Document weights = existing.get("weights", Document.class);
+			Document requestedWeights = options.get("weights", new Document());
+			sameKeys = weights != null && weights.keySet().equals(keys.keySet())
+					&& weights.entrySet().stream().allMatch(entry ->
+							((Number) entry.getValue()).doubleValue()
+									== ((Number) requestedWeights.getOrDefault(entry.getKey(), 1)).doubleValue())
+					&& Objects.equals(existing.getOrDefault("default_language", "english"),
+							options.getOrDefault("default_language", "english"))
+					&& Objects.equals(existing.getOrDefault("language_override", "language"),
+							options.getOrDefault("language_override", "language"));
+		}
+		return sameKeys
+				&& Objects.equals(existing.getBoolean("unique", false), options.getBoolean("unique", false))
+				&& Objects.equals(existing.getBoolean("sparse", false), options.getBoolean("sparse", false))
+				&& Objects.equals(existing.get("partialFilterExpression"), options.get("partialFilterExpression"))
+				&& Objects.equals(existing.get("expireAfterSeconds"), options.get("expireAfterSeconds"))
+				&& Objects.equals(existing.get("collation"), options.get("collation"));
 	}
 }

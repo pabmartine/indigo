@@ -38,9 +38,17 @@ class FindBookLanguagesControllerIntegrationTest extends BaseIndigoIntegrationTe
 
 		// Then
 		result.andExpect(MockMvcResultMatchers.status().isOk())
-				.andExpect(MockMvcResultMatchers.jsonPath("$[0]").value("fra"))
-				.andExpect(MockMvcResultMatchers.jsonPath("$[1]").value("eng"))
-				.andExpect(MockMvcResultMatchers.jsonPath("$[2]").value("spa"));
+				.andExpect(MockMvcResultMatchers.jsonPath("$", org.hamcrest.Matchers.containsInAnyOrder("fra", "eng", "spa")));
+	}
+
+	@Test
+	void regionalLanguagesAreSavedAndListedOnlyOnce() throws Exception {
+		var book = bookRepository.save(BookMongoEntity.builder()
+				.languages(Arrays.asList("es-ES", "es_AR", "en-EN")).build());
+		assertEquals(Arrays.asList("es", "en"), bookRepository.findById(book.getId()).orElseThrow().getLanguages());
+		mockMvc.perform(MockMvcRequestBuilders.get("/api/book/languages"))
+				.andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath("$", org.hamcrest.Matchers.containsInAnyOrder("es", "en")));
 	}
 
 	@Test

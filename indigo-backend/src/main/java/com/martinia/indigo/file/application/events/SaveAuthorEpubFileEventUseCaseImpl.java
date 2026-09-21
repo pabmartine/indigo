@@ -68,7 +68,7 @@ public class SaveAuthorEpubFileEventUseCaseImpl implements SaveAuthorEpubFileEve
 					}
 					authorMongoEntity.getNumBooks().setTotal(authorMongoEntity.getNumBooks().getTotal() + 1);
 
-					bookMongoEntity.getLanguages().forEach(bookLanguage -> {
+					com.martinia.indigo.common.util.LanguageCodeUtils.normalizeAll(bookMongoEntity.getLanguages()).forEach(bookLanguage -> {
 						Integer current = authorMongoEntity.getNumBooks().getLanguages().get(bookLanguage);
 						authorMongoEntity.getNumBooks().getLanguages().put(bookLanguage, current == null ? 1 : current + 1);
 					});
@@ -77,7 +77,8 @@ public class SaveAuthorEpubFileEventUseCaseImpl implements SaveAuthorEpubFileEve
 				}).orElseGet(() -> {
 					uploadEpubFilesSingleton.addAuthor();
 					final Map<String, Integer> languages = new HashMap<>();
-					languages.put(bookMongoEntity.getLanguages().get(0), 1);
+					com.martinia.indigo.common.util.LanguageCodeUtils.normalizeAll(bookMongoEntity.getLanguages())
+							.forEach(language -> languages.put(language, 1));
 					return AuthorMongoEntity.builder()
 							.name(finalAuthor)
 							.image(authorImage)

@@ -25,7 +25,7 @@
     </div>
 
     <!-- Books Grid -->
-    <div *ngIf="!isLoading && books && books.length > 0" class="books-grid">
+    <div *ngIf="books && books.length > 0" class="books-grid">
       <div *ngFor="let book of books; trackBy: trackByBookId" class="book-item" (click)="showDetails(book)">
         <div class="book-cover-container">
           <img class="book-cover"

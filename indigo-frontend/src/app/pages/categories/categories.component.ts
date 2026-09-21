@@ -63,6 +63,7 @@ export class CategoriesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   // Subject para manejar la destrucción del componente
   private destroy$ = new Subject<void>();
+  private resetPages$ = new Subject<void>();
 
   // Cache para optimizar rendimiento
   private tagsCache = new Map<string, Tag[]>();
@@ -98,6 +99,7 @@ export class CategoriesComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.resetPages$.complete();
     this.tagsCache.clear();
     this.scrollObserver?.disconnect();
   }
@@ -170,7 +172,7 @@ export class CategoriesComponent implements OnInit, OnDestroy, AfterViewInit {
     this.cdr.detectChanges();
 
     this.tagService.getSummaryPage(this.user.languageBooks, this.page, this.size, this.sort, this.order)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this.destroy$), takeUntil(this.resetPages$))
       .subscribe({
         next: (response) => {
           this.total = response.total;
@@ -221,12 +223,15 @@ export class CategoriesComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onScroll(): void {
-    if (this.tags.length < this.total && !this.isScrolling) {
+    if (this.tags.length < this.total && !this.isLoading && !this.isScrolling) {
       this.getAll();
     }
   }
 
   getAll(): void {
+    if (this.isLoading || this.isScrolling) {
+      return;
+    }
     const cacheKey = `${this.page}-${this.size}-${this.sort}-${this.order}-${this.user.languageBooks?.join(',')}`;
 
     if (this.tagsCache.has(cacheKey)) {
@@ -239,7 +244,7 @@ export class CategoriesComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.isScrolling = true;
     this.tagService.getSummaryPage(this.user.languageBooks, this.page, this.size, this.sort, this.order)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this.destroy$), takeUntil(this.resetPages$))
       .subscribe({
         next: (response) => {
           const processedTags = this.mapTagsWithCover(response.items || []);
@@ -277,6 +282,9 @@ export class CategoriesComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onChange(event): void {
+    this.resetPages$.next();
+    this.isLoading = false;
+    this.isScrolling = false;
     const index = this.selectedSort.indexOf(",");
     this.sort = this.selectedSort.slice(0, index);
     this.order = this.selectedSort.slice(index + 1);
@@ -507,6 +515,9 @@ export class CategoriesComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private reset(): void {
+    this.resetPages$.next();
+    this.isLoading = false;
+    this.isScrolling = false;
     this.tags.length = 0;
     this.total = 0;
     this.page = 0;

@@ -74,6 +74,12 @@ export class BookService {
     return this.http.get(this.endpoint + "/recommendations/user/count?user=" + user);
   }
 
+  getRecommendationSummaryPage(user: string, page: number, size: number, sort: string, order: string): Observable<BookSummaryPage> {
+    return this.http.get<BookSummaryPage>(this.endpoint + "/recommendations/user/summary/page", {
+      params: { user, page: String(page), size: String(size), sort, order }
+    });
+  }
+
   getRecommendationsByUser(user: string, page: number,
     size: number,
     sort: string,

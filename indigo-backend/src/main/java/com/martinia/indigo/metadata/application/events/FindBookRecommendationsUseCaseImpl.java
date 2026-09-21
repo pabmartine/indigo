@@ -5,7 +5,6 @@ import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.metadata.domain.ports.usecases.events.FindBookRecommendationsUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import jakarta.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,14 +25,10 @@ public class FindBookRecommendationsUseCaseImpl implements FindBookRecommendatio
 		bookRepository.findRecommendationSource(bookId).ifPresent(book -> {
 
 			List<BookMongoEntity> recommendations = bookRepository.getRecommendationsByBook(book);
-			if (!CollectionUtils.isEmpty(recommendations)) {
-				book.setRecommendations(new ArrayList<>());
-				recommendations.forEach(b -> book.getRecommendations().add(b.getId()));
-				bookRepository.updateRecommendations(bookId, book.getRecommendations());
-
-				log.info("Found book recommendations for {}", book.getTitle());
-
-			}
+			book.setRecommendations(new ArrayList<>());
+			recommendations.forEach(b -> book.getRecommendations().add(b.getId()));
+			bookRepository.updateRecommendations(bookId, book.getRecommendations());
+			log.info("Found {} book recommendations for {}", recommendations.size(), book.getTitle());
 
 		});
 
