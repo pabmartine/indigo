@@ -88,6 +88,15 @@ public class BaseIndigoTest {
 		tagRepository.deleteAll();
 		userRepository.deleteAll();
 		viewRepository.deleteAll();
+		if (bookRepository != null && !org.mockito.Mockito.mockingDetails(bookRepository).isMock()) {
+			bookRepository.clearCache();
+		}
+		if (authorRepository != null && !org.mockito.Mockito.mockingDetails(authorRepository).isMock()) {
+			authorRepository.clearCache();
+		}
+		if (tagRepository != null && !org.mockito.Mockito.mockingDetails(tagRepository).isMock()) {
+			tagRepository.clearCache();
+		}
 	}
 
 }

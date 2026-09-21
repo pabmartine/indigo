@@ -19,10 +19,22 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
 import jakarta.annotation.Resource;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 @Repository
 @Slf4j
 public class CustomTagRepositoryImpl implements CustomTagRepository {
+
+	private static final long COUNT_CACHE_TTL_MS = 5 * 60 * 1000L;
+	private final ConcurrentMap<String, CachedCount> countCache = new ConcurrentHashMap<>();
+
+	private record CachedCount(long count, long timestamp) {
+		boolean isExpired() {
+			return System.currentTimeMillis() - timestamp > COUNT_CACHE_TTL_MS;
+		}
+	}
 
 	@Resource
 	private MongoTemplate mongoTemplate;
@@ -32,21 +44,33 @@ public class CustomTagRepositoryImpl implements CustomTagRepository {
 
 	private Query buildLanguageQuery(List<String> languages) {
 		Query query = new Query();
-		List<Criteria> criterias = new ArrayList<>();
 		if (!CollectionUtils.isEmpty(languages)) {
-			for (String lang : languages.stream()
-					.flatMap(language -> LanguageCodeUtils.variants(language).stream()).distinct().toList())
-				criterias.add(Criteria.where("numBooks.languages." + lang)
-						.exists(true));
-			query.addCriteria(new Criteria().orOperator(criterias.toArray(new Criteria[criterias.size()])));
+			List<Criteria> criterias = languages.stream()
+					.flatMap(language -> LanguageCodeUtils.variants(language).stream())
+					.distinct()
+					.map(lang -> Criteria.where("numBooks.languages." + lang).gt(0))
+					.toList();
+			if (criterias.size() == 1) {
+				query.addCriteria(criterias.get(0));
+			}
+			else if (criterias.size() > 1) {
+				query.addCriteria(new Criteria().orOperator(criterias.toArray(new Criteria[0])));
+			}
 		}
 		return query;
 	}
 
 	@Override
 	public long count(List<String> languages) {
+		String key = languages == null || languages.isEmpty() ? "" : languages.stream().sorted().collect(Collectors.joining(","));
+		CachedCount cached = countCache.get(key);
+		if (cached != null && !cached.isExpired()) {
+			return cached.count();
+		}
 		Query query = buildLanguageQuery(languages);
-		return mongoTemplate.count(query, TagMongoEntity.class);
+		long total = mongoTemplate.count(query, TagMongoEntity.class);
+		countCache.put(key, new CachedCount(total, System.currentTimeMillis()));
+		return total;
 	}
 
 	@Override
@@ -71,16 +95,25 @@ public class CustomTagRepositoryImpl implements CustomTagRepository {
 	@Override
 	public TagPageData findSummaryPage(List<String> languages, Pageable page) {
 		long started = System.nanoTime();
-		List<TagMongoEntity> entities = findSummary(languages, page);
+		java.util.concurrent.CompletableFuture<List<TagMongoEntity>> entitiesFuture =
+				java.util.concurrent.CompletableFuture.supplyAsync(() -> findSummary(languages, page));
+		java.util.concurrent.CompletableFuture<Long> totalFuture =
+				java.util.concurrent.CompletableFuture.supplyAsync(() -> count(languages));
+
+		List<TagMongoEntity> entities = entitiesFuture.join();
 		long queried = System.nanoTime();
-		long total = count(languages);
+		long total = totalFuture.join();
 		long counted = System.nanoTime();
+
+		java.util.Set<String> requestedVariants = (languages == null || languages.isEmpty())
+				? java.util.Collections.emptySet()
+				: languages.stream().flatMap(l -> LanguageCodeUtils.variants(l).stream()).collect(Collectors.toSet());
 
 		entities.forEach(tag -> {
 			if (tag.getNumBooks() == null) {
 				return;
 			}
-			if (languages == null || languages.isEmpty()) {
+			if (requestedVariants.isEmpty()) {
 				if (tag.getNumBooks().getLanguages() != null) {
 					tag.getNumBooks().setTotal(tag.getNumBooks().getLanguages().values().stream().mapToInt(Integer::intValue).sum());
 				}
@@ -88,11 +121,9 @@ public class CustomTagRepositoryImpl implements CustomTagRepository {
 			}
 			int langTotal = 0;
 			if (tag.getNumBooks().getLanguages() != null) {
-				for (String key : tag.getNumBooks().getLanguages().keySet()) {
-					if (languages.stream().anyMatch(language -> LanguageCodeUtils.variants(language).contains(key))) {
-						langTotal += tag.getNumBooks().getLanguages().get(key);
-					}
-				}
+				langTotal = tag.getNumBooks().getLanguages().entrySet().stream()
+						.filter(e -> requestedVariants.contains(e.getKey()))
+						.mapToInt(java.util.Map.Entry::getValue).sum();
 			}
 			tag.getNumBooks().setTotal(langTotal);
 		});
@@ -107,6 +138,11 @@ public class CustomTagRepositoryImpl implements CustomTagRepository {
 				(finished - started) / 1_000_000L);
 
 		return new TagPageData(items, total, page.getPageNumber(), page.getPageSize());
+	}
+
+	@Override
+	public void clearCache() {
+		countCache.clear();
 	}
 
 }

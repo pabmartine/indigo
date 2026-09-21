@@ -64,4 +64,9 @@ public class FindCoverSerieUseCaseImpl implements FindCoverSerieUseCase {
 
 	private record CacheEntry(byte[] cover, Instant createdAt) {
 	}
+
+	@Override
+	public void clearCache() {
+		cache.clear();
+	}
 }

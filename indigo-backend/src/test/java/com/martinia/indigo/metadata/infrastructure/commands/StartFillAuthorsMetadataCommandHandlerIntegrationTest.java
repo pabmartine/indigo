@@ -43,6 +43,9 @@ public class StartFillAuthorsMetadataCommandHandlerIntegrationTest extends BaseI
 	void init() {
 		insertBook();
 		metadataSingleton.stop();
+		metadataSingleton.setTotal(0);
+		metadataSingleton.setCurrent(0);
+		org.mockito.Mockito.when(dataUtils.awaitWikipediaAvailable(any())).thenReturn(true);
 	}
 
 	@Test
@@ -50,6 +53,7 @@ public class StartFillAuthorsMetadataCommandHandlerIntegrationTest extends BaseI
 		// Given
 		boolean override = true;
 		String lang = "es";
+		bookRepository.deleteAll();
 
 		// When
 		startFillAuthorsMetadataCommandHandler.handle(StartFillAuthorsMetadataCommand.builder().override(override).lang(lang).build());
@@ -86,6 +90,8 @@ public class StartFillAuthorsMetadataCommandHandlerIntegrationTest extends BaseI
 		String lang = "es";
 		insertAuthor();
 		metadataSingleton.setRunning(true);
+		org.mockito.Mockito.when(commandBus.executeAndWait(any(FindAuthorMetadataCommand.class)))
+				.thenReturn(com.martinia.indigo.metadata.domain.model.MetadataItemResult.FOUND);
 
 		// When
 		startFillAuthorsMetadataCommandHandler.handle(StartFillAuthorsMetadataCommand.builder().override(override).lang(lang).build());
@@ -93,8 +99,8 @@ public class StartFillAuthorsMetadataCommandHandlerIntegrationTest extends BaseI
 		// Then
 		// Verify the method invocation
 		verify(commandBus, times(1)).executeAndWait(any(FindAuthorMetadataCommand.class));
-		assertEquals(0, metadataSingleton.getTotal());
-		assertEquals(0, metadataSingleton.getCurrent());
+		assertEquals(1, metadataSingleton.getTotal());
+		assertEquals(1, metadataSingleton.getCurrent());
 	}
 
 	private void insertBook() {

@@ -1,133 +1,249 @@
+# ==============================================================================
+# CONFIGURACIÓN GENERAL DE LA BIBLIOTECA DE LIBROS
+# ==============================================================================
 book:
   library:
-    import-workers: ${BOOK_LIBRARY_IMPORT_WORKERS:1}
+    # Número de hilos/trabajadores paralelos para procesar e importar libros EPUB concurrentemente (entre 1 y 8).
+    import-workers: ${BOOK_LIBRARY_IMPORT_WORKERS:2}
+    # Ruta raíz en el sistema de archivos donde se almacena la biblioteca de libros.
     path: ${BOOK_LIBRARY_PATH}
+    # Carpeta donde se colocan los archivos EPUB pendientes de importar (por defecto /uploads dentro de la biblioteca).
     uploads: ${BOOK_LIBRARY_UPLOADS:${book.library.path}/uploads}
     #uploads: /home/pablo/Descargas/EPL_Descomprimido
+    # Indica si se debe ejecutar una reconciliación/reparación de categorías y etiquetas en el arranque.
     reconcile-categories-on-startup: ${BOOK_LIBRARY_RECONCILE_CATEGORIES_ON_STARTUP:false}
 
+# ==============================================================================
+# NIVELES DE LOGGING / REGISTRO DE EVENTOS
+# ==============================================================================
 logging.level:
+  # Nivel de log global para todas las librerías del sistema (INFO, WARN, ERROR, DEBUG).
   root: ${LOGGING_LEVEL_ROOT:INFO}
+  # Nivel de log específico para el paquete de la aplicación com.martinia.indigo.
   com.martinia.indigo: ${LOGGING_LEVEL_APP:DEBUG}
 
+# ==============================================================================
+# DATOS INICIALES Y SEMILLAS POR DEFECTO DEL SISTEMA
+# ==============================================================================
 data:
   initializer:
     books:
+      # Número máximo de recomendaciones que se precalculan/asignan por defecto por libro.
       recommendations: ${DATA_INITIALIZER_BOOKS_RECOMMENDATIONS:20}
     user:
       admin:
+        # Contraseña cifrada con BCrypt para el usuario administrador inicial si no existe.
         password: ${DATA_INITIALIZER_USER_ADMIN_PASSWORD:$2b$10$bVKqIlrnIwvgTqU1.DqaSebesu1IT.oDw/8hppkE5HsqtNR7jI826}
+        # Nombre de usuario del administrador por defecto.
         username: ${DATA_INITIALIZER_USER_ADMIN_USERNAME:admin}
   author:
+    # URL de la imagen placeholder utilizada cuando un autor no tiene fotografía.
     default-image: ${DATA_AUTHOR_DEFAULT_IMAGE:https://s.gr-assets.com/assets/nophoto/user/u_200x266-e183445fd1a1b5cc7075bb1cf7043306.png}
 
+# ==============================================================================
+# SEGURIDAD Y TOKEN JWT (JSON WEB TOKEN)
+# ==============================================================================
 jwt:
+  # Clave secreta simétrica utilizada para firmar y validar los tokens JWT de autenticación.
   criptKey: ${JWT_CRIPT_KEY:'u7N!fXr#5QeB@3yZpWcLm9DvTgHsKxRq'}
+  # Tiempo de validez/expiración del token JWT en milisegundos (36000000 ms = 10 horas).
   expiration: ${JWT_EXPIRATION:36000000}
 
+# ==============================================================================
+# CONFIGURACIÓN DEL SERVIDOR HTTP EMBEBIDO (TOMCAT)
+# ==============================================================================
 server:
+  # Tamaño máximo permitido para las cabeceras HTTP en las peticiones (útil para tokens grandes).
   max-http-header-size: ${SERVER_MAX_HTTP_HEADER_SIZE:40KB}
+  # Puerto de red en el que escucha el backend de Spring Boot.
   port: ${SERVER_PORT:8080}
 
+# ==============================================================================
+# CONFIGURACIÓN DE SPRING FRAMEWORK
+# ==============================================================================
 spring:
   main:
+    # Permite referencias circulares entre beans de Spring si es necesario durante la inyección.
     allow-circular-references: ${SPRING_MAIN_ALLOW_CIRCULAR_REFERENCES:true}
   data:
     mongodb:
+      # Host o dirección IP del servidor MongoDB.
       host: ${SPRING_DATA_MONGODB_HOST:localhost}
+      # Puerto de conexión de MongoDB.
       port: ${SPRING_DATA_MONGODB_PORT:27017}
+      # Nombre de la base de datos de MongoDB.
       database: ${SPRING_DATA_MONGODB_DATABASE:indigo}
+      # Usuario para autenticación en MongoDB (opcional si no requiere auth).
       username: ${SPRING_DATA_MONGODB_USERNAME:}
+      # Contraseña para autenticación en MongoDB.
       password: ${SPRING_DATA_MONGODB_PASSWORD:}
+      # Base de datos de autenticación de MongoDB (generalmente 'admin').
       authentication-database: ${SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE:admin}
+      # Habilita la creación automática de índices de MongoDB definidos en las entidades @Document.
       auto-index-creation: ${SPRING_DATA_MONGODB_AUTO_INDEX_CREATION:true}
+      # Habilita el precalentamiento asíncrono de cachés e índices dinámicos de MongoDB en el arranque.
+      warm-up-on-startup: ${SPRING_DATA_MONGODB_WARM_UP_ON_STARTUP:true}
   mail:
     properties:
       mail:
         smtp:
+          # Requiere autenticación de usuario/contraseña para enviar correos por SMTP.
           auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH:true}
+          # Tiempo máximo de espera para establecer conexión con el servidor SMTP (en ms).
           connectiontimeout: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_CONNECTIONTIMEOUT:5000}
           starttls:
+            # Habilita el comando STARTTLS para comunicación segura sobre SMTP.
             enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE:true}
+          # Tiempo máximo de espera para lecturas del socket SMTP (en ms).
           timeout: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_TIMEOUT:5000}
+          # Tiempo máximo de espera para escrituras del socket SMTP (en ms).
           writetimeout: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_WRITETIMEOUT:5000}
 
+# ==============================================================================
+# FEATURE FLAGS (HABILITACIÓN O DESHABILITACIÓN DE PROVEEDORES EXTERNOS)
+# ==============================================================================
 flags:
+  # Activa o desactiva la búsqueda de metadatos y enlaces de libros en Amazon.
   amazon: ${FLAGS_AMAZON:false}
+  # Activa o desactiva la descarga y sincronización de reseñas de Goodreads.
   goodreads-reviews: ${FLAGS_GOODREADS_REVIEWS:true}
+  # Activa o desactiva la consulta de biografías y datos de autores en Wikipedia.
   wikipedia: ${FLAGS_WIKIPEDIA:true}
+  # Activa o desactiva la búsqueda de metadatos de libros en Google Books API.
   google: ${FLAGS_GOOGLE:true}
+  # Activa o desactiva la búsqueda de metadatos y autores en OpenLibrary.
   openlibrary: ${FLAGS_OPENLIBRARY:true}
+  # Activa o desactiva el servicio de traducción de metadatos con LibreTranslate.
   libretranslate: ${FLAGS_LIBRETRANSLATE:true}
 
+# ==============================================================================
+# CONFIGURACIÓN DE CLIENTES HTTP Y LIMITADORES DE TASA DE PETICIONES DE METADATOS
+# ==============================================================================
 metadata:
   http:
+    # Intervalo mínimo por defecto entre peticiones HTTP a servicios externos (ms) para no saturar APIs.
     default-minimum-interval-millis: ${METADATA_HTTP_DEFAULT_MINIMUM_INTERVAL_MILLIS:250}
+    # Intervalo mínimo entre llamadas a la API de Google Books (ms).
     google-minimum-interval-millis: ${METADATA_HTTP_GOOGLE_MINIMUM_INTERVAL_MILLIS:1000}
+    # Intervalo mínimo entre llamadas a la API de OpenLibrary (ms).
     openlibrary-minimum-interval-millis: ${METADATA_HTTP_OPENLIBRARY_MINIMUM_INTERVAL_MILLIS:500}
+    # Intervalo mínimo entre llamadas a la API de Wikipedia (ms).
     wikipedia-minimum-interval-millis: ${METADATA_HTTP_WIKIPEDIA_MINIMUM_INTERVAL_MILLIS:2000}
     circuit-breaker:
+      # Número de fallos consecutivos antes de abrir el circuito y pausar peticiones al proveedor.
       failures: ${METADATA_HTTP_CIRCUIT_BREAKER_FAILURES:3}
+      # Minutos de espera con el circuito abierto antes de volver a intentar conectar con el servicio.
       cooldown-minutes: ${METADATA_HTTP_CIRCUIT_BREAKER_COOLDOWN_MINUTES:15}
   reviews:
+    # Tiempo de vida en caché para las reseñas descargadas antes de volver a consultarlas (en minutos).
     cache-ttl-minutes: ${METADATA_REVIEWS_CACHE_TTL_MINUTES:360}
+    # Intentos máximos para obtener reseñas de un libro antes de descartar.
     max-attempts: ${METADATA_REVIEWS_MAX_ATTEMPTS:2}
+    # Retardo entre reintentos en milisegundos.
     retry-delay-millis: ${METADATA_REVIEWS_RETRY_DELAY_MILLIS:1000}
     amazon:
+      # Intervalo mínimo entre llamadas al scraping de reseñas de Amazon (ms).
       minimum-interval-millis: ${METADATA_REVIEWS_AMAZON_MINIMUM_INTERVAL_MILLIS:2500}
     goodreads:
+      # Intervalo mínimo entre llamadas al scraping de reseñas de Goodreads (ms).
       minimum-interval-millis: ${METADATA_REVIEWS_GOODREADS_MINIMUM_INTERVAL_MILLIS:2000}
     circuit-breaker:
+      # Fallos consecutivos permitidos antes de activar el circuit breaker de reseñas.
       failures: ${METADATA_REVIEWS_CIRCUIT_BREAKER_FAILURES:3}
+      # Tiempo de enfriamiento del circuit breaker de reseñas (en minutos).
       cooldown-minutes: ${METADATA_REVIEWS_CIRCUIT_BREAKER_COOLDOWN_MINUTES:30}
+
+  # --- Endpoints de proveedores de metadatos ---
   goodreads:
+    # URL base del portal Goodreads.
     url: ${METADATA_GOODREADS_URL:https://www.goodreads.com}
+    # Plantilla de URL para buscar libros y reseñas en Goodreads.
     reviews: ${METADATA_GOODREADS_REVIEWS:${metadata.goodreads.url}/search?q=$title+$author&search_type=books}
   google:
+    # Plantilla de consulta a la API REST de Google Books con título y autor.
     url: ${METADATA_GOOGLE_URL:https://www.googleapis.com/books/v1/volumes?q=intitle:$title+inauthor:$author}
+    # API key opcional de Google Books (permite mayores cuotas de uso si se proporciona).
     api-key: ${METADATA_GOOGLE_API_KEY:}
   openlibrary:
+    # Plantilla de búsqueda de libros por título y autor en OpenLibrary API.
     books: ${METADATA_OPENLIBRARY_BOOKS:https://openlibrary.org/search.json?title=$title&author=$author&fields=key,title,author_name,edition_key,ratings_average,ratings_count,cover_i&limit=5}
+    # Plantilla de búsqueda de libros por código ISBN en OpenLibrary API.
     books-by-isbn: ${METADATA_OPENLIBRARY_BOOKS_BY_ISBN:https://openlibrary.org/search.json?isbn=$isbn&fields=key,title,author_name,edition_key,ratings_average,ratings_count&limit=5}
+    # Plantilla de búsqueda de autores por nombre en OpenLibrary.
     authors: ${METADATA_OPENLIBRARY_AUTHORS:https://openlibrary.org/search/authors.json?q=$subject&limit=5}
+    # Plantilla para obtener el detalle de autor en formato JSON desde OpenLibrary.
     author-info: ${METADATA_OPENLIBRARY_AUTHOR_INFO:https://openlibrary.org/authors/$id.json}
+    # Plantilla para descargar la foto oficial del autor desde el servicio de portadas de OpenLibrary.
     author-image: ${METADATA_OPENLIBRARY_AUTHOR_IMAGE:https://covers.openlibrary.org/a/olid/$id-L.jpg?default=false}
     dumps:
+      # URL de descarga del volcado masivo oficial de ediciones de OpenLibrary en formato gz.
       editions-url: ${METADATA_OPENLIBRARY_DUMPS_EDITIONS_URL:https://openlibrary.org/data/ol_dump_editions_latest.txt.gz}
+      # URL de descarga del volcado masivo oficial de valoraciones de OpenLibrary.
       ratings-url: ${METADATA_OPENLIBRARY_DUMPS_RATINGS_URL:https://openlibrary.org/data/ol_dump_ratings_latest.txt.gz}
+      # Directorio local donde se guardan temporalmente los volcados descargados de OpenLibrary.
       storage-path: ${METADATA_OPENLIBRARY_DUMPS_STORAGE_PATH:${book.library.path}/metadata/openlibrary}
+      # Espacio libre mínimo en disco (en bytes, 1 GB por defecto) requerido antes de iniciar la descarga.
       minimum-free-space-bytes: ${METADATA_OPENLIBRARY_DUMPS_MINIMUM_FREE_SPACE_BYTES:1073741824}
+      # Borra automáticamente los archivos comprimidos descargados una vez procesados con éxito.
       delete-downloads-on-success: ${METADATA_OPENLIBRARY_DUMPS_DELETE_DOWNLOADS_ON_SUCCESS:true}
   libretranslate:
+    # URL base del servicio de traducción automática LibreTranslate (local o remoto).
     url: ${METADATA_LIBRETRANSLATE_URL:http://localhost:5000}
   amazon:
+    # URL base de la tienda de Amazon regional (por defecto España).
     url: ${METADATA_AMAZON_URL:https://www.amazon.es}
+    # Plantilla de búsqueda de productos/libros en Amazon para identificar ASIN.
     asin: ${METADATA_AMAZON_ASIN:${metadata.amazon.url}/s?k=$title+$author&i=stripbooks}
+    # Plantilla de URL para consultar la ficha y reseñas de un producto en Amazon por ASIN.
     reviews: ${METADATA_AMAZON_REVIEWS:${metadata.amazon.url}/dp/$asin}
   wikipedia:
+    # URL base de Wikipedia según el idioma del libro o autor.
     url: ${METADATA_WIKIPEDIA_URL:https://$lang.wikipedia.org}
+    # Endpoint de la MediaWiki API para buscar artículos de autores por texto.
     author: ${METADATA_WIKIPEDIA_AUTHOR:${metadata.wikipedia.url}/w/api.php?action=query&format=json&list=search&utf8=1&origin=*&srsearch=$subject}
+    # Endpoint de la MediaWiki API para extraer biografía resumida e imagen de cabecera del autor.
     author-info: ${METADATA_WIKIPEDIA_AUTHOR_INFO:${metadata.wikipedia.url}/w/api.php?format=json&action=query&prop=extracts|pageimages&exintro&explaintext&redirects=1&piprop=original&titles=$subject}
   unsplash:
+    # URL de búsqueda de imágenes de alta calidad en Unsplash (usado para portadas de etiquetas/temas).
     url: ${METADATA_UNSPLASH_URL:https://unsplash.com/es/s/fotos/$term}
 
+# ==============================================================================
+# POLÍTICA DE REINTENTOS PARA COMANDOS Y EVENTOS
+# ==============================================================================
 retries:
   maxAttempts:
+    # Número máximo de reintentos para comandos del CommandBus ante fallo transitorio.
     commands: ${RETRIES_MAXATTEMPTS_COMMANDS:3}
+    # Número máximo de reintentos para eventos del EventBus ante fallo transitorio.
     events: ${RETRIES_MAXATTEMPTS_EVENTS:3}
   delay:
+    # Tiempo de espera inicial antes del primer reintento para comandos (ms).
     commands: ${RETRIES_DELAY_COMMANDS:1000}
+    # Tiempo de espera inicial antes del primer reintento para eventos (ms).
     events: ${RETRIES_DELAY_EVENTS:1000}
   multiplier:
+    # Factor multiplicador exponencial para el tiempo de reintento en comandos.
     commands: ${RETRIES_MULTIPLIER_COMMANDS:2}
+    # Factor multiplicador exponencial para el tiempo de reintento en eventos.
     events: ${RETRIES_MULTIPLIER_EVENTS:2}
   maxDelay:
+    # Límite superior máximo de espera entre reintentos para comandos (0 = sin límite adicional).
     commands: ${RETRIES_MAXDELAY_COMMANDS:0}
+    # Límite superior máximo de espera entre reintentos para eventos (0 = sin límite adicional).
     events: ${RETRIES_MAXDELAY_EVENTS:0}
 
+# ==============================================================================
+# CORS (CROSS-ORIGIN RESOURCE SHARING)
+# ==============================================================================
 cors:
+  # Orígenes y dominios web permitidos para conectarse a esta API desde el navegador (Angular).
   allowed-origin-patterns: ${CORS_ALLOWED_ORIGIN_PATTERNS:http://localhost:4200,http://krahen.synology.me:8080,http://krahen.synology.me:8081}
 
+# ==============================================================================
+# BUS DE EVENTOS ASÍNCRONO DEL SISTEMA
+# ==============================================================================
 events:
+  # Número de hilos/trabajadores concurrentes en el pool para procesar eventos asíncronos (entre 1 y 8).
   workers: ${EVENTS_WORKERS:1}
+  # Capacidad máxima de la cola en memoria para eventos pendientes antes de aplicar CallerRunsPolicy.
   queue-capacity: ${EVENTS_QUEUE_CAPACITY:32}

@@ -39,7 +39,7 @@ class CustomAuthorRepositoryImplTest {
 		Query query = new Query();
 		List<Criteria> criterias = new ArrayList<>();
 		for (String lang : languages.stream().flatMap(language -> LanguageCodeUtils.variants(language).stream()).distinct().toList()) {
-			criterias.add(Criteria.where("numBooks.languages." + lang).exists(true));
+			criterias.add(Criteria.where("numBooks.languages." + lang).gt(0));
 		}
 		query.addCriteria(new Criteria().orOperator(criterias.toArray(new Criteria[0])));
 
@@ -62,7 +62,7 @@ class CustomAuthorRepositoryImplTest {
 		Query query = new Query().with(pageable);
 		List<Criteria> criterias = new ArrayList<>();
 		for (String lang : languages.stream().flatMap(language -> LanguageCodeUtils.variants(language).stream()).distinct().toList()) {
-			criterias.add(Criteria.where("numBooks.languages." + lang).exists(true));
+			criterias.add(Criteria.where("numBooks.languages." + lang).gt(0));
 		}
 		query.addCriteria(new Criteria().orOperator(criterias.toArray(new Criteria[0])));
 

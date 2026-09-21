@@ -39,6 +39,7 @@ spring:
     data:
         mongodb:
             auto-index-creation: true
+            warm-up-on-startup: false
             database: indigo
             host: localhost
             port: ${mongodb.container.port}

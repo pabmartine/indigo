@@ -4,4 +4,5 @@ public interface FindCoverSerieUseCase {
 
 	byte[] getCover(final String serie);
 
+	void clearCache();
 }

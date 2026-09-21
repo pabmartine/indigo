@@ -50,9 +50,35 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 @Repository
 @Slf4j
 public class CustomBookRepositoryImpl implements CustomBookRepository {
+
+	private static final long SERIES_CACHE_TTL_MS = 10 * 60 * 1000L;
+	private final ConcurrentMap<String, CachedSeriesPage> seriesPageCache = new ConcurrentHashMap<>();
+	private final ConcurrentMap<String, CachedNumSeries> numSeriesCache = new ConcurrentHashMap<>();
+	private final ConcurrentMap<String, CachedNumBooksBySerie> numBooksBySerieCache = new ConcurrentHashMap<>();
+
+	private record CachedSeriesPage(SeriePageData data, long timestamp) {
+		boolean isExpired() {
+			return System.currentTimeMillis() - timestamp > SERIES_CACHE_TTL_MS;
+		}
+	}
+
+	private record CachedNumSeries(long count, long timestamp) {
+		boolean isExpired() {
+			return System.currentTimeMillis() - timestamp > SERIES_CACHE_TTL_MS;
+		}
+	}
+
+	private record CachedNumBooksBySerie(Map<String, Long> map, long timestamp) {
+		boolean isExpired() {
+			return System.currentTimeMillis() - timestamp > SERIES_CACHE_TTL_MS;
+		}
+	}
 
 	private static final Set<String> ALLOWED_SORT_FIELDS = new LinkedHashSet<>(Arrays.asList(
 			"count", "title", "path", "pubDate", "pages", "rating", "lastModified", "_id", "id"
@@ -233,16 +259,29 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 	}
 
+	private Document buildSerieMatchDocument(List<String> languages) {
+		Document match = new Document("serie.name", new Document("$gt", ""));
+		if (languages != null && !languages.isEmpty()) {
+			match.append("languages", new Document("$in", languages));
+		}
+		return match;
+	}
+
 	@Override
 	public Map<String, Long> getNumBooksBySerie(List<String> languages, int page, int size, String sort, String order) {
+		String key = (languages == null ? "" : String.join(",", languages)) + ":" + page + ":" + size + ":" + sort + ":" + order;
+		CachedNumBooksBySerie cached = numBooksBySerieCache.get(key);
+		if (cached != null && !cached.isExpired()) {
+			return cached.map();
+		}
 
 		Map<String, Long> map = new LinkedHashMap<>();
 
-		List<Document> list = Arrays.asList(new Document("$match",
-						new Document("serie.name", new Document("$ne", new BsonNull())).append("languages", new Document("$in", languages))),
+		List<Document> list = Arrays.asList(
+				new Document("$match", buildSerieMatchDocument(languages)),
 				new Document("$project", new Document("serie.name", 1L)),
 				new Document("$group", new Document("_id", "$serie.name").append("count", new Document("$sum", 1L))),
-				new Document("$sort", new Document(sort.equals("numBooks") ? "count" : "_id", order.equalsIgnoreCase("asc") ? 1 : -1)),
+				new Document("$sort", new Document("numBooks".equals(sort) ? "count" : "_id", "asc".equalsIgnoreCase(order) ? 1 : -1)),
 				new Document("$skip", page * size), new Document("$limit", size));
 
 		AggregateIterable<Document> data = mongoTemplate.getCollection(collectionName).aggregate(list);
@@ -255,15 +294,21 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 			map.put(serie, numBooks);
 		}
 
+		numBooksBySerieCache.put(key, new CachedNumBooksBySerie(map, System.currentTimeMillis()));
 		return map;
-
 	}
 
 	@Override
 	public Long getNumSeries(List<String> languages) {
+		String key = languages == null ? "" : String.join(",", languages);
+		CachedNumSeries cached = numSeriesCache.get(key);
+		if (cached != null && !cached.isExpired()) {
+			return cached.count();
+		}
+
 		Long ret = 0L;
-		List<Document> list = Arrays.asList(new Document("$match",
-						new Document("serie.name", new Document("$ne", new BsonNull())).append("languages", new Document("$in", languages))),
+		List<Document> list = Arrays.asList(
+				new Document("$match", buildSerieMatchDocument(languages)),
 				new Document("$project", new Document("serie.name", 1L)),
 				new Document("$group", new Document("_id", "$serie.name").append("count", new Document("$sum", 1L))),
 				new Document("$count", "count"));
@@ -273,21 +318,26 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 			ret = Long.parseLong(data.iterator().next().get("count").toString());
 		}
 
+		numSeriesCache.put(key, new CachedNumSeries(ret, System.currentTimeMillis()));
 		return ret;
 	}
 
 	@Override
 	public SeriePageData getSeriesPage(List<String> languages, int page, int size, String sort, String order) {
+		String key = (languages == null ? "" : String.join(",", languages)) + ":" + page + ":" + size + ":" + sort + ":" + order;
+		CachedSeriesPage cached = seriesPageCache.get(key);
+		if (cached != null && !cached.isExpired()) {
+			return cached.data();
+		}
+
 		Map<String, Long> items = new LinkedHashMap<>();
 
 		List<Document> list = Arrays.asList(
-				new Document("$match",
-						new Document("serie.name", new Document("$ne", new BsonNull()))
-								.append("languages", new Document("$in", languages))),
+				new Document("$match", buildSerieMatchDocument(languages)),
 				new Document("$project", new Document("serie.name", 1L)),
 				new Document("$group", new Document("_id", "$serie.name").append("count", new Document("$sum", 1L))),
 				new Document("$facet", new Document("items", Arrays.asList(
-						new Document("$sort", new Document(sort.equals("numBooks") ? "count" : "_id", order.equalsIgnoreCase("asc") ? 1 : -1)),
+						new Document("$sort", new Document("numBooks".equals(sort) ? "count" : "_id", "asc".equalsIgnoreCase(order) ? 1 : -1)),
 						new Document("$skip", page * size),
 						new Document("$limit", size)
 				)).append("total", Arrays.asList(
@@ -297,7 +347,9 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 		Document facet = mongoTemplate.getCollection(collectionName).aggregate(list).first();
 		if (facet == null) {
-			return new SeriePageData(items, 0L);
+			SeriePageData empty = new SeriePageData(items, 0L);
+			seriesPageCache.put(key, new CachedSeriesPage(empty, System.currentTimeMillis()));
+			return empty;
 		}
 
 		List<Document> itemDocuments = facet.getList("items", Document.class, Collections.emptyList());
@@ -310,7 +362,9 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 		List<Document> totalDocuments = facet.getList("total", Document.class, Collections.emptyList());
 		long total = totalDocuments.isEmpty() ? 0L : Long.parseLong(String.valueOf(totalDocuments.get(0).get("count")));
 
-		return new SeriePageData(items, total);
+		SeriePageData result = new SeriePageData(items, total);
+		seriesPageCache.put(key, new CachedSeriesPage(result, System.currentTimeMillis()));
+		return result;
 	}
 
 	@Override
@@ -608,6 +662,13 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 		}
 
 		return ret;
+	}
+
+	@Override
+	public void clearCache() {
+		seriesPageCache.clear();
+		numSeriesCache.clear();
+		numBooksBySerieCache.clear();
 	}
 
 }

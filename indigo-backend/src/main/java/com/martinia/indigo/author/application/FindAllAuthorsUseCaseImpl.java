@@ -35,14 +35,19 @@ public class FindAllAuthorsUseCaseImpl implements FindAllAuthorsUseCase {
 
 	@Override
 	public List<Author> findAll(List<String> languages, int page, int size, String sort, String order) {
-
+		Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
+		String sortField = resolveSortField(sort);
 		List<AuthorMongoEntity> authors = authorRepository.findAll(languages,
-				PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(order), sort)));
+				PageRequest.of(page, size, Sort.by(direction, sortField)));
+
+		java.util.Set<String> requestedVariants = getRequestedVariants(languages);
 
 		authors = authors.stream().map(author -> {
-			author.getNumBooks().setTotal(author.getNumBooks().getLanguages().keySet().stream()
-					.filter(lang -> languages.stream().anyMatch(requested -> LanguageCodeUtils.variants(requested).contains(lang)))
-					.mapToInt(lang -> author.getNumBooks().getLanguages().get(lang)).sum());
+			if (!requestedVariants.isEmpty() && author.getNumBooks() != null && author.getNumBooks().getLanguages() != null) {
+				author.getNumBooks().setTotal(author.getNumBooks().getLanguages().entrySet().stream()
+						.filter(entry -> requestedVariants.contains(entry.getKey()))
+						.mapToInt(java.util.Map.Entry::getValue).sum());
+			}
 			if (Optional.ofNullable(author.getImage()).isPresent() && author.getImage().equals(defaultImage)) {
 				author.setImage(null);
 			}
@@ -54,19 +59,45 @@ public class FindAllAuthorsUseCaseImpl implements FindAllAuthorsUseCase {
 
 	@Override
 	public AuthorPageData findSummaryPage(List<String> languages, int page, int size, String sort, String order) {
+		Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
+		String sortField = resolveSortField(sort);
 		AuthorPageData pageData = authorRepository.findSummaryPage(languages,
-				PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(order), sort)));
+				PageRequest.of(page, size, Sort.by(direction, sortField)));
+
+		java.util.Set<String> requestedVariants = getRequestedVariants(languages);
 
 		List<Author> authors = pageData.items().stream().map(author -> {
-			if (author.getNumBooks() != null && author.getNumBooks().getLanguages() != null && languages != null && !languages.isEmpty()) {
-				author.getNumBooks().setTotal(author.getNumBooks().getLanguages().keySet().stream()
-						.filter(lang -> languages.stream().anyMatch(requested -> LanguageCodeUtils.variants(requested).contains(lang)))
-						.mapToInt(lang -> author.getNumBooks().getLanguages().get(lang)).sum());
+			if (!requestedVariants.isEmpty() && author.getNumBooks() != null && author.getNumBooks().getLanguages() != null) {
+				author.getNumBooks().setTotal(author.getNumBooks().getLanguages().entrySet().stream()
+						.filter(entry -> requestedVariants.contains(entry.getKey()))
+						.mapToInt(java.util.Map.Entry::getValue).sum());
 			}
 			return author;
 		}).collect(Collectors.toList());
 
 		return new AuthorPageData(authors, pageData.total());
+	}
+
+	private java.util.Set<String> getRequestedVariants(List<String> languages) {
+		if (languages == null || languages.isEmpty()) {
+			return java.util.Collections.emptySet();
+		}
+		return languages.stream()
+				.flatMap(requested -> LanguageCodeUtils.variants(requested).stream())
+				.collect(Collectors.toSet());
+	}
+
+	private String resolveSortField(String sort) {
+		if (sort == null || sort.isBlank() || "name".equalsIgnoreCase(sort)) {
+			return "name";
+		}
+		if ("numBooks".equalsIgnoreCase(sort) || "numBooks.total".equalsIgnoreCase(sort)) {
+			return "numBooks.total";
+		}
+		if ("id".equalsIgnoreCase(sort)) {
+			return "_id";
+		}
+		return sort;
 	}
 
 }

@@ -101,7 +101,7 @@ export class SeriesComponent implements OnInit, OnDestroy, AfterViewInit {
       this.seriesColumns = 4;
       this.seriesRowHeight = 245;
     } else {
-      this.size = 60;
+      this.size = 20;
       this.seriesColumns = 6;
       this.seriesRowHeight = 260;
     }
@@ -144,41 +144,7 @@ export class SeriesComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private loadInitialDataInParallel(): void {
-    this.isLoading = true;
-    this.cdr.detectChanges();
-
-    this.serieService.getPage(this.user.languageBooks, this.page, this.size, this.sort, this.order)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          this.total = response.total;
-          this.lastPage = this.total / this.size;
-          this.title = this.translate.instant('locale.series.title') + " (" + this.total + ")";
-
-          const cacheKey = `${this.page}-${this.size}-${this.sort}-${this.order}-${this.user.languageBooks?.join(',')}`;
-          const processedSeries = this.mapSeriesWithCover(response.items || []);
-          Array.prototype.push.apply(this.series, processedSeries);
-          this.updateSeriesRows();
-          this.page++;
-          this.cdr.detectChanges();
-          this.seriesCache.set(cacheKey, processedSeries);
-
-          this.isLoading = false;
-          this.cdr.detectChanges();
-        },
-        error: (error) => {
-          console.error('Error loading initial series data:', error);
-          this.isLoading = false;
-          this.messageService.clear();
-          this.messageService.add({
-            severity: 'error',
-            detail: this.translate.instant('locale.series.error.data'),
-            closable: false,
-            life: 5000
-          });
-          this.cdr.detectChanges();
-        }
-      });
+    this.getAll();
   }
 
   // Método para trackBy en ngFor
@@ -221,7 +187,7 @@ export class SeriesComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onScroll(): void {
-    if (this.series.length < this.total && !this.isScrolling) {
+    if (this.total > 0 && this.series.length < this.total && !this.isScrolling) {
       this.getAll();
     }
   }
@@ -247,11 +213,15 @@ export class SeriesComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     this.isScrolling = true;
-    this.serieService.getAll(this.user.languageBooks, this.page, this.size, this.sort, this.order)
+    this.serieService.getPage(this.user.languageBooks, this.page, this.size, this.sort, this.order)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (data) => {
-          const processedSeries = this.mapSeriesWithCover(data);
+        next: (response) => {
+          this.total = response.total || 0;
+          this.lastPage = this.total / this.size;
+          this.title = this.translate.instant('locale.series.title') + " (" + this.total + ")";
+
+          const processedSeries = this.mapSeriesWithCover(response.items || []);
           Array.prototype.push.apply(this.series, processedSeries);
           this.updateSeriesRows();
           this.page++;
@@ -260,7 +230,7 @@ export class SeriesComponent implements OnInit, OnDestroy, AfterViewInit {
           this.seriesCache.set(cacheKey, processedSeries);
         },
         error: (error) => {
-          console.log(error);
+          console.error('Error loading series page:', error);
           this.messageService.clear();
           this.messageService.add({
             severity: 'error',

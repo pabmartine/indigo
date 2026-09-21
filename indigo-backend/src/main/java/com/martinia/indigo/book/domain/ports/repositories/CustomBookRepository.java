@@ -57,5 +57,5 @@ public interface CustomBookRepository {
 	long countRecommendationsByUser(String user);
 
 	List<String> getBookLanguages();
-
+	void clearCache();
 }

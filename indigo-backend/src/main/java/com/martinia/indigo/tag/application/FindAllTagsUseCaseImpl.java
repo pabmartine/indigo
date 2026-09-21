@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -40,24 +41,41 @@ public class FindAllTagsUseCaseImpl implements FindAllTagsUseCase {
 	@Override
 	public TagPageData findSummaryPage(final List<String> languages, final int page, final int size, final String sort, final String order) {
 		Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
-		String sortField = "numBooks".equalsIgnoreCase(sort) ? "numBooks.total" : sort;
+		String sortField = resolveSortField(sort);
 		PageRequest pageRequest = PageRequest.of(page, size, Sort.by(direction, sortField));
 		return tagRepository.findSummaryPage(languages, pageRequest);
 	}
 
+	private String resolveSortField(String sort) {
+		if (sort == null || sort.isBlank() || "name".equalsIgnoreCase(sort)) {
+			return "name";
+		}
+		if ("numBooks".equalsIgnoreCase(sort) || "numBooks.total".equalsIgnoreCase(sort)) {
+			return "numBooks.total";
+		}
+		if ("id".equalsIgnoreCase(sort)) {
+			return "_id";
+		}
+		return sort;
+	}
+
 
 	private List<Tag> mapTags(List<String> languages, List<TagMongoEntity> tags) {
+		java.util.Set<String> requestedVariants = (languages == null || languages.isEmpty())
+				? java.util.Collections.emptySet()
+				: languages.stream().flatMap(l -> LanguageCodeUtils.variants(l).stream()).collect(Collectors.toSet());
+
 		tags.forEach(tag -> {
-			if (languages == null || languages.isEmpty()) {
+			if (tag.getNumBooks() == null || tag.getNumBooks().getLanguages() == null) {
+				return;
+			}
+			if (requestedVariants.isEmpty()) {
 				tag.getNumBooks().setTotal(tag.getNumBooks().getLanguages().values().stream().mapToInt(Integer::intValue).sum());
 				return;
 			}
-			int total = 0;
-			for (String key : tag.getNumBooks().getLanguages().keySet()) {
-				if (languages.stream().anyMatch(language -> LanguageCodeUtils.variants(language).contains(key))) {
-					total += tag.getNumBooks().getLanguages().get(key);
-				}
-			}
+			int total = tag.getNumBooks().getLanguages().entrySet().stream()
+					.filter(e -> requestedVariants.contains(e.getKey()))
+					.mapToInt(java.util.Map.Entry::getValue).sum();
 			tag.getNumBooks().setTotal(total);
 		});
 		return tagMongoMapper.entities2Domains(tags);

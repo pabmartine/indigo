@@ -19,5 +19,7 @@ public interface CustomTagRepository {
 	List<TagMongoEntity> findSummary(List<String> languages, Pageable page);
 
 	TagPageData findSummaryPage(List<String> languages, Pageable page);
+
+	void clearCache();
 }
 

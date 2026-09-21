@@ -9,16 +9,24 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Base64;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Transactional
 @Slf4j
 public class FindAuthorCoverByIdUseCaseImpl implements FindAuthorCoverByIdUseCase {
 
+	private static final Duration CACHE_TTL = Duration.ofMinutes(30);
+
 	@Resource
 	private AuthorRepository authorRepository;
+
+	private final Map<String, CacheEntry> cache = new ConcurrentHashMap<>();
 
 	@Override
 	public Optional<byte[]> getCover(String authorId) {
@@ -26,14 +34,22 @@ public class FindAuthorCoverByIdUseCaseImpl implements FindAuthorCoverByIdUseCas
 			return Optional.empty();
 		}
 
-		return authorRepository.findCoverById(authorId)
+		CacheEntry cached = cache.get(authorId);
+		Instant now = Instant.now();
+		if (cached != null && Duration.between(cached.createdAt(), now).compareTo(CACHE_TTL) < 0) {
+			return cached.cover();
+		}
+
+		Optional<byte[]> result = authorRepository.findCoverById(authorId)
 				.map(AuthorMongoEntity::getImage)
 				.filter(StringUtils::isNotBlank)
-				.flatMap(this::decodeImage)
-				.or(() -> {
-					log.warn("Cover not found for author {}", authorId);
-					return Optional.empty();
-				});
+				.flatMap(this::decodeImage);
+
+		cache.put(authorId, new CacheEntry(result, now));
+		return result;
+	}
+
+	private record CacheEntry(Optional<byte[]> cover, Instant createdAt) {
 	}
 
 	private Optional<byte[]> decodeImage(String image) {

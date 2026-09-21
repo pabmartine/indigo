@@ -18,9 +18,22 @@ import org.springframework.util.CollectionUtils;
 
 import jakarta.annotation.Resource;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
+
 @Repository
 @Slf4j
 public class CustomAuthorRepositoryImpl implements CustomAuthorRepository {
+
+	private static final long COUNT_CACHE_TTL_MS = 5 * 60 * 1000L;
+	private final ConcurrentMap<String, CachedCount> countCache = new ConcurrentHashMap<>();
+
+	private record CachedCount(long count, long timestamp) {
+		boolean isExpired() {
+			return System.currentTimeMillis() - timestamp > COUNT_CACHE_TTL_MS;
+		}
+	}
 
 	@Resource
 	private MongoTemplate mongoTemplate;
@@ -30,20 +43,33 @@ public class CustomAuthorRepositoryImpl implements CustomAuthorRepository {
 
 	private Query buildLanguageQuery(List<String> languages) {
 		Query query = new Query();
-		List<Criteria> criterias = new ArrayList<>();
 		if (!CollectionUtils.isEmpty(languages)) {
-			for (String lang : languages.stream().flatMap(language -> LanguageCodeUtils.variants(language).stream()).distinct().toList())
-				criterias.add(Criteria.where("numBooks.languages." + lang)
-						.exists(true));
-			query.addCriteria(new Criteria().orOperator(criterias.toArray(new Criteria[criterias.size()])));
+			List<Criteria> criterias = languages.stream()
+					.flatMap(language -> LanguageCodeUtils.variants(language).stream())
+					.distinct()
+					.map(lang -> Criteria.where("numBooks.languages." + lang).gt(0))
+					.toList();
+			if (criterias.size() == 1) {
+				query.addCriteria(criterias.get(0));
+			}
+			else if (criterias.size() > 1) {
+				query.addCriteria(new Criteria().orOperator(criterias.toArray(new Criteria[0])));
+			}
 		}
 		return query;
 	}
 
 	@Override
 	public long count(List<String> languages) {
+		String key = languages == null || languages.isEmpty() ? "" : languages.stream().sorted().collect(Collectors.joining(","));
+		CachedCount cached = countCache.get(key);
+		if (cached != null && !cached.isExpired()) {
+			return cached.count();
+		}
 		Query query = buildLanguageQuery(languages);
-		return mongoTemplate.count(query, AuthorMongoEntity.class);
+		long total = mongoTemplate.count(query, AuthorMongoEntity.class);
+		countCache.put(key, new CachedCount(total, System.currentTimeMillis()));
+		return total;
 	}
 
 	@Override
@@ -62,9 +88,14 @@ public class CustomAuthorRepositoryImpl implements CustomAuthorRepository {
 	@Override
 	public AuthorPageData findSummaryPage(List<String> languages, Pageable page) {
 		long started = System.nanoTime();
-		List<AuthorMongoEntity> entities = findSummary(languages, page);
+		java.util.concurrent.CompletableFuture<List<AuthorMongoEntity>> entitiesFuture =
+				java.util.concurrent.CompletableFuture.supplyAsync(() -> findSummary(languages, page));
+		java.util.concurrent.CompletableFuture<Long> totalFuture =
+				java.util.concurrent.CompletableFuture.supplyAsync(() -> count(languages));
+
+		List<AuthorMongoEntity> entities = entitiesFuture.join();
 		long queried = System.nanoTime();
-		long total = count(languages);
+		long total = totalFuture.join();
 		long counted = System.nanoTime();
 		List<Author> items = authorMongoMapper.entities2Domains(entities);
 		long finished = System.nanoTime();
@@ -74,6 +105,11 @@ public class CustomAuthorRepositoryImpl implements CustomAuthorRepository {
 				(counted - queried) / 1_000_000L, (finished - counted) / 1_000_000L,
 				(finished - started) / 1_000_000L);
 		return new AuthorPageData(items, total);
+	}
+
+	@Override
+	public void clearCache() {
+		countCache.clear();
 	}
 
 }

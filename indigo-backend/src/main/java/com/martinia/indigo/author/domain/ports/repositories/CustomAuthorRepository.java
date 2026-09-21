@@ -16,5 +16,7 @@ public interface CustomAuthorRepository {
 	List<AuthorMongoEntity> findSummary(List<String> languages, Pageable page);
 
 	AuthorPageData findSummaryPage(List<String> languages, Pageable page);
+
+	void clearCache();
 }
 

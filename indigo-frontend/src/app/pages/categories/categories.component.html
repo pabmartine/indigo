@@ -19,12 +19,8 @@
     </div>
   </div>
 
-  <!-- Loading state -->
-  <div *ngIf="isLoading" class="loading-container">
-    <span class="loading">{{'locale.search.searching' | translate}}</span>
-  </div>
 
-  <div class="categories-grid" *ngIf="!isLoading">
+  <div class="categories-grid">
     <div *ngFor="let tag of tags; trackBy: trackByTagId" class="category-item" (click)="getBooksByTag(tag)">
       <div class="category-cover-container">
         <img [appLazyImage]="tag.image"

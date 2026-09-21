@@ -7,6 +7,8 @@ import javax.persistence.Id;
 
 import com.martinia.indigo.common.infrastructure.mongo.entities.NumBooksMongo;
 import lombok.Builder;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
@@ -20,10 +22,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @Builder
 @Document(collection = "tags")
+@CompoundIndex(name = "tag_name_idx", def = "{'name': 1}")
+@CompoundIndex(name = "tag_numbooks_total_idx", def = "{'numBooks.total': -1}")
 public class TagMongoEntity implements Serializable {
 
 	@Id
 	private String id;
+	@Indexed
 	private String name;
 	private String image;
 	private NumBooksMongo numBooks;

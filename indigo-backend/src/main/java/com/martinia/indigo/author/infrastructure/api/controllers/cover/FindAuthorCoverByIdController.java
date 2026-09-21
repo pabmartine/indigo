@@ -41,6 +41,8 @@ public class FindAuthorCoverByIdController {
 						.cacheControl(CacheControl.maxAge(30, TimeUnit.DAYS).cachePublic())
 						.contentType(MediaType.IMAGE_JPEG)
 						.body(bytes))
-				.orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+				.orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+						.cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS).cachePublic())
+						.build());
 	}
 }

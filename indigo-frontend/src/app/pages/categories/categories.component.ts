@@ -104,11 +104,11 @@ export class CategoriesComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private initializeScreenSize(): void {
     if (window.screen.width < 640) {
-      this.size = 20;
+      this.size = 10;
     } else if (window.screen.width < 1024) {
-      this.size = 40;
+      this.size = 20;
     } else {
-      this.size = 60;
+      this.size = 20;
     }
   }
 

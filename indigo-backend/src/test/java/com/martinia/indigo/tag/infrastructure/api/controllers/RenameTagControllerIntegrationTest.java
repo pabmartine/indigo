@@ -19,7 +19,9 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.springframework.security.test.context.support.WithMockUser;
 
+@WithMockUser
 public class RenameTagControllerIntegrationTest extends BaseIndigoIntegrationTest {
 
 	private static final String BASE_PATH = "/api/tag";

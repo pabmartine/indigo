@@ -72,8 +72,7 @@ public class FindFavoriteAuthorsUseCaseImplTest extends BaseIndigoTest {
 		author2.setName("John Doe");
 
 		when(userRepository.findByUsername(user)).thenReturn(Optional.of(userEntity));
-		when(authorRepository.findByName("Jane Smith")).thenReturn(Optional.of(author1));
-		when(authorRepository.findByName("John Doe")).thenReturn(Optional.of(author2));
+		when(authorRepository.findByNameInWithoutImage(favoriteAuthorNames)).thenReturn(Arrays.asList(author1, author2));
 		when(authorMongoMapper.entity2Domain(author1)).thenReturn(new Author());
 		when(authorMongoMapper.entity2Domain(author2)).thenReturn(new Author());
 
@@ -82,8 +81,7 @@ public class FindFavoriteAuthorsUseCaseImplTest extends BaseIndigoTest {
 
 		// Then
 		verify(userRepository).findByUsername(user);
-		verify(authorRepository).findByName("Jane Smith");
-		verify(authorRepository).findByName("John Doe");
+		verify(authorRepository).findByNameInWithoutImage(favoriteAuthorNames);
 		verify(authorMongoMapper).entity2Domain(author1);
 		verify(authorMongoMapper).entity2Domain(author2);
 
@@ -102,8 +100,8 @@ public class FindFavoriteAuthorsUseCaseImplTest extends BaseIndigoTest {
 		Author mappedAuthor = new Author();
 
 		when(userRepository.findByUsername(user)).thenReturn(Optional.of(userEntity));
-		when(authorRepository.findByName("Available author")).thenReturn(Optional.of(availableAuthor));
-		when(authorRepository.findByName("Deleted author")).thenReturn(Optional.empty());
+		when(authorRepository.findByNameInWithoutImage(Arrays.asList("Available author", "Deleted author")))
+				.thenReturn(Collections.singletonList(availableAuthor));
 		when(authorMongoMapper.entity2Domain(availableAuthor)).thenReturn(mappedAuthor);
 
 		List<Author> favoriteAuthors = findFavoriteAuthorsUseCase.getFavoriteAuthors(user);

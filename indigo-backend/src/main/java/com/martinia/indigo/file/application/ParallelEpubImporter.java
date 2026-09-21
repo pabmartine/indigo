@@ -8,20 +8,29 @@ import java.util.List;
 import java.util.concurrent.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class ParallelEpubImporter {
     @Resource private PreparedEpubReader reader;
     @Resource private SaveBookEpubFileExtractedEventUseCase saver;
     @Resource private PendingImportService pending;
     @Resource private UploadEpubFilesSingleton progress;
-    @Value("${book.library.import-workers:1}") private int workers;
+    @Value("${book.library.import-workers:2}") private int workers;
     private final Object persistenceLock = new Object();
 
     public void process(List<Path> paths) {
         java.util.Queue<String> categoryBooks = new java.util.concurrent.ConcurrentLinkedQueue<>();
         int size = Math.max(1, Math.min(8, workers));
-        ExecutorService pool = Executors.newFixedThreadPool(size);
+        log.info("Starting EPUB import with {} parallel worker(s) for {} files", size, paths.size());
+        ExecutorService pool = Executors.newFixedThreadPool(size, new ThreadFactory() {
+            private final java.util.concurrent.atomic.AtomicInteger count = new java.util.concurrent.atomic.AtomicInteger(1);
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(r, "epub-import-worker-" + count.getAndIncrement());
+            }
+        });
         CompletionService<Void> completions = new ExecutorCompletionService<>(pool);
         int submitted = 0, finished = 0;
         try {
@@ -49,6 +58,7 @@ public class ParallelEpubImporter {
         }
     }
     private void processOne(Path source, java.util.Queue<String> categoryBooks) {
+        log.info("Processing EPUB {} on worker thread {}", source.getFileName(), Thread.currentThread().getName());
         PreparedEpubReader.Prepared epub;
         try { epub = reader.read(source); progress.addExtract(); }
         catch (Exception error) {

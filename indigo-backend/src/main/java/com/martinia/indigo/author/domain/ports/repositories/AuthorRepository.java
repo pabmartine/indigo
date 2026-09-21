@@ -19,4 +19,7 @@ public interface AuthorRepository extends MongoRepository<AuthorMongoEntity, Str
 
 	@Query(value = "{ '_id': ?0 }", fields = "{ 'image': 1 }")
 	Optional<AuthorMongoEntity> findCoverById(String id);
+
+	@Query(value = "{ 'name' : { '$in' : ?0 } }", fields = "{ 'image': 0 }")
+	List<AuthorMongoEntity> findByNameInWithoutImage(List<String> names);
 }

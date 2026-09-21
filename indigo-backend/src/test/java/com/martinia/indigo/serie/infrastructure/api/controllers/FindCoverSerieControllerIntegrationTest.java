@@ -20,9 +20,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 public class FindCoverSerieControllerIntegrationTest extends BaseIndigoIntegrationTest {
 
+	@jakarta.annotation.Resource
+	private com.martinia.indigo.serie.domain.ports.usecases.FindCoverSerieUseCase findCoverSerieUseCase;
+
 	@BeforeEach
 	public void setup() {
 		MockitoAnnotations.openMocks(this);
+		findCoverSerieUseCase.clearCache();
 	}
 
 	@Test

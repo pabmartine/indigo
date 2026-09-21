@@ -117,7 +117,7 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
       this.authorColumns = 4;
       this.authorRowHeight = 180;
     } else {
-      this.size = 60;
+      this.size = 20;
       this.authorColumns = 5;
       this.authorRowHeight = 190;
     }
