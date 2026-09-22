@@ -34,6 +34,14 @@ public class XmlUtils {
 		try {
 
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			// OPF metadata is self-contained. Never wait for remote DTDs/entities.
+			factory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
+			factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+			factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+			factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+			factory.setAttribute(javax.xml.XMLConstants.ACCESS_EXTERNAL_DTD, "");
+			factory.setAttribute(javax.xml.XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+			factory.setXIncludeAware(false);
 			DocumentBuilder builder = factory.newDocumentBuilder();
 			Document document = builder.parse(is);
 

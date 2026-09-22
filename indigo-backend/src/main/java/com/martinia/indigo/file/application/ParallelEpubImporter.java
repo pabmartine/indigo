@@ -20,7 +20,10 @@ public class ParallelEpubImporter {
     @Value("${book.library.import-workers:2}") private int workers;
     private final Object persistenceLock = new Object();
 
+    private record Stage(Thread thread, String name, long since) { }
+
     public void process(List<Path> paths) {
+        var active = new ConcurrentHashMap<Path, Stage>();
         java.util.Queue<String> categoryBooks = new java.util.concurrent.ConcurrentLinkedQueue<>();
         int size = Math.max(1, Math.min(8, workers));
         log.info("Starting EPUB import with {} parallel worker(s) for {} files", size, paths.size());
@@ -37,10 +40,21 @@ public class ParallelEpubImporter {
             while (finished < paths.size()) {
                 while (submitted < paths.size() && submitted - finished < size && progress.isRunning()) {
                     Path path = paths.get(submitted++);
-                    completions.submit(() -> { processOne(path, categoryBooks); return null; });
+                    completions.submit(() -> { processOne(path, categoryBooks, active); return null; });
                 }
                 if (finished == submitted) break;
-                try { completions.take().get(); } catch (ExecutionException failure) {
+                Future<Void> completed = completions.poll(30, TimeUnit.SECONDS);
+                if (completed == null) {
+                    active.forEach((path, stage) -> {
+                        var stack = stage.thread().getStackTrace();
+                        log.warn("EPUB still processing: file={} phase={} phaseSeconds={} worker={} state={} stack={}",
+                                path, stage.name(), TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - stage.since()),
+                                stage.thread().getName(), stage.thread().getState(),
+                                java.util.Arrays.toString(java.util.Arrays.copyOf(stack, Math.min(stack.length, 8))));
+                    });
+                    continue;
+                }
+                try { completed.get(); } catch (ExecutionException failure) {
                     org.slf4j.LoggerFactory.getLogger(getClass()).error("Import worker failed", failure.getCause());
                 }
                 finished++;
@@ -57,7 +71,19 @@ public class ParallelEpubImporter {
             pending.completeBatchCategories(List.copyOf(categoryBooks));
         }
     }
-    private void processOne(Path source, java.util.Queue<String> categoryBooks) {
+    private void processOne(Path source, java.util.Queue<String> categoryBooks, ConcurrentMap<Path, Stage> active) {
+        try {
+            processTracked(source, categoryBooks, active);
+        } finally { active.remove(source); }
+    }
+
+    private void stage(Path source, String name, ConcurrentMap<Path, Stage> active) {
+        active.put(source, new Stage(Thread.currentThread(), name, System.nanoTime()));
+        log.debug("EPUB phase: file={} phase={}", source, name);
+    }
+
+    private void processTracked(Path source, java.util.Queue<String> categoryBooks, ConcurrentMap<Path, Stage> active) {
+        stage(source, "read-opf", active);
         log.info("Processing EPUB {} on worker thread {}", source.getFileName(), Thread.currentThread().getName());
         PreparedEpubReader.Prepared epub;
         try { epub = reader.read(source); progress.addExtract(); }
@@ -68,11 +94,14 @@ public class ParallelEpubImporter {
         }
         try (epub) {
             // Includes transaction commit and file/author/category completion, not only the Java save method.
+            stage(source, "waiting-persistence", active);
             synchronized (persistenceLock) {
                 try (ImportExecution scope = new ImportExecution(epub::loadImages)) {
+                    stage(source, "save-book", active);
                     saver.save(epub.opf(), epub.path());
                     if (scope.event() != null) {
                         categoryBooks.add(scope.event().getBookId());
+                        stage(source, "complete-file-and-authors", active);
                         var result = pending.finishManaged(scope.event().getBookId(), false);
                         if (result.getList("pendingTasks", String.class).stream().anyMatch(task -> !"tagsDone".equals(task)))
                             org.slf4j.LoggerFactory.getLogger(getClass()).warn("Import {} still has pending tasks: {}", source, result.get("pendingTasks"));

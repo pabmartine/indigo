@@ -62,8 +62,15 @@ public class SaveTagEpubFileEventUseCaseImpl implements SaveTagEpubFileEventUseC
 
 	@Override
 	public synchronized void rebuildAfterBatch(final List<String> bookIds) {
+		if (bookIds == null || bookIds.isEmpty()) {
+			return;
+		}
+		long started = System.nanoTime();
+		log.info("Starting category catalog synchronization for {} imported book(s)", bookIds.size());
 		rebuildCatalog();
 		if (pendingImports != null) bookIds.forEach(id -> pendingImports.complete(id, "tagsDone"));
+		log.info("Finished category catalog synchronization for {} imported book(s) in {} ms", bookIds.size(),
+				(System.nanoTime() - started) / 1_000_000L);
 	}
 
 	@EventListener(ApplicationReadyEvent.class)

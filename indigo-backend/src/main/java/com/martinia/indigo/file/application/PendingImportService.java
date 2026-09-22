@@ -106,28 +106,61 @@ public class PendingImportService {
         if (resumeDeferred) resume();
     }
 
+    private final java.util.concurrent.atomic.AtomicBoolean resuming = new java.util.concurrent.atomic.AtomicBoolean();
+
+    private boolean batchActive() {
+        return uploadState.isRunning() || uploadState.isManagedProcessing();
+    }
+
+    private synchronized Document recoverItem(String id) {
+        if (batchActive()) throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT);
+        return finishManaged(id, false);
+    }
+
     @EventListener(ApplicationReadyEvent.class)
-    public synchronized void resume() {
-        if (uploadState.isRunning() || uploadState.isManagedProcessing()) {
-            resumeDeferred = true;
-            log.info("Pending import recovery deferred until the active batch finishes");
-            return;
-        }
-        resumeDeferred = false;
-        var query = new Query();
-        for (Document entry : mongo.find(query, Document.class, "pendingImports")) {
-            try {
-                String id = entry.getString("bookId");
-                if (done(id, "fileDone") && done(id, "authorsDone") && done(id, "tagsDone")) continue;
-                retry(id);
-            } catch (org.springframework.web.server.ResponseStatusException exception) {
-                if (exception.getStatusCode().value() == 409) {
-                    resumeDeferred = true;
-                    log.info("Pending import recovery deferred because another batch started");
-                    return;
+    public void resume() {
+        if (!resuming.compareAndSet(false, true)) return;
+        try {
+            if (batchActive()) {
+                resumeDeferred = true;
+                log.info("Pending import recovery deferred until the active batch finishes");
+                return;
+            }
+            resumeDeferred = false;
+            var categoryBooks = new java.util.ArrayList<String>();
+            // Do not hold the service monitor while scanning all pending entries.
+            for (Document entry : mongo.find(new Query(), Document.class, "pendingImports")) {
+                try {
+                    if (batchActive()) {
+                        resumeDeferred = true;
+                        log.info("Pending import recovery deferred because another batch started");
+                        return;
+                    }
+                    String id = entry.getString("bookId");
+                    if (done(id, "fileDone") && done(id, "authorsDone") && done(id, "tagsDone")) continue;
+                    Document result = recoverItem(id);
+                    if (result.getString("lastError") == null && result.getList("pendingTasks", String.class).contains("tagsDone")) {
+                        categoryBooks.add(id);
+                    }
+                } catch (org.springframework.web.server.ResponseStatusException exception) {
+                    if (exception.getStatusCode().value() == 409) {
+                        resumeDeferred = true;
+                        log.info("Pending import recovery deferred because another batch started");
+                        return;
+                    }
+                    log.error("Pending import requires attention: {}", entry.getString("bookId"), exception);
+                } catch (RuntimeException exception) {
+                    log.error("Pending import requires attention: {}", entry.getString("bookId"), exception);
                 }
-                log.error("Pending import requires attention: {}", entry.getString("bookId"), exception);
-            } catch (RuntimeException exception) { log.error("Pending import requires attention: {}", entry.getString("bookId"), exception); }
+            }
+            if (batchActive()) {
+                resumeDeferred = true;
+                return;
+            }
+            // All recovered books share one catalog scan. Interrupted recovery leaves tags pending.
+            completeBatchCategories(categoryBooks);
+        } finally {
+            resuming.set(false);
         }
     }
 }
