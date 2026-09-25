@@ -4,7 +4,7 @@
 book:
   library:
     # Número de hilos/trabajadores paralelos para procesar e importar libros EPUB concurrentemente (entre 1 y 8).
-    import-workers: ${BOOK_LIBRARY_IMPORT_WORKERS:2}
+    import-workers: ${BOOK_LIBRARY_IMPORT_WORKERS:5}
     # Ruta raíz en el sistema de archivos donde se almacena la biblioteca de libros.
     path: ${BOOK_LIBRARY_PATH}
     # Carpeta donde se colocan los archivos EPUB pendientes de importar (por defecto /uploads dentro de la biblioteca).
@@ -246,6 +246,6 @@ cors:
 # ==============================================================================
 events:
   # Número de hilos/trabajadores concurrentes en el pool para procesar eventos asíncronos (entre 1 y 8).
-  workers: ${EVENTS_WORKERS:1}
+  workers: ${EVENTS_WORKERS:5}
   # Capacidad máxima de la cola en memoria para eventos pendientes antes de aplicar CallerRunsPolicy.
   queue-capacity: ${EVENTS_QUEUE_CAPACITY:32}
