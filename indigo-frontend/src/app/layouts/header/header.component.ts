@@ -8,8 +8,8 @@ import { User } from 'src/app/domain/user';
 import { NotificationEnum } from 'src/app/enums/notification.enum.';
 import { NotificationService } from 'src/app/services/notification.service';
 import { AuthStateService } from 'src/app/services/auth-state.service';
-import { Subject } from 'rxjs';
-import { debounceTime, takeUntil } from 'rxjs/operators';
+import { Subject, of, timer } from 'rxjs';
+import { switchMap, map, takeUntil } from 'rxjs/operators';
 
 
 @Component({
@@ -31,7 +31,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   messages: Notification[] = [];
 
   search: string;
-  private searchSubject = new Subject<string>();
+  private searchSubject = new Subject<{term: string, immediate: boolean}>();
   private destroy$ = new Subject<void>();
 
 
@@ -57,7 +57,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     // Configurar búsqueda en tiempo real con debounce
     this.searchSubject.pipe(
-      debounceTime(300), // Espera 300ms después de que el usuario deja de escribir
+      switchMap(request => request.immediate ? of(request.term) : timer(300).pipe(map(() => request.term))),
       takeUntil(this.destroy$)
     ).subscribe(searchTerm => {
       this.performSearch(searchTerm);
@@ -154,35 +154,28 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   onSearchInput() {
-    // Emite el valor de búsqueda al Subject para activar el debounce
-    if (this.search && this.search.trim().length > 0) {
-      this.searchSubject.next(this.search);
-    } else if (!this.search || this.search.trim().length === 0) {
-      // Si se borra la búsqueda, navegar a books sin parámetros
-      this.router.navigate(["books"]);
-    }
+    const term = (this.search || '').trim();
+    // Empty input also cancels the previously scheduled search.
+    this.searchSubject.next({term, immediate: !term});
   }
 
   doSearch() {
-    // Búsqueda inmediata al presionar Enter
-    if (this.search && this.search.trim().length > 0) {
-      this.performSearch(this.search);
-    }
+    this.searchSubject.next({term: (this.search || '').trim(), immediate: true});
   }
 
   private performSearch(searchTerm: string) {
-    if (!searchTerm || searchTerm.trim().length === 0) {
+    if (!searchTerm) {
+      this.router.navigate(["books"]);
       return;
     }
-
-    let search: Search = new Search();
-    search.path = searchTerm.trim();
+    const search = new Search();
+    search.path = searchTerm;
     this.router.navigate(["books"], { queryParams: { adv_search: JSON.stringify(search) } });
   }
 
   clearSearch() {
     this.search = "";
-    this.router.navigate(["books"]);
+    this.searchSubject.next({term: '', immediate: true});
   }
 
 

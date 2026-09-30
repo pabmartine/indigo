@@ -85,6 +85,7 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
   private ignoreNextRouteSearch = false
 
   private destroy$ = new Subject<void>()
+  private searchChanged$ = new Subject<void>()
 
   showDetail = false
   showAuthorDetail = false
@@ -131,6 +132,7 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy() {
     this.destroy$.next()
     this.destroy$.complete()
+    this.searchChanged$.complete()
     this.resetCache()
     if (this.favoritesCache) {
       this.favoritesCache = null
@@ -361,6 +363,8 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onChange(event: any): void {
+    this.searchChanged$.next()
+    this.isScrolling = false
     if (this.selectedSort) {
       const index = this.selectedSort.indexOf(",")
       this.sort = this.selectedSort.slice(0, index)
@@ -448,6 +452,7 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   getAll(): void {
+    if (this.isScrolling) return
     if (!this.adv_search) {
       this.adv_search = new Search()
     }
@@ -470,7 +475,7 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
     this.isScrolling = true
     this.bookService
       .getAllSummaryPage(this.adv_search, this.page, this.size, this.sort, this.order)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this.searchChanged$), takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
           this.total = response.total || 0
@@ -517,7 +522,9 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
           this.messageService.add({
             severity: "error",
             summary: "Error",
-            detail: "Error loading books",
+            detail: error.status === 503
+              ? "Preparando la búsqueda. Inténtalo de nuevo en unos instantes."
+              : "Error loading books",
             closable: true,
             life: 5000,
           })
@@ -732,7 +739,7 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.bookService
       .getFavorites(this.user.username)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this.searchChanged$), takeUntil(this.destroy$))
       .subscribe({
         next: (data: Book[]) => {
           this.favorites.length = 0
@@ -771,6 +778,8 @@ export class BooksComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private reset(): void {
+    this.searchChanged$.next()
+    this.isScrolling = false
     this.total = 0
     this.page = 0
 

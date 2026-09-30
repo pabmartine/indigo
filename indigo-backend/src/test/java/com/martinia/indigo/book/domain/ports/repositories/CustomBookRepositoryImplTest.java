@@ -2,6 +2,7 @@ package com.martinia.indigo.book.domain.ports.repositories;
 
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.common.domain.model.Search;
+import com.martinia.indigo.configuration.infrastructure.mongo.BookSearchIndex;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -72,9 +73,9 @@ class CustomBookRepositoryImplTest {
 
 		List<Criteria> criterias = new ArrayList<>();
 
-		criterias.add(Criteria.where("path").regex(search.getPath(), "i"));
-		criterias.add(Criteria.where("title").regex(java.util.regex.Pattern.quote(search.getTitle()), "i"));
-		criterias.add(Criteria.where("authors").regex(java.util.regex.Pattern.quote(search.getAuthor()), "i"));
+		criterias.add(BookSearchIndex.global(search.getPath()));
+		criterias.add(BookSearchIndex.title(search.getTitle()));
+		criterias.add(BookSearchIndex.author(search.getAuthor()));
 		criterias.add(Criteria.where("pubDate").gte(search.getIni()));
 
 		Calendar cEnd = Calendar.getInstance();
@@ -93,6 +94,7 @@ class CustomBookRepositoryImplTest {
 		criterias.add(Criteria.where("languages").in(com.martinia.indigo.common.util.LanguageCodeUtils.expand(search.getLanguages())));
 
 		query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[0])));
+		query.withHint(BookSearchIndex.INDEX);
 
 		long expectedCount = 10;
 		when(mongoTemplate.count(query, BookMongoEntity.class)).thenReturn(expectedCount);
@@ -127,9 +129,9 @@ class CustomBookRepositoryImplTest {
 
 		List<Criteria> criterias = new ArrayList<>();
 
-		criterias.add(Criteria.where("path").regex(search.getPath(), "i"));
-		criterias.add(Criteria.where("title").regex(java.util.regex.Pattern.quote(search.getTitle()), "i"));
-		criterias.add(Criteria.where("authors").regex(java.util.regex.Pattern.quote(search.getAuthor()), "i"));
+		criterias.add(BookSearchIndex.global(search.getPath()));
+		criterias.add(BookSearchIndex.title(search.getTitle()));
+		criterias.add(BookSearchIndex.author(search.getAuthor()));
 
 		criterias.add(Criteria.where("pubDate").gte(search.getIni()));
 
@@ -149,8 +151,9 @@ class CustomBookRepositoryImplTest {
 		criterias.add(Criteria.where("languages").in(com.martinia.indigo.common.util.LanguageCodeUtils.expand(search.getLanguages())));
 
 		query.addCriteria(new Criteria().andOperator(criterias.toArray(new Criteria[0])));
+		query.withHint(BookSearchIndex.INDEX);
 
-		query.fields().exclude("reviews").exclude("similar").exclude("recommendations");
+		query.fields().exclude("search").exclude("reviews").exclude("similar").exclude("recommendations");
 
 		List<BookMongoEntity> expectedBooks = new ArrayList<>();
 		expectedBooks.add(new BookMongoEntity());
@@ -190,6 +193,19 @@ class CustomBookRepositoryImplTest {
 
 		assertEquals(expectedBooks, books);
 verify(mongoTemplate).find(query, BookMongoEntity.class);
+	}
+
+	@Test
+	void queriesDuringBackfillReturnUnavailableInsteadOfIncompleteResults() {
+		var index = new BookSearchIndex(mongoTemplate);
+		org.springframework.test.util.ReflectionTestUtils.setField(customBookRepository, "searchIndex", index);
+		var search = new Search(); search.setAuthor("author");
+		var error = org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.server.ResponseStatusException.class,
+				() -> customBookRepository.findSummaryPage(search, 0, 20, "id", "desc"));
+		assertEquals(503, error.getStatusCode().value());
+		org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.server.ResponseStatusException.class,
+				() -> customBookRepository.countBooks(search));
+		org.mockito.Mockito.verifyNoInteractions(mongoTemplate);
 	}
 
 }

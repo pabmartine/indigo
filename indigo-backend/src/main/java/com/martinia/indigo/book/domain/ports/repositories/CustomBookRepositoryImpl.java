@@ -1,5 +1,6 @@
 package com.martinia.indigo.book.domain.ports.repositories;
 
+import com.martinia.indigo.configuration.infrastructure.mongo.BookSearchIndex;
 import com.martinia.indigo.book.domain.model.BookPageData;
 import com.martinia.indigo.book.domain.model.Book;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
@@ -86,6 +87,9 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 	@Resource
 	private BookMongoMapper bookMongoMapper;
+
+	@org.springframework.beans.factory.annotation.Autowired
+	private BookSearchIndex searchIndex;
 
 	private String collectionName = BookMongoEntity.class.getAnnotation(org.springframework.data.mongodb.core.mapping.Document.class)
 			.collection();
@@ -368,21 +372,24 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 	private Query buildSearchQuery(Search search) {
 		Query query = new Query();
+		boolean substringSearch = search != null && (StringUtils.isNotBlank(search.getPath())
+				|| StringUtils.isNotBlank(search.getTitle()) || StringUtils.isNotBlank(search.getAuthor()));
+		if (substringSearch && searchIndex != null) searchIndex.requireReady();
 
 		List<Criteria> criterias = new ArrayList<>();
 
 		if (search != null && !search.isEmpty()) {
-			if (StringUtils.isNoneEmpty(search.getPath())) {
-				String path = StringUtils.stripAccents(search.getPath());
-				criterias.add(Criteria.where("path").regex(path, "i"));
+			if (StringUtils.isNotBlank(search.getPath())) {
+				// The historical "path" parameter is the global title/author search from the header.
+				criterias.add(BookSearchIndex.global(search.getPath()));
 			}
 
 			if (StringUtils.isNotBlank(search.getTitle())) {
-				criterias.add(Criteria.where("title").regex(Pattern.quote(search.getTitle()), "i"));
+				criterias.add(BookSearchIndex.title(search.getTitle()));
 			}
 
 			if (StringUtils.isNotBlank(search.getAuthor())) {
-				criterias.add(Criteria.where("authors").regex(Pattern.quote(search.getAuthor()), "i"));
+				criterias.add(BookSearchIndex.author(search.getAuthor()));
 			}
 
 			if (search.getIni() != null) {
@@ -423,11 +430,16 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 			}
 		}
 
+		if (substringSearch) {
+			// Avoid choosing an _id sort scan through the entire catalog for a rare substring.
+			query.withHint(BookSearchIndex.INDEX);
+		}
 		return query;
 	}
 
 	private void excludeHeavyBookFields(Query query) {
 		query.fields()
+				.exclude("search")
 				.exclude("reviews")
 				.exclude("similar")
 				.exclude("recommendations");
