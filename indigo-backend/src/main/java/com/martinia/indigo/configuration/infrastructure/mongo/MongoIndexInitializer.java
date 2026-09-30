@@ -69,6 +69,11 @@ public class MongoIndexInitializer implements ApplicationRunner {
 		ensureIndex(BookMongoEntity.class, new Index().on("authors", Sort.Direction.ASC));
 		ensureIndex(BookMongoEntity.class, new Index().on("languages", Sort.Direction.ASC)
 				.on("serie.name", Sort.Direction.ASC));
+		ensureIndex(BookMongoEntity.class, new Index().on("title", Sort.Direction.ASC)
+				.named("import_title_ci").collation(org.springframework.data.mongodb.core.query.Collation.of("en").strength(2)));
+		// These outbox collections use Documents, so annotation-based index discovery cannot see them.
+		mongoTemplate.indexOps("pendingImports").ensureIndex(new Index().on("source", Sort.Direction.ASC)
+				.on("createdAt", Sort.Direction.DESC));
 		try {
 			List<String> languages = bookRepository.getBookLanguages();
 			if (warmUpOnStartup) {

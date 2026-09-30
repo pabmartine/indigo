@@ -5,25 +5,20 @@ import com.martinia.indigo.common.singletons.UploadEpubFilesSingleton;
 import com.martinia.indigo.file.domain.model.commands.ExtractEpubFileCommand;
 import com.martinia.indigo.file.domain.ports.usecases.UploadEpubFilesUseCase;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
-import org.springframework.transaction.annotation.Transactional;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @Service
-@Transactional
 @Slf4j
 public class UploadEpubFilesUseCaseImpl implements UploadEpubFilesUseCase {
 
-	@Value("${book.library.uploads}")
-	private String uploadsPath;
+	@Resource
+	private CountEpubFilesUseCaseImpl detectedFiles;
 
 	@Resource
 	private CommandBus commandBus;
@@ -48,25 +43,14 @@ public class UploadEpubFilesUseCaseImpl implements UploadEpubFilesUseCase {
 		}
 
 		try {
-			final Path path = Paths.get(uploadsPath);
-
-			if (!Files.exists(path)) {
-				Files.createDirectories(path);
-			}
-
-			try (var files = Files.walk(path)) {
-				List<Path> epubFiles = files.filter(Files::isRegularFile)
-						.filter(file -> file.getFileName().toString().toLowerCase().endsWith(".epub"))
-						.limit(number)
-						.map(Path::toAbsolutePath)
-						.toList();
-				uploadEpubFilesSingleton.start(epubFiles.size());
-				if (parallelImporter != null) uploadEpubFilesSingleton.beginManagedProcessing();
+			List<Path> epubFiles = detectedFiles.takePaths(number);
+			uploadEpubFilesSingleton.start(epubFiles.size());
+			if (parallelImporter != null) uploadEpubFilesSingleton.beginManagedProcessing();
 			CompletableFuture.runAsync(() -> processFiles(epubFiles));
-			}
 		}
 		catch (Exception e) {
 			log.error("Could not process EPUB uploads", e);
+			throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR, "No se pudo iniciar la importación", e);
 		}
 	}
 
@@ -89,6 +73,7 @@ public class UploadEpubFilesUseCaseImpl implements UploadEpubFilesUseCase {
 			log.error("Import batch did not finish all related tasks; pending imports can be retried", failure);
 		}
 		finally {
+			detectedFiles.invalidate();
 			if (parallelImporter != null) uploadEpubFilesSingleton.endManagedProcessing();
 			else uploadEpubFilesSingleton.stop();
 			if (pendingImports != null) pendingImports.resumeAfterBatch();

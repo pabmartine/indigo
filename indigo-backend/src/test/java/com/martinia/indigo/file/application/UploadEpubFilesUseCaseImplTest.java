@@ -36,7 +36,9 @@ class UploadEpubFilesUseCaseImplTest {
 
 	@BeforeEach
 	void setUp() {
-		ReflectionTestUtils.setField(uploadEpubFilesUseCase, "uploadsPath", tempDir.toString());
+		var detected = new CountEpubFilesUseCaseImpl();
+		ReflectionTestUtils.setField(detected, "uploadsPath", tempDir.toString());
+		ReflectionTestUtils.setField(uploadEpubFilesUseCase, "detectedFiles", detected);
 	}
 
 	@Test
@@ -55,7 +57,7 @@ class UploadEpubFilesUseCaseImplTest {
 	@Test
 	void upload_WhenDirectoryDoesNotExist_ShouldCreateItAndProcess() throws IOException {
 		Path nonExistentPath = tempDir.resolve("nonexistent");
-		ReflectionTestUtils.setField(uploadEpubFilesUseCase, "uploadsPath", nonExistentPath.toString());
+		ReflectionTestUtils.setField(ReflectionTestUtils.getField(uploadEpubFilesUseCase, "detectedFiles"), "uploadsPath", nonExistentPath.toString());
 
 		uploadEpubFilesUseCase.upload(5L);
 
@@ -80,10 +82,9 @@ class UploadEpubFilesUseCaseImplTest {
 
 	@Test
 	void upload_WhenSetupFails_ShouldNotStartSingleton() {
-		// Use a null path to force an exception in Files.walk()
-		ReflectionTestUtils.setField(uploadEpubFilesUseCase, "uploadsPath", (String) null);
-
-		uploadEpubFilesUseCase.upload(5L);
+		ReflectionTestUtils.setField(ReflectionTestUtils.getField(uploadEpubFilesUseCase, "detectedFiles"), "uploadsPath", (String) null);
+		org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.server.ResponseStatusException.class,
+				() -> uploadEpubFilesUseCase.upload(5L));
 
 		verify(uploadEpubFilesSingleton, never()).stop();
 	}

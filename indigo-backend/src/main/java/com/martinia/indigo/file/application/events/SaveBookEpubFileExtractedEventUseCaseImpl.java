@@ -55,7 +55,13 @@ public class SaveBookEpubFileExtractedEventUseCaseImpl implements SaveBookEpubFi
 
 	@Override
 	@Transactional
-	public synchronized void save(final BookOpf bookOpf, final Path path) {
+	public void save(final BookOpf bookOpf, final Path path) {
+		synchronized (com.martinia.indigo.file.application.ImportBookLocks.forTitle(bookOpf.getTitle())) {
+			saveBook(bookOpf, path);
+		}
+	}
+
+	private void saveBook(final BookOpf bookOpf, final Path path) {
 		bookOpf.setLanguage(com.martinia.indigo.common.util.LanguageCodeUtils.normalize(bookOpf.getLanguage()));
 
 		final Path libraryRoot = Path.of(endpointBook).toAbsolutePath().normalize();
@@ -262,6 +268,10 @@ public class SaveBookEpubFileExtractedEventUseCaseImpl implements SaveBookEpubFi
 		try {
 			ImportPaths.upload(source, Path.of(uploadsPath), Path.of(endpointBook));
 			Files.delete(source);
+			if (source.getParent().getFileName().toString().startsWith(".import-")) {
+				try { Files.delete(source.getParent()); }
+				catch (IOException cleanup) { log.debug("Upload staging directory retained: {}", source.getParent()); }
+			}
 			if (updated) uploadEpubFilesSingleton.addUpdatedBook();
 			uploadEpubFilesSingleton.addMove();
 			log.info("{} incoming EPUB {}", updated ? "Updated existing book from" : "Discarded duplicate", source);

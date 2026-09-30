@@ -77,12 +77,33 @@ class CountEpubFilesUseCaseImplTest {
 	}
 
 	@Test
-	void count_WhenInvalidPath_ShouldReturnZero() {
-		ReflectionTestUtils.setField(countEpubFilesUseCase, "uploadsPath", "invalid://path");
+	void unreadableDirectoryMustNotMasqueradeAsAnEmptyUploadFolder() throws IOException {
+		Path file = Files.createFile(tempDir.resolve("not-a-directory"));
+		ReflectionTestUtils.setField(countEpubFilesUseCase, "uploadsPath", file.toString());
+		org.junit.jupiter.api.Assertions.assertThrows(org.springframework.web.server.ResponseStatusException.class,
+				() -> countEpubFilesUseCase.count());
+	}
 
-		Long result = countEpubFilesUseCase.count();
+	@Test
+	void acceptingDetectionReusesTheExactSelectionWithoutRescanning() throws IOException {
+		Path first = Files.createFile(tempDir.resolve("first.epub"));
+		assertThat(countEpubFilesUseCase.count()).isEqualTo(1);
+		Files.createFile(tempDir.resolve("added-after-detection.epub"));
+		assertThat(countEpubFilesUseCase.takePaths(10)).containsExactly(first);
+		assertThat(countEpubFilesUseCase.count()).isEqualTo(2);
+	}
 
-		assertThat(result).isEqualTo(0L);
+	@Test
+	void selectionExpiresAndBatchInvalidationRefreshesDetection() throws IOException {
+		Files.createFile(tempDir.resolve("first.epub"));
+		countEpubFilesUseCase.count();
+		Files.createFile(tempDir.resolve("second.epub"));
+		ReflectionTestUtils.setField(countEpubFilesUseCase, "completedAt", System.nanoTime() - java.time.Duration.ofMinutes(11).toNanos());
+		assertThat(countEpubFilesUseCase.takePaths(10)).hasSize(2);
+		assertThat(countEpubFilesUseCase.count()).isEqualTo(2);
+		Files.createFile(tempDir.resolve("third.epub"));
+		countEpubFilesUseCase.invalidate();
+		assertThat(countEpubFilesUseCase.count()).isEqualTo(3);
 	}
 
 	@Test

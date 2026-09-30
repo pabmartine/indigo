@@ -21,6 +21,7 @@ import static org.mockito.Mockito.*;
 class ParallelImportIntegrationTest extends BaseIndigoIntegrationTest {
     private static final Path ROOT = root();
     @Resource private ParallelEpubImporter importer;
+    @org.springframework.beans.factory.annotation.Autowired private org.springframework.data.mongodb.core.MongoTemplate mongo;
     @Resource private PreparedEpubReader reader;
     @Resource private UploadEpubFilesSingleton progress;
     @Resource private PendingImportService pending;
@@ -86,4 +87,21 @@ class ParallelImportIntegrationTest extends BaseIndigoIntegrationTest {
         assertTrue(progress.isRunning());
         progress.endManagedProcessing(); assertFalse(progress.isRunning());
     }
+    @Test void caseInsensitiveTitleLookupUsesTheImportIndexAndKeepsAccentsDistinct() {
+        bookRepository.save(com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity.builder()
+                .title("Árbol").path("/one").build());
+        bookRepository.save(com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity.builder()
+                .title("Arbol").path("/two").build());
+        assertEquals(1, bookRepository.findByTitleIgnoreCase("ÁRBOL").size());
+        assertEquals("Árbol", bookRepository.findByTitleIgnoreCase("ÁRBOL").getFirst().getTitle());
+        var query = new org.bson.Document("find", "books")
+                .append("filter", new org.bson.Document("title", "ÁRBOL"))
+                .append("collation", new org.bson.Document("locale", "en").append("strength", 2));
+        var plan = mongo.executeCommand(new org.bson.Document("explain", query).append("verbosity", "executionStats"));
+        String winningPlan = plan.get("queryPlanner", org.bson.Document.class).get("winningPlan", org.bson.Document.class).toJson();
+        assertTrue(winningPlan.contains("import_title_ci"), winningPlan);
+        assertTrue(winningPlan.contains("IXSCAN"), winningPlan);
+        assertEquals(1, ((Number) plan.get("executionStats", org.bson.Document.class).get("totalDocsExamined")).intValue());
+    }
+
 }

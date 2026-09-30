@@ -17,6 +17,7 @@ public class FileMongoEntity {
 
     @Id
     private UUID id;
+    @org.springframework.data.mongodb.core.index.Indexed
     private String path;
 
 }

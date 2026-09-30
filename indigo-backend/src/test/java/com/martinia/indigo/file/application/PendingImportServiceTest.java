@@ -89,4 +89,36 @@ class PendingImportServiceTest {
         verify(mongo).findById("book:2:fileDone", Document.class, "pendingImportTasks");
     }
 
+    @Test void managedFileMovesForDifferentBooksDoNotShareAGlobalMonitor() throws Exception {
+        when(mongo.findById(anyString(), eq(Document.class), eq("pendingImports"))).thenAnswer(call -> {
+            String key = call.getArgument(0);
+            String id = key.substring(5);
+            return new Document("_id", key).append("bookId", id)
+                    .append("source", "/tmp/pending-tests/uploads/" + id + ".epub")
+                    .append("target", "/tmp/pending-tests/library/" + id);
+        });
+        var moving = new java.util.concurrent.CountDownLatch(2);
+        doAnswer(call -> {
+            moving.countDown();
+            assertTrue(moving.await(5, java.util.concurrent.TimeUnit.SECONDS), "File moves were serialized");
+            return null;
+        }).when(mover).move(any(), any());
+        try (var pool = java.util.concurrent.Executors.newFixedThreadPool(2)) {
+            var first = pool.submit(() -> service.finishManaged("one", false));
+            var second = pool.submit(() -> service.finishManaged("two", false));
+            first.get(6, java.util.concurrent.TimeUnit.SECONDS);
+            second.get(6, java.util.concurrent.TimeUnit.SECONDS);
+        }
+        verify(mover, times(2)).move(any(), any());
+    }
+
+    @Test void categoryCheckpointsUseBoundedBulkWrites() {
+        var bulk = mock(org.springframework.data.mongodb.core.BulkOperations.class);
+        when(mongo.bulkOps(org.springframework.data.mongodb.core.BulkOperations.BulkMode.UNORDERED, "pendingImportTasks")).thenReturn(bulk);
+        var ids = java.util.stream.IntStream.range(0, 1201).mapToObj(Integer::toString).toList();
+        service.completeAll(ids, "tagsDone");
+        verify(bulk, times(1201)).upsert(any(org.springframework.data.mongodb.core.query.Query.class), any(org.springframework.data.mongodb.core.query.Update.class));
+        verify(bulk, times(3)).execute();
+    }
+
 }

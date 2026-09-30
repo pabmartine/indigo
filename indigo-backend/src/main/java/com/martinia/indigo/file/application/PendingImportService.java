@@ -42,7 +42,7 @@ public class PendingImportService {
         return finishManaged(id);
     }
 
-    public synchronized Document finishManaged(String id) {
+    public Document finishManaged(String id) {
         return finishManaged(id, true);
     }
 
@@ -50,7 +50,16 @@ public class PendingImportService {
         if (!ids.isEmpty()) tags.getObject().rebuildAfterBatch(ids);
     }
 
-    public synchronized Document finishManaged(String id, boolean updateCategories) {
+    private final Object[] completionLocks = java.util.stream.IntStream.range(0, 256).mapToObj(i -> new Object()).toArray();
+    private final Object authorCompletionLock = new Object();
+
+    public Document finishManaged(String id, boolean updateCategories) {
+        synchronized (completionLocks[Math.floorMod(id.hashCode(), completionLocks.length)]) {
+            return finishItem(id, updateCategories);
+        }
+    }
+
+    private Document finishItem(String id, boolean updateCategories) {
         Document entry = mongo.findById("book:" + id, Document.class, "pendingImports");
         if (entry == null) throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Importación no encontrada");
         try {
@@ -59,13 +68,18 @@ public class PendingImportService {
             validatePath(source, Path.of(uploads));
             validatePath(target, Path.of(library));
             if (!done(id, "fileDone")) mover.getObject().move(source, target);
-            if (!done(id, "authorsDone")) authors.getObject().save(id, entry.getString("authorImage"), true);
+            // Author counters may be shared by different books. Include the proxy's transaction commit.
+            synchronized (authorCompletionLock) {
+                if (!done(id, "authorsDone")) authors.getObject().save(id, entry.getString("authorImage"), true);
+            }
             if (updateCategories && !done(id, "tagsDone")) tags.getObject().save(id, true);
-            String error = status(entry).getList("pendingTasks", String.class).stream().noneMatch(task -> updateCategories || !"tagsDone".equals(task))
+            Document result = status(entry);
+            String error = result.getList("pendingTasks", String.class).stream().noneMatch(task -> updateCategories || !"tagsDone".equals(task))
                     ? null : "Quedan tareas pendientes; consulta el log para conocer el detalle";
             mongo.updateFirst(Query.query(Criteria.where("_id").is(entry.getString("_id"))),
                     new Update().set("lastError", error), "pendingImports");
-            entry.put("lastError", error);
+            result.put("lastError", error);
+            return result;
         } catch (RuntimeException exception) {
             log.error("Pending import retry failed: {}", id, exception);
             String error = "No se pudo completar la importación; revisa las rutas, los archivos y el log";
@@ -94,6 +108,18 @@ public class PendingImportService {
     public void complete(String id, String task) {
         mongo.save(new Document("_id", "book:" + id + ":" + task).append("completedAt", new java.util.Date()), "pendingImportTasks");
     }
+    /** Keep the final batch checkpoint bounded: 150,000 books must not require 150,000 round trips. */
+    public void completeAll(java.util.List<String> ids, String task) {
+        for (int start = 0; start < ids.size(); start += 500) {
+            var bulk = mongo.bulkOps(org.springframework.data.mongodb.core.BulkOperations.BulkMode.UNORDERED, "pendingImportTasks");
+            for (String id : ids.subList(start, Math.min(start + 500, ids.size()))) {
+                bulk.upsert(Query.query(Criteria.where("_id").is("book:" + id + ":" + task)),
+                        new Update().set("completedAt", new java.util.Date()));
+            }
+            bulk.execute();
+        }
+    }
+
     public void fileComplete(Path source) {
         Document entry = mongo.findOne(Query.query(Criteria.where("source").is(source.toAbsolutePath().normalize().toString()))
                         .with(org.springframework.data.domain.Sort.by("createdAt").descending()),

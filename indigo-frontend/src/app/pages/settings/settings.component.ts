@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ConfirmationService, MessageService, SelectItem } from 'primeng/api';
 import { forkJoin, Subject, timer, Subscription } from 'rxjs';
-import { takeUntil, switchMap, filter as rxFilter, catchError } from 'rxjs/operators';
+import { takeUntil, switchMap, filter as rxFilter, catchError, finalize } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
 import { Config } from 'src/app/domain/config';
 import { User } from 'src/app/domain/user';
@@ -129,6 +129,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   metadataRuns: { [key: string]: any } = {};
   private metadataCompletionNotified = false;
 
+  detectingUploads = false;
+  startingUpload = false;
   uploads: number = 0;
   uploadsProgress: number = 0;
   uploadsRunning: boolean = false;
@@ -442,12 +444,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
 
   upload(data:number): void {
-    if (this.uploadsRunning) {
+    if (this.uploadsRunning || this.startingUpload) {
       return;
     }
 
+    this.startingUpload = true;
     this.fileService.upload(data)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this.destroy$), finalize(() => { this.startingUpload = false; this.cdr.markForCheck(); }))
       .subscribe({
         next: () => {
           this.uploads = data;
@@ -704,15 +707,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   detect(){
-    if (this.uploadsRunning) {
+    if (this.uploadsRunning || this.detectingUploads || this.startingUpload) {
       return;
     }
 
+    this.detectingUploads = true;
     this.fileService.count()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this.destroy$), finalize(() => { this.detectingUploads = false; this.cdr.markForCheck(); }))
       .subscribe({
         next: (data) => {
-          console.log(data);
           if (data>0) {
             this.confirmationService.confirm({
               message: 'Se han detectado ' + data + ' libros nuevos. ¿Desea añadirlos a su biblioteca?',
@@ -733,7 +736,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
            }
         },
         error: (error) => {
-          console.log(error);
+          this.messageService.add({severity: 'error', summary: 'No se pudo detectar los libros', detail: 'Comprueba el acceso a la carpeta de subida.'});
         }
       });
   }

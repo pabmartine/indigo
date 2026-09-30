@@ -49,6 +49,7 @@ public interface BookRepository extends MongoRepository<BookMongoEntity, String>
 
 	@Query("{ '$or': [ { 'isbn10': { '$in': ?0 } }, { 'isbn13': { '$in': ?0 } } ] }")
 	List<BookMongoEntity> findByAnyIsbn(java.util.Collection<String> isbn);
+	@Query(value = "{ 'title': ?0 }", collation = "{ 'locale': 'en', 'strength': 2 }")
 	List<BookMongoEntity> findByTitleIgnoreCase(String title);
 
 	@Query("{ 'path' : { $in: ?0 } }")

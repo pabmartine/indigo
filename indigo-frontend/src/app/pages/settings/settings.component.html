@@ -337,7 +337,8 @@
             <div class="p-col-12 p-md-2 upload-detect-action">
               <p-confirmDialog class="confirmDialog" appendTo="body"></p-confirmDialog>
               <p-button label="{{'locale.buttons.detect' | translate}}" icon="pi pi-refresh" class="settings-button upload-detect-button"
-                        [disabled]="uploadsRunning"
+                        [disabled]="uploadsRunning || detectingUploads || startingUpload"
+                        [loading]="detectingUploads || startingUpload"
                         (click)="detect()"></p-button>
             </div>
           </div>

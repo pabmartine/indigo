@@ -3,56 +3,54 @@ package com.martinia.indigo.file.application;
 import com.martinia.indigo.file.domain.ports.usecases.CountEpubFilesUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
-import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
-import java.time.Instant;
+import java.util.List;
 
 @Service
-@Transactional
 @Slf4j
 public class CountEpubFilesUseCaseImpl implements CountEpubFilesUseCase {
+    private static final long COUNT_TTL = Duration.ofSeconds(30).toNanos();
+    private static final long SELECTION_TTL = Duration.ofMinutes(10).toNanos();
+    private final EpubFileScanner scanner = new EpubFileScanner();
+    private List<Path> detected;
+    private long completedAt;
 
-	private static final Duration CACHE_TTL = Duration.ofSeconds(30);
+    @Value("${book.library.uploads}")
+    private String uploadsPath;
 
-	private volatile long cachedCount = -1L;
-	private volatile Instant lastCountAt = Instant.EPOCH;
+    // Coalesce concurrent clicks; cache age starts after the scan finishes, not before it starts.
+    @Override
+    public synchronized Long count() {
+        try {
+            if (detected == null || System.nanoTime() - completedAt >= COUNT_TTL) refresh();
+            return (long) detected.size();
+        } catch (IOException error) {
+            invalidate();
+            log.error("Could not detect EPUBs in {}", uploadsPath, error);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No se pudo leer la carpeta de libros", error);
+        }
+    }
 
-	@Value("${book.library.uploads}")
-	private String uploadsPath;
+    /** Consume the detected paths. Added files are picked up by the next detection, missing files fail individually. */
+    public synchronized List<Path> takePaths(long limit) throws IOException {
+        if (detected == null || System.nanoTime() - completedAt >= SELECTION_TTL) refresh();
+        List<Path> selected = List.copyOf(detected.subList(0, (int) Math.min(limit, detected.size())));
+        invalidate();
+        return selected;
+    }
 
-	@Override
-	public Long count() {
-		Instant now = Instant.now();
-		if (cachedCount >= 0 && Duration.between(lastCountAt, now).compareTo(CACHE_TTL) < 0) {
-			return cachedCount;
-		}
+    public synchronized void invalidate() { detected = null; }
 
-		try {
-			Path path = Paths.get(uploadsPath);
-
-			if (!Files.exists(path)) {
-				Files.createDirectories(path);
-			}
-
-			long count;
-			try (var files = Files.walk(path)) {
-				count = files.filter(file -> file.toFile().getName().toLowerCase().endsWith(".epub")).count();
-			}
-			cachedCount = count;
-			lastCountAt = now;
-			return count;
-
-		}
-		catch (IOException e) {
-			log.error(e.getMessage());
-			return 0L;
-		}
-	}
+    private void refresh() throws IOException {
+        long started = System.nanoTime();
+        detected = List.copyOf(scanner.scan(Path.of(uploadsPath)));
+        completedAt = System.nanoTime();
+        log.info("Detected {} EPUB files in {} ms: {}", detected.size(), (completedAt - started) / 1_000_000L, uploadsPath);
+    }
 }
-

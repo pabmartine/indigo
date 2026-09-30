@@ -18,11 +18,11 @@ public class ParallelEpubImporter {
     @Resource private PendingImportService pending;
     @Resource private UploadEpubFilesSingleton progress;
     @Value("${book.library.import-workers:2}") private int workers;
-    private final Object persistenceLock = new Object();
 
     private record Stage(Thread thread, String name, long since) { }
 
     public void process(List<Path> paths) {
+        long batchStarted = System.nanoTime();
         var active = new ConcurrentHashMap<Path, Stage>();
         java.util.Queue<String> categoryBooks = new java.util.concurrent.ConcurrentLinkedQueue<>();
         int size = Math.max(1, Math.min(8, workers));
@@ -69,17 +69,26 @@ public class ParallelEpubImporter {
             }
             if (interrupted) Thread.currentThread().interrupt();
             pending.completeBatchCategories(List.copyOf(categoryBooks));
+            long elapsed = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - batchStarted);
+            log.info("EPUB batch finished: completed={} submitted={} elapsedMs={} workers={}", finished, submitted, elapsed, size);
         }
     }
     private void processOne(Path source, java.util.Queue<String> categoryBooks, ConcurrentMap<Path, Stage> active) {
+        long started = System.nanoTime();
         try {
             processTracked(source, categoryBooks, active);
-        } finally { active.remove(source); }
+        } finally {
+            active.remove(source);
+            log.debug("EPUB finished: file={} totalMs={}", source, TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started));
+        }
     }
 
     private void stage(Path source, String name, ConcurrentMap<Path, Stage> active) {
-        active.put(source, new Stage(Thread.currentThread(), name, System.nanoTime()));
-        log.debug("EPUB phase: file={} phase={}", source, name);
+        long now = System.nanoTime();
+        Stage previous = active.put(source, new Stage(Thread.currentThread(), name, now));
+        log.debug("EPUB phase: file={} phase={} previousPhase={} previousMs={}", source, name,
+                previous == null ? "none" : previous.name(),
+                previous == null ? 0 : TimeUnit.NANOSECONDS.toMillis(now - previous.since()));
     }
 
     private void processTracked(Path source, java.util.Queue<String> categoryBooks, ConcurrentMap<Path, Stage> active) {
@@ -93,10 +102,14 @@ public class ParallelEpubImporter {
             return;
         }
         try (epub) {
-            // Includes transaction commit and file/author/category completion, not only the Java save method.
-            stage(source, "waiting-persistence", active);
-            synchronized (persistenceLock) {
-                try (ImportExecution scope = new ImportExecution(epub::loadImages)) {
+            // Hold this book identity through commit and file installation; unrelated books run concurrently.
+            stage(source, "waiting-book-identity", active);
+            synchronized (ImportBookLocks.forTitle(epub.opf().getTitle())) {
+                try (ImportExecution scope = new ImportExecution(() -> {
+                    stage(source, "prepare-images", active);
+                    epub.loadImages();
+                    stage(source, "save-book", active);
+                })) {
                     stage(source, "save-book", active);
                     saver.save(epub.opf(), epub.path());
                     if (scope.event() != null) {
