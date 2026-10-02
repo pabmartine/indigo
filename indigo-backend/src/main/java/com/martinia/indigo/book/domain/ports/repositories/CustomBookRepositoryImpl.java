@@ -190,7 +190,7 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 
 	@Override
 	public List<BookMongoEntity> findAuthorNamesBatch(String afterId) {
-		return maintenanceBatch(afterId, "authors");
+		return maintenanceBatch(afterId, 1_000, "authors", "languages");
 	}
 
 	@Override
@@ -199,7 +199,11 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 	}
 
 	private List<BookMongoEntity> maintenanceBatch(String afterId, String... fields) {
-		Query query = new Query().with(Sort.by(Sort.Direction.ASC, "_id")).limit(100);
+		return maintenanceBatch(afterId, 100, fields);
+	}
+
+	private List<BookMongoEntity> maintenanceBatch(String afterId, int limit, String... fields) {
+		Query query = new Query().with(Sort.by(Sort.Direction.ASC, "_id")).limit(limit);
 		if (afterId != null) query.addCriteria(Criteria.where("id").gt(afterId));
 		query.fields().include("_id");
 		for (String field : fields) query.fields().include(field);

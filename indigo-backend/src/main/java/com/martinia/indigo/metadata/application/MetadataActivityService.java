@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
+@lombok.extern.slf4j.Slf4j
 public class MetadataActivityService {
     @org.springframework.beans.factory.annotation.Autowired private MongoTemplate mongo;
     private static final String HISTORY = "metadataHistory";
@@ -37,7 +38,10 @@ public class MetadataActivityService {
         Document before = snapshot(type, id);
         if (before == null) return action.get();
         Document lock = mongo.findById(type + ":" + id, Document.class, "metadataLocks");
-        if (lock != null && Boolean.TRUE.equals(lock.getBoolean("locked"))) return MetadataItemResult.SKIPPED;
+        if (lock != null && Boolean.TRUE.equals(lock.getBoolean("locked"))) {
+            log.info("Skipping metadata for {} {}: manually protected", type, before.getOrDefault("title", before.get("name")));
+            return MetadataItemResult.SKIPPED;
+        }
         String historyId = UUID.randomUUID().toString();
         Document item = new Document("_id", type + ":" + id).append("entityId", id).append("type", type)
                 .append("lang", lang).append("label", before.getOrDefault("title", before.get("name")))

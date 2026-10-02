@@ -105,6 +105,22 @@ class BookMaintenanceIntegrationTest extends BaseIndigoTest {
   }
 
   @Test
+  void authorPreparationReadsAuthorsAndLanguagesWithoutHeavyFields() {
+    var book = BookMongoEntity.builder().authors(List.of("Author")).languages(List.of("es"))
+        .image("cover-data").comment("biography-data").title("Heavy book").build();
+    bookRepository.save(book);
+    var batch = bookRepository.findAuthorNamesBatch(null);
+    assertEquals(1, batch.size());
+    var projected = batch.getFirst();
+    assertEquals(List.of("Author"), projected.getAuthors());
+    assertEquals(List.of("es"), projected.getLanguages());
+    assertNull(projected.getImage());
+    assertNull(projected.getComment());
+    assertNull(projected.getTitle());
+    assertTrue(bookRepository.findAuthorNamesBatch(projected.getId()).isEmpty());
+  }
+
+  @Test
   void listingReturnsSortedPageWithCoverAndUnpaginatedFilteredTotal() {
     for (int i = 0; i < 5; i++) {
       var book = new BookMongoEntity();

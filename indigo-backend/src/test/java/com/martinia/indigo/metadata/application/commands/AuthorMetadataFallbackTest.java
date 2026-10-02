@@ -117,6 +117,43 @@ class AuthorMetadataFallbackTest {
 	}
 
 	@Test
+	void imageOnlyMatchesDoNotCountAsFoundWhenThePhotoAlreadyExists() {
+		author.setImage("existing-photo");
+		author.setProvider("OPEN_LIBRARY");
+		author.setLastMetadataSync(new Date());
+		when(catalog.findAuthor("Author")).thenReturn(new String[] { null, "catalog-photo", "OPEN_LIBRARY" });
+
+		assertThat(useCase.find("author", false, 0, "es")).isEqualTo(MetadataItemResult.NOT_FOUND);
+		assertThat(author.getDescription()).isNull();
+		assertThat(author.getImage()).isEqualTo("existing-photo");
+		verify(wikipedia).findAuthor("Author", "es", 0);
+		verify(wikipedia).findAuthor("Author", "en", 0);
+		verify(openLibrary).findAuthor("Author");
+		verifyNoInteractions(images);
+	}
+
+	@Test
+	void retriesMissingPhotoDespiteARecentSyncAndKeepsBiography() {
+		author.setDescription("Existing biography");
+		author.setProvider("OPEN_LIBRARY");
+		author.setLastMetadataSync(new Date());
+		when(catalog.findAuthor("Author")).thenReturn(new String[] { "Other biography", "catalog-photo", "OPEN_LIBRARY" });
+
+		assertThat(useCase.find("author", false, 0, "es")).isEqualTo(MetadataItemResult.FOUND);
+		assertThat(author.getDescription()).isEqualTo("Existing biography");
+		assertThat(author.getImage()).isEqualTo("base64:catalog-photo");
+	}
+
+	@Test
+	void skipsCompleteAuthorsEvenWhenTheLegacyProviderIsMissing() {
+		author.setDescription("Existing biography");
+		author.setImage("existing-photo");
+
+		assertThat(useCase.find("author", false, 0, "es")).isEqualTo(MetadataItemResult.SKIPPED);
+		verifyNoInteractions(catalog, wikipedia, openLibrary, images);
+	}
+
+	@Test
 	void avoidsFallbackWhenTheCatalogHasBothFields() {
 		when(catalog.findAuthor("Author")).thenReturn(new String[] { "Biografía", "catalog-photo", "OPEN_LIBRARY" });
 

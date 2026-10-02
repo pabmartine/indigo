@@ -63,6 +63,7 @@ public class StartFillAuthorsMetadataUseCaseImplTest extends BaseIndigoTest {
 		when(metadataSingleton.isRunning()).thenReturn(false);
 
 		// When
+		org.mockito.Mockito.clearInvocations(bookRepository, authorRepository, metadataSingleton, commandBus);
 		startFillAuthorsMetadataUseCase.start(override, lang);
 
 		// Then
@@ -83,4 +84,3 @@ public class StartFillAuthorsMetadataUseCaseImplTest extends BaseIndigoTest {
 	// Otras pruebas para otros casos
 
 }
-

@@ -36,6 +36,23 @@ class FindAuthorMetadataCommandHandlerIntegrationTest extends BaseIndigoIntegrat
 		insertBook();
 	}
 	@Test
+	void partialRunFillsBiographyForAnAuthorWithARecentlySyncedPhoto() {
+		authorMongoEntity.setDescription(null);
+		authorMongoEntity.setImage("existing-photo");
+		authorMongoEntity.setLastMetadataSync(new Date());
+		authorRepository.save(authorMongoEntity);
+		Mockito.doReturn(new String[] { "Biografía de Wikipedia", "new-photo", "WIKIPEDIA" })
+				.when(findWikipediaAuthorPort).findAuthor(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt());
+
+		assertEquals(com.martinia.indigo.metadata.domain.model.MetadataItemResult.FOUND,
+				commandBus.executeAndWait(FindAuthorMetadataCommand.builder()
+						.authorId("id").override(false).lang("es").build()));
+		AuthorMongoEntity updated = authorRepository.findById("id").orElseThrow();
+		assertEquals("Biografía de Wikipedia", updated.getDescription());
+		assertEquals("existing-photo", updated.getImage());
+	}
+
+	@Test
 	void findAmazonReviewsAuthorNotFound() {
 		//Given
 		FindAuthorMetadataCommand command = FindAuthorMetadataCommand.builder()

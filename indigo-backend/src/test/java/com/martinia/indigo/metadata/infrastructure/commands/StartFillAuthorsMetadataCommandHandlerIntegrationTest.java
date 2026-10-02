@@ -90,17 +90,18 @@ public class StartFillAuthorsMetadataCommandHandlerIntegrationTest extends BaseI
 		String lang = "es";
 		insertAuthor();
 		metadataSingleton.setRunning(true);
+		long runId = metadataSingleton.start("FULL", "AUTHORS");
 		org.mockito.Mockito.when(commandBus.executeAndWait(any(FindAuthorMetadataCommand.class)))
 				.thenReturn(com.martinia.indigo.metadata.domain.model.MetadataItemResult.FOUND);
 
 		// When
-		startFillAuthorsMetadataCommandHandler.handle(StartFillAuthorsMetadataCommand.builder().override(override).lang(lang).build());
+		startFillAuthorsMetadataCommandHandler.handle(StartFillAuthorsMetadataCommand.builder().override(override).lang(lang).runId(runId).build());
 
 		// Then
 		// Verify the method invocation
 		verify(commandBus, times(1)).executeAndWait(any(FindAuthorMetadataCommand.class));
 		assertEquals(1, metadataSingleton.getTotal());
-		assertEquals(1, metadataSingleton.getCurrent());
+		assertEquals(1L, metadataSingleton.getRuns().get("FULL:AUTHORS").get("current"));
 	}
 
 	private void insertBook() {

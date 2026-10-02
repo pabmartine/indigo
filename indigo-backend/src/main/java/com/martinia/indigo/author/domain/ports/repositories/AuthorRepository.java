@@ -22,4 +22,7 @@ public interface AuthorRepository extends MongoRepository<AuthorMongoEntity, Str
 
 	@Query(value = "{ 'name' : { '$in' : ?0 } }", fields = "{ 'image': 0 }")
 	List<AuthorMongoEntity> findByNameInWithoutImage(List<String> names);
+
+	@Query(value = "{ 'name' : { '$in' : ?0 } }", fields = "{ 'name': 1 }")
+	List<AuthorMongoEntity> findNamesByNameIn(List<String> names);
 }

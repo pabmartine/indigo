@@ -13,7 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.Resource;
-import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Optional;
 
@@ -42,8 +41,11 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 		return authorRepository.findById(authorId).map(author -> {
 
 			if (!override && !refreshAuthorMetadata(author)) {
+				log.info("Skipping author {}: metadata complete (descriptionPresent=true imagePresent=true)", author.getName());
 				return MetadataItemResult.SKIPPED;
 			}
+			log.info("Finding author metadata for {}: descriptionPresent={} imagePresent={} override={}",
+					author.getName(), StringUtils.isNotBlank(author.getDescription()), StringUtils.isNotBlank(author.getImage()), override);
 
 			boolean providerSucceeded = false;
 			boolean providerFailed = false;
@@ -112,7 +114,8 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 						StringUtils.isNotBlank(author.getDescription()), StringUtils.isNotBlank(author.getImage()));
 				return MetadataItemResult.FOUND;
 			}
-			log.info("No external metadata match found for {}", author.getName());
+			log.info("No metadata obtained for missing fields of {}: descriptionPresent={} imagePresent={}",
+					author.getName(), StringUtils.isNotBlank(author.getDescription()), StringUtils.isNotBlank(author.getImage()));
 			return MetadataItemResult.NOT_FOUND;
 		}).orElse(MetadataItemResult.SKIPPED);
 	}
@@ -133,11 +136,12 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 		if (metadata == null || metadata.length < 3) {
 			return false;
 		}
-		final boolean found = StringUtils.isNotBlank(metadata[0]) || StringUtils.isNotBlank(metadata[1]);
+		boolean found = false;
 		if (((override && !hasMetadataField(0, preferred)) || StringUtils.isBlank(author.getDescription()))
 				&& StringUtils.isNotBlank(metadata[0])) {
 			author.setDescription(metadata[0]);
 			recordSource(author, "description", metadata[2]);
+			found = true;
 		}
 		if (((override && !hasMetadataField(1, preferred)) || StringUtils.isBlank(author.getImage()))
 				&& StringUtils.isNotBlank(metadata[1])) {
@@ -145,6 +149,7 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 			if (StringUtils.isNotEmpty(image)) {
 				author.setImage(image);
 				recordSource(author, "image", metadata[2]);
+				found = true;
 			}
 		}
 		if (((override && missingMetadata(preferred)) || StringUtils.isBlank(author.getProvider())) && StringUtils.isNotBlank(metadata[2])) {
@@ -160,13 +165,6 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 	}
 
 	private boolean refreshAuthorMetadata(final AuthorMongoEntity author) {
-		if (author == null || StringUtils.isBlank(author.getDescription())) return true;
-		return (StringUtils.isBlank(author.getImage()) || StringUtils.isBlank(author.getProvider()))
-				&& (author.getLastMetadataSync() == null || author.getLastMetadataSync()
-				.toInstant()
-				.atZone(ZoneId.systemDefault())
-				.toLocalDateTime()
-				.plusDays(7)
-				.isBefore(Calendar.getInstance().getTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()));
+		return author == null || StringUtils.isBlank(author.getDescription()) || StringUtils.isBlank(author.getImage());
 	}
 }
