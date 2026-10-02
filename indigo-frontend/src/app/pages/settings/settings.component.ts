@@ -37,13 +37,28 @@ export class SettingsComponent implements OnInit, OnDestroy {
   get indexRunning(): boolean {
     return !!this.libraryIndex && !['IDLE', 'COMPLETED', 'FAILED', 'CANCELLED'].includes(this.libraryIndex.status);
   }
+  get indexStatusText(): string {
+    return ({
+      IDLE: 'Sin iniciar', CHECKING_SPACE: 'Preparando el índice y comprobando espacio',
+      DOWNLOADING_EDITIONS: 'Descargando ediciones', PROCESSING_EDITIONS: 'Procesando ediciones',
+      DOWNLOADING_RATINGS: 'Descargando valoraciones', PROCESSING_RATINGS: 'Procesando valoraciones',
+      DOWNLOADING_AUTHORS: 'Descargando autores', PROCESSING_AUTHORS: 'Procesando autores',
+      ACTIVATING: 'Activando el índice', COMPLETED: 'Completado', FAILED: 'Error', CANCELLED: 'Cancelado'
+    } as {[key: string]: string})[this.libraryIndex?.status] || this.libraryIndex?.status || 'Sin iniciar';
+  }
+  get indexProcessing(): boolean {
+    return this.libraryIndex?.status?.startsWith('PROCESSING_') || false;
+  }
+  get indexDownloading(): boolean {
+    return this.libraryIndex?.status?.startsWith('DOWNLOADING_') || false;
+  }
   indexAction(action: string): void {
     if (this.indexBusy) return;
     if (action === 'start' && !window.confirm('¿Descargar y reconstruir el índice local de Open Library? Se descargarán varios GB.')) return;
     this.indexBusy = true;
     const request = action === 'status' ? this.metadataService.libraryIndex() : this.metadataService.controlLibraryIndex(action);
     request.pipe(takeUntil(this.destroy$), finalize(() => { this.indexBusy = false; this.cdr.markForCheck(); })).subscribe({
-      next: result => { this.libraryIndex = result; },
+      next: result => { this.libraryIndex = result; this.cdr.markForCheck(); },
       error: () => this.messageService.add({severity: 'error', summary: 'No se pudo actualizar el índice de Open Library'})
     });
   }

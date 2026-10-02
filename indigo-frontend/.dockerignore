@@ -2,3 +2,11 @@ node_modules
 .gitignore
 .git
 .vscode
+.angular
+dist
+coverage
+.env*
+.codex
+.ollamassist
+*.log
+Jenkinsfile

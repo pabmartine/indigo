@@ -47,6 +47,7 @@ public class OpenLibraryIndexManager {
 	private static final DateTimeFormatter VERSION_FORMAT = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
 			.withZone(ZoneOffset.UTC);
 	private static final long PROGRESS_SAVE_INTERVAL_NANOS = 1_000_000_000L;
+	private static final long PROGRESS_LOG_INTERVAL_NANOS = 30_000_000_000L;
 
 	@Resource
 	private OpenLibraryIndexJobRepository jobRepository;
@@ -202,8 +203,7 @@ public class OpenLibraryIndexManager {
 			}
 			job.setStatus(OpenLibraryIndexJobStatus.CHECKING_SPACE);
 			job.setStartedAt(job.getStartedAt() == null ? new Date() : job.getStartedAt());
-			job.setUpdatedAt(new Date());
-			jobRepository.save(job);
+			saveStage(job);
 
 			final OpenLibraryRemoteFile editionsRemote = downloadPort.inspect(job.getEditionsUrl());
 			final OpenLibraryRemoteFile ratingsRemote = downloadPort.inspect(job.getRatingsUrl());
@@ -219,16 +219,17 @@ public class OpenLibraryIndexManager {
 			final Set<String> libraryIsbns = libraryIsbns();
 			job.setLibraryIsbns(libraryIsbns.size());
 			job.setStatus(OpenLibraryIndexJobStatus.DOWNLOADING_EDITIONS);
-			jobRepository.save(job);
+			saveStage(job);
 			ProgressPersistence progress = new ProgressPersistence(job, 0L);
 			final OpenLibraryDownloadResult editionsDownload = downloadPort.download(job.getEditionsUrl(), editionsFile,
 					cancellation::get, progress::downloaded);
 			job.setEditionsLastModified(firstNonBlank(editionsDownload.lastModified(), editionsRemote.lastModified()));
 
 			job.setStatus(OpenLibraryIndexJobStatus.PROCESSING_EDITIONS);
+			job.setDownloadedBytes(editionsDownload.size());
 			job.setProcessedRecords(0L);
 			job.setMatchedRecords(0L);
-			jobRepository.save(job);
+			saveStage(job);
 			progress = new ProgressPersistence(job, 0L);
 			final OpenLibraryDumpProcessor.EditionProcessingResult editions = processor.processEditions(editionsFile,
 					version, libraryIsbns, cancellation::get, progress::processed);
@@ -238,29 +239,32 @@ public class OpenLibraryIndexManager {
 
 			job.setStatus(OpenLibraryIndexJobStatus.DOWNLOADING_RATINGS);
 			job.setDownloadedBytes(editionsDownload.size());
-			jobRepository.save(job);
+			saveStage(job);
 			progress = new ProgressPersistence(job, editionsDownload.size());
 			final OpenLibraryDownloadResult ratingsDownload = downloadPort.download(job.getRatingsUrl(), ratingsFile,
 					cancellation::get, progress::downloaded);
 			job.setRatingsLastModified(firstNonBlank(ratingsDownload.lastModified(), ratingsRemote.lastModified()));
 
 			job.setStatus(OpenLibraryIndexJobStatus.PROCESSING_RATINGS);
+			job.setDownloadedBytes(editionsDownload.size() + ratingsDownload.size());
 			job.setProcessedRecords(0L);
-			jobRepository.save(job);
+			saveStage(job);
 			progress = new ProgressPersistence(job, 0L);
 			final OpenLibraryDumpProcessor.RatingProcessingResult ratings = processor.processRatings(ratingsFile, version,
 					editions.matchedWorks(), cancellation::get, progress::processed);
 			job.setWorksWithRatings(ratings.worksWithRatings());
 
 			job.setStatus(OpenLibraryIndexJobStatus.DOWNLOADING_AUTHORS);
-			jobRepository.save(job);
+			job.setDownloadedBytes(editionsDownload.size() + ratingsDownload.size());
+			saveStage(job);
 			progress = new ProgressPersistence(job, editionsDownload.size() + ratingsDownload.size());
 			final OpenLibraryDownloadResult authorsDownload = downloadPort.download(job.getAuthorsUrl(), authorsFile,
 					cancellation::get, progress::downloaded);
 			job.setAuthorsLastModified(firstNonBlank(authorsDownload.lastModified(), authorsRemote.lastModified()));
 			job.setStatus(OpenLibraryIndexJobStatus.PROCESSING_AUTHORS);
 			job.setProcessedRecords(0L);
-			jobRepository.save(job);
+			job.setDownloadedBytes(editionsDownload.size() + ratingsDownload.size() + authorsDownload.size());
+			saveStage(job);
 			progress = new ProgressPersistence(job, 0L);
 			final OpenLibraryDumpProcessor.AuthorProcessingResult authors = processor.processAuthors(authorsFile, version,
 					libraryAuthorNames(), cancellation::get, progress::processed);
@@ -268,7 +272,7 @@ public class OpenLibraryIndexManager {
 
 			checkCancellation();
 			job.setStatus(OpenLibraryIndexJobStatus.ACTIVATING);
-			jobRepository.save(job);
+			saveStage(job);
 			versionRepository.save(OpenLibraryIndexVersionMongoEntity.builder()
 					.version(version)
 					.active(false)
@@ -315,6 +319,7 @@ public class OpenLibraryIndexManager {
 			job.setCompletedAt(new Date());
 			job.setUpdatedAt(new Date());
 			jobRepository.save(job);
+			log.info("Open Library index job {} cancelled", version);
 		}
 		catch (RuntimeException exception) {
 			if (shuttingDown) {
@@ -329,6 +334,14 @@ public class OpenLibraryIndexManager {
 			jobRepository.save(job);
 			log.error("Open Library index job {} failed", version, exception);
 		}
+	}
+
+	private void saveStage(final OpenLibraryIndexJobMongoEntity job) {
+		job.setUpdatedAt(new Date());
+		jobRepository.save(job);
+		log.info("Open Library index job {}: stage={} processedRecords={} downloadedBytes={} totalBytes={}",
+				job.getStagingVersion(), job.getStatus(), job.getProcessedRecords(), job.getDownloadedBytes(),
+				job.getTotalBytes());
 	}
 
 	private Set<String> libraryAuthorNames() {
@@ -475,6 +488,7 @@ public class OpenLibraryIndexManager {
 		private final OpenLibraryIndexJobMongoEntity job;
 		private final long base;
 		private long lastSaved;
+		private long lastLogged;
 
 		private ProgressPersistence(final OpenLibraryIndexJobMongoEntity job, final long base) {
 			this.job = job;
@@ -498,6 +512,12 @@ public class OpenLibraryIndexManager {
 				job.setUpdatedAt(new Date());
 				jobRepository.save(job);
 				lastSaved = now;
+				if (lastLogged == 0L || now - lastLogged >= PROGRESS_LOG_INTERVAL_NANOS) {
+					log.info("Open Library index job {} progress: stage={} processedRecords={} downloadedBytes={} totalBytes={}",
+							job.getStagingVersion(), job.getStatus(), job.getProcessedRecords(), job.getDownloadedBytes(),
+							job.getTotalBytes());
+					lastLogged = now;
+				}
 			}
 		}
 	}

@@ -59,4 +59,32 @@ describe('Settings metadata processes', () => {
     expect(component.isAuthorsFull()).toBeFalse();
     expect(component.getMetadataProgress('FULL', 'BOOKS')).toBe(20);
   });
+
+  it('shows editions processing while no authors have been indexed yet', () => {
+    component.libraryIndex = { status: 'PROCESSING_EDITIONS', processedRecords: 120000, matchedAuthors: 0 };
+    expect(component.indexRunning).toBeTrue();
+    expect(component.indexProcessing).toBeTrue();
+    expect(component.indexDownloading).toBeFalse();
+    expect(component.indexStatusText).toBe('Procesando ediciones');
+  });
+
+  it('refreshes index counters and marks the view for checking', () => {
+    const state = { status: 'PROCESSING_EDITIONS', processedRecords: 130000, updatedAt: '2026-10-02T08:10:00Z' };
+    service.libraryIndex = jasmine.createSpy().and.returnValue(of(state));
+    const refresh = spyOn((component as any).cdr, 'markForCheck');
+    component.indexAction('status');
+    expect(component.libraryIndex).toEqual(state);
+    expect(component.indexBusy).toBeFalse();
+    expect(refresh).toHaveBeenCalled();
+  });
+
+  it('distinguishes download progress from completed processing', () => {
+    component.libraryIndex = { status: 'DOWNLOADING_AUTHORS', downloadedBytes: 1048576 };
+    expect(component.indexDownloading).toBeTrue();
+    expect(component.indexProcessing).toBeFalse();
+    expect(component.indexStatusText).toBe('Descargando autores');
+    component.libraryIndex = { status: 'COMPLETED', matchedAuthors: 12 };
+    expect(component.indexRunning).toBeFalse();
+    expect(component.indexStatusText).toBe('Completado');
+  });
 });

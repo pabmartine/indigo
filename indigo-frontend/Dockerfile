@@ -1,24 +1,21 @@
+# syntax=docker/dockerfile:1
 ### STAGE 1:BUILD ###
 FROM node:18.10.0 AS node
 WORKDIR /app
 
-# Variables de entorno para el build
+# La instalación solo cambia cuando cambian las dependencias.
+COPY package.json package-lock.json ./
+# El lockfile existente no incluye la resolución automática de peer dependencies.
+RUN --mount=type=cache,target=/root/.npm npm ci --legacy-peer-deps --no-audit --no-fund
+
+COPY . .
+RUN npm run build -- --configuration=production
+
+# Las variables solo invalidan la sustitución, no la compilación Angular.
 ARG NG_APP_API_ENDPOINT
 ARG NG_APP_INTERNAL_ENDPOINT
 ARG NG_APP_WHITELIST
 ARG NG_APP_BLACKLIST
-
-RUN npm cache clean --force
-COPY . .
-RUN npm install
-
-# Debug: Mostrar variables durante el build
-RUN echo "Variables durante build:"
-RUN echo "NG_APP_API_ENDPOINT: $NG_APP_API_ENDPOINT"
-RUN echo "NG_APP_WHITELIST: $NG_APP_WHITELIST"
-
-# Build explícitamente para producción
-RUN npm run build -- --configuration=production
 
 # Reemplazar las variables en los archivos generados
 RUN find /app/dist -name "*.js" -exec sed -i "s|__NG_APP_API_ENDPOINT__|$NG_APP_API_ENDPOINT|g" {} \;

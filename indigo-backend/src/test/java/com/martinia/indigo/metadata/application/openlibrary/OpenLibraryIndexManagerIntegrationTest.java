@@ -30,8 +30,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,6 +43,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
+@ExtendWith(OutputCaptureExtension.class)
 class OpenLibraryIndexManagerIntegrationTest extends BaseIndigoIntegrationTest {
 	@TempDir
 	private Path temporaryDirectory;
@@ -104,7 +108,7 @@ class OpenLibraryIndexManagerIntegrationTest extends BaseIndigoIntegrationTest {
 	}
 
 	@Test
-	void buildsAndAtomicallyActivatesANewIndexVersion() throws Exception {
+	void buildsAndAtomicallyActivatesANewIndexVersion(final CapturedOutput output) throws Exception {
 		versionRepository.save(OpenLibraryIndexVersionMongoEntity.builder()
 				.version("old-version")
 				.active(true)
@@ -122,6 +126,10 @@ class OpenLibraryIndexManagerIntegrationTest extends BaseIndigoIntegrationTest {
 		assertThat(completed.getWorksWithRatings()).isEqualTo(1);
 		assertThat(completed.getAuthorsVersion()).isEqualTo(completed.getActiveVersion());
 		assertThat(completed.getMatchedAuthors()).isEqualTo(1);
+		assertThat(completed.getProcessedRecords()).isEqualTo(1);
+		assertThat(completed.getUpdatedAt()).isAfterOrEqualTo(completed.getStartedAt());
+		assertThat(output.getOut()).contains("stage=PROCESSING_EDITIONS", "stage=PROCESSING_RATINGS",
+				"stage=PROCESSING_AUTHORS", "processedRecords=2", "Activated Open Library index");
 		assertThat(localAuthors.findTop2ByIndexVersionAndNames(completed.getActiveVersion(), "j r r tolkien"))
 				.singleElement().satisfies(author -> assertThat(author.getBiography()).isEqualTo("British writer"));
 		assertThat(mappingRepository.findByIndexVersion(completed.getActiveVersion())).singleElement()

@@ -1,0 +1,100 @@
+pipeline {
+    agent any
+
+    options {
+        skipDefaultCheckout(true)
+        disableConcurrentBuilds()
+        timestamps()
+    }
+
+    environment {
+        DOCKER_BUILDKIT = '1'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'develop',
+                    credentialsId: '3342fb01-f330-4382-b4ae-4ea17a017969',
+                    url: 'https://github.com/pabmartine/indigo.git'
+            }
+        }
+
+        stage('Environment') {
+            steps {
+                dir('indigo-frontend') {
+                    withCredentials([string(credentialsId: 'github-pat-claves', variable: 'GITHUB_TOKEN')]) {
+                        sh '''
+                            set -eu
+                            set +x
+                            curl --connect-timeout 15 --max-time 120 --retry 3 -fsSL \
+                                -H "Accept: application/vnd.github.raw+json" \
+                                -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+                                -o .env.frontend \
+                                "https://api.github.com/repos/pabmartine/claves/contents/indigo/.env.frontend?ref=main"
+                            test -s .env.frontend
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Build image') {
+            steps {
+                dir('indigo-frontend') {
+                    sh '''
+                        set -eu
+                        set +x
+                        set -a
+                        . ./.env.frontend
+                        set +a
+
+                        docker build --progress=plain -t "indigo-frontend:build-${BUILD_NUMBER}" \
+                            --build-arg NG_APP_API_ENDPOINT="${NG_APP_API_ENDPOINT:-}" \
+                            --build-arg NG_APP_INTERNAL_ENDPOINT="${NG_APP_INTERNAL_ENDPOINT:-}" \
+                            --build-arg NG_APP_WHITELIST="${NG_APP_WHITELIST:-}" \
+                            --build-arg NG_APP_BLACKLIST="${NG_APP_BLACKLIST:-}" \
+                            .
+                    '''
+                }
+            }
+        }
+
+        stage('Validate image') {
+            steps {
+                sh '''
+                    set -eu
+                    docker run --rm --entrypoint sh "indigo-frontend:build-${BUILD_NUMBER}" \
+                        -c 'nginx -t && test -s /usr/share/nginx/html/index.html'
+                '''
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                    set -eu
+                    docker network inspect indigo >/dev/null 2>&1 || docker network create indigo
+                    if [ -n "$(docker ps -aq -f name=^indigo-frontend$)" ]; then
+                        docker stop indigo-frontend
+                        docker rm indigo-frontend
+                    fi
+                    docker run --name indigo-frontend \
+                        --network indigo \
+                        -p 8080:80 \
+                        --restart=always \
+                        -d "indigo-frontend:build-${BUILD_NUMBER}"
+                    docker tag "indigo-frontend:build-${BUILD_NUMBER}" indigo-frontend:latest
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            dir('indigo-frontend') {
+                sh 'rm -f .env.frontend'
+            }
+        }
+    }
+}

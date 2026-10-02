@@ -110,7 +110,19 @@
             <button pButton type="button" label="Reconstruir índice" (click)="indexAction('start')" [disabled]="indexBusy || indexRunning"></button>
             <button pButton type="button" label="Reanudar" (click)="indexAction('resume')" [disabled]="indexBusy || !['FAILED', 'CANCELLED'].includes(libraryIndex?.status)"></button>
             <button pButton type="button" label="Cancelar" (click)="indexAction('cancel')" [disabled]="indexBusy || !indexRunning"></button>
-            <p *ngIf="libraryIndex">Estado: {{ libraryIndex.status }} · Autores indexados: {{ libraryIndex.matchedAuthors || 0 }}</p>
+            <div *ngIf="libraryIndex" role="status" aria-live="polite">
+              <p><i *ngIf="indexRunning" class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+                Estado: {{ indexStatusText }}<span *ngIf="libraryIndex.cancelRequested"> · Cancelación solicitada</span></p>
+              <p *ngIf="indexProcessing">Registros leídos en esta fase: {{ (libraryIndex.processedRecords || 0) | number:'1.0-0' }}.
+                El contador se actualiza durante el procesamiento.</p>
+              <p *ngIf="indexDownloading">Descargado en total: {{ (libraryIndex.downloadedBytes || 0) / 1048576 | number:'1.1-1' }} MiB<span
+                *ngIf="libraryIndex.totalBytes > 0"> de {{ libraryIndex.totalBytes / 1048576 | number:'1.1-1' }} MiB</span>.</p>
+              <p *ngIf="indexRunning && libraryIndex.status !== 'ACTIVATING'">Los autores se indexan después de las ediciones y las valoraciones.</p>
+              <p *ngIf="libraryIndex.matchedIsbns > 0 || libraryIndex.status === 'COMPLETED'">ISBN encontrados: {{ (libraryIndex.matchedIsbns || 0) | number:'1.0-0' }} ·
+                Obras con valoraciones: {{ (libraryIndex.worksWithRatings || 0) | number:'1.0-0' }}</p>
+              <p *ngIf="libraryIndex.matchedAuthors > 0 || libraryIndex.status === 'COMPLETED'">Autores indexados: {{ (libraryIndex.matchedAuthors || 0) | number:'1.0-0' }}</p>
+              <p *ngIf="libraryIndex.updatedAt">Última actualización del proceso: {{ libraryIndex.updatedAt | date:'dd/MM/yyyy HH:mm:ss' }}</p>
+            </div>
             <p *ngIf="libraryIndex?.error">{{ libraryIndex.error }}</p>
           </div>
           <div class="metadata-overview">
