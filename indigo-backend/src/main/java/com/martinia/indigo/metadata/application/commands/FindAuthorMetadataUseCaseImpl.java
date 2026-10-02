@@ -57,14 +57,12 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 					providerFailed = true;
 					log.warn("Open Library local author catalog failed for {}: {}", author.getName(), exception.toString());
 					com.martinia.indigo.metadata.application.ProviderDiagnostics.record("OPEN_LIBRARY", "Catálogo local de autores", exception);
-					if (exception instanceof com.martinia.indigo.metadata.application.openlibrary.AuthorCatalogTranslationException) {
-						return MetadataItemResult.ERROR;
-					}
 				}
 			}
 
 			String[] wikipedia = null;
-			if (catalog == null && findWikipediaAuthorPort.isPresent()) {
+			String[] wikipediaEnglish = null;
+			if (missingMetadata(catalog) && findWikipediaAuthorPort.isPresent()) {
 				try {
 					wikipedia = findWikipediaAuthorPort.get().findAuthor(author.getName(), lang, 0);
 					providerSucceeded = true;
@@ -74,9 +72,9 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 					log.warn("Wikipedia ({}) failed for {}: {}", lang, author.getName(), exception.toString());
 					com.martinia.indigo.metadata.application.ProviderDiagnostics.record("WIKIPEDIA", "Obtener autor", exception);
 				}
-				if (wikipedia == null && !"en".equals(lang)) {
+				if (missingMetadata(catalog, wikipedia) && !"en".equals(lang)) {
 					try {
-						wikipedia = findWikipediaAuthorPort.get().findAuthor(author.getName(), "en", 0);
+						wikipediaEnglish = findWikipediaAuthorPort.get().findAuthor(author.getName(), "en", 0);
 						providerSucceeded = true;
 					}
 					catch (RuntimeException exception) {
@@ -88,7 +86,7 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 			}
 
 			String[] openLibrary = null;
-			if (catalog == null && (wikipedia == null || StringUtils.isEmpty(wikipedia[0]) || StringUtils.isEmpty(wikipedia[1]))
+			if (missingMetadata(catalog, wikipedia, wikipediaEnglish)
 					&& findOpenLibraryAuthorPort.isPresent()) {
 				try {
 					openLibrary = findOpenLibraryAuthorPort.get().findAuthor(author.getName());
@@ -102,14 +100,16 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 			}
 
 			boolean found = applyMetadata(author, catalog, override);
-			found |= applyMetadata(author, wikipedia, override);
-			found |= applyMetadata(author, openLibrary, override && wikipedia == null);
+			found |= applyMetadata(author, wikipedia, override, catalog);
+			found |= applyMetadata(author, wikipediaEnglish, override, catalog, wikipedia);
+			found |= applyMetadata(author, openLibrary, override, catalog, wikipedia, wikipediaEnglish);
 			if (!found && (!providerSucceeded || providerFailed)) return MetadataItemResult.ERROR;
 			if (!providerFailed) author.setLastMetadataSync(Calendar.getInstance().getTime());
 			authorRepository.save(author);
 
 			if (found) {
-				log.info("Found metadata for {}", author.getName());
+				log.info("Found metadata for {}: descriptionPresent={} imagePresent={}", author.getName(),
+						StringUtils.isNotBlank(author.getDescription()), StringUtils.isNotBlank(author.getImage()));
 				return MetadataItemResult.FOUND;
 			}
 			log.info("No external metadata match found for {}", author.getName());
@@ -117,23 +117,37 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 		}).orElse(MetadataItemResult.SKIPPED);
 	}
 
-	private boolean applyMetadata(final AuthorMongoEntity author, final String[] metadata, final boolean override) {
+	private boolean missingMetadata(final String[]... candidates) {
+		return !hasMetadataField(0, candidates) || !hasMetadataField(1, candidates);
+	}
+
+	private boolean hasMetadataField(final int field, final String[]... candidates) {
+		for (String[] candidate : candidates) {
+			if (candidate != null && candidate.length >= 3 && StringUtils.isNotBlank(candidate[field])) return true;
+		}
+		return false;
+	}
+
+	private boolean applyMetadata(final AuthorMongoEntity author, final String[] metadata, final boolean override,
+			final String[]... preferred) {
 		if (metadata == null || metadata.length < 3) {
 			return false;
 		}
-		final boolean found = StringUtils.isNotEmpty(metadata[0]) || StringUtils.isNotEmpty(metadata[1]);
-		if ((override || StringUtils.isEmpty(author.getDescription())) && StringUtils.isNotEmpty(metadata[0])) {
+		final boolean found = StringUtils.isNotBlank(metadata[0]) || StringUtils.isNotBlank(metadata[1]);
+		if (((override && !hasMetadataField(0, preferred)) || StringUtils.isBlank(author.getDescription()))
+				&& StringUtils.isNotBlank(metadata[0])) {
 			author.setDescription(metadata[0]);
 			recordSource(author, "description", metadata[2]);
 		}
-		if ((override || StringUtils.isEmpty(author.getImage())) && StringUtils.isNotEmpty(metadata[1])) {
+		if (((override && !hasMetadataField(1, preferred)) || StringUtils.isBlank(author.getImage()))
+				&& StringUtils.isNotBlank(metadata[1])) {
 			final String image = imageUtils.getBase64Url(metadata[1]);
 			if (StringUtils.isNotEmpty(image)) {
 				author.setImage(image);
 				recordSource(author, "image", metadata[2]);
 			}
 		}
-		if ((override || StringUtils.isEmpty(author.getProvider())) && StringUtils.isNotEmpty(metadata[2])) {
+		if (((override && missingMetadata(preferred)) || StringUtils.isBlank(author.getProvider())) && StringUtils.isNotBlank(metadata[2])) {
 			author.setProvider(metadata[2]);
 		}
 		return found;
@@ -146,8 +160,9 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 	}
 
 	private boolean refreshAuthorMetadata(final AuthorMongoEntity author) {
-		return (author == null || StringUtils.isEmpty(author.getDescription()) || StringUtils.isEmpty(author.getImage())
-				|| StringUtils.isEmpty(author.getProvider())) && (author.getLastMetadataSync() == null || author.getLastMetadataSync()
+		if (author == null || StringUtils.isBlank(author.getDescription())) return true;
+		return (StringUtils.isBlank(author.getImage()) || StringUtils.isBlank(author.getProvider()))
+				&& (author.getLastMetadataSync() == null || author.getLastMetadataSync()
 				.toInstant()
 				.atZone(ZoneId.systemDefault())
 				.toLocalDateTime()

@@ -5,10 +5,12 @@ import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntit
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.book.infrastructure.mongo.entities.SerieMongo;
 import com.martinia.indigo.common.infrastructure.mongo.entities.NumBooksMongo;
+import com.martinia.indigo.common.util.ImageUtils;
 import com.martinia.indigo.metadata.domain.model.commands.FindAuthorMetadataCommand;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -25,8 +27,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class FindAuthorMetadataCommandHandlerIntegrationTest extends BaseIndigoIntegrationTest {
 
 	private AuthorMongoEntity authorMongoEntity;
+	@MockBean
+	private ImageUtils imageUtils;
 	@BeforeEach
 	void init(){
+		Mockito.when(imageUtils.getBase64Url(Mockito.anyString())).thenAnswer(invocation -> invocation.getArgument(0));
 		insertAuthor();
 		insertBook();
 	}
