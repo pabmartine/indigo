@@ -21,6 +21,7 @@ public class OpenLibraryIndexJobMongoEntity {
 	@Id
 	private String id;
 	private OpenLibraryIndexJobStatus status;
+	private String detail;
 	private String stagingVersion;
 	private String activeVersion;
 	private String authorsVersion;

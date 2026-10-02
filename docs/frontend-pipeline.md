@@ -62,6 +62,11 @@ como `CACHED` en BuildKit. La imagen pasó `nginx -t`, contenía `index.html` y 
 incluía el endpoint nuevo. Los bloques shell del Jenkinsfile pasaron `sh -n`;
 el pipeline completo queda pendiente de ejecución en Jenkins.
 
+Tras la corrección de compatibilidad se construyó también la imagen completa
+con `DOCKER_BUILDKIT=0`: contexto de 2,012 MB y compilación Angular de 41,1 s.
+Se comprobaron la sintaxis shell y ambas rutas de selección del constructor
+con un CLI simulado, incluida la ausencia de `--progress=plain` sin Buildx.
+
 Estos tiempos corresponden al equipo local, no al agente de Jenkins. La
 instalación también emite avisos de engines por herramientas de desarrollo
 modernas con el Node 18.10.0 existente; actualizar esas versiones queda fuera

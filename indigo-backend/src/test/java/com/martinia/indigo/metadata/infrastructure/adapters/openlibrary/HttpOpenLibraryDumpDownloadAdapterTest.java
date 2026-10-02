@@ -2,6 +2,7 @@ package com.martinia.indigo.metadata.infrastructure.adapters.openlibrary;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.http.HttpTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,6 +19,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -132,6 +136,33 @@ class HttpOpenLibraryDumpDownloadAdapterTest {
 
 		assertThat(remote.size()).isEqualTo(CONTENT.length);
 		assertThat(remote.etag()).isEqualTo("fixture-etag");
+	}
+
+	@ParameterizedTest
+	@ValueSource(booleans = { false, true })
+	void boundsInspectionWaitForHeadAndRangeFallback(final boolean headUnsupported) {
+		AtomicReference<String> lastMethod = new AtomicReference<>();
+		ReflectionTestUtils.setField(adapter, "inspectTimeoutMillis", 100L);
+		server.createContext("/dump", exchange -> {
+			lastMethod.set(exchange.getRequestMethod());
+			if (headUnsupported && "HEAD".equals(exchange.getRequestMethod())) {
+				exchange.sendResponseHeaders(405, -1);
+				exchange.close();
+				return;
+			}
+			try {
+				Thread.sleep(500L);
+			}
+			catch (InterruptedException exception) {
+				Thread.currentThread().interrupt();
+			}
+			exchange.close();
+		});
+		server.start();
+
+		assertThatThrownBy(() -> adapter.inspect(url)).isInstanceOf(IllegalStateException.class)
+				.hasRootCauseInstanceOf(HttpTimeoutException.class);
+		assertThat(lastMethod).hasValue(headUnsupported ? "GET" : "HEAD");
 	}
 
 	private void respond(final HttpExchange exchange, final int status, final byte[] body) throws IOException {

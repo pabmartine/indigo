@@ -113,6 +113,7 @@
             <div *ngIf="libraryIndex" role="status" aria-live="polite">
               <p><i *ngIf="indexRunning" class="pi pi-spin pi-spinner" aria-hidden="true"></i>
                 Estado: {{ indexStatusText }}<span *ngIf="libraryIndex.cancelRequested"> · Cancelación solicitada</span></p>
+              <p *ngIf="libraryIndex.detail">{{ libraryIndex.detail }}</p>
               <p *ngIf="indexProcessing">Registros leídos en esta fase: {{ (libraryIndex.processedRecords || 0) | number:'1.0-0' }}.
                 El contador se actualiza durante el procesamiento.</p>
               <p *ngIf="indexDownloading">Descargado en total: {{ (libraryIndex.downloadedBytes || 0) / 1048576 | number:'1.1-1' }} MiB<span

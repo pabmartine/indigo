@@ -41,6 +41,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 @ExtendWith(OutputCaptureExtension.class)
@@ -211,6 +213,8 @@ class OpenLibraryIndexManagerIntegrationTest extends BaseIndigoIntegrationTest {
 	void resumesAPersistedRunningJobAfterStartup() throws Exception {
 		String version = "interrupted-version";
 		Path downloads = temporaryDirectory.resolve("index/downloads").resolve(version);
+		Files.createDirectories(downloads);
+		Files.copy(editionsFixture, downloads.resolve("editions.txt.gz"));
 		Date now = new Date();
 		jobRepository.save(OpenLibraryIndexJobMongoEntity.builder()
 				.id(OpenLibraryIndexManager.JOB_ID)
@@ -230,6 +234,31 @@ class OpenLibraryIndexManagerIntegrationTest extends BaseIndigoIntegrationTest {
 
 		assertThat(completed.getStatus()).isEqualTo(OpenLibraryIndexJobStatus.COMPLETED);
 		assertThat(completed.getActiveVersion()).isEqualTo(version);
+		verify(downloadPort, never()).inspect("https://fixture/editions");
+		assertThat(completed.getDetail()).isNull();
+	}
+
+	@Test
+	void exposesThePreparationStepBeforeWaitingForTheRemoteServer(final CapturedOutput output) throws Exception {
+		CountDownLatch inspectionStarted = new CountDownLatch(1);
+		CountDownLatch releaseInspection = new CountDownLatch(1);
+		when(downloadPort.inspect(anyString())).thenAnswer(invocation -> {
+			inspectionStarted.countDown();
+			assertThat(releaseInspection.await(10, TimeUnit.SECONDS)).isTrue();
+			return new OpenLibraryRemoteFile(100L, "2026-08-31", "etag");
+		});
+		try {
+			indexManager.start();
+			assertThat(inspectionStarted.await(5, TimeUnit.SECONDS)).isTrue();
+			OpenLibraryIndexJobMongoEntity waiting = indexManager.status();
+			assertThat(waiting.getStatus()).isEqualTo(OpenLibraryIndexJobStatus.CHECKING_SPACE);
+			assertThat(waiting.getDetail()).isEqualTo("Comprobando el volcado de ediciones");
+			assertThat(output.getOut()).contains("preparing: Comprobando el volcado de ediciones");
+		}
+		finally {
+			releaseInspection.countDown();
+			awaitTerminalStatus();
+		}
 	}
 
 	@Test
@@ -241,6 +270,7 @@ class OpenLibraryIndexManagerIntegrationTest extends BaseIndigoIntegrationTest {
 
 		assertThat(failed.getStatus()).isEqualTo(OpenLibraryIndexJobStatus.FAILED);
 		assertThat(failed.getError()).contains("Insufficient free space");
+		assertThat(failed.getDetail()).isNull();
 	}
 
 	private OpenLibraryIndexJobMongoEntity awaitTerminalStatus() throws InterruptedException {

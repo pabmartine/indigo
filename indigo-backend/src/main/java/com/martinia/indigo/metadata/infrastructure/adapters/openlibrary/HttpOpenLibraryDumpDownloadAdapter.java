@@ -21,11 +21,14 @@ import com.martinia.indigo.metadata.domain.model.OpenLibraryIndexCancelledExcept
 import com.martinia.indigo.metadata.domain.model.OpenLibraryRemoteFile;
 import com.martinia.indigo.metadata.domain.ports.adapters.openlibrary.OpenLibraryDumpDownloadPort;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
 
 @Component
 public class HttpOpenLibraryDumpDownloadAdapter implements OpenLibraryDumpDownloadPort {
 	private static final int BUFFER_SIZE = 128 * 1024;
 	private static final Duration REQUEST_TIMEOUT = Duration.ofMinutes(10);
+	@Value("${metadata.openlibrary.dumps.inspect-timeout-millis:30000}")
+	private long inspectTimeoutMillis = 30_000L;
 	private final HttpClient httpClient = HttpClient.newBuilder()
 			.followRedirects(HttpClient.Redirect.NORMAL)
 			.connectTimeout(Duration.ofSeconds(30))
@@ -35,7 +38,7 @@ public class HttpOpenLibraryDumpDownloadAdapter implements OpenLibraryDumpDownlo
 	public OpenLibraryRemoteFile inspect(final String url) {
 		try {
 			final HttpRequest request = HttpRequest.newBuilder(URI.create(url))
-					.timeout(REQUEST_TIMEOUT)
+					.timeout(Duration.ofMillis(inspectTimeoutMillis))
 					.method("HEAD", HttpRequest.BodyPublishers.noBody())
 					.build();
 			final HttpResponse<Void> response = httpClient.send(request, HttpResponse.BodyHandlers.discarding());
@@ -152,7 +155,7 @@ public class HttpOpenLibraryDumpDownloadAdapter implements OpenLibraryDumpDownlo
 
 	private OpenLibraryRemoteFile inspectWithRange(final String url) throws IOException, InterruptedException {
 		final HttpRequest request = HttpRequest.newBuilder(URI.create(url))
-				.timeout(REQUEST_TIMEOUT)
+				.timeout(Duration.ofMillis(inspectTimeoutMillis))
 				.header("Range", "bytes=0-0")
 				.GET()
 				.build();

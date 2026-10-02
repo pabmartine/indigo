@@ -15,6 +15,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
@@ -202,21 +203,29 @@ public class OpenLibraryIndexManager {
 				job.setAuthorsFile(safeJobFile(job.getEditionsFile()).resolveSibling("authors.txt.gz").toString());
 			}
 			job.setStatus(OpenLibraryIndexJobStatus.CHECKING_SPACE);
+			job.setDetail("Preparando la comprobación de volcados");
 			job.setStartedAt(job.getStartedAt() == null ? new Date() : job.getStartedAt());
 			saveStage(job);
 
-			final OpenLibraryRemoteFile editionsRemote = downloadPort.inspect(job.getEditionsUrl());
-			final OpenLibraryRemoteFile ratingsRemote = downloadPort.inspect(job.getRatingsUrl());
-			final OpenLibraryRemoteFile authorsRemote = downloadPort.inspect(job.getAuthorsUrl());
 			final Path editionsFile = safeJobFile(job.getEditionsFile());
 			final Path ratingsFile = safeJobFile(job.getRatingsFile());
 			final Path authorsFile = safeJobFile(job.getAuthorsFile());
+			final OpenLibraryRemoteFile editionsRemote = preparationStep(job, "Comprobando el volcado de ediciones",
+					() -> inspectDump(job.getEditionsUrl(), editionsFile, job.getEditionsLastModified()));
+			final OpenLibraryRemoteFile ratingsRemote = preparationStep(job, "Comprobando el volcado de valoraciones",
+					() -> inspectDump(job.getRatingsUrl(), ratingsFile, job.getRatingsLastModified()));
+			final OpenLibraryRemoteFile authorsRemote = preparationStep(job, "Comprobando el volcado de autores",
+					() -> inspectDump(job.getAuthorsUrl(), authorsFile, job.getAuthorsLastModified()));
 			final long otherSize = saturatingAdd(positive(ratingsRemote.size()), positive(authorsRemote.size()));
-			ensureFreeSpace(editionsRemote.size(), otherSize, editionsFile, ratingsFile, authorsFile);
+			preparationStep(job, "Comprobando espacio libre en disco", () -> {
+				ensureFreeSpace(editionsRemote.size(), otherSize, editionsFile, ratingsFile, authorsFile);
+				return true;
+			});
 			job.setTotalBytes(saturatingAdd(positive(editionsRemote.size()), otherSize));
 			jobRepository.save(job);
 
-			final Set<String> libraryIsbns = libraryIsbns();
+			final Set<String> libraryIsbns = preparationStep(job, "Cargando los ISBN de la biblioteca desde MongoDB",
+					this::libraryIsbns);
 			job.setLibraryIsbns(libraryIsbns.size());
 			job.setStatus(OpenLibraryIndexJobStatus.DOWNLOADING_EDITIONS);
 			saveStage(job);
@@ -314,6 +323,7 @@ public class OpenLibraryIndexManager {
 			cleanupStaging(version);
 			deleteJobFiles(job);
 			job.setStatus(OpenLibraryIndexJobStatus.CANCELLED);
+			job.setDetail(null);
 			job.setCancelRequested(false);
 			job.setError(null);
 			job.setCompletedAt(new Date());
@@ -326,22 +336,51 @@ public class OpenLibraryIndexManager {
 				log.info("Open Library index job {} interrupted by shutdown and will resume on startup", version);
 				return;
 			}
+			log.error("Open Library index job {} failed", version, exception);
 			cleanupStaging(version);
 			job.setStatus(OpenLibraryIndexJobStatus.FAILED);
+			job.setDetail(null);
 			job.setError(exception.getMessage());
 			job.setCompletedAt(new Date());
 			job.setUpdatedAt(new Date());
 			jobRepository.save(job);
-			log.error("Open Library index job {} failed", version, exception);
 		}
 	}
 
 	private void saveStage(final OpenLibraryIndexJobMongoEntity job) {
+		if (job.getStatus() != OpenLibraryIndexJobStatus.CHECKING_SPACE) job.setDetail(null);
 		job.setUpdatedAt(new Date());
 		jobRepository.save(job);
 		log.info("Open Library index job {}: stage={} processedRecords={} downloadedBytes={} totalBytes={}",
 				job.getStagingVersion(), job.getStatus(), job.getProcessedRecords(), job.getDownloadedBytes(),
 				job.getTotalBytes());
+	}
+
+	private <T> T preparationStep(final OpenLibraryIndexJobMongoEntity job, final String detail,
+			final Supplier<T> operation) {
+		checkCancellation();
+		job.setDetail(detail);
+		log.info("Open Library index job {} preparing: {}", job.getStagingVersion(), detail);
+		saveStage(job);
+		final long started = System.nanoTime();
+		final T result = operation.get();
+		log.info("Open Library index job {} prepared: {} elapsedMs={}", job.getStagingVersion(), detail,
+				(System.nanoTime() - started) / 1_000_000L);
+		checkCancellation();
+		return result;
+	}
+
+	private OpenLibraryRemoteFile inspectDump(final String url, final Path file, final String lastModified) {
+		if (Files.isRegularFile(file)) {
+			try {
+				log.info("Open Library index reusing downloaded dump {}", file.getFileName());
+				return new OpenLibraryRemoteFile(Files.size(file), lastModified, null);
+			}
+			catch (IOException exception) {
+				throw new IllegalStateException("Could not inspect downloaded dump " + file, exception);
+			}
+		}
+		return downloadPort.inspect(url);
 	}
 
 	private Set<String> libraryAuthorNames() {
