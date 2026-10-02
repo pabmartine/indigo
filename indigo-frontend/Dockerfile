@@ -1,4 +1,3 @@
-# syntax=docker/dockerfile:1
 ### STAGE 1:BUILD ###
 FROM node:18.10.0 AS node
 WORKDIR /app
@@ -6,7 +5,7 @@ WORKDIR /app
 # La instalación solo cambia cuando cambian las dependencias.
 COPY package.json package-lock.json ./
 # El lockfile existente no incluye la resolución automática de peer dependencies.
-RUN --mount=type=cache,target=/root/.npm npm ci --legacy-peer-deps --no-audit --no-fund
+RUN npm ci --legacy-peer-deps --no-audit --no-fund
 
 COPY . .
 RUN npm run build -- --configuration=production

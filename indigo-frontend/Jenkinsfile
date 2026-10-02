@@ -7,10 +7,6 @@ pipeline {
         timestamps()
     }
 
-    environment {
-        DOCKER_BUILDKIT = '1'
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -49,7 +45,16 @@ pipeline {
                         . ./.env.frontend
                         set +a
 
-                        docker build --progress=plain -t "indigo-frontend:build-${BUILD_NUMBER}" \
+                        if docker buildx version >/dev/null 2>&1; then
+                            export DOCKER_BUILDKIT=1
+                            set -- --progress=plain
+                        else
+                            echo "Buildx no disponible: usando el constructor clásico de Docker"
+                            export DOCKER_BUILDKIT=0
+                            set --
+                        fi
+
+                        docker build "$@" -t "indigo-frontend:build-${BUILD_NUMBER}" \
                             --build-arg NG_APP_API_ENDPOINT="${NG_APP_API_ENDPOINT:-}" \
                             --build-arg NG_APP_INTERNAL_ENDPOINT="${NG_APP_INTERNAL_ENDPOINT:-}" \
                             --build-arg NG_APP_WHITELIST="${NG_APP_WHITELIST:-}" \
