@@ -22,4 +22,9 @@ public class StopMetadataUseCaseImpl implements StopMetadataUseCase {
 		metadataSingleton.stop();
 	}
 
+	@Override
+	public void stop(String entity) {
+		metadataSingleton.stop(entity);
+	}
+
 }

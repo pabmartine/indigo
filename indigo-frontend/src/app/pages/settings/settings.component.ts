@@ -32,6 +32,21 @@ export class SettingsComponent implements OnInit, OnDestroy {
   message: string;
   progressBar: number = 0;
   metadataRunning: boolean = false;
+  libraryIndex: any;
+  indexBusy = false;
+  get indexRunning(): boolean {
+    return !!this.libraryIndex && !['IDLE', 'COMPLETED', 'FAILED', 'CANCELLED'].includes(this.libraryIndex.status);
+  }
+  indexAction(action: string): void {
+    if (this.indexBusy) return;
+    if (action === 'start' && !window.confirm('¿Descargar y reconstruir el índice local de Open Library? Se descargarán varios GB.')) return;
+    this.indexBusy = true;
+    const request = action === 'status' ? this.metadataService.libraryIndex() : this.metadataService.controlLibraryIndex(action);
+    request.pipe(takeUntil(this.destroy$), finalize(() => { this.indexBusy = false; this.cdr.markForCheck(); })).subscribe({
+      next: result => { this.libraryIndex = result; },
+      error: () => this.messageService.add({severity: 'error', summary: 'No se pudo actualizar el índice de Open Library'})
+    });
+  }
   metadataItems: any[] = [];
   metadataHistory: any[] = [];
   activityBusy = false;
@@ -127,7 +142,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
   metadataCompletedAt: number | null = null;
   metadataRuns: { [key: string]: any } = {};
-  private metadataCompletionNotified = false;
 
   detectingUploads = false;
   startingUpload = false;
@@ -208,6 +222,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.getData();
     this.loadActivity();
     this.startStatusPolling();
+    timer(0, 5000).pipe(rxFilter(() => !document.hidden),
+      switchMap(() => this.metadataService.libraryIndex().pipe(catchError(() => EMPTY))),
+      takeUntil(this.destroy$)).subscribe(value => { this.libraryIndex = value; this.cdr.markForCheck(); });
     timer(0, 3000).pipe(rxFilter(() => !document.hidden),
       switchMap(() => this.metadataService.reviewQueue().pipe(catchError(() => EMPTY))),
       takeUntil(this.destroy$)).subscribe(value => this.updateReviewQueue(value));
@@ -243,7 +260,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
 
     const wasUploadsRunning = this.uploadsRunning;
-    const wasMetadataRunning = this.metadataRunning;
+    const previousRuns = this.metadataRuns;
     this.type = data.type;
     this.entity = data.entity;
     this.metadataRunning = !!data.status;
@@ -252,7 +269,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.total = data.total;
     this.message = data.message;
     this.metadataRuns = data.runs || {};
-    if (this.type && this.entity) {
+    if (!data.runs && this.type && this.entity) {
       this.metadataRuns[`${this.type}:${this.entity}`] = {
         ...(this.metadataRuns[`${this.type}:${this.entity}`] || {}),
         type: this.type, entity: this.entity, status: this.metadataRunning,
@@ -273,18 +290,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.uploadsMoved = data.uploadsMoved || 0;
     this.uploadsDeleted = data.uploadsDeleted || 0;
 
-    if (this.metadataRunning) {
-      this.metadataCompletionNotified = false;
-    }
-    else if (wasMetadataRunning && this.total > 0 && !this.metadataCompletionNotified) {
-      this.metadataCompletionNotified = true;
-      this.messageService.add({
-        severity: (data.errors || 0) > 0 ? 'warn' : 'success',
-        summary: 'Actualización de metadatos',
-        detail: `Proceso terminado: ${data.found || 0} encontrados, ${data.notFound || 0} sin coincidencia, ${data.errors || 0} errores.`,
-        closable: false,
-        life: 10000
-      });
+    for (const [key, run] of Object.entries(this.metadataRuns) as [string, any][]) {
+      if (previousRuns[key]?.status && !run.status && run.current >= run.total) {
+        this.messageService.add({
+          severity: (run.errors || 0) > 0 ? 'warn' : 'success',
+          summary: run.entity === 'AUTHORS' ? 'Metadatos de autores' : 'Metadatos de libros',
+          detail: `Proceso terminado: ${run.found || 0} encontrados, ${run.notFound || 0} sin coincidencia, ${run.errors || 0} errores.`,
+          closable: false,
+          life: 10000
+        });
+      }
     }
 
     if (this.uploadsRunning) {
@@ -498,31 +513,31 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   isBooksFull() {
-    return this.metadataRunning && this.type === 'FULL' && this.entity === 'BOOKS';
+    return this.isMetadataRunning('FULL', 'BOOKS');
   }
 
   isBooksPartial() {
-    return this.metadataRunning && this.type === 'PARTIAL' && this.entity === 'BOOKS';
+    return this.isMetadataRunning('PARTIAL', 'BOOKS');
   }
 
   isAuthorsFull() {
-    return this.metadataRunning && this.type === 'FULL' && this.entity === 'AUTHORS';
+    return this.isMetadataRunning('FULL', 'AUTHORS');
   }
 
   isAuthorsPartial() {
-    return this.metadataRunning && this.type === 'PARTIAL' && this.entity === 'AUTHORS';
+    return this.isMetadataRunning('PARTIAL', 'AUTHORS');
   }
 
   isReviewsFull() {
-    return this.metadataRunning && this.type === 'FULL' && this.entity === 'REVIEWS';
+    return this.isMetadataRunning('FULL', 'REVIEWS');
   }
 
   isReviewsPartial() {
-    return this.metadataRunning && this.type === 'PARTIAL' && this.entity === 'REVIEWS';
+    return this.isMetadataRunning('PARTIAL', 'REVIEWS');
   }
 
   isMetadataRunning(type: string, entity: string): boolean {
-    return this.type === type && this.entity === entity;
+    return !!this.getMetadataRun(type, entity)?.status;
   }
 
   getMetadataProgress(type: string, entity: string): number {
@@ -576,6 +591,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
+            for (const mode of ['FULL', 'PARTIAL']) {
+              const previous = this.metadataRuns[`${mode}:${entity}`];
+              if (previous) previous.status = false;
+            }
+            this.metadataRuns[`${type}:${entity}`] = {
+              type, entity, status: true, current: 0, total: 0
+            };
             this.type = type;
             this.entity = entity;
             this.current = 0;
@@ -583,27 +605,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
             this.progressBar = 0;
             this.metadataRunning = true;
             this.metadataCompletedAt = null;
-            this.metadataCompletionNotified = false;
             this.messageService.add({ severity: 'info', detail: 'Actualización de metadatos iniciada.', closable: false, life: 5000 });
             this.cdr.markForCheck();
           },
           error: (error) => {
             console.log(error);
             this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.start.error'), closable: false, life: 5000 });
-          }
-        });
-    };
-
-    const stopAndStartMetadataService = () => {
-      this.metadataService.stop()
-        .pipe(takeUntil(this.destroy$))
-        .subscribe({
-          next: () => {
-            startMetadataService();
-          },
-          error: (error) => {
-            console.log(error);
-            this.messageService.add({ severity: 'error', detail: this.translate.instant('locale.settings.actions.stop.error'), closable: false, life: 5000 });
           }
         });
     };
@@ -616,12 +623,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
       (type === 'FULL' && entity === 'BOOKS' && this.isBooksFull()) ||
       (type === 'PARTIAL' && entity === 'BOOKS' && this.isBooksPartial())
     ) {
-      this.metadataService.stop()
+      this.metadataService.stop(entity)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            this.type = null;
-            this.entity = null;
+            this.metadataRuns[`${type}:${entity}`].status = false;
+            this.metadataRunning = Object.values(this.metadataRuns).some((run: any) => run.status);
+            this.cdr.markForCheck();
           },
           error: (error) => {
             console.log(error);
@@ -629,7 +637,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
           }
         });
     } else {
-      stopAndStartMetadataService();
+      startMetadataService();
     }
   }
 

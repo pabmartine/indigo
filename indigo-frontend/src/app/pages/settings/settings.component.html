@@ -101,6 +101,18 @@
 
       <div class="p-col">
         <p-panel header="{{'locale.settings.panel.metadata.title' | translate}}" [toggleable]="true" [collapsed]="true">
+          <p>Libros, autores y opiniones pueden ejecutarse a la vez. Solo se sustituye el proceso de la misma sección.</p>
+          <div class="metadata-task-card">
+            <div class="metadata-task-title">Índice local de Open Library</div>
+            <p>Descarga los volcados de ediciones, valoraciones y autores de Open Library. Puede ocupar varios GB.
+              Reconstruye el índice para priorizar el catálogo local antes de obtener autores y después de añadir autores nuevos.</p>
+            <button pButton type="button" label="Actualizar estado" (click)="indexAction('status')" [disabled]="indexBusy"></button>
+            <button pButton type="button" label="Reconstruir índice" (click)="indexAction('start')" [disabled]="indexBusy || indexRunning"></button>
+            <button pButton type="button" label="Reanudar" (click)="indexAction('resume')" [disabled]="indexBusy || !['FAILED', 'CANCELLED'].includes(libraryIndex?.status)"></button>
+            <button pButton type="button" label="Cancelar" (click)="indexAction('cancel')" [disabled]="indexBusy || !indexRunning"></button>
+            <p *ngIf="libraryIndex">Estado: {{ libraryIndex.status }} · Autores indexados: {{ libraryIndex.matchedAuthors || 0 }}</p>
+            <p *ngIf="libraryIndex?.error">{{ libraryIndex.error }}</p>
+          </div>
           <div class="metadata-overview">
             <section class="metadata-section books-theme">
               <header class="metadata-section-header">
@@ -174,7 +186,7 @@
                   <div class="metadata-task-top">
                     <div>
                       <div class="metadata-task-title">Todos los autores</div>
-                      <div class="metadata-task-description">Actualizar biografías y datos de autores</div>
+                      <div class="metadata-task-description">Catálogo local con Wikipedia y Open Library de respaldo; biografías en español con LibreTranslate</div>
                     </div>
                     <div class="metadata-task-actions">
                       <span class="metadata-task-status">{{ getMetadataStatusLabel('FULL', 'AUTHORS') }}</span>

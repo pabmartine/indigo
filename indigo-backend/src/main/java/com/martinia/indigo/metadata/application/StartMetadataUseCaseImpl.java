@@ -48,9 +48,6 @@ public class StartMetadataUseCaseImpl implements StartMetadataUseCase {
 			reviewQueue.start("FULL".equals(type), lang, false);
 			return;
 		}
-		if (metadataSingleton.isRunning()) {
-			metadataSingleton.stop();
-		}
 		final long runId = metadataSingleton.start(type, entity);
 
 		if (type.equals(MetadataProcessType.FULL.name())) {

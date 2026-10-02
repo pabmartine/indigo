@@ -30,6 +30,7 @@ class MetadataWorkflowIntegrationTest extends BaseIndigoIntegrationTest {
     @Resource private OpenLibraryIndexJobRepository jobs;
     @Resource private OpenLibraryEditionMappingRepository mappings;
     @Resource private OpenLibraryRatingRepository ratings;
+    @Resource private OpenLibraryAuthorRepository localAuthors;
     @Resource private com.martinia.indigo.file.application.PendingImportService pendingImports;
 
     @org.junit.jupiter.params.ParameterizedTest
@@ -83,7 +84,7 @@ class MetadataWorkflowIntegrationTest extends BaseIndigoIntegrationTest {
         var book = bookRepository.findAll().get(0);
         Path installed = Path.of(book.getPath()).resolve("first.epub");
         await(() -> Files.exists(installed));
-        jobs.save(OpenLibraryIndexJobMongoEntity.builder().id(OpenLibraryIndexManager.JOB_ID).activeVersion("workflow").build());
+        jobs.save(OpenLibraryIndexJobMongoEntity.builder().id(OpenLibraryIndexManager.JOB_ID).activeVersion("workflow").authorsVersion("workflow").build());
         mappings.save(OpenLibraryEditionMappingMongoEntity.builder().id("workflow-map").indexVersion("workflow")
                 .isbn("9780306406157").workId("OL1W").editionId("OL1M").build());
         ratings.save(OpenLibraryRatingMongoEntity.builder().id("workflow-rating").indexVersion("workflow")
@@ -92,8 +93,10 @@ class MetadataWorkflowIntegrationTest extends BaseIndigoIntegrationTest {
                 .mergePolicy(MetadataMergePolicy.FILL_MISSING).dynamicPolicy(DynamicMetadataPolicy.REFRESH_IF_STALE).build()));
         assertEquals(4.5F, bookRepository.findById(book.getId()).orElseThrow().getRatingAverage());
 
-        when(dataUtils.getData(contains("search/authors"))).thenReturn("{\"docs\":[{\"key\":\"OL1A\",\"name\":\"Test Author\"}]}");
-        when(dataUtils.getData(contains("authors/OL1A.json"))).thenReturn("{\"bio\":\"Writer\"}");
+        localAuthors.save(OpenLibraryAuthorMongoEntity.builder().id("workflow-author").indexVersion("workflow")
+                .authorId("OL1A").names(List.of("test author")).biography("Writer").build());
+        jobs.save(OpenLibraryIndexJobMongoEntity.builder().id(OpenLibraryIndexManager.JOB_ID)
+                .activeVersion("workflow").authorsVersion("workflow").build());
         doReturn("Escritor de prueba").when(translateLibreTranslatePort).translate("Writer", "es");
         doReturn("en").when(detectLibreTranslatePort).detect("Writer");
         var author = authorRepository.findAll().get(0);

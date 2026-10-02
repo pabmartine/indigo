@@ -91,6 +91,7 @@ metadata:
         author-info: https://openlibrary.org/authors/$id.json
         author-image: https://covers.openlibrary.org/a/olid/$id-L.jpg?default=false
         dumps:
+            authors-url: https://openlibrary.org/data/ol_dump_authors_latest.txt.gz
             editions-url: https://openlibrary.org/data/ol_dump_editions_latest.txt.gz
             ratings-url: https://openlibrary.org/data/ol_dump_ratings_latest.txt.gz
             storage-path: /tmp/indigo-test/openlibrary

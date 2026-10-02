@@ -56,12 +56,18 @@ class CatalogPerformanceIntegrationTest {
 					new Document("_id", foreign).append("path", "fr").append("languages", List.of("fr")),
 					new Document("_id", source).append("path", "source").append("languages", List.of("en"))
 							.append("recommendations", List.of(a.toHexString(), b.toHexString(), b.toHexString(),
+									b.toHexString().toUpperCase(java.util.Locale.ROOT), b,
 									foreign.toHexString(), source.toHexString(), "invalid", new org.bson.types.ObjectId().toHexString())),
-					new Document("path", "source2").append("recommendations", List.of(a.toHexString()))));
-			for (String path : List.of("source", "source", "source", "source2")) {
+					new Document("path", "source2").append("recommendations", List.of(a.toHexString())),
+					new Document("path", "no-recommendations"),
+					new Document("path", "null-recommendations").append("recommendations", null),
+					new Document("path", "failed-source").append("recommendations", List.of(b.toHexString()))));
+			for (String path : List.of("source", "source", "source", "source2", "no-recommendations", "null-recommendations")) {
 				template.getCollection("notifications").insertOne(new Document("user", "reader").append("type", "KINDLE")
 						.append("status", "SEND").append("kindle", new Document("book", path)));
 			}
+			template.getCollection("notifications").insertOne(new Document("user", "reader").append("type", "KINDLE")
+					.append("status", "NOT_SEND").append("kindle", new Document("book", "failed-source")));
 			var first = query.page("reader", 0, 1, "count", "desc", true);
 			assertThat(first.total()).isEqualTo(2);
 			assertThat(first.items()).extracting(BookMongoEntity::getId).containsExactly(a.toHexString());
@@ -72,6 +78,12 @@ class CatalogPerformanceIntegrationTest {
 			assertThat(query.page("reader", 0, 20, "title", "asc", true).items())
 					.extracting(BookMongoEntity::getId).containsExactly(b.toHexString(), a.toHexString());
 			assertThat(query.count("reader")).isEqualTo(first.total());
+			var full = query.page("reader", 0, 1, "count", "desc", false);
+			assertThat(full.items().get(0).getImage()).isEqualTo("large image");
+			assertThat(full.items().get(0).getComment()).isEqualTo("long comment");
+			var beyondEnd = query.page("reader", 3, 1, "count", "desc", true);
+			assertThat(beyondEnd.items()).isEmpty();
+			assertThat(beyondEnd.total()).isEqualTo(2);
 			assertThat(query.page("missing", 0, 20, "count", "desc", true).total()).isZero();
 			user.setLanguageBooks(List.of());
 			assertThat(query.count("reader")).isEqualTo(3);

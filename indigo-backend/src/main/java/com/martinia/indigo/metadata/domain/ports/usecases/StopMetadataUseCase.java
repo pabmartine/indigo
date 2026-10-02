@@ -4,4 +4,6 @@ public interface StopMetadataUseCase {
 
 	void stop();
 
+	void stop(String entity);
+
 }

@@ -22,6 +22,13 @@ public class StopMetadataControllerUnitTest {
     private StopMetadataController controller;
 
     @Test
+    void stopEntityDoesNotCallGlobalStop() {
+        assertEquals(HttpStatus.OK, controller.stop("AUTHORS").getStatusCode());
+        verify(useCase).stop("AUTHORS");
+        verify(useCase, never()).stop();
+    }
+
+    @Test
     void stop_ShouldCallUseCaseAndReturnOk() {
         // When
         ResponseEntity<Void> result = controller.stop();

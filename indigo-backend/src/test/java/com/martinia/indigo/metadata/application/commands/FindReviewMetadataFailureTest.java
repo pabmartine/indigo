@@ -33,6 +33,6 @@ class FindReviewMetadataFailureTest {
 		assertSame(existing, book.getReviews());
 		assertNull(book.getLastReviewsMetadataSync());
 		assertTrue(book.getReviewsMetadataError().contains("AMAZON"));
-		verify(books).save(book);
+		verify(books).updateReviewMetadata(book);
 	}
 }

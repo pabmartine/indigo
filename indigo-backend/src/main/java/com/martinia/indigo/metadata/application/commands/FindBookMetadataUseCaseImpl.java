@@ -135,7 +135,7 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 			}
 
 			book.setLastMetadataSync(Calendar.getInstance().getTime());
-			bookRepository.save(book);
+			bookRepository.updateBookMetadata(book);
 
 			eventBus.publish(BookMetadataFoundEvent.builder().bookId(book.getId()).similar(null).build());
 			return bookData == null ? MetadataItemResult.NOT_FOUND : MetadataItemResult.FOUND;

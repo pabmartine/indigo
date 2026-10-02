@@ -95,7 +95,7 @@ class FindAuthorMetadataCommandHandlerIntegrationTest extends BaseIndigoIntegrat
 
 
 	@Test
-	void findAmazonReviewsWikipediaFound() {
+	void findWikipediaAuthorWhenLocalCatalogHasNoMatch() {
 		//Given
 		FindAuthorMetadataCommand command = FindAuthorMetadataCommand.builder()
 				.authorId("id")
@@ -123,9 +123,9 @@ class FindAuthorMetadataCommandHandlerIntegrationTest extends BaseIndigoIntegrat
 		assertEquals(authorMongoEntity.getId(), entity.getId());
 		assertEquals(authorMongoEntity.getName(), entity.getName());
 		assertEquals(authorMongoEntity.getSort(), entity.getSort());
-//		assertEquals(wikipedia[0], entity.getDescription());
-//		assertEquals(wikipedia[2], entity.getProvider());
-//		assertEquals(wikipedia[1], entity.getImage());
+		assertEquals(wikipedia[0], entity.getDescription());
+		assertEquals(wikipedia[2], entity.getProvider());
+		assertEquals(wikipedia[1], entity.getImage());
 		assertTrue(authorMongoEntity.getLastMetadataSync().before(entity.getLastMetadataSync()));
 	}
 

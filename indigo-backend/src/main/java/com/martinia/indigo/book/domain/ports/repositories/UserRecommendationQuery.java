@@ -32,6 +32,7 @@ public class UserRecommendationQuery {
 			throw new IllegalArgumentException("Page must be non-negative and size must be between 1 and 200");
 		}
 		List<Document> pipeline = selection(username, summary);
+		long preparationMs = (System.nanoTime() - started) / 1_000_000;
 		if (pipeline.isEmpty()) {
 			return new Result(List.of(), 0);
 		}
@@ -43,10 +44,19 @@ public class UserRecommendationQuery {
 		if (!"_id".equals(field)) {
 			sorting.append("_id", 1);
 		}
-		pipeline.add(new Document("$facet", new Document("items", List.of(
-				new Document("$sort", sorting), new Document("$skip", (long) page * size), new Document("$limit", size)))
+		List<Document> itemsPipeline = new ArrayList<>(List.of(
+				new Document("$sort", sorting), new Document("$skip", (long) page * size), new Document("$limit", size)));
+		if (!summary) {
+			itemsPipeline.add(new Document("$lookup", new Document("from", "books").append("localField", "_id")
+					.append("foreignField", "_id").append("as", "book")));
+			itemsPipeline.add(new Document("$unwind", "$book"));
+			itemsPipeline.add(bookWithCount());
+		}
+		pipeline.add(new Document("$facet", new Document("items", itemsPipeline)
 				.append("total", List.of(new Document("$count", "value")))));
+		long aggregateStarted = System.nanoTime();
 		Document result = mongoTemplate.getCollection("books").aggregate(pipeline).allowDiskUse(true).first();
+		long aggregateMs = (System.nanoTime() - aggregateStarted) / 1_000_000;
 		if (result == null) {
 			return new Result(List.of(), 0);
 		}
@@ -56,13 +66,13 @@ public class UserRecommendationQuery {
 		long total = totals.isEmpty() ? 0 : ((Number) totals.get(0).get("value")).longValue();
 		long elapsedMs = (System.nanoTime() - started) / 1_000_000;
 		var timingLog = elapsedMs >= 1000 ? log.atInfo() : log.atDebug();
-		timingLog.log("Recommendation page={} size={} items={} total={} summary={} totalMs={}",
-				page, size, items.size(), total, summary, elapsedMs);
+		timingLog.log("Recommendation page={} size={} items={} total={} summary={} preparationMs={} aggregateMs={} totalMs={}",
+				page, size, items.size(), total, summary, preparationMs, aggregateMs, elapsedMs);
 		return new Result(items, total);
 	}
 
 	public long count(String username) {
-		List<Document> pipeline = selection(username, true);
+		List<Document> pipeline = selection(username, false);
 		if (pipeline.isEmpty()) {
 			return 0;
 		}
@@ -86,35 +96,39 @@ public class UserRecommendationQuery {
 		if (paths.isEmpty()) {
 			return new ArrayList<>();
 		}
-		Document candidateFilter = new Document("$expr", new Document("$eq", List.of("$_id", "$$candidate")))
-				.append("path", new Document("$nin", paths));
+		Document candidateFilter = new Document("book.path", new Document("$nin", paths));
 		List<String> languages = user.get().getLanguageBooks();
 		if (languages != null && !languages.isEmpty()) {
-			candidateFilter.append("languages", new Document("$in", languages.stream()
+			candidateFilter.append("book.languages", new Document("$in", languages.stream()
 					.flatMap(language -> LanguageCodeUtils.variants(language).stream()).distinct().toList()));
 		}
-		List<Document> lookup = new ArrayList<>();
-		lookup.add(new Document("$match", candidateFilter));
+		Document targets = new Document("$map", new Document("input",
+				new Document("$ifNull", List.of("$recommendations", List.of())))
+				.append("as", "target").append("in", new Document("$convert",
+						new Document("input", "$$target").append("to", "objectId").append("onError", null).append("onNull", null))));
+		Document projection = new Document("count", 1).append("book._id", 1).append("book.title", 1)
+				.append("book.path", 1).append("book.pubDate", 1).append("book.pages", 1)
+				.append("book.rating", 1).append("book.lastModified", 1);
 		if (summary) {
-			lookup.add(new Document("$project", new Document("_id", 1).append("title", 1).append("path", 1)
-					.append("authors", 1).append("serie", 1).append("pubDate", 1).append("pages", 1)
-					.append("rating", 1).append("tags", 1).append("languages", 1).append("lastModified", 1)));
+			projection.append("book.authors", 1).append("book.serie", 1).append("book.tags", 1).append("book.languages", 1);
 		}
 		return new ArrayList<>(List.of(
 				new Document("$match", new Document("path", new Document("$in", paths))),
-				new Document("$project", new Document("recommendations", 1)),
+				new Document("$project", new Document("recommendations", new Document("$setUnion", List.of(targets, List.of())))),
 				new Document("$unwind", "$recommendations"),
-				// Count distinct source books, not sends or duplicate references within one book.
-				new Document("$group", new Document("_id", new Document("source", "$_id").append("target",
-						new Document("$convert", new Document("input", "$recommendations").append("to", "objectId")
-								.append("onError", null).append("onNull", null))))),
-				new Document("$group", new Document("_id", "$_id.target").append("count", new Document("$sum", 1))),
-				new Document("$match", new Document("_id", new Document("$ne", null))),
-				new Document("$lookup", new Document("from", "books").append("let", new Document("candidate", "$_id"))
-						.append("pipeline", lookup).append("as", "book")),
+				new Document("$match", new Document("recommendations", new Document("$ne", null))),
+				new Document("$group", new Document("_id", "$recommendations").append("count", new Document("$sum", 1))),
+				new Document("$lookup", new Document("from", "books").append("localField", "_id")
+						.append("foreignField", "_id").append("as", "book")),
 				new Document("$unwind", "$book"),
-				new Document("$replaceRoot", new Document("newRoot", new Document("$mergeObjects",
-						List.of("$book", new Document("count", "$count")))))
+				new Document("$match", candidateFilter),
+				new Document("$project", projection),
+				bookWithCount()
 		));
+	}
+
+	private Document bookWithCount() {
+		return new Document("$replaceRoot", new Document("newRoot", new Document("$mergeObjects",
+				List.of("$book", new Document("count", "$count")))));
 	}
 }

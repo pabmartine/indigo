@@ -23,6 +23,11 @@ public class OpenLibraryIndexJobMongoEntity {
 	private OpenLibraryIndexJobStatus status;
 	private String stagingVersion;
 	private String activeVersion;
+	private String authorsVersion;
+	private String authorsUrl;
+	private String authorsFile;
+	private String authorsLastModified;
+	private long matchedAuthors;
 	private String editionsUrl;
 	private String ratingsUrl;
 	private String editionsFile;

@@ -72,7 +72,7 @@ public class FindReviewMetadataUseCaseImplTest extends BaseIndigoTest {
 		// Verificar que el método getReviews() del findAmazonReviewsPort no es llamado
 		verify(findAmazonReviewsPort, never()).getReviews(anyString(), anyList());
 		// Verificar que el método save() del bookRepository no es llamado
-		verify(bookRepository, atLeast(1)).save(any());
+		verify(bookRepository, atLeast(1)).updateReviewMetadata(any());
 	}
 
 	// Otras pruebas para otros casos

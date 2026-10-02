@@ -34,6 +34,8 @@ class OpenLibraryDumpProcessorTest {
 	private OpenLibraryEditionMappingRepository mappingRepository;
 	@Mock
 	private OpenLibraryRatingRepository ratingRepository;
+	@Mock
+	private com.martinia.indigo.metadata.domain.ports.repositories.OpenLibraryAuthorRepository authorRepository;
 	@InjectMocks
 	private OpenLibraryDumpProcessor processor;
 
@@ -99,6 +101,34 @@ class OpenLibraryDumpProcessorTest {
 		assertThatThrownBy(() -> processor.processEditions(dump, "version-3", Set.of(), () -> true,
 				ignored -> {
 				})).isInstanceOf(OpenLibraryIndexCancelledException.class);
+	}
+
+	@Test
+	void indexesMatchingNamesAndAliasesWithBothBiographyFormats() throws IOException {
+		Path dump = gzip("authors.txt.gz", """
+				/type/author\t/authors/OL1A\t1\t2026-08-01\t{"name":"José Pérez","bio":{"value":"Writer"},"photos":[123]}
+				/type/author\t/authors/OL2A\t1\t2026-08-01\t{"name":"Other name","alternate_names":["José Pérez"],"bio":"Another writer","photos":[-1]}
+				/type/author\t/authors/OL3A\t1\t2026-08-01\t{"name":"Unrelated"}
+				""");
+		var result = processor.processAuthors(dump, "authors-v1", Set.of("jose perez"), () -> false, ignored -> {});
+		assertThat(result.processedRecords()).isEqualTo(3);
+		assertThat(result.matchedAuthors()).isEqualTo(2);
+		ArgumentCaptor<List<com.martinia.indigo.metadata.infrastructure.mongo.entities.OpenLibraryAuthorMongoEntity>> authors = ArgumentCaptor.forClass(List.class);
+		verify(authorRepository).saveAll(authors.capture());
+		assertThat(authors.getValue()).extracting(author -> author.getBiography()).containsExactly("Writer", "Another writer");
+		assertThat(authors.getValue().get(0).isHasPhoto()).isTrue();
+		assertThat(authors.getValue().get(1).isHasPhoto()).isFalse();
+		assertThat(authors.getValue().get(0).getNames()).containsExactly("jose perez");
+	}
+
+	@Test
+	void cancelsAuthorDumpAndRejectsCorruption() throws IOException {
+		Path dump = gzip("cancel-authors.txt.gz", "invalid row\n");
+		assertThatThrownBy(() -> processor.processAuthors(dump, "version", Set.of(), () -> true, ignored -> {}))
+				.isInstanceOf(OpenLibraryIndexCancelledException.class);
+		Files.writeString(dump, "corrupt");
+		assertThatThrownBy(() -> processor.processAuthors(dump, "version", Set.of(), () -> false, ignored -> {}))
+				.isInstanceOf(IllegalStateException.class);
 	}
 
 	private Path gzip(final String name, final String contents) throws IOException {

@@ -46,6 +46,21 @@ Sin historial o sin candidatos se devuelve una página vacía. No se inventan pr
 No se añade caché de recomendaciones: los cambios de historial, preferencias y metadatos se consultan directamente.
 La pantalla hace una petición por página, conserva las tarjetas durante la siguiente carga y usa su propia preferencia de orden.
 
+La consulta utiliza un `$lookup` de igualdad por `_id` (`localField`/`foreignField`),
+apoyado en el índice de identificadores, en lugar del subpipeline correlacionado
+con `$expr`. Véase la [documentación de rendimiento de `$lookup`](https://www.mongodb.com/docs/manual/reference/operator/aggregation/lookup/).
+Las referencias se convierten a ObjectId y se deduplican dentro de cada libro
+con `$setUnion` antes de descomponerlas: basta una agrupación global para obtener
+la relevancia. Los resúmenes conservan exclusivamente los campos de las tarjetas
+y evitan una segunda lectura de los libros. Para el endpoint antiguo, la ordenación
+y el conteo transportan únicamente identificadores, puntuaciones y campos de orden;
+los libros completos se incorporan después de limitar la página.
+
+El total sigue siendo exacto y se recalcula junto con la selección en cada petición.
+La paginación reduce la carga de detalles, pero todavía necesita recorrer los
+candidatos para aplicar las exclusiones, los idiomas y el orden por relevancia.
+No hay caché que retrase la aplicación de cambios en lecturas o preferencias.
+
 Al regenerar recomendaciones de un libro se ponderan categorías compartidas (3 puntos) y autores compartidos (2 puntos),
 con valoración e identificador como desempate. Se guardan hasta 200 candidatos.
 La ausencia de fecha o páginas ya no elimina candidatos relacionados.

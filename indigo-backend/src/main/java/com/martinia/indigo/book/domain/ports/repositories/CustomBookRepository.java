@@ -11,6 +11,12 @@ import com.martinia.indigo.serie.domain.model.SeriePageData;
 
 public interface CustomBookRepository {
 
+	void updateBookMetadata(BookMongoEntity book);
+
+	void updateReviewMetadata(BookMongoEntity book);
+
+	List<BookMongoEntity> findAuthorNamesBatch(String afterId);
+
 	// Maintenance reads are bounded and exclude covers and reviews.
 	List<BookMongoEntity> findCategoryBatch(String afterId);
 

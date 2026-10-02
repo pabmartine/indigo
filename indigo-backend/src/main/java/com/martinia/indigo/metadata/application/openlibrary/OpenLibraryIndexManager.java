@@ -56,6 +56,8 @@ public class OpenLibraryIndexManager {
 	private OpenLibraryEditionMappingRepository mappingRepository;
 	@Resource
 	private OpenLibraryRatingRepository ratingRepository;
+	@Resource(name = "openLibraryAuthorRepository")
+	private com.martinia.indigo.metadata.domain.ports.repositories.OpenLibraryAuthorRepository authorRepository;
 	@Resource
 	private BookRepository bookRepository;
 	@Resource
@@ -69,6 +71,8 @@ public class OpenLibraryIndexManager {
 	private String editionsUrl;
 	@Value("${metadata.openlibrary.dumps.ratings-url}")
 	private String ratingsUrl;
+	@Value("${metadata.openlibrary.dumps.authors-url}")
+	private String authorsUrl;
 	@Value("${metadata.openlibrary.dumps.storage-path}")
 	private String storagePath;
 	@Value("${metadata.openlibrary.dumps.minimum-free-space-bytes:1073741824}")
@@ -115,6 +119,9 @@ public class OpenLibraryIndexManager {
 						? activeVersion()
 						: current.getActiveVersion())
 				.editionsUrl(editionsUrl)
+				.authorsVersion(current == null ? null : current.getAuthorsVersion())
+				.authorsUrl(authorsUrl)
+				.authorsFile(downloads.resolve("authors.txt.gz").toString())
 				.ratingsUrl(ratingsUrl)
 				.editionsFile(downloads.resolve("editions.txt.gz").toString())
 				.ratingsFile(downloads.resolve("ratings.txt.gz").toString())
@@ -189,6 +196,10 @@ public class OpenLibraryIndexManager {
 	private void run(final String version) {
 		OpenLibraryIndexJobMongoEntity job = jobRepository.findById(JOB_ID).orElseThrow();
 		try {
+			if (job.getAuthorsUrl() == null) job.setAuthorsUrl(authorsUrl);
+			if (job.getAuthorsFile() == null) {
+				job.setAuthorsFile(safeJobFile(job.getEditionsFile()).resolveSibling("authors.txt.gz").toString());
+			}
 			job.setStatus(OpenLibraryIndexJobStatus.CHECKING_SPACE);
 			job.setStartedAt(job.getStartedAt() == null ? new Date() : job.getStartedAt());
 			job.setUpdatedAt(new Date());
@@ -196,10 +207,13 @@ public class OpenLibraryIndexManager {
 
 			final OpenLibraryRemoteFile editionsRemote = downloadPort.inspect(job.getEditionsUrl());
 			final OpenLibraryRemoteFile ratingsRemote = downloadPort.inspect(job.getRatingsUrl());
+			final OpenLibraryRemoteFile authorsRemote = downloadPort.inspect(job.getAuthorsUrl());
 			final Path editionsFile = safeJobFile(job.getEditionsFile());
 			final Path ratingsFile = safeJobFile(job.getRatingsFile());
-			ensureFreeSpace(editionsRemote.size(), ratingsRemote.size(), editionsFile, ratingsFile);
-			job.setTotalBytes(saturatingAdd(positive(editionsRemote.size()), positive(ratingsRemote.size())));
+			final Path authorsFile = safeJobFile(job.getAuthorsFile());
+			final long otherSize = saturatingAdd(positive(ratingsRemote.size()), positive(authorsRemote.size()));
+			ensureFreeSpace(editionsRemote.size(), otherSize, editionsFile, ratingsFile, authorsFile);
+			job.setTotalBytes(saturatingAdd(positive(editionsRemote.size()), otherSize));
 			jobRepository.save(job);
 
 			final Set<String> libraryIsbns = libraryIsbns();
@@ -238,6 +252,20 @@ public class OpenLibraryIndexManager {
 					editions.matchedWorks(), cancellation::get, progress::processed);
 			job.setWorksWithRatings(ratings.worksWithRatings());
 
+			job.setStatus(OpenLibraryIndexJobStatus.DOWNLOADING_AUTHORS);
+			jobRepository.save(job);
+			progress = new ProgressPersistence(job, editionsDownload.size() + ratingsDownload.size());
+			final OpenLibraryDownloadResult authorsDownload = downloadPort.download(job.getAuthorsUrl(), authorsFile,
+					cancellation::get, progress::downloaded);
+			job.setAuthorsLastModified(firstNonBlank(authorsDownload.lastModified(), authorsRemote.lastModified()));
+			job.setStatus(OpenLibraryIndexJobStatus.PROCESSING_AUTHORS);
+			job.setProcessedRecords(0L);
+			jobRepository.save(job);
+			progress = new ProgressPersistence(job, 0L);
+			final OpenLibraryDumpProcessor.AuthorProcessingResult authors = processor.processAuthors(authorsFile, version,
+					libraryAuthorNames(), cancellation::get, progress::processed);
+			job.setMatchedAuthors(authors.matchedAuthors());
+
 			checkCancellation();
 			job.setStatus(OpenLibraryIndexJobStatus.ACTIVATING);
 			jobRepository.save(job);
@@ -247,6 +275,10 @@ public class OpenLibraryIndexManager {
 					.createdAt(job.getRequestedAt())
 					.editionsSource(job.getEditionsUrl())
 					.ratingsSource(job.getRatingsUrl())
+					.authorsSource(job.getAuthorsUrl())
+					.authorsLastModified(job.getAuthorsLastModified())
+					.matchedAuthors(authors.matchedAuthors())
+					.processedAuthors(authors.processedRecords())
 					.editionsLastModified(job.getEditionsLastModified())
 					.ratingsLastModified(job.getRatingsLastModified())
 					.libraryIsbns(libraryIsbns.size())
@@ -258,9 +290,10 @@ public class OpenLibraryIndexManager {
 					.build());
 
 			job.setActiveVersion(version);
+			job.setAuthorsVersion(version);
 			job.setStatus(OpenLibraryIndexJobStatus.COMPLETED);
-			job.setDownloadedBytes(editionsDownload.size() + ratingsDownload.size());
-			job.setProcessedRecords(ratings.processedRecords());
+			job.setDownloadedBytes(editionsDownload.size() + ratingsDownload.size() + authorsDownload.size());
+			job.setProcessedRecords(authors.processedRecords());
 			job.setCancelRequested(false);
 			job.setError(null);
 			job.setCompletedAt(new Date());
@@ -296,6 +329,23 @@ public class OpenLibraryIndexManager {
 			jobRepository.save(job);
 			log.error("Open Library index job {} failed", version, exception);
 		}
+	}
+
+	private Set<String> libraryAuthorNames() {
+		final Set<String> names = new HashSet<>();
+		String afterId = null;
+		while (true) {
+			checkCancellation();
+			List<BookMongoEntity> batch = bookRepository.findAuthorNamesBatch(afterId);
+			if (batch.isEmpty()) break;
+			for (BookMongoEntity book : batch) {
+				if (book.getAuthors() != null) {
+					book.getAuthors().stream().map(AuthorNameNormalizer::normalize).filter(name -> !name.isBlank()).forEach(names::add);
+				}
+			}
+			afterId = batch.getLast().getId();
+		}
+		return names;
 	}
 
 	private Set<String> libraryIsbns() {
@@ -361,6 +411,7 @@ public class OpenLibraryIndexManager {
 
 	private void cleanupStaging(final String version) {
 		mappingRepository.deleteByIndexVersion(version);
+		authorRepository.deleteByIndexVersion(version);
 		ratingRepository.deleteByIndexVersion(version);
 		versionRepository.deleteById(version);
 	}
@@ -368,6 +419,7 @@ public class OpenLibraryIndexManager {
 	private void deleteJobFiles(final OpenLibraryIndexJobMongoEntity job) {
 		deleteJobFile(job.getEditionsFile());
 		deleteJobFile(job.getRatingsFile());
+		deleteJobFile(job.getAuthorsFile());
 	}
 
 	private void deleteJobFile(final String value) {

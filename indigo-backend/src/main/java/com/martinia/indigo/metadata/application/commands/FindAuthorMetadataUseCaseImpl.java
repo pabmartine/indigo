@@ -3,9 +3,10 @@ package com.martinia.indigo.metadata.application.commands;
 import com.martinia.indigo.author.domain.ports.repositories.AuthorRepository;
 import com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity;
 import com.martinia.indigo.common.util.ImageUtils;
-import com.martinia.indigo.metadata.domain.ports.adapters.openlibrary.FindOpenLibraryAuthorPort;
-import com.martinia.indigo.metadata.domain.ports.adapters.wikipedia.FindWikipediaAuthorPort;
 import com.martinia.indigo.metadata.domain.model.MetadataItemResult;
+import com.martinia.indigo.metadata.domain.ports.adapters.openlibrary.FindOpenLibraryAuthorPort;
+import com.martinia.indigo.metadata.domain.ports.adapters.openlibrary.FindOpenLibraryAuthorCatalogPort;
+import com.martinia.indigo.metadata.domain.ports.adapters.wikipedia.FindWikipediaAuthorPort;
 import com.martinia.indigo.metadata.domain.ports.usecases.commands.FindAuthorMetadataUseCase;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -24,10 +25,13 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 	protected AuthorRepository authorRepository;
 
 	@Resource
-	private Optional<FindWikipediaAuthorPort> findWikipediaAuthorPort;
+	private Optional<FindOpenLibraryAuthorPort> findOpenLibraryAuthorPort;
 
 	@Resource
-	private Optional<FindOpenLibraryAuthorPort> findOpenLibraryAuthorPort;
+	private Optional<FindOpenLibraryAuthorCatalogPort> findOpenLibraryAuthorCatalogPort;
+
+	@Resource
+	private Optional<FindWikipediaAuthorPort> findWikipediaAuthorPort;
 
 	@Resource
 	private ImageUtils imageUtils;
@@ -42,19 +46,33 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 			}
 
 			boolean providerSucceeded = false;
-			boolean translationFailed = false;
-            boolean providerFailed = false;
-			String[] wikipedia = null;
+			boolean providerFailed = false;
+			String[] catalog = null;
+			if (findOpenLibraryAuthorCatalogPort.isPresent()) {
+				try {
+					catalog = findOpenLibraryAuthorCatalogPort.get().findAuthor(author.getName());
+					providerSucceeded = true;
+				}
+				catch (RuntimeException exception) {
+					providerFailed = true;
+					log.warn("Open Library local author catalog failed for {}: {}", author.getName(), exception.toString());
+					com.martinia.indigo.metadata.application.ProviderDiagnostics.record("OPEN_LIBRARY", "Catálogo local de autores", exception);
+					if (exception instanceof com.martinia.indigo.metadata.application.openlibrary.AuthorCatalogTranslationException) {
+						return MetadataItemResult.ERROR;
+					}
+				}
+			}
 
-			if (findWikipediaAuthorPort.isPresent()) {
+			String[] wikipedia = null;
+			if (catalog == null && findWikipediaAuthorPort.isPresent()) {
 				try {
 					wikipedia = findWikipediaAuthorPort.get().findAuthor(author.getName(), lang, 0);
 					providerSucceeded = true;
 				}
 				catch (RuntimeException exception) {
-                    providerFailed = true;
-					log.warn("Wikipedia ({}) failed for {}: {}", lang, author.getName(), org.springframework.core.NestedExceptionUtils.getMostSpecificCause(exception).toString());
-                    com.martinia.indigo.metadata.application.ProviderDiagnostics.record("WIKIPEDIA", "Obtener autor", exception);
+					providerFailed = true;
+					log.warn("Wikipedia ({}) failed for {}: {}", lang, author.getName(), exception.toString());
+					com.martinia.indigo.metadata.application.ProviderDiagnostics.record("WIKIPEDIA", "Obtener autor", exception);
 				}
 				if (wikipedia == null && !"en".equals(lang)) {
 					try {
@@ -62,34 +80,31 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 						providerSucceeded = true;
 					}
 					catch (RuntimeException exception) {
-                    providerFailed = true;
-						log.warn("Wikipedia (en) failed for {}: {}", author.getName(), org.springframework.core.NestedExceptionUtils.getMostSpecificCause(exception).toString());
-                    com.martinia.indigo.metadata.application.ProviderDiagnostics.record("WIKIPEDIA", "Obtener autor", exception);
+						providerFailed = true;
+						log.warn("Wikipedia (en) failed for {}: {}", author.getName(), exception.toString());
+						com.martinia.indigo.metadata.application.ProviderDiagnostics.record("WIKIPEDIA", "Obtener autor", exception);
 					}
 				}
 			}
 
 			String[] openLibrary = null;
-			if ((wikipedia == null || StringUtils.isEmpty(wikipedia[0]) || StringUtils.isEmpty(wikipedia[1]))
+			if (catalog == null && (wikipedia == null || StringUtils.isEmpty(wikipedia[0]) || StringUtils.isEmpty(wikipedia[1]))
 					&& findOpenLibraryAuthorPort.isPresent()) {
 				try {
 					openLibrary = findOpenLibraryAuthorPort.get().findAuthor(author.getName());
 					providerSucceeded = true;
 				}
 				catch (RuntimeException exception) {
-                    providerFailed = true;
-					log.warn("Open Library failed for {}: {}", author.getName(), org.springframework.core.NestedExceptionUtils.getMostSpecificCause(exception).toString());
-                    com.martinia.indigo.metadata.application.ProviderDiagnostics.record("OPEN_LIBRARY", "Obtener autor", exception);
-					translationFailed = true;
+					providerFailed = true;
+					log.warn("Open Library failed for {}: {}", author.getName(), exception.toString());
+					com.martinia.indigo.metadata.application.ProviderDiagnostics.record("OPEN_LIBRARY", "Obtener autor", exception);
 				}
 			}
 
-			boolean found = applyMetadata(author, wikipedia, override);
+			boolean found = applyMetadata(author, catalog, override);
+			found |= applyMetadata(author, wikipedia, override);
 			found |= applyMetadata(author, openLibrary, override && wikipedia == null);
-			if ((!found && (!providerSucceeded || providerFailed)) || (translationFailed && StringUtils.isBlank(author.getDescription()))) {
-				return MetadataItemResult.ERROR;
-			}
-
+			if (!found && (!providerSucceeded || providerFailed)) return MetadataItemResult.ERROR;
 			if (!providerFailed) author.setLastMetadataSync(Calendar.getInstance().getTime());
 			authorRepository.save(author);
 

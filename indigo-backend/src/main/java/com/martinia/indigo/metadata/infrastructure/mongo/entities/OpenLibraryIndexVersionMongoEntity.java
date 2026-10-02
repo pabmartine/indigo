@@ -24,6 +24,10 @@ public class OpenLibraryIndexVersionMongoEntity {
 	private Date activatedAt;
 	private String editionsSource;
 	private String ratingsSource;
+	private String authorsSource;
+	private String authorsLastModified;
+	private long matchedAuthors;
+	private long processedAuthors;
 	private String editionsLastModified;
 	private String ratingsLastModified;
 	private long libraryIsbns;

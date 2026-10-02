@@ -91,7 +91,7 @@ public class FindReviewMetadataUseCaseImpl implements FindReviewMetadataUseCase 
 			}
 			book.setReviewsMetadataStatus(result.name());
 			book.setReviewsMetadataError(error);
-			bookRepository.save(book);
+			bookRepository.updateReviewMetadata(book);
 			return result;
 		}).orElse(MetadataItemResult.SKIPPED);
 	}

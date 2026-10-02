@@ -26,9 +26,14 @@ public class StopMetadataController {
 					@ApiResponse(responseCode = "200", description = "Metadata processing stopped successfully")
 			})
 	@GetMapping(value = "/stop")
-	public ResponseEntity<Void> stop() {
-		useCase.stop();
+	public ResponseEntity<Void> stop(@org.springframework.web.bind.annotation.RequestParam(required = false) String entity) {
+		if (entity == null) useCase.stop();
+		else useCase.stop(entity);
 		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	public ResponseEntity<Void> stop() {
+		return stop(null);
 	}
 
 }

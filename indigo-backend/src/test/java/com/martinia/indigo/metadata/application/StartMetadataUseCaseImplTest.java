@@ -32,7 +32,6 @@ class StartMetadataUseCaseImplTest {
 
 	@Test
 	void start_WhenFullProcessBooks_ShouldExecuteBooksCommand() {
-		when(metadataSingleton.isRunning()).thenReturn(false);
 
 		startMetadataUseCase.start("en", MetadataProcessType.FULL.name(), "BOOKS");
 
@@ -42,7 +41,6 @@ class StartMetadataUseCaseImplTest {
 
 	@Test
 	void start_WhenFullProcessAuthors_ShouldExecuteAuthorsCommand() {
-		when(metadataSingleton.isRunning()).thenReturn(false);
 
 		startMetadataUseCase.start("es", MetadataProcessType.FULL.name(), "AUTHORS");
 
@@ -52,7 +50,6 @@ class StartMetadataUseCaseImplTest {
 
 	@Test
 	void start_WhenFullProcessReviews_ShouldExecuteReviewsCommand() {
-		when(metadataSingleton.isRunning()).thenReturn(false);
 
 		startMetadataUseCase.start("fr", MetadataProcessType.FULL.name(), "REVIEWS");
 
@@ -62,7 +59,6 @@ class StartMetadataUseCaseImplTest {
 
 	@Test
 	void start_WhenPartialProcessBooks_ShouldExecuteBooksCommandWithoutOverride() {
-		when(metadataSingleton.isRunning()).thenReturn(false);
 
 		startMetadataUseCase.start("en", MetadataProcessType.PARTIAL.name(), "BOOKS");
 
@@ -72,7 +68,6 @@ class StartMetadataUseCaseImplTest {
 
 	@Test
 	void start_WhenPartialProcessAuthors_ShouldExecuteAuthorsCommandWithoutOverride() {
-		when(metadataSingleton.isRunning()).thenReturn(false);
 
 		startMetadataUseCase.start("de", MetadataProcessType.PARTIAL.name(), "AUTHORS");
 
@@ -82,7 +77,6 @@ class StartMetadataUseCaseImplTest {
 
 	@Test
 	void start_WhenPartialProcessReviews_ShouldExecuteReviewsCommandWithOverride() {
-		when(metadataSingleton.isRunning()).thenReturn(false);
 
 		startMetadataUseCase.start("it", MetadataProcessType.PARTIAL.name(), "REVIEWS");
 
@@ -91,12 +85,11 @@ class StartMetadataUseCaseImplTest {
 	}
 
 	@Test
-	void start_WhenSingletonIsRunning_ShouldStopItFirst() {
-		when(metadataSingleton.isRunning()).thenReturn(true);
+	void start_ShouldNotStopOtherEntities() {
 
 		startMetadataUseCase.start("en", MetadataProcessType.FULL.name(), "BOOKS");
 
-		verify(metadataSingleton).stop();
+		verify(metadataSingleton, never()).stop();
 		verify(metadataSingleton).start(MetadataProcessType.FULL.name(), "BOOKS");
 		verify(commandBus).execute(any(StartFillBooksMetadataCommand.class));
 	}

@@ -41,6 +41,60 @@ public class OpenLibraryDumpProcessor {
 	@Resource
 	private OpenLibraryRatingRepository ratingRepository;
 
+	@Resource(name = "openLibraryAuthorRepository")
+	private com.martinia.indigo.metadata.domain.ports.repositories.OpenLibraryAuthorRepository authorRepository;
+
+	public AuthorProcessingResult processAuthors(final Path dump, final String indexVersion,
+			final Set<String> libraryNames, final BooleanSupplier cancelled, final LongConsumer progress) {
+		authorRepository.deleteByIndexVersion(indexVersion);
+		final List<com.martinia.indigo.metadata.infrastructure.mongo.entities.OpenLibraryAuthorMongoEntity> batch = new ArrayList<>(BATCH_SIZE);
+		long processed = 0L;
+		long matched = 0L;
+		try (BufferedReader reader = gzipReader(dump)) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				processed++;
+				checkCancellation(cancelled);
+				final String[] columns = line.split("\\t", 5);
+				if (columns.length == 5 && "/type/author".equals(columns[0])) {
+					final JsonNode author = objectMapper.readTree(columns[4]);
+					final Set<String> names = new HashSet<>();
+					names.add(AuthorNameNormalizer.normalize(author.path("name").asText()));
+					author.path("alternate_names").forEach(alias -> names.add(AuthorNameNormalizer.normalize(alias.asText())));
+					names.retainAll(libraryNames);
+					names.remove("");
+					final String authorId = normalizeOpenLibraryId(author.path("key").asText(columns[1]));
+					if (!names.isEmpty() && authorId != null) {
+						final JsonNode bio = author.path("bio");
+						boolean hasPhoto = false;
+						for (JsonNode photo : author.path("photos")) {
+							if (photo.asLong() > 0) hasPhoto = true;
+						}
+						batch.add(com.martinia.indigo.metadata.infrastructure.mongo.entities.OpenLibraryAuthorMongoEntity.builder()
+								.id(indexVersion + ':' + authorId).indexVersion(indexVersion).authorId(authorId)
+								.names(new ArrayList<>(names)).biography(bio.isTextual() ? bio.asText() : bio.path("value").asText(null))
+								.hasPhoto(hasPhoto).build());
+						matched++;
+					}
+				}
+				if (batch.size() >= BATCH_SIZE) {
+					authorRepository.saveAll(new ArrayList<>(batch));
+					batch.clear();
+				}
+				reportProgress(progress, processed);
+			}
+			if (!batch.isEmpty()) authorRepository.saveAll(new ArrayList<>(batch));
+			progress.accept(processed);
+			return new AuthorProcessingResult(processed, matched);
+		}
+		catch (IOException exception) {
+			throw new IllegalStateException("Invalid or unreadable Open Library authors dump", exception);
+		}
+	}
+
+	public record AuthorProcessingResult(long processedRecords, long matchedAuthors) {
+	}
+
 	public EditionProcessingResult processEditions(final Path dump, final String indexVersion,
 			final Set<String> libraryIsbns, final BooleanSupplier cancelled, final LongConsumer progress) {
 		mappingRepository.deleteByIndexVersion(indexVersion);

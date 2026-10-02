@@ -54,11 +54,14 @@ class OpenLibraryIndexManagerIntegrationTest extends BaseIndigoIntegrationTest {
 	private OpenLibraryEditionMappingRepository mappingRepository;
 	@Resource
 	private OpenLibraryRatingRepository ratingRepository;
+	@Resource
+	private com.martinia.indigo.metadata.domain.ports.repositories.OpenLibraryAuthorRepository localAuthors;
 	@MockBean
 	private OpenLibraryDumpDownloadPort downloadPort;
 
 	private Path editionsFixture;
 	private Path ratingsFixture;
+	private Path authorsFixture;
 
 	@BeforeEach
 	void setUp() throws IOException {
@@ -75,17 +78,21 @@ class OpenLibraryIndexManagerIntegrationTest extends BaseIndigoIntegrationTest {
 				/works/OL1W\t/books/OL1M\t4\t2026-08-01
 				/works/OL1W\t/books/OL1M\t5\t2026-08-02
 				""");
+		authorsFixture = gzip("authors-fixture.txt.gz", """
+				/type/author\t/authors/OL1A\t1\t2026-08-01\t{"key":"/authors/OL1A","name":"J. R. R. Tolkien","bio":{"value":"British writer"},"photos":[123]}
+				""");
 		when(downloadPort.inspect(anyString())).thenReturn(new OpenLibraryRemoteFile(100L, "2026-08-31", "etag"));
 		when(downloadPort.download(anyString(), any(Path.class), any(), any())).thenAnswer(invocation -> {
 			String url = invocation.getArgument(0);
 			Path target = invocation.getArgument(1);
-			Path source = url.contains("editions") ? editionsFixture : ratingsFixture;
+			Path source = url.contains("editions") ? editionsFixture : url.contains("authors") ? authorsFixture : ratingsFixture;
 			Files.createDirectories(target.getParent());
 			Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
 			return new OpenLibraryDownloadResult(target, Files.size(target), "2026-08-31", "etag");
 		});
 		bookRepository.save(BookMongoEntity.builder()
 				.title("The Hobbit")
+				.authors(List.of("J. R. R. Tolkien"))
 				.path("hobbit.epub")
 				.isbn13(List.of("9780261102217"))
 				.build());
@@ -113,6 +120,10 @@ class OpenLibraryIndexManagerIntegrationTest extends BaseIndigoIntegrationTest {
 		assertThat(completed.getMatchedIsbns()).isEqualTo(1);
 		assertThat(completed.getMatchedWorks()).isEqualTo(1);
 		assertThat(completed.getWorksWithRatings()).isEqualTo(1);
+		assertThat(completed.getAuthorsVersion()).isEqualTo(completed.getActiveVersion());
+		assertThat(completed.getMatchedAuthors()).isEqualTo(1);
+		assertThat(localAuthors.findTop2ByIndexVersionAndNames(completed.getActiveVersion(), "j r r tolkien"))
+				.singleElement().satisfies(author -> assertThat(author.getBiography()).isEqualTo("British writer"));
 		assertThat(mappingRepository.findByIndexVersion(completed.getActiveVersion())).singleElement()
 				.satisfies(mapping -> {
 					assertThat(mapping.getIsbn()).isEqualTo("9780261102217");
@@ -185,6 +196,7 @@ class OpenLibraryIndexManagerIntegrationTest extends BaseIndigoIntegrationTest {
 		assertThat(versionRepository.findById(started.getStagingVersion())).isEmpty();
 		assertThat(Path.of(cancelled.getEditionsFile())).doesNotExist();
 		assertThat(Path.of(cancelled.getRatingsFile())).doesNotExist();
+		assertThat(Path.of(cancelled.getAuthorsFile())).doesNotExist();
 	}
 
 	@Test
@@ -252,6 +264,7 @@ class OpenLibraryIndexManagerIntegrationTest extends BaseIndigoIntegrationTest {
 		versionRepository.deleteAll();
 		mappingRepository.deleteAll();
 		ratingRepository.deleteAll();
+		localAuthors.deleteAll();
 		bookRepository.deleteAll();
 	}
 }

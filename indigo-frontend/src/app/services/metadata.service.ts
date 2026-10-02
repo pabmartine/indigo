@@ -32,11 +32,13 @@ export class MetadataService {
     });
   }
 
-  stop(): Observable<any> {
-    return this.http.get<any>(this.endpoint + "/stop");
+  stop(entity?: string): Observable<any> {
+    return this.http.get<any>(this.endpoint + "/stop", { params: entity ? { entity } : {} });
   }
 
   activity(): Observable<any[]> { return this.http.get<any[]>(this.endpoint + '/activity'); }
+  libraryIndex(): Observable<any> { return this.http.get(this.endpoint + '/openlibrary/index'); }
+  controlLibraryIndex(action: string): Observable<any> { return this.http.post(this.endpoint + '/openlibrary/index/' + action, {}); }
   reviewQueue(): Observable<any> { return this.http.get(this.endpoint + '/review-queue'); }
   startReviewQueue(all: boolean, replace: boolean): Observable<any> {
     return this.http.post(this.endpoint + '/review-queue/start?all=' + all + '&replace=' + replace + '&lang=es', {});

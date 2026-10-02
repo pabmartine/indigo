@@ -28,8 +28,10 @@ public class MetadataSingleton {
 	private volatile Long completedAt;
 	private final AtomicLong generation = new AtomicLong();
 	private final Map<String, Map<String, Object>> runs = new LinkedHashMap<>();
+	private final Map<Long, RunState> activeRuns = new LinkedHashMap<>();
 
 	public synchronized long start(String type, String entity) {
+		stop(entity);
 		generation.incrementAndGet();
 		this.type = type;
 		this.entity = entity;
@@ -42,31 +44,62 @@ public class MetadataSingleton {
 		this.message = null;
 		this.completedAt = null;
 		this.running = true;
+		activeRuns.put(generation.get(), new RunState(type, entity));
 		storeSnapshot();
 		return generation.get();
 	}
 
 	public synchronized void stop() {
-		generation.incrementAndGet();
+		for (Long runId : java.util.List.copyOf(activeRuns.keySet())) {
+			complete(runId);
+		}
 		this.running = false;
 		this.completedAt = System.currentTimeMillis();
 		storeSnapshot();
 	}
 
+	public synchronized void stop(String entity) {
+		for (Long runId : java.util.List.copyOf(activeRuns.keySet())) {
+			if (activeRuns.get(runId).entity.equals(entity)) {
+				complete(runId);
+			}
+		}
+	}
+
+	public synchronized boolean isRunning() {
+		return running || !activeRuns.isEmpty();
+	}
+
+	public synchronized void setTotal(long total) {
+		this.total = total;
+		RunState run = activeRuns.get(generation.get());
+		if (run != null) run.total = total;
+	}
+
 	public synchronized void complete() {
+		if (isActive(generation.get())) {
+			complete(generation.get());
+			return;
+		}
 		this.running = false;
 		this.completedAt = System.currentTimeMillis();
 		storeSnapshot();
 	}
 
 	public synchronized void complete(final long runId) {
-		if (isActive(runId)) {
-			complete();
+		RunState run = activeRuns.remove(runId);
+		if (run != null) {
+			run.completedAt = System.currentTimeMillis();
+			storeRunSnapshot(runId, run);
+			if (runId == generation.get()) {
+				running = false;
+				completedAt = run.completedAt;
+			}
 		}
 	}
 
-	public boolean isActive(final long runId) {
-		return running && generation.get() == runId;
+	public synchronized boolean isActive(final long runId) {
+		return activeRuns.containsKey(runId);
 	}
 
 	public long getRunId() {
@@ -77,9 +110,10 @@ public class MetadataSingleton {
 		if (!isActive(runId)) {
 			return false;
 		}
-		this.message = message;
-		this.total = total;
-		storeSnapshot();
+		RunState run = activeRuns.get(runId);
+		run.message = message;
+		run.total = total;
+		publish(runId, run);
 		return true;
 	}
 
@@ -87,18 +121,19 @@ public class MetadataSingleton {
 		if (!isActive(runId)) {
 			return;
 		}
-		current++;
+		RunState run = activeRuns.get(runId);
+		run.current++;
 		switch (result) {
-		case FOUND -> found++;
-		case NOT_FOUND -> notFound++;
-		case SKIPPED -> skipped++;
-		case ERROR -> errors++;
+		case FOUND -> run.found++;
+		case NOT_FOUND -> run.notFound++;
+		case SKIPPED -> run.skipped++;
+		case ERROR -> run.errors++;
 		}
-		if (current >= total) {
-			complete();
+		if (run.current >= run.total) {
+			complete(runId);
 		}
 		else {
-			storeSnapshot();
+			publish(runId, run);
 		}
 	}
 
@@ -112,7 +147,58 @@ public class MetadataSingleton {
 	}
 
 	public synchronized Map<String, Map<String, Object>> getRuns() {
-		return new LinkedHashMap<>(runs);
+		Map<String, Map<String, Object>> snapshots = new LinkedHashMap<>();
+		runs.forEach((key, value) -> snapshots.put(key, new LinkedHashMap<>(value)));
+		return snapshots;
+	}
+
+	private void publish(long runId, RunState run) {
+		storeRunSnapshot(runId, run);
+		if (runId == generation.get()) {
+			running = activeRuns.containsKey(runId);
+			message = run.message;
+			total = run.total;
+			current = run.current;
+			found = run.found;
+			notFound = run.notFound;
+			skipped = run.skipped;
+			errors = run.errors;
+			completedAt = run.completedAt;
+		}
+	}
+
+	private void storeRunSnapshot(long runId, RunState run) {
+		Map<String, Object> snapshot = new LinkedHashMap<>();
+		snapshot.put("type", run.type);
+		snapshot.put("entity", run.entity);
+		snapshot.put("status", activeRuns.containsKey(runId));
+		snapshot.put("message", run.message);
+		snapshot.put("total", run.total);
+		snapshot.put("current", run.current);
+		snapshot.put("found", run.found);
+		snapshot.put("notFound", run.notFound);
+		snapshot.put("skipped", run.skipped);
+		snapshot.put("errors", run.errors);
+		snapshot.put("completedAt", run.completedAt);
+		runs.put(run.type + ':' + run.entity, snapshot);
+	}
+
+	private static final class RunState {
+		private final String type;
+		private final String entity;
+		private long total;
+		private long current;
+		private long found;
+		private long notFound;
+		private long skipped;
+		private long errors;
+		private String message;
+		private Long completedAt;
+
+		private RunState(String type, String entity) {
+			this.type = type;
+			this.entity = entity;
+		}
 	}
 
 	private void storeSnapshot() {

@@ -178,6 +178,7 @@ metadata:
     # Plantilla para descargar la foto oficial del autor desde el servicio de portadas de OpenLibrary.
     author-image: ${METADATA_OPENLIBRARY_AUTHOR_IMAGE:https://covers.openlibrary.org/a/olid/$id-L.jpg?default=false}
     dumps:
+      authors-url: ${METADATA_OPENLIBRARY_DUMPS_AUTHORS_URL:https://openlibrary.org/data/ol_dump_authors_latest.txt.gz}
       # URL de descarga del volcado masivo oficial de ediciones de OpenLibrary en formato gz.
       editions-url: ${METADATA_OPENLIBRARY_DUMPS_EDITIONS_URL:https://openlibrary.org/data/ol_dump_editions_latest.txt.gz}
       # URL de descarga del volcado masivo oficial de valoraciones de OpenLibrary.

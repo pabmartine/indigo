@@ -55,6 +55,29 @@ import java.util.concurrent.ConcurrentMap;
 @Slf4j
 public class CustomBookRepositoryImpl implements CustomBookRepository {
 
+	@Override
+	public void updateBookMetadata(BookMongoEntity book) {
+		updateMetadataFields(book, List.of("ratingAverage", "ratingsCount", "ratingDistribution", "ratingProvider",
+				"ratingUpdatedAt", "rating", "openLibraryWorkId", "openLibraryEditionId", "metadataMatchStatus",
+				"metadataMatchConfidence", "provider", "lastMetadataSync"));
+	}
+
+	@Override
+	public void updateReviewMetadata(BookMongoEntity book) {
+		updateMetadataFields(book, List.of("reviews", "lastReviewsMetadataSync", "reviewsMetadataStatus", "reviewsMetadataError"));
+	}
+
+	private void updateMetadataFields(BookMongoEntity book, List<String> fields) {
+		Document document = new Document();
+		mongoTemplate.getConverter().write(book, document);
+		Update update = new Update();
+		for (String field : fields) {
+			if (document.containsKey(field)) update.set(field, document.get(field));
+			else update.unset(field);
+		}
+		mongoTemplate.updateFirst(Query.query(Criteria.where("id").is(book.getId())), update, BookMongoEntity.class);
+	}
+
 	private static final long SERIES_CACHE_TTL_MS = 10 * 60 * 1000L;
 	private final ConcurrentMap<String, CachedSeriesPage> seriesPageCache = new ConcurrentHashMap<>();
 	private final ConcurrentMap<String, CachedNumSeries> numSeriesCache = new ConcurrentHashMap<>();
@@ -163,6 +186,11 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 	@Override
 	public List<BookMongoEntity> findCategoryBatch(String afterId) {
 		return maintenanceBatch(afterId, "tags", "languages");
+	}
+
+	@Override
+	public List<BookMongoEntity> findAuthorNamesBatch(String afterId) {
+		return maintenanceBatch(afterId, "authors");
 	}
 
 	@Override
