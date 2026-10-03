@@ -46,6 +46,7 @@ class DataUtilsCircuitTest {
         server.start();
         try {
             DataUtils data = new DataUtils();
+            ReflectionTestUtils.setField(data, "initialDelaySeconds", 1L);
             String url = "http://127.0.0.1:" + server.getAddress().getPort() + "/";
             for (int i = 0; i < 2; i++) {
                 assertThatThrownBy(() -> data.getData(url)).satisfies(error -> {
@@ -59,6 +60,31 @@ class DataUtilsCircuitTest {
             assertThat(ReflectionTestUtils.invokeMethod(data, "providerKey", "es.wikipedia.org").toString()).isEqualTo("wikipedia.org");
             assertThat(ReflectionTestUtils.invokeMethod(data, "providerKey", "en.wikipedia.org").toString()).isEqualTo("wikipedia.org");
             assertThat(data.awaitWikipediaAvailable(() -> false)).isFalse();
+        } finally { server.stop(0); }
+    }
+
+    @Test
+    void shortRetryAfterCannotShortenProgressiveBackoff() throws Exception {
+        HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/", exchange -> {
+            exchange.getResponseHeaders().add("Retry-After", "1");
+            exchange.sendResponseHeaders(429, -1);
+            exchange.close();
+        });
+        server.start();
+        try {
+            DataUtils data = new DataUtils();
+            String url = "http://127.0.0.1:" + server.getAddress().getPort() + "/";
+            for (long seconds : new long[]{60, 120, 240}) {
+                java.time.Instant before = java.time.Instant.now();
+                assertThatThrownBy(() -> data.getData(url)).satisfies(error -> {
+                    var paused = (com.martinia.indigo.metadata.application.reviews.ReviewPageGuard.AccessRestrictedException)
+                            org.springframework.core.NestedExceptionUtils.getMostSpecificCause(error);
+                    assertThat(paused.retryAt()).isBetween(before.plusSeconds(seconds), java.time.Instant.now().plusSeconds(seconds));
+                });
+                var states = (java.util.Map<?, ?>) ReflectionTestUtils.getField(data, "providerStates");
+                ReflectionTestUtils.setField(states.get("127.0.0.1"), "blockedUntil", java.time.Instant.EPOCH);
+            }
         } finally { server.stop(0); }
     }
 
@@ -84,6 +110,9 @@ class DataUtilsCircuitTest {
             try {
                 try { data.getData(url); fail("Expected a paused provider"); }
                 catch (IllegalStateException error) {
+                    assertThat(org.springframework.core.NestedExceptionUtils.getMostSpecificCause(error))
+                            .isInstanceOf(org.springframework.web.client.RestClientResponseException.class)
+                            .hasMessageContaining("503");
                     ProviderDiagnostics.record("WIKIPEDIA", "Obtener autor", error);
                 }
             } finally {
@@ -91,6 +120,7 @@ class DataUtilsCircuitTest {
                 assertThat(diagnostics).hasSize(1);
                 assertThat(diagnostics.get(0).getString("code")).isEqualTo("PAUSED");
                 assertThat(diagnostics.get(0).getDate("retryAt")).isNotNull();
+                assertThat(diagnostics.get(0).getInteger("httpStatus")).isEqualTo(503);
             }
             assertThat(requests.get()).isEqualTo(3);
         } finally { server.stop(0); }

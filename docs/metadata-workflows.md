@@ -83,6 +83,10 @@ Los endpoints `/api/metadata/activity/**` requieren autoridad `ADMIN`. El regist
 
 ## Validación de esta entrega
 
+Los fallos de consultas HTTP, proveedores de libros/autores, descarga de fotos y detección/traducción de LibreTranslate se registran en el backend de Indigo a nivel `WARN`, con la excepción completa y sus causas. Las consultas de entidades incluyen su identificador y nombre/título; los fallos de traducción incluyen el idioma de destino y la longitud del texto. Los errores que llegan al seguimiento incluyen el identificador del historial. El diagnóstico resumido de la pantalla se conserva. Para investigar una pausa preventiva, buscar el primer fallo anterior a `circuit opened`, o el HTTP 429 que inició la pausa, en el log del contenedor de Indigo. Los avisos de `apscheduler` en LibreTranslate corresponden al servicio de traducción, no al cliente de Wikipedia en Indigo.
+
+Mientras dure una pausa HTTP, Indigo conserva en memoria la excepción que la inició y la incluye como causa en las consultas posteriores rechazadas. El historial mantiene el resultado `PAUSED`, la fecha de reintento y el código HTTP original cuando existe. La causa se borra al expirar la pausa. Ante HTTP 429 se espera como mínimo el mayor plazo entre `Retry-After` y la espera progresiva de Indigo (60 segundos iniciales, hasta 900 por defecto); un plazo corto del proveedor no reduce la espera progresiva.
+
 Se ejecutaron únicamente tests afectados, sin volver a ejecutar la suite completa:
 
 - EPUB real temporal → extracción → eventos → Mongo → autor → valoración local → biografía traducida → reseñas → versión superior con otro nombre → descarte de versión igual.

@@ -65,7 +65,8 @@ public class DataUtils {
                             long delay = Math.min(Math.max(1, maxDelaySeconds), Math.max(1, initialDelaySeconds)
                                     * (1L << Math.min(state.rateLimitFailures++, 20)));
                             Instant requested = com.martinia.indigo.metadata.application.reviews.ReviewProviderRequestPolicy.retryAt(http.getHeaderField("Retry-After"));
-                            state.blockedUntil = requested != null ? requested : Instant.now().plusSeconds(delay);
+                            Instant backoffUntil = Instant.now().plusSeconds(delay);
+                            state.blockedUntil = requested != null && requested.isAfter(backoffUntil) ? requested : backoffUntil;
                             log.warn("Metadata provider {} returned HTTP 429; paused until {}", url.getHost(), state.blockedUntil);
                             throw new com.martinia.indigo.metadata.application.reviews.ReviewPageGuard.AccessRestrictedException(
                                     "HTTP 429 from " + url.getHost() + "; retry at " + state.blockedUntil, state.blockedUntil);
@@ -73,6 +74,7 @@ public class DataUtils {
                         if (status == 404) {
                             state.failures = 0;
                             state.rateLimitFailures = 0;
+                            state.pauseCause = null;
                             return null;
                         }
                         if (status >= 400) throw new org.springframework.web.client.RestClientResponseException(
@@ -88,11 +90,13 @@ public class DataUtils {
                     state.failures = 0;
                     state.rateLimitFailures = 0;
                     state.blockedUntil = null;
+                    state.pauseCause = null;
                     return data.isEmpty() ? null : data.toString();
                 }
                 catch (Exception exception) {
                     log.warn("Metadata request to {}{} failed", url.getHost(), url.getPath(), exception);
-                    if (state.blockedUntil == null) registerFailure(url.getHost(), state);
+                    if (state.blockedUntil == null) registerFailure(url.getHost(), state, exception);
+                    else state.pauseCause = exception;
                     throw exception;
                 }
                 finally {
@@ -143,11 +147,14 @@ public class DataUtils {
             return;
         }
         if (Instant.now().isBefore(state.blockedUntil)) {
-            throw new com.martinia.indigo.metadata.application.reviews.ReviewPageGuard.AccessRestrictedException(
+            var paused = new com.martinia.indigo.metadata.application.reviews.ReviewPageGuard.AccessRestrictedException(
                     "Metadata provider " + host + " is paused until " + state.blockedUntil, state.blockedUntil);
+            if (state.pauseCause != null) paused.initCause(state.pauseCause);
+            throw paused;
         }
         state.failures = 0;
         state.blockedUntil = null;
+        state.pauseCause = null;
     }
 
     private void waitForRateLimit(final String host, final ProviderState state) {
@@ -181,11 +188,13 @@ public class DataUtils {
         return defaultMinimumIntervalMillis;
     }
 
-    private void registerFailure(final String host, final ProviderState state) {
+    private void registerFailure(final String host, final ProviderState state, final Exception cause) {
         state.failures++;
         if (state.failures >= circuitBreakerFailures) {
             state.blockedUntil = Instant.now().plus(Duration.ofMinutes(circuitBreakerCooldownMinutes));
-            log.warn("Metadata provider {} circuit opened until {}", host, state.blockedUntil);
+            state.pauseCause = cause;
+            log.warn("Metadata provider {} circuit opened until {} after {} consecutive failures",
+                    host, state.blockedUntil, state.failures, cause);
         }
     }
 
@@ -194,6 +203,7 @@ public class DataUtils {
         private int failures;
         private int rateLimitFailures;
         private Instant blockedUntil;
+        private Exception pauseCause;
     }
 
 }

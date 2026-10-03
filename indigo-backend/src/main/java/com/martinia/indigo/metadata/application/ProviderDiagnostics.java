@@ -51,6 +51,8 @@ public final class ProviderDiagnostics {
             case 401, 403 -> "ACCESS_RESTRICTED";
             default -> status >= 500 ? "UNAVAILABLE" : "HTTP_ERROR";
         };
+        // The current request was prevented locally, even when its retained cause is an older HTTP failure.
+        if (retryAt != null) code = "PAUSED";
         String message = switch (code) {
             case "TRANSLATION_FAILED" -> "Se ha obtenido información del autor, pero no se pudo traducir su descripción al español. La descripción queda pendiente.";
             case "PAUSED" -> "Proveedor en pausa preventiva. No se realizan peticiones hasta que termine la pausa.";
