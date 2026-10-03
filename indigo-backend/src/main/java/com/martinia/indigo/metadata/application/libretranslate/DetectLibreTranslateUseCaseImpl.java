@@ -21,7 +21,7 @@ import java.util.List;
 @Transactional
 public class DetectLibreTranslateUseCaseImpl implements DetectLibreTranslateUseCase {
 
-	@Resource
+	@Resource(name = "libreTranslateRestTemplate")
 	private RestTemplate restTemplate;
 
 	@Value("${metadata.libretranslate.url}")

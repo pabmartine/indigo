@@ -62,6 +62,7 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 					if (!lookup.missing()) break;
 					lookup.obtain("WIKIPEDIA", "Obtener autor (" + language + ")",
 							() -> port.findAuthor(author.getName(), language, 0));
+					if (lookup.wikipediaPaused) break;
 				}
 			});
 			if (lookup.missing()) findOpenLibraryAuthorPort.ifPresent(port -> lookup.obtain("OPEN_LIBRARY", "Obtener autor",
@@ -86,6 +87,7 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 		private boolean succeeded;
 		private boolean failed;
 		private boolean found;
+		private boolean wikipediaPaused;
 
 		private Lookup(AuthorMongoEntity author, boolean override) {
 			this.author = author;
@@ -115,6 +117,13 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 				com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
 				failed = true;
 				requestFailed = true;
+				if ("WIKIPEDIA".equals(provider)) {
+					java.util.Set<Throwable> visited = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+					for (Throwable cause = exception; cause != null && visited.add(cause); cause = cause.getCause()) {
+						if (cause instanceof com.martinia.indigo.metadata.application.reviews.ReviewPageGuard.AccessRestrictedException restricted
+								&& restricted.retryAt() != null) wikipediaPaused = true;
+					}
+				}
 				log.warn("{} failed for {}: {}", operation, author.getName(), exception.toString());
 				com.martinia.indigo.metadata.application.ProviderDiagnostics.record(provider, operation, exception);
 				metadata = exception instanceof com.martinia.indigo.metadata.application.AuthorMetadataTranslationException partial

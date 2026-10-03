@@ -192,6 +192,8 @@ metadata:
   libretranslate:
     # URL base del servicio de traducción automática LibreTranslate (local o remoto).
     url: ${METADATA_LIBRETRANSLATE_URL:http://localhost:5000}
+    connect-timeout-millis: ${METADATA_LIBRETRANSLATE_CONNECT_TIMEOUT_MILLIS:5000}
+    read-timeout-millis: ${METADATA_LIBRETRANSLATE_READ_TIMEOUT_MILLIS:60000}
   amazon:
     # URL base de la tienda de Amazon regional (por defecto España).
     url: ${METADATA_AMAZON_URL:https://www.amazon.es}

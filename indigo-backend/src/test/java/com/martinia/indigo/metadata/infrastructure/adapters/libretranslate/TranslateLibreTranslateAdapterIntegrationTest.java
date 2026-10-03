@@ -35,7 +35,7 @@ class TranslateLibreTranslateAdapterIntegrationTest extends BaseIndigoIntegratio
 
 		final LinkedHashMap linkedHashMap = new LinkedHashMap();
 		linkedHashMap.put("translatedText", "¡Hola, mundo!");
-		Mockito.when(restTemplate.postForObject(anyString(), any(), any())).thenReturn(linkedHashMap);
+		Mockito.when(libreTranslateRestTemplate.postForObject(anyString(), any(), any())).thenReturn(linkedHashMap);
 
 		//when
 		String translatedText = translateLibreTranslatePort.translate(text, targetLanguage);

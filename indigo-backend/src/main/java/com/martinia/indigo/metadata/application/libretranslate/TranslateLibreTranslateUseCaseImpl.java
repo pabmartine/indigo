@@ -20,7 +20,7 @@ import java.util.Map;
 @Transactional
 public class TranslateLibreTranslateUseCaseImpl implements TranslateLibreTranslateUseCase {
 
-	@Resource
+	@Resource(name = "libreTranslateRestTemplate")
 	private RestTemplate restTemplate;
 
 	@Value("${metadata.libretranslate.url}")

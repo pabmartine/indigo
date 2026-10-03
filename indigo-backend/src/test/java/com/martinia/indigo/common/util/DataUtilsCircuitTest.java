@@ -78,7 +78,7 @@ class DataUtilsCircuitTest {
             ReflectionTestUtils.setField(data, "circuitBreakerCooldownMinutes", 15L);
             String url = "http://127.0.0.1:" + server.getAddress().getPort() + "/";
             for (int i = 0; i < 3; i++) {
-                assertThatThrownBy(() -> data.getData(url)).hasRootCauseInstanceOf(java.io.IOException.class);
+                assertThatThrownBy(() -> data.getData(url)).hasRootCauseInstanceOf(org.springframework.web.client.RestClientResponseException.class);
             }
             ProviderDiagnostics.begin();
             try {
@@ -95,4 +95,29 @@ class DataUtilsCircuitTest {
             assertThat(requests.get()).isEqualTo(3);
         } finally { server.stop(0); }
     }
+    @Test
+    void missingPagesDoNotPauseProviderAndServerFailuresKeepHttpStatus() throws Exception {
+        HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/missing", exchange -> { exchange.sendResponseHeaders(404, -1); exchange.close(); });
+        server.createContext("/failed", exchange -> { exchange.sendResponseHeaders(503, -1); exchange.close(); });
+        server.start();
+        try {
+            DataUtils data = new DataUtils();
+            ReflectionTestUtils.setField(data, "circuitBreakerFailures", 3);
+            ReflectionTestUtils.setField(data, "circuitBreakerCooldownMinutes", 15L);
+            String url = "http://127.0.0.1:" + server.getAddress().getPort();
+            for (int i = 0; i < 5; i++) assertThat(data.getData(url + "/missing")).isNull();
+            ProviderDiagnostics.begin();
+            try {
+                assertThatThrownBy(() -> data.getData(url + "/failed")).satisfies(error ->
+                        ProviderDiagnostics.record("OPEN_LIBRARY", "Obtener autor", error));
+            } finally {
+                var details = ProviderDiagnostics.finish();
+                assertThat(details).hasSize(1);
+                assertThat(details.get(0).getString("code")).isEqualTo("UNAVAILABLE");
+                assertThat(details.get(0).getInteger("httpStatus")).isEqualTo(503);
+            }
+        } finally { server.stop(0); }
+    }
+
 }

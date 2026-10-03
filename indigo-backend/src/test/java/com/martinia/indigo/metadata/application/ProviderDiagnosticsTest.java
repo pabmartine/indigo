@@ -23,4 +23,13 @@ class ProviderDiagnosticsTest {
         assertEquals("CONNECTION", details.get(0).getString("code"));
         assertEquals("TIMEOUT", details.get(1).getString("code"));
     }
+    @Test void distinguishesAuthorTranslationFailureFromSourceFailure() {
+        ProviderDiagnostics.begin();
+        ProviderDiagnostics.record("OPEN_LIBRARY", "Obtener autor",
+                new AuthorMetadataTranslationException("secret", "photo", "OPEN_LIBRARY", null));
+        var details = ProviderDiagnostics.finish();
+        assertEquals("TRANSLATION_FAILED", details.get(0).getString("code"));
+        assertFalse(details.toString().contains("secret"));
+    }
+
 }

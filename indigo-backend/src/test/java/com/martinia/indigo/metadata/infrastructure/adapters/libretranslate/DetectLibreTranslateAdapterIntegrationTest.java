@@ -30,7 +30,7 @@ class DetectLibreTranslateAdapterIntegrationTest extends BaseIndigoIntegrationTe
 		final LinkedHashMap linkedHashMap = new LinkedHashMap();
 		linkedHashMap.put("language", "en");
 		list.add(linkedHashMap);
-		Mockito.when(restTemplate.postForObject(anyString(), any(), any())).thenReturn(list);
+		Mockito.when(libreTranslateRestTemplate.postForObject(anyString(), any(), any())).thenReturn(list);
 
 		String detectedLanguage = detectLibreTranslatePort.detect(text);
 

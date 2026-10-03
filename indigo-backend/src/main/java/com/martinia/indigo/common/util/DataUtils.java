@@ -52,21 +52,31 @@ public class DataUtils {
                 ensureCircuitIsClosed(url.getHost(), state);
                 waitForRateLimit(url.getHost(), state);
 
+                URLConnection connection = null;
                 try {
-                    URLConnection connection = url.openConnection();
+                    connection = url.openConnection();
                     connection.setConnectTimeout(5000);
                     connection.setReadTimeout(10000);
                     connection.setRequestProperty("User-Agent", "Indigo/0.0.1 (book metadata client)");
 
-                    if (connection instanceof java.net.HttpURLConnection http && http.getResponseCode() == 429) {
-                        long delay = Math.min(Math.max(1, maxDelaySeconds), Math.max(1, initialDelaySeconds)
-                                * (1L << Math.min(state.rateLimitFailures++, 20)));
-                        Instant requested = com.martinia.indigo.metadata.application.reviews.ReviewProviderRequestPolicy.retryAt(http.getHeaderField("Retry-After"));
-                        state.blockedUntil = requested != null ? requested : Instant.now().plusSeconds(delay);
-                        http.disconnect();
-                        log.warn("Metadata provider {} returned HTTP 429; paused until {}", url.getHost(), state.blockedUntil);
-                        throw new com.martinia.indigo.metadata.application.reviews.ReviewPageGuard.AccessRestrictedException(
-                                "HTTP 429 from " + url.getHost() + "; retry at " + state.blockedUntil, state.blockedUntil);
+                    if (connection instanceof java.net.HttpURLConnection http) {
+                        int status = http.getResponseCode();
+                        if (status == 429) {
+                            long delay = Math.min(Math.max(1, maxDelaySeconds), Math.max(1, initialDelaySeconds)
+                                    * (1L << Math.min(state.rateLimitFailures++, 20)));
+                            Instant requested = com.martinia.indigo.metadata.application.reviews.ReviewProviderRequestPolicy.retryAt(http.getHeaderField("Retry-After"));
+                            state.blockedUntil = requested != null ? requested : Instant.now().plusSeconds(delay);
+                            log.warn("Metadata provider {} returned HTTP 429; paused until {}", url.getHost(), state.blockedUntil);
+                            throw new com.martinia.indigo.metadata.application.reviews.ReviewPageGuard.AccessRestrictedException(
+                                    "HTTP 429 from " + url.getHost() + "; retry at " + state.blockedUntil, state.blockedUntil);
+                        }
+                        if (status == 404) {
+                            state.failures = 0;
+                            state.rateLimitFailures = 0;
+                            return null;
+                        }
+                        if (status >= 400) throw new org.springframework.web.client.RestClientResponseException(
+                                "HTTP " + status + " from " + url.getHost(), status, http.getResponseMessage(), null, null, null);
                     }
                     StringBuilder data = new StringBuilder();
                     try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), java.nio.charset.StandardCharsets.UTF_8))) {
@@ -87,6 +97,7 @@ public class DataUtils {
                     throw exception;
                 }
                 finally {
+                    if (connection instanceof java.net.HttpURLConnection http) http.disconnect();
                     state.lastRequest = Instant.now();
                 }
             }

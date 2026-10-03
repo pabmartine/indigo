@@ -229,4 +229,15 @@ class AuthorMetadataFallbackTest {
 		verifyNoInteractions(wikipedia, openLibrary);
 		verify(repository, never()).save(any());
 	}
+	@Test
+	void pausedWikipediaSkipsOtherLanguagesButStillTriesOpenLibraryAndKeepsAuthorPending() {
+		when(wikipedia.findAuthor("Author", "es", 0)).thenThrow(new IllegalStateException(
+				new com.martinia.indigo.metadata.application.reviews.ReviewPageGuard.AccessRestrictedException(
+						"Paused", java.time.Instant.now().plusSeconds(60))));
+		assertThat(useCase.find("author", false, 0, "en")).isEqualTo(MetadataItemResult.ERROR);
+		verify(wikipedia).findAuthor("Author", "es", 0);
+		verify(wikipedia, never()).findAuthor("Author", "en", 0);
+		verify(openLibrary).findAuthor("Author");
+	}
+
 }

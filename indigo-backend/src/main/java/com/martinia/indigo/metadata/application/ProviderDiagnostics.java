@@ -34,6 +34,7 @@ public final class ProviderDiagnostics {
         java.time.Instant retryAt = null;
         Set<Throwable> visited = Collections.newSetFromMap(new IdentityHashMap<>());
         for (Throwable cause = error; cause != null && visited.add(cause); cause = cause.getCause()) {
+            if (cause instanceof AuthorMetadataTranslationException) code = "TRANSLATION_FAILED";
             if (cause instanceof RestClientResponseException http) status = http.getStatusCode().value();
             if (cause instanceof FailingHttpStatusCodeException http) status = http.getStatusCode();
             if (cause instanceof java.net.SocketTimeoutException || cause instanceof java.net.http.HttpTimeoutException
@@ -51,6 +52,7 @@ public final class ProviderDiagnostics {
             default -> status >= 500 ? "UNAVAILABLE" : "HTTP_ERROR";
         };
         String message = switch (code) {
+            case "TRANSLATION_FAILED" -> "Se ha obtenido información del autor, pero no se pudo traducir su descripción al español. La descripción queda pendiente.";
             case "PAUSED" -> "Proveedor en pausa preventiva. No se realizan peticiones hasta que termine la pausa.";
             case "TIMEOUT" -> "Tiempo de espera agotado. Puedes reintentar más tarde.";
             case "CONNECTION" -> "No se pudo conectar. Revisa la conexión y la configuración del servicio.";

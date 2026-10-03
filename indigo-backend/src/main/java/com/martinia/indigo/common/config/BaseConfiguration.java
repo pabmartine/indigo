@@ -14,10 +14,21 @@ public class BaseConfiguration {
 	@org.springframework.beans.factory.annotation.Autowired
 	private org.springframework.beans.factory.ObjectProvider<com.martinia.indigo.metadata.application.reviews.ReviewProviderRequestPolicy> reviewPolicy;
 	@Bean
+	@org.springframework.context.annotation.Primary
 	public RestTemplate restTemplate() {
 		SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
 		factory.setConnectTimeout(5_000);
 		factory.setReadTimeout(10_000);
+		return new RestTemplate(factory);
+	}
+
+	@Bean
+	public RestTemplate libreTranslateRestTemplate(
+			@org.springframework.beans.factory.annotation.Value("${metadata.libretranslate.connect-timeout-millis:5000}") int connectTimeout,
+			@org.springframework.beans.factory.annotation.Value("${metadata.libretranslate.read-timeout-millis:60000}") int readTimeout) {
+		SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+		factory.setConnectTimeout(Math.max(1, connectTimeout));
+		factory.setReadTimeout(Math.max(1, readTimeout));
 		return new RestTemplate(factory);
 	}
 

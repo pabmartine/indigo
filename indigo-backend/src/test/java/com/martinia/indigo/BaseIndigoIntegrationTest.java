@@ -78,6 +78,9 @@ public class BaseIndigoIntegrationTest extends BaseIndigoTest {
 	@MockBean
 	protected WebClient webClient;
 
-	@MockBean
+	@MockBean(name = "restTemplate")
 	protected RestTemplate restTemplate;
+
+	@MockBean(name = "libreTranslateRestTemplate")
+	protected RestTemplate libreTranslateRestTemplate;
 }
