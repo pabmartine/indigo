@@ -78,7 +78,7 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 					providerSucceeded = true;
 				}
 				catch (RuntimeException exception) {
-					log.warn("Open Library ISBN lookup failed for {}: {}", book.getTitle(), exception.getMessage());
+					log.warn("Open Library ISBN lookup failed for book {} ({})", book.getId(), book.getTitle(), exception);
                     com.martinia.indigo.metadata.application.ProviderDiagnostics.record("OPEN_LIBRARY", "Obtener libro", exception);
 				}
 			}
@@ -91,7 +91,7 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 					providerSucceeded = true;
 				}
 				catch (RuntimeException exception) {
-					log.warn("Google Books failed for {}: {}", book.getTitle(), exception.getMessage());
+					log.warn("Google Books failed for book {} ({})", book.getId(), book.getTitle(), exception);
                     com.martinia.indigo.metadata.application.ProviderDiagnostics.record("GOOGLE_BOOKS", "Obtener libro", exception);
 				}
 			}
@@ -103,7 +103,7 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 					providerSucceeded = true;
 				}
 				catch (RuntimeException exception) {
-					log.warn("Open Library failed for {}: {}", book.getTitle(), exception.getMessage());
+					log.warn("Open Library failed for book {} ({})", book.getId(), book.getTitle(), exception);
                     com.martinia.indigo.metadata.application.ProviderDiagnostics.record("OPEN_LIBRARY", "Obtener libro", exception);
 				}
 			}

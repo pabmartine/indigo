@@ -91,8 +91,7 @@ public class DataUtils {
                     return data.isEmpty() ? null : data.toString();
                 }
                 catch (Exception exception) {
-                    log.warn("Metadata request to {} failed: {}: {}", url.getHost(),
-                            exception.getClass().getSimpleName(), exception.getMessage());
+                    log.warn("Metadata request to {}{} failed", url.getHost(), url.getPath(), exception);
                     if (state.blockedUntil == null) registerFailure(url.getHost(), state);
                     throw exception;
                 }

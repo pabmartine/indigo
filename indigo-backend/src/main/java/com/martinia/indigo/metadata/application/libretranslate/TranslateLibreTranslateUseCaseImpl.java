@@ -43,7 +43,8 @@ public class TranslateLibreTranslateUseCaseImpl implements TranslateLibreTransla
 
 		}
 		catch (Exception e) {
-			log.debug("Translation is unavailable: {}", e.getMessage());
+			log.warn("LIBRETRANSLATE translation failed: target={} textLength={}",
+					target, text == null ? 0 : text.length(), e);
 			com.martinia.indigo.metadata.application.ProviderDiagnostics.record("LIBRETRANSLATE", "Traducir al español", e);
 		}
 		return ret;

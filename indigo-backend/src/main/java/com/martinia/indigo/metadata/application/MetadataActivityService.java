@@ -71,6 +71,7 @@ public class MetadataActivityService {
             }
         }
         catch (RuntimeException exception) {
+            log.warn("Metadata processing failed: type={} entityId={} historyId={}", type, id, historyId, exception);
             failure = exception;
             result = MetadataItemResult.ERROR;
             error = ProviderDiagnostics.record("INDIGO", "Procesar metadatos", exception);

@@ -124,7 +124,8 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 								&& restricted.retryAt() != null) wikipediaPaused = true;
 					}
 				}
-				log.warn("{} failed for {}: {}", operation, author.getName(), exception.toString());
+				log.warn("Metadata provider {} operation {} failed for author {} ({})",
+						provider, operation, author.getId(), author.getName(), exception);
 				com.martinia.indigo.metadata.application.ProviderDiagnostics.record(provider, operation, exception);
 				metadata = exception instanceof com.martinia.indigo.metadata.application.AuthorMetadataTranslationException partial
 						? partial.getPartialMetadata() : null;
@@ -156,6 +157,8 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 				catch (RuntimeException exception) {
 					com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
 					failed = true;
+					log.warn("Metadata provider {} photo download failed for author {} ({})",
+							provider, author.getId(), author.getName(), exception);
 					com.martinia.indigo.metadata.application.ProviderDiagnostics.record(provider, "Descargar foto del autor", exception);
 				}
 			}

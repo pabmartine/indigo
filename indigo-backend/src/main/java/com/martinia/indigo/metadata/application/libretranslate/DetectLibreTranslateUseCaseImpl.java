@@ -45,7 +45,7 @@ public class DetectLibreTranslateUseCaseImpl implements DetectLibreTranslateUseC
 			}
 		}
 		catch (Exception e) {
-			log.debug("Language detection is unavailable: {}", e.getMessage());
+			log.warn("LIBRETRANSLATE language detection failed: textLength={}", text == null ? 0 : text.length(), e);
 			com.martinia.indigo.metadata.application.ProviderDiagnostics.record("LIBRETRANSLATE", "Detectar idioma", e);
 		}
 		return ret;
