@@ -47,115 +47,103 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 			log.info("Finding author metadata for {}: descriptionPresent={} imagePresent={} override={}",
 					author.getName(), StringUtils.isNotBlank(author.getDescription()), StringUtils.isNotBlank(author.getImage()), override);
 
-			boolean providerSucceeded = false;
-			boolean providerFailed = false;
-			String[] catalog = null;
-			if (findOpenLibraryAuthorCatalogPort.isPresent()) {
-				try {
-					catalog = findOpenLibraryAuthorCatalogPort.get().findAuthor(author.getName());
-					providerSucceeded = true;
-				}
-				catch (RuntimeException exception) {
-					providerFailed = true;
-					log.warn("Open Library local author catalog failed for {}: {}", author.getName(), exception.toString());
-					com.martinia.indigo.metadata.application.ProviderDiagnostics.record("OPEN_LIBRARY", "Catálogo local de autores", exception);
-				}
-			}
+			Lookup lookup = new Lookup(author, override);
+			findOpenLibraryAuthorCatalogPort.ifPresent(port -> lookup.obtain("OPEN_LIBRARY", "Catálogo local de autores",
+					() -> port.findAuthor(author.getName())));
 
-			String[] wikipedia = null;
-			String[] wikipediaEnglish = null;
-			if (missingMetadata(catalog) && findWikipediaAuthorPort.isPresent()) {
-				try {
-					wikipedia = findWikipediaAuthorPort.get().findAuthor(author.getName(), lang, 0);
-					providerSucceeded = true;
+			java.util.Set<String> languages = new java.util.LinkedHashSet<>();
+			languages.add("es");
+			String requestedLanguage = com.martinia.indigo.metadata.application.libretranslate.CachedSpanishTranslation.normalizeLanguage(lang);
+			if (requestedLanguage != null) languages.add(requestedLanguage);
+			languages.add("en");
+			findWikipediaAuthorPort.ifPresent(port -> {
+				for (String language : languages) {
+					if (!lookup.missing()) break;
+					lookup.obtain("WIKIPEDIA", "Obtener autor (" + language + ")",
+							() -> port.findAuthor(author.getName(), language, 0));
 				}
-				catch (RuntimeException exception) {
-					providerFailed = true;
-					log.warn("Wikipedia ({}) failed for {}: {}", lang, author.getName(), exception.toString());
-					com.martinia.indigo.metadata.application.ProviderDiagnostics.record("WIKIPEDIA", "Obtener autor", exception);
-				}
-				if (missingMetadata(catalog, wikipedia) && !"en".equals(lang)) {
-					try {
-						wikipediaEnglish = findWikipediaAuthorPort.get().findAuthor(author.getName(), "en", 0);
-						providerSucceeded = true;
-					}
-					catch (RuntimeException exception) {
-						providerFailed = true;
-						log.warn("Wikipedia (en) failed for {}: {}", author.getName(), exception.toString());
-						com.martinia.indigo.metadata.application.ProviderDiagnostics.record("WIKIPEDIA", "Obtener autor", exception);
-					}
-				}
-			}
+			});
+			if (lookup.missing()) findOpenLibraryAuthorPort.ifPresent(port -> lookup.obtain("OPEN_LIBRARY", "Obtener autor",
+					() -> port.findAuthor(author.getName())));
 
-			String[] openLibrary = null;
-			if (missingMetadata(catalog, wikipedia, wikipediaEnglish)
-					&& findOpenLibraryAuthorPort.isPresent()) {
-				try {
-					openLibrary = findOpenLibraryAuthorPort.get().findAuthor(author.getName());
-					providerSucceeded = true;
-				}
-				catch (RuntimeException exception) {
-					providerFailed = true;
-					log.warn("Open Library failed for {}: {}", author.getName(), exception.toString());
-					com.martinia.indigo.metadata.application.ProviderDiagnostics.record("OPEN_LIBRARY", "Obtener autor", exception);
-				}
-			}
-
-			boolean found = applyMetadata(author, catalog, override);
-			found |= applyMetadata(author, wikipedia, override, catalog);
-			found |= applyMetadata(author, wikipediaEnglish, override, catalog, wikipedia);
-			found |= applyMetadata(author, openLibrary, override, catalog, wikipedia, wikipediaEnglish);
-			if (!found && (!providerSucceeded || providerFailed)) return MetadataItemResult.ERROR;
-			if (!providerFailed) author.setLastMetadataSync(Calendar.getInstance().getTime());
-			authorRepository.save(author);
-
-			if (found) {
-				log.info("Found metadata for {}: descriptionPresent={} imagePresent={}", author.getName(),
-						StringUtils.isNotBlank(author.getDescription()), StringUtils.isNotBlank(author.getImage()));
-				return MetadataItemResult.FOUND;
-			}
-			log.info("No metadata obtained for missing fields of {}: descriptionPresent={} imagePresent={}",
-					author.getName(), StringUtils.isNotBlank(author.getDescription()), StringUtils.isNotBlank(author.getImage()));
-			return MetadataItemResult.NOT_FOUND;
+			boolean incompleteFailure = lookup.failed && lookup.missing();
+			if (!lookup.succeeded && !lookup.found) return MetadataItemResult.ERROR;
+			if (!lookup.failed) author.setLastMetadataSync(Calendar.getInstance().getTime());
+			if (lookup.found || !incompleteFailure) authorRepository.save(author);
+			if (incompleteFailure) return MetadataItemResult.ERROR;
+			log.info("Author metadata result for {}: found={} descriptionPresent={} imagePresent={}", author.getName(),
+					lookup.found, StringUtils.isNotBlank(author.getDescription()), StringUtils.isNotBlank(author.getImage()));
+			return lookup.found ? MetadataItemResult.FOUND : MetadataItemResult.NOT_FOUND;
 		}).orElse(MetadataItemResult.SKIPPED);
 	}
 
-	private boolean missingMetadata(final String[]... candidates) {
-		return !hasMetadataField(0, candidates) || !hasMetadataField(1, candidates);
-	}
+	private final class Lookup {
+		private final AuthorMongoEntity author;
+		private final boolean override;
+		private boolean descriptionObtained;
+		private boolean imageObtained;
+		private boolean succeeded;
+		private boolean failed;
+		private boolean found;
 
-	private boolean hasMetadataField(final int field, final String[]... candidates) {
-		for (String[] candidate : candidates) {
-			if (candidate != null && candidate.length >= 3 && StringUtils.isNotBlank(candidate[field])) return true;
+		private Lookup(AuthorMongoEntity author, boolean override) {
+			this.author = author;
+			this.override = override;
 		}
-		return false;
-	}
 
-	private boolean applyMetadata(final AuthorMongoEntity author, final String[] metadata, final boolean override,
-			final String[]... preferred) {
-		if (metadata == null || metadata.length < 3) {
-			return false;
+		private boolean needsDescription() {
+			return override ? !descriptionObtained : StringUtils.isBlank(author.getDescription());
 		}
-		boolean found = false;
-		if (((override && !hasMetadataField(0, preferred)) || StringUtils.isBlank(author.getDescription()))
-				&& StringUtils.isNotBlank(metadata[0])) {
-			author.setDescription(metadata[0]);
-			recordSource(author, "description", metadata[2]);
-			found = true;
+
+		private boolean needsImage() {
+			return override ? !imageObtained : StringUtils.isBlank(author.getImage());
 		}
-		if (((override && !hasMetadataField(1, preferred)) || StringUtils.isBlank(author.getImage()))
-				&& StringUtils.isNotBlank(metadata[1])) {
-			final String image = imageUtils.getBase64Url(metadata[1]);
-			if (StringUtils.isNotEmpty(image)) {
-				author.setImage(image);
-				recordSource(author, "image", metadata[2]);
-				found = true;
+
+		private boolean missing() {
+			return needsDescription() || needsImage();
+		}
+
+		private void obtain(String provider, String operation, java.util.function.Supplier<String[]> request) {
+			String[] metadata;
+			try {
+				metadata = request.get();
+				succeeded = true;
 			}
+			catch (RuntimeException exception) {
+				com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
+				failed = true;
+				log.warn("{} failed for {}: {}", operation, author.getName(), exception.toString());
+				com.martinia.indigo.metadata.application.ProviderDiagnostics.record(provider, operation, exception);
+				metadata = exception instanceof com.martinia.indigo.metadata.application.AuthorMetadataTranslationException partial
+						? partial.getPartialMetadata() : null;
+			}
+			if (metadata == null || metadata.length < 3) return;
+			boolean changed = false;
+			if (needsDescription() && StringUtils.isNotBlank(metadata[0])) {
+				author.setDescription(metadata[0]);
+				recordSource(author, "description", metadata[2]);
+				descriptionObtained = true;
+				changed = true;
+			}
+			if (needsImage() && StringUtils.isNotBlank(metadata[1])) {
+				try {
+					String image = imageUtils.getBase64AuthorUrl(metadata[1]);
+					if (StringUtils.isNotBlank(image)) {
+						author.setImage(image);
+						recordSource(author, "image", metadata[2]);
+						imageObtained = true;
+						changed = true;
+					}
+				}
+				catch (RuntimeException exception) {
+					com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
+					failed = true;
+					com.martinia.indigo.metadata.application.ProviderDiagnostics.record(provider, "Descargar foto del autor", exception);
+				}
+			}
+			if (changed && (StringUtils.isBlank(author.getProvider()) || override && !found)) author.setProvider(metadata[2]);
+			found |= changed;
 		}
-		if (((override && missingMetadata(preferred)) || StringUtils.isBlank(author.getProvider())) && StringUtils.isNotBlank(metadata[2])) {
-			author.setProvider(metadata[2]);
-		}
-		return found;
 	}
 
 	private void recordSource(AuthorMongoEntity author, String field, String provider) {

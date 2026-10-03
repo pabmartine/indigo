@@ -81,6 +81,9 @@ public class FindWikipediaAuthorUseCaseImpl implements FindWikipediaAuthorUseCas
 				}
 			}
 		}
+		catch (com.martinia.indigo.metadata.application.AuthorMetadataTranslationException exception) {
+			throw exception;
+		}
 		catch (Exception e) {
 			throw new IllegalStateException("Could not obtain Wikipedia metadata from " + url, e);
 		}

@@ -48,7 +48,6 @@ public class StartFillAuthorsMetadataUseCaseImplTest extends BaseIndigoTest {
 		languages.add("es");
 		Long numAuthors = 200L;
 		when(bookRepository.getBookLanguages()).thenReturn(languages);
-		when(authorRepository.count(languages)).thenReturn(numAuthors);
 		when(metadataSingleton.getTotal()).thenReturn(0L);
 		when(metadataSingleton.getCurrent()).thenReturn(0L);
 		when(metadataSingleton.isRunning()).thenReturn(true);
@@ -58,7 +57,7 @@ public class StartFillAuthorsMetadataUseCaseImplTest extends BaseIndigoTest {
 			author.setId("author_id_" + i);
 			authors.add(author);
 		}
-		when(authorRepository.findAll(anyList(), any(Pageable.class))).thenReturn(authors);
+		when(authorRepository.findMetadataIds(languages)).thenReturn(authors.stream().map(AuthorMongoEntity::getId).toList());
 		when(metadataSingleton.isRunning()).thenReturn(true);
 		when(metadataSingleton.isRunning()).thenReturn(false);
 
@@ -70,7 +69,7 @@ public class StartFillAuthorsMetadataUseCaseImplTest extends BaseIndigoTest {
 		// Verificar que se llama al método getBookLanguages() del bookRepository
 		verify(bookRepository, times(1)).getBookLanguages();
 		// Verificar que el método count() del authorRepository es llamado una vez con la lista de idiomas como argumento
-		verify(authorRepository, times(1)).count(languages);
+		verify(authorRepository, times(1)).findMetadataIds(languages);
 		// Verificar que el método getTotal() del metadataSingleton es llamado una vez
 		verify(metadataSingleton, times(1)).getTotal();
 

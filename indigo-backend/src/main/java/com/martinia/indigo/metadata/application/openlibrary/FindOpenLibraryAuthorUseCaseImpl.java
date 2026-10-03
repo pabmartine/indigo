@@ -55,6 +55,9 @@ public class FindOpenLibraryAuthorUseCaseImpl implements FindOpenLibraryAuthorUs
 				}
 			}
 		}
+		catch (com.martinia.indigo.metadata.application.AuthorMetadataTranslationException exception) {
+			throw exception;
+		}
 		catch (Exception exception) {
 			throw new IllegalStateException("Could not obtain Open Library author metadata for " + name, exception);
 		}
@@ -73,13 +76,23 @@ public class FindOpenLibraryAuthorUseCaseImpl implements FindOpenLibraryAuthorUs
 		final JsonNode author = objectMapper.readTree(json);
 		final JsonNode bioNode = author.path("bio");
 		final String description = bioNode.isTextual() ? bioNode.asText() : bioNode.path("value").asText(null);
-		final String image = authorImageEndpoint.replace("$id", id);
-		if (StringUtils.isBlank(description)) {
-			return null;
+		final String image = author.path("photos").isArray()
+				&& java.util.stream.StreamSupport.stream(author.path("photos").spliterator(), false)
+						.anyMatch(photo -> photo.asLong(-1) > 0)
+				? authorImageEndpoint.replace("$id", id) : null;
+		String translated = null;
+		if (StringUtils.isNotBlank(description)) {
+			try {
+				if (spanishTranslation == null) throw new IllegalStateException("Spanish translation is not configured");
+				translated = spanishTranslation.translate(description);
+				if (StringUtils.isBlank(translated)) throw new IllegalStateException("Spanish author translation unavailable; retry later");
+			}
+			catch (RuntimeException exception) {
+				com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
+				throw new com.martinia.indigo.metadata.application.AuthorMetadataTranslationException(
+						"Spanish author translation unavailable; retry later", image, ProviderEnum.OPEN_LIBRARY.name(), exception);
+			}
 		}
-		if (spanishTranslation == null) throw new IllegalStateException("Spanish translation is not configured");
-		String translated = spanishTranslation.translate(description);
-		if (StringUtils.isBlank(translated)) throw new IllegalStateException("Spanish author translation unavailable; retry later");
 		return new String[] { translated, image, ProviderEnum.OPEN_LIBRARY.name() };
 	}
 

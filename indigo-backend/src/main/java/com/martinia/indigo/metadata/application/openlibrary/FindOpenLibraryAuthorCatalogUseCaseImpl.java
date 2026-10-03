@@ -31,14 +31,20 @@ public class FindOpenLibraryAuthorCatalogUseCaseImpl implements FindOpenLibraryA
 		var matches = authorRepository.findTop2ByIndexVersionAndNames(job.getActiveVersion(), AuthorNameNormalizer.normalize(name));
 		if (matches.size() != 1) return null;
 		var author = matches.get(0);
+		String image = author.isHasPhoto() ? authorImageEndpoint.replace("$id", author.getAuthorId()) : null;
 		String translated = null;
 		if (StringUtils.isNotBlank(author.getBiography())) {
-			translated = spanishTranslation.translate(author.getBiography());
+			try {
+				translated = spanishTranslation.translate(author.getBiography());
+			}
+			catch (RuntimeException exception) {
+				com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
+				throw new AuthorCatalogTranslationException("Spanish author translation unavailable; retry later", image, exception);
+			}
 			if (StringUtils.isBlank(translated)) {
-				throw new AuthorCatalogTranslationException("Spanish author translation unavailable; retry later");
+				throw new AuthorCatalogTranslationException("Spanish author translation unavailable; retry later", image, null);
 			}
 		}
-		String image = author.isHasPhoto() ? authorImageEndpoint.replace("$id", author.getAuthorId()) : null;
 		return new String[] { translated, image, ProviderEnum.OPEN_LIBRARY.name() };
 	}
 }

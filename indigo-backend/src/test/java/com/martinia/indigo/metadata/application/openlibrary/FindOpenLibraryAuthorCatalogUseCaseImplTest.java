@@ -74,4 +74,15 @@ class FindOpenLibraryAuthorCatalogUseCaseImplTest {
         assertThat(useCase.findAuthor("Author")[1]).contains("OL1A");
         verifyNoInteractions(spanishTranslation);
     }
+
+    @Test void failedTranslationRetainsThePhotoForFallbacks() {
+        activeIndex();
+        when(authorRepository.findTop2ByIndexVersionAndNames("active", "author")).thenReturn(List.of(
+                OpenLibraryAuthorMongoEntity.builder().authorId("OL1A").biography("Biography").hasPhoto(true).build()));
+        when(spanishTranslation.translate("Biography")).thenThrow(new IllegalStateException("Unavailable"));
+        assertThatThrownBy(() -> useCase.findAuthor("Author"))
+                .isInstanceOfSatisfying(AuthorCatalogTranslationException.class, failure ->
+                        assertThat(failure.getPartialMetadata()).containsExactly(null,
+                                "https://covers.openlibrary.org/a/olid/OL1A-L.jpg?default=false", "OPEN_LIBRARY"));
+    }
 }

@@ -31,7 +31,7 @@ class FindAuthorMetadataCommandHandlerIntegrationTest extends BaseIndigoIntegrat
 	private ImageUtils imageUtils;
 	@BeforeEach
 	void init(){
-		Mockito.when(imageUtils.getBase64Url(Mockito.anyString())).thenAnswer(invocation -> invocation.getArgument(0));
+		Mockito.when(imageUtils.getBase64AuthorUrl(Mockito.anyString())).thenAnswer(invocation -> invocation.getArgument(0));
 		insertAuthor();
 		insertBook();
 	}

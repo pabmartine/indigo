@@ -79,15 +79,19 @@ public class StartFillBooksMetadataCommandHandlerIntegrationTest extends BaseInd
 	public void startFillBooksMetadataSingletonOK() {
 		// Given
 		insertBook();
-		metadataSingleton.setRunning(true);
+		long runId = metadataSingleton.start("FULL", "BOOKS");
+		org.mockito.Mockito.when(commandBus.executeAndWait(any(FindBookMetadataCommand.class)))
+				.thenReturn(com.martinia.indigo.metadata.domain.model.MetadataItemResult.FOUND);
 		// When
-		startFillBooksMetadataCommandHandler.handle(allBooksCommand());
+		startFillBooksMetadataCommandHandler.handle(StartFillBooksMetadataCommand.builder()
+				.scope(BookMetadataScope.ALL).mergePolicy(MetadataMergePolicy.FILL_MISSING)
+				.dynamicPolicy(DynamicMetadataPolicy.REFRESH_IF_STALE).runId(runId).build());
 
 		// Then
 		// Verify the method invocation
 		verify(commandBus, times(1)).executeAndWait(any(FindBookMetadataCommand.class));
 		assertEquals(1, metadataSingleton.getTotal());
-		assertEquals(1, metadataSingleton.getCurrent());
+		assertEquals(1L, metadataSingleton.getRuns().get("FULL:BOOKS").get("current"));
 	}
 
 	@Test

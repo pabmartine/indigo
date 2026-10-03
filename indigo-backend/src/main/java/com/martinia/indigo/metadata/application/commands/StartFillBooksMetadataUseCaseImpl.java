@@ -29,6 +29,9 @@ public class StartFillBooksMetadataUseCaseImpl implements StartFillBooksMetadata
 	@Resource
 	protected CommandBus commandBus;
 
+	@Resource
+	private com.martinia.indigo.metadata.application.MetadataExecutionService executions;
+
 	@Override
 	public void start(final BookMetadataScope scope, final MetadataMergePolicy mergePolicy,
 			final DynamicMetadataPolicy dynamicPolicy, final long requestedRunId) {
@@ -41,9 +44,17 @@ public class StartFillBooksMetadataUseCaseImpl implements StartFillBooksMetadata
 			return;
 		}
 
-		final List<BookMongoEntity> books = scope == BookMetadataScope.INCOMPLETE
+		final List<BookMongoEntity> selected = scope == BookMetadataScope.INCOMPLETE
 				? bookRepository.findBooksWithIncompleteMetadata()
 				: bookRepository.findAllBookIds();
+		final String process = "BOOKS:" + scope.name();
+		final List<String> pending;
+		synchronized (metadataSingleton) {
+			if (managedRun && !metadataSingleton.isActive(runId)) return;
+			pending = executions.pending(process, selected.stream().map(BookMongoEntity::getId).toList());
+		}
+		final java.util.Set<String> pendingIds = new java.util.HashSet<>(pending);
+		final List<BookMongoEntity> books = selected.stream().filter(book -> pendingIds.contains(book.getId())).toList();
 		final long numBooks = books.size();
 
 		if (managedRun && !metadataSingleton.initializeRun(runId, "obtaining_metadata_books", numBooks)) {
@@ -69,19 +80,25 @@ public class StartFillBooksMetadataUseCaseImpl implements StartFillBooksMetadata
 				if (!(managedRun ? metadataSingleton.isActive(runId) : metadataSingleton.isRunning())) {
 					break;
 				}
+				MetadataItemResult result;
 				try {
-					final MetadataItemResult result = commandBus.executeAndWait(FindBookMetadataCommand.builder()
+					result = commandBus.executeAndWait(FindBookMetadataCommand.builder()
 							.bookId(book.getId())
 							.mergePolicy(mergePolicy)
 							.dynamicPolicy(dynamicPolicy)
 							.lastExecution(lastExecution)
 							.build());
-					metadataSingleton.record(runId, result == null ? MetadataItemResult.ERROR : result);
+				}
+				catch (java.util.concurrent.CancellationException exception) {
+					break;
 				}
 				catch (RuntimeException exception) {
+					com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
 					log.error("Book metadata failed for {}", book.getId(), exception);
-					metadataSingleton.record(runId, MetadataItemResult.ERROR);
+					result = MetadataItemResult.ERROR;
 				}
+				checkpoint(process, book.getId(), managedRun, runId);
+				metadataSingleton.record(runId, result == null ? MetadataItemResult.ERROR : result);
 				lastExecution = System.currentTimeMillis();
 				log.debug("Obtained {}/{} books metadata", metadataSingleton.getCurrent(), numBooks);
 			}
@@ -95,6 +112,15 @@ public class StartFillBooksMetadataUseCaseImpl implements StartFillBooksMetadata
 			}
 		}
 
+	}
+
+	private void checkpoint(String process, String id, boolean managed, long runId) {
+		synchronized (metadataSingleton) {
+			if (!Thread.currentThread().isInterrupted()
+					&& (managed ? metadataSingleton.isActive(runId) : metadataSingleton.isRunning())) {
+				executions.inspected(process, id);
+			}
+		}
 	}
 
 }

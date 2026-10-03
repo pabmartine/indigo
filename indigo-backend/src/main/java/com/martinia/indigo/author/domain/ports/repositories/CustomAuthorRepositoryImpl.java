@@ -67,6 +67,13 @@ public class CustomAuthorRepositoryImpl implements CustomAuthorRepository {
 	}
 
 	@Override
+	public List<String> findMetadataIds(List<String> languages) {
+		Query query = buildLanguageQuery(languages).with(org.springframework.data.domain.Sort.by("id"));
+		query.fields().include("_id");
+		return mongoTemplate.find(query, AuthorMongoEntity.class).stream().map(AuthorMongoEntity::getId).toList();
+	}
+
+	@Override
 	public List<AuthorMongoEntity> findAll(List<String> languages, Pageable page) {
 		Query query = buildLanguageQuery(languages).with(page);
 		return mongoTemplate.find(query, AuthorMongoEntity.class);

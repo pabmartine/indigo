@@ -176,6 +176,16 @@ public class ImageUtils {
 	}
 
 	public String getBase64Url(String image) {
+		return getBase64Url(image, false);
+	}
+
+	public String getBase64AuthorUrl(String image) {
+		return getBase64Url(image, true);
+	}
+
+	private String getBase64Url(String image, boolean reportFailures) {
+		if (reportFailures && (StringUtils.isBlank(image)
+				|| image.equals("https://s.gr-assets.com/assets/nophoto/user/u_200x266-e183445fd1a1b5cc7075bb1cf7043306.png"))) return null;
 
 		log.debug("Getting base64 image from {}", image);
 
@@ -185,7 +195,15 @@ public class ImageUtils {
 				HttpURLConnection connection = null;
 				try {
 					connection = (HttpURLConnection) new URL(image).openConnection();
+					connection.setConnectTimeout(15_000);
+					connection.setReadTimeout(15_000);
 					connection.setRequestProperty("User-Agent", "Mozilla/5.0");
+					if (reportFailures) {
+						int status = connection.getResponseCode();
+						if (status == 404) return null;
+						if (status >= 400) throw new org.springframework.web.client.RestClientResponseException(
+								"Author photo request failed", status, "", null, null, null);
+					}
 
 					try (InputStream inputStream = connection.getInputStream();
 						 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
@@ -230,6 +248,8 @@ public class ImageUtils {
 					}
 				}
 				catch (Exception e) {
+					if (Thread.currentThread().isInterrupted()) throw new java.util.concurrent.CancellationException("Image request interrupted");
+					if (reportFailures) throw new IllegalStateException("Could not download author photo", e);
 					log.error(image + " --> " + e.getMessage());
 					return null;
 				}

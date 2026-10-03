@@ -71,11 +71,18 @@ public class FindWikipediaAuthorInfoUseCaseImpl implements FindWikipediaAuthorIn
 			throw new IllegalStateException("Could not obtain Wikipedia author details from " + url, e);
 		}
 
-		if (ret!=null && !lang.equals("es") && !StringUtils.isEmpty(ret[0])){
+		if (ret != null && !"es".equals(com.martinia.indigo.metadata.application.libretranslate.CachedSpanishTranslation.normalizeLanguage(lang))
+				&& StringUtils.isNotBlank(ret[0])) {
 			final String description = ret[0];
-			ret[0] = translateLibreTranslatePort.map(libreTranslate -> libreTranslate.translate(description, "es"))
-					.orElse(null);
-
+			try {
+				ret[0] = translateLibreTranslatePort.map(libreTranslate -> libreTranslate.translate(description, "es")).orElse(null);
+				if (StringUtils.isBlank(ret[0])) throw new IllegalStateException("Spanish author translation unavailable; retry later");
+			}
+			catch (RuntimeException exception) {
+				com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
+				throw new com.martinia.indigo.metadata.application.AuthorMetadataTranslationException(
+						"Spanish author translation unavailable; retry later", ret[1], ProviderEnum.WIKIPEDIA.name(), exception);
+			}
 		}
 
 		return ret;

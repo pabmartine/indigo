@@ -11,6 +11,8 @@ public interface CustomAuthorRepository {
 
 	long count(List<String> languages);
 
+	List<String> findMetadataIds(List<String> languages);
+
 	List<AuthorMongoEntity> findAll(List<String> languages, Pageable page);
 
 	List<AuthorMongoEntity> findSummary(List<String> languages, Pageable page);
@@ -19,4 +21,3 @@ public interface CustomAuthorRepository {
 
 	void clearCache();
 }
-

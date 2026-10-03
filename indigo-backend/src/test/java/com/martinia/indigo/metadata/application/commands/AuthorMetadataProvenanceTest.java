@@ -26,7 +26,7 @@ class AuthorMetadataProvenanceTest {
         ReflectionTestUtils.setField(useCase, "imageUtils", images);
         when(repository.findById("author")).thenReturn(Optional.of(author));
         when(catalog.findAuthor("Author")).thenReturn(new String[]{"Biografía", "image", "OPEN_LIBRARY"});
-        when(images.getBase64Url("image")).thenReturn("base64");
+        when(images.getBase64AuthorUrl("image")).thenReturn("base64");
         useCase.find("author", false, 0, "es");
         assertEquals("Biografía", author.getDescription());
         assertEquals("OPEN_LIBRARY", author.getMetadataSources().get("description"));

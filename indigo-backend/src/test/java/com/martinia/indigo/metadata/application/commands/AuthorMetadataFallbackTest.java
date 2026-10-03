@@ -39,7 +39,7 @@ class AuthorMetadataFallbackTest {
 		ReflectionTestUtils.setField(useCase, "findOpenLibraryAuthorPort", Optional.of(openLibrary));
 		ReflectionTestUtils.setField(useCase, "imageUtils", images);
 		when(repository.findById("author")).thenReturn(Optional.of(author));
-		when(images.getBase64Url(anyString())).thenAnswer(invocation -> "base64:" + invocation.getArgument(0));
+		when(images.getBase64AuthorUrl(anyString())).thenAnswer(invocation -> "base64:" + invocation.getArgument(0));
 	}
 
 	@ParameterizedTest
@@ -168,5 +168,65 @@ class AuthorMetadataFallbackTest {
 
 		assertThat(useCase.find("author", false, 0, "es")).isEqualTo(MetadataItemResult.FOUND);
 		assertThat(author.getDescription()).isEqualTo("Biografía");
+	}
+
+	@ParameterizedTest
+	@ValueSource(booleans = { false, true })
+	void triesAnotherPhotoWhenTheCatalogUrlCannotBeDownloaded(boolean override) {
+		when(catalog.findAuthor("Author")).thenReturn(new String[] { "Del índice", "broken-photo", "OPEN_LIBRARY" });
+		when(images.getBase64AuthorUrl("broken-photo")).thenReturn(null);
+		when(wikipedia.findAuthor("Author", "es", 0)).thenReturn(new String[] { "Otra biografía", "wiki-photo", "WIKIPEDIA" });
+		assertThat(useCase.find("author", override, 0, "es")).isEqualTo(MetadataItemResult.FOUND);
+		assertThat(author.getDescription()).isEqualTo("Del índice");
+		assertThat(author.getImage()).isEqualTo("base64:wiki-photo");
+		verifyNoInteractions(openLibrary);
+	}
+
+	@Test
+	void retainsTheCatalogPhotoWhenTranslationFailsAndWikipediaCompletesTheBiography() {
+		when(catalog.findAuthor("Author")).thenThrow(new AuthorCatalogTranslationException("Unavailable", "catalog-photo", null));
+		when(wikipedia.findAuthor("Author", "es", 0)).thenReturn(new String[] { "Biografía", "wiki-photo", "WIKIPEDIA" });
+		assertThat(useCase.find("author", false, 0, "es")).isEqualTo(MetadataItemResult.FOUND);
+		assertThat(author.getImage()).isEqualTo("base64:catalog-photo");
+		assertThat(author.getMetadataSources()).containsEntry("description", "WIKIPEDIA").containsEntry("image", "OPEN_LIBRARY");
+	}
+
+	@Test
+	void savesPartialProgressButRemainsRetryableIfAPhotoProviderFails() {
+		when(catalog.findAuthor("Author")).thenReturn(new String[] { "Biografía", null, "OPEN_LIBRARY" });
+		when(wikipedia.findAuthor("Author", "es", 0)).thenThrow(new IllegalStateException("Temporarily unavailable"));
+		assertThat(useCase.find("author", false, 0, "es")).isEqualTo(MetadataItemResult.ERROR);
+		assertThat(author.getDescription()).isEqualTo("Biografía");
+		assertThat(author.getLastMetadataSync()).isNull();
+		verify(repository).save(author);
+		verify(wikipedia).findAuthor("Author", "en", 0);
+		verify(openLibrary).findAuthor("Author");
+	}
+
+	@Test
+	void existingBiographyAvoidsUnnecessaryWikipediaRequestsWhenCatalogFillsThePhoto() {
+		author.setDescription("Biografía existente");
+		when(catalog.findAuthor("Author")).thenReturn(new String[] { null, "catalog-photo", "OPEN_LIBRARY" });
+		assertThat(useCase.find("author", false, 0, "es")).isEqualTo(MetadataItemResult.FOUND);
+		verifyNoInteractions(wikipedia, openLibrary);
+	}
+
+	@Test
+	void imageTimeoutDoesNotDiscardTheBiographyAndFallsBackToAnotherProvider() {
+		when(catalog.findAuthor("Author")).thenReturn(new String[] { "Biografía", "timeout-photo", "OPEN_LIBRARY" });
+		when(images.getBase64AuthorUrl("timeout-photo")).thenThrow(new IllegalStateException("Timeout"));
+		when(openLibrary.findAuthor("Author")).thenReturn(new String[] { null, "http-photo", "OPEN_LIBRARY" });
+		assertThat(useCase.find("author", false, 0, "es")).isEqualTo(MetadataItemResult.FOUND);
+		assertThat(author.getDescription()).isEqualTo("Biografía");
+		assertThat(author.getImage()).isEqualTo("base64:http-photo");
+	}
+
+	@Test
+	void cancellationDoesNotContinueToOtherProvidersOrSaveAnInspection() {
+		when(catalog.findAuthor("Author")).thenThrow(new java.util.concurrent.CancellationException());
+		org.assertj.core.api.Assertions.assertThatThrownBy(() -> useCase.find("author", false, 0, "es"))
+				.isInstanceOf(java.util.concurrent.CancellationException.class);
+		verifyNoInteractions(wikipedia, openLibrary);
+		verify(repository, never()).save(any());
 	}
 }

@@ -13,8 +13,6 @@ import com.martinia.indigo.metadata.domain.ports.usecases.commands.StartFillAuth
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -37,9 +35,6 @@ public class StartFillAuthorsMetadataUseCaseImpl implements StartFillAuthorsMeta
 	@org.springframework.beans.factory.annotation.Value("${metadata.authors.progress-log-interval-millis:30000}")
 	private long progressLogIntervalMillis = 30_000L;
 
-	@org.springframework.beans.factory.annotation.Autowired
-	private com.martinia.indigo.common.util.DataUtils dataUtils;
-
 	@Resource
 	protected MetadataSingleton metadataSingleton;
 
@@ -52,6 +47,9 @@ public class StartFillAuthorsMetadataUseCaseImpl implements StartFillAuthorsMeta
 	@Resource
 	@Lazy
 	protected CommandBus commandBus;
+
+	@Resource
+	private com.martinia.indigo.metadata.application.MetadataExecutionService executions;
 
 	@Override
 	public void start(boolean override, String lang, long requestedRunId) {
@@ -69,7 +67,13 @@ public class StartFillAuthorsMetadataUseCaseImpl implements StartFillAuthorsMeta
 			progress.stage("Consultando idiomas de la biblioteca");
 			List<String> languages = bookRepository.getBookLanguages();
 			progress.stage("Contando autores para obtener metadatos");
-			Long numAuthors = authorRepository.count(languages);
+			String process = "AUTHORS:" + (override ? "ALL" : "INCOMPLETE");
+			List<String> pending;
+			synchronized (metadataSingleton) {
+				if (managedRun && !metadataSingleton.isActive(runId)) return;
+				pending = executions.pending(process, authorRepository.findMetadataIds(languages));
+			}
+			long numAuthors = pending.size();
 			log.info("Author metadata run {} ready: authors={} languages={}", runId, numAuthors, languages);
 
 			if (managedRun && !metadataSingleton.initializeRun(runId, "obtaining_metadata_authors", numAuthors)) {
@@ -94,8 +98,8 @@ public class StartFillAuthorsMetadataUseCaseImpl implements StartFillAuthorsMeta
 				}
 
 				progress.stage("Leyendo lote de autores para obtener metadatos");
-				List<AuthorMongoEntity> authors = authorRepository.findAll(languages,
-						PageRequest.of(page, size, Sort.by(Sort.Direction.fromString("asc"), "id")));
+				List<AuthorMongoEntity> authors = authorRepository.findAllById(
+						pending.subList(page * size, Math.min((page + 1) * size, pending.size())));
 
 				if (!CollectionUtils.isEmpty(authors)) {
 					for (AuthorMongoEntity author : authors) {
@@ -104,33 +108,26 @@ public class StartFillAuthorsMetadataUseCaseImpl implements StartFillAuthorsMeta
 							break;
 						}
 
-						progress.stage("Esperando disponibilidad de Wikipedia");
-						if (dataUtils != null && !dataUtils.awaitWikipediaAvailable(
-								() -> managedRun ? metadataSingleton.isActive(runId) : metadataSingleton.isRunning())) {
-							break;
-						}
 						log.info("Processing author {}", author.getName());
 						progress.stage("Obteniendo descripción e imagen del autor " + author.getName());
 
+						MetadataItemResult result;
 						try {
-							MetadataItemResult result = commandBus.executeAndWait(FindAuthorMetadataCommand.builder()
+							result = commandBus.executeAndWait(FindAuthorMetadataCommand.builder()
 									.authorId(author.getId()).lang(lang).override(override).lastExecution(lastExecution).build());
-							for (int retry = 1; result == MetadataItemResult.ERROR && dataUtils != null
-									&& dataUtils.isWikipediaPaused() && retry <= 3; retry++) {
-								log.info("Retrying author {} after Wikipedia pause (retry {}/3)", author.getName(), retry);
-								progress.stage("Esperando disponibilidad de Wikipedia");
-								if (!dataUtils.awaitWikipediaAvailable(
-										() -> managedRun ? metadataSingleton.isActive(runId) : metadataSingleton.isRunning())) break;
-								progress.stage("Obteniendo descripción e imagen del autor " + author.getName());
-								result = commandBus.executeAndWait(FindAuthorMetadataCommand.builder()
-										.authorId(author.getId()).lang(lang).override(override).lastExecution(lastExecution).build());
-							}
-							metadataSingleton.record(runId, result);
+						}
+						catch (java.util.concurrent.CancellationException exception) {
+							return;
 						}
 						catch (RuntimeException exception) {
+							com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
 							log.error("Author metadata failed for {}", author.getName(), exception);
-							metadataSingleton.record(runId, MetadataItemResult.ERROR);
+							result = MetadataItemResult.ERROR;
 						}
+						if (result != null && result != MetadataItemResult.ERROR) {
+							checkpoint(process, author.getId(), managedRun, runId);
+						}
+						metadataSingleton.record(runId, result == null ? MetadataItemResult.ERROR : result);
 
 						lastExecution = System.currentTimeMillis();
 						progress.processedAuthors++;
@@ -157,6 +154,15 @@ public class StartFillAuthorsMetadataUseCaseImpl implements StartFillAuthorsMeta
 			}
 		}
 
+	}
+
+	private void checkpoint(String process, String id, boolean managed, long runId) {
+		synchronized (metadataSingleton) {
+			if (!Thread.currentThread().isInterrupted()
+					&& (managed ? metadataSingleton.isActive(runId) : metadataSingleton.isRunning())) {
+				executions.inspected(process, id);
+			}
+		}
 	}
 
 	private boolean synchronizeMissingAuthorsFromBooks(final BooleanSupplier active, final AuthorProgress progress) {
