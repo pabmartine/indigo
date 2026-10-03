@@ -67,6 +67,10 @@ Estos controles reducen la frecuencia de acceso; no garantizan ausencia de bloqu
 
 En Ajustes → **Actividad e historial de metadatos**:
 
+El enlace **Ver historial detallado de metadatos** abre `/settings/metadata-history`, disponible para administradores. También hay accesos desde los procesos de libros y autores, con un enlace directo a sus errores. La pantalla consulta todo el historial mediante paginación en el servidor, con filtros por entidad, resultado y nombre/título. Permite ver todas las consultas de una misma entidad. La primera página se actualiza cada cinco segundos mientras la pantalla está visible; se puede desactivar.
+
+Cada operación nueva registra fecha de inicio y fin, duración, resultado, motivo de omisión, disponibilidad de campos antes/después, cambios guardados y diagnósticos. Los recorridos de libros y autores incluyen los resultados de las fuentes consultadas; el detalle distingue una foto descargada de una URL que no aportó una foto utilizable. Las entidades protegidas también generan una operación omitida. El historial se crea al empezar la consulta y las operaciones en curso al reiniciar se conservan como errores por interrupción. Los registros anteriores siguen siendo consultables, pero no se reconstruye retrospectivamente su recorrido por proveedores. Las páginas de la lista excluyen los valores de los cambios y las imágenes; estos se cargan solo al abrir el detalle. Los endpoints son `GET /api/metadata/activity/history/page?page=0&size=25&type=AUTHORS&status=ERROR&search=...&entityId=...` y `GET /api/metadata/activity/history/{id}`. Se conservan los endpoints de las últimas 100 operaciones y las acciones de reintentar, proteger y deshacer.
+
 - Consultar las últimas 100 entidades procesadas y las últimas 100 operaciones.
 - Reintentar individualmente una consulta fallida, manteniendo las pausas y límites de los proveedores.
 - Examinar los campos modificados, sus valores anterior/nuevo y proveedor cuando está disponible.

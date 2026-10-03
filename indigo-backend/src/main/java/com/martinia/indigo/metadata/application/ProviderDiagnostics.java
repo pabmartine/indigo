@@ -9,11 +9,23 @@ import com.martinia.indigo.metadata.application.reviews.ReviewPageGuard.AccessRe
 /** Diagnostics scoped to one synchronous metadata command; never persist exception messages or URLs. */
 public final class ProviderDiagnostics {
     private static final ThreadLocal<List<Document>> CURRENT = new ThreadLocal<>();
+    private static final ThreadLocal<List<Document>> EVENTS = new ThreadLocal<>();
+    private static final ThreadLocal<String> REASON = new ThreadLocal<>();
     private ProviderDiagnostics() {}
-    public static void begin() { CURRENT.set(new ArrayList<>()); }
+    public static void begin() { CURRENT.set(new ArrayList<>()); EVENTS.set(new ArrayList<>()); REASON.remove(); }
+    public static void explain(String reason) { if (CURRENT.get() != null) REASON.set(reason); }
+    public static String reason() { return REASON.get(); }
+    public static List<Document> events() { return EVENTS.get() == null ? List.of() : List.copyOf(EVENTS.get()); }
+    public static void event(String provider, String operation, String status, String message) {
+        var events = EVENTS.get();
+        if (events != null && events.size() < 50) events.add(new Document("provider", provider)
+                .append("operation", operation).append("status", status).append("message", message).append("at", new Date()));
+    }
     public static List<Document> finish() {
         var items = CURRENT.get();
         CURRENT.remove();
+        EVENTS.remove();
+        REASON.remove();
         return items == null ? List.of() : List.copyOf(items);
     }
     public static String record(String provider, String operation, Throwable error) {
@@ -53,6 +65,7 @@ public final class ProviderDiagnostics {
                 .append("message", message).append("httpStatus", status).append("retryAt", retryAt == null ? null : Date.from(retryAt));
         var items = CURRENT.get();
         if (items != null && items.size() < 20 && !items.contains(detail)) items.add(detail);
+        event(provider, operation, "ERROR", message);
         return provider + " — " + operation + ": " + message;
     }
 }

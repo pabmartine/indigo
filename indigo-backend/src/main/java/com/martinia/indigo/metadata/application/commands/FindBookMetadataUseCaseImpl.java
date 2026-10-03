@@ -50,6 +50,9 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 			}
 
 			if (!refreshDynamicMetadata(book)) {
+				com.martinia.indigo.metadata.application.ProviderDiagnostics.explain("NO_MATCH".equals(book.getMetadataMatchStatus())
+						? "El libro conserva una búsqueda anterior sin coincidencia y no necesita repetirla"
+						: "La valoración del libro está actualizada; todavía no necesita renovarse");
 				return MetadataItemResult.SKIPPED;
 			}
 
@@ -71,6 +74,7 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 				providerAttempted = true;
 				try {
 					bookData = findOpenLibraryBookPort.get().findBook(query);
+					trace("OPEN_LIBRARY", bookData);
 					providerSucceeded = true;
 				}
 				catch (RuntimeException exception) {
@@ -81,7 +85,9 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 			if ((bookData == null || bookData.getRatingAverage() == null) && findGoogleBooksBookPort.isPresent()) {
 				providerAttempted = true;
 				try {
-					bookData = merge(bookData, findGoogleBooksBookPort.get().findBook(query));
+					BookMetadataResult googleData = findGoogleBooksBookPort.get().findBook(query);
+					trace("GOOGLE_BOOKS", googleData);
+					bookData = merge(bookData, googleData);
 					providerSucceeded = true;
 				}
 				catch (RuntimeException exception) {
@@ -93,6 +99,7 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 				providerAttempted = true;
 				try {
 					bookData = findOpenLibraryBookPort.get().findBook(query);
+					trace("OPEN_LIBRARY", bookData);
 					providerSucceeded = true;
 				}
 				catch (RuntimeException exception) {
@@ -140,6 +147,13 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 			eventBus.publish(BookMetadataFoundEvent.builder().bookId(book.getId()).similar(null).build());
 			return bookData == null ? MetadataItemResult.NOT_FOUND : MetadataItemResult.FOUND;
 		}).orElse(MetadataItemResult.SKIPPED);
+	}
+
+	private void trace(String provider, BookMetadataResult result) {
+		com.martinia.indigo.metadata.application.ProviderDiagnostics.event(provider, "Consultar libro",
+				result == null ? "NOT_FOUND" : "FOUND", result == null ? "No se ha obtenido una coincidencia utilizable"
+						: result.getRatingAverage() == null ? "Se ha identificado el libro, sin valoración disponible"
+						: "Se ha obtenido una coincidencia con valoración");
 	}
 
 	private boolean refreshDynamicMetadata(final BookMongoEntity book) {

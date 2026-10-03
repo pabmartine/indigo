@@ -18,6 +18,13 @@ public class MetadataActivityController {
     @Resource private CommandBus commands;
     @GetMapping public List<Document> items() { return activity.items(); }
     @GetMapping("/history") public List<Document> history() { return activity.history(); }
+    @GetMapping("/history/page") public Document historyPage(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "25") int size, @RequestParam(required = false) String type,
+            @RequestParam(required = false) String status, @RequestParam(required = false) String search,
+            @RequestParam(required = false) String entityId) {
+        return activity.historyPage(page, size, type, status, search, entityId);
+    }
+    @GetMapping("/history/{id}") public Document historyEntry(@PathVariable String id) { return activity.historyEntry(id); }
     @PostMapping("/undo/{id}") public void undo(@PathVariable String id) { activity.undo(id); }
     @PostMapping("/lock/{type}/{id}") public void lock(@PathVariable String type, @PathVariable String id,
             @RequestParam boolean locked) { activity.lock(type, id, locked); }

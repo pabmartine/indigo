@@ -41,6 +41,7 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 		return authorRepository.findById(authorId).map(author -> {
 
 			if (!override && !refreshAuthorMetadata(author)) {
+				com.martinia.indigo.metadata.application.ProviderDiagnostics.explain("El autor ya tenía descripción y foto; no necesita completar metadatos");
 				log.info("Skipping author {}: metadata complete (descriptionPresent=true imagePresent=true)", author.getName());
 				return MetadataItemResult.SKIPPED;
 			}
@@ -105,6 +106,7 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 
 		private void obtain(String provider, String operation, java.util.function.Supplier<String[]> request) {
 			String[] metadata;
+			boolean requestFailed = false;
 			try {
 				metadata = request.get();
 				succeeded = true;
@@ -112,17 +114,22 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 			catch (RuntimeException exception) {
 				com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
 				failed = true;
+				requestFailed = true;
 				log.warn("{} failed for {}: {}", operation, author.getName(), exception.toString());
 				com.martinia.indigo.metadata.application.ProviderDiagnostics.record(provider, operation, exception);
 				metadata = exception instanceof com.martinia.indigo.metadata.application.AuthorMetadataTranslationException partial
 						? partial.getPartialMetadata() : null;
 			}
-			if (metadata == null || metadata.length < 3) return;
+			if (metadata == null || metadata.length < 3) {
+				if (!requestFailed) com.martinia.indigo.metadata.application.ProviderDiagnostics.event(provider, operation, "NOT_FOUND", "No se ha obtenido una coincidencia utilizable");
+				return;
+			}
 			boolean changed = false;
 			if (needsDescription() && StringUtils.isNotBlank(metadata[0])) {
 				author.setDescription(metadata[0]);
 				recordSource(author, "description", metadata[2]);
 				descriptionObtained = true;
+				com.martinia.indigo.metadata.application.ProviderDiagnostics.event(provider, "Obtener descripción", "FOUND", "Se ha obtenido una descripción en español");
 				changed = true;
 			}
 			if (needsImage() && StringUtils.isNotBlank(metadata[1])) {
@@ -133,7 +140,9 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 						recordSource(author, "image", metadata[2]);
 						imageObtained = true;
 						changed = true;
+						com.martinia.indigo.metadata.application.ProviderDiagnostics.event(provider, "Descargar foto", "FOUND", "Foto descargada correctamente");
 					}
+					else com.martinia.indigo.metadata.application.ProviderDiagnostics.event(provider, "Descargar foto", "NOT_FOUND", "La foto indicada no está disponible; se probarán otras fuentes");
 				}
 				catch (RuntimeException exception) {
 					com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
@@ -143,6 +152,8 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 			}
 			if (changed && (StringUtils.isBlank(author.getProvider()) || override && !found)) author.setProvider(metadata[2]);
 			found |= changed;
+			com.martinia.indigo.metadata.application.ProviderDiagnostics.event(provider, operation,
+					changed ? "FOUND" : "NOT_FOUND", changed ? "Ha aportado campos pendientes" : "No ha aportado nuevos campos pendientes");
 		}
 	}
 

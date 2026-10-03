@@ -1,0 +1,64 @@
+<div class="search metadata-history">
+  <p-card>
+    <div class="heading content-header"><div><a routerLink="/settings">← Volver a Ajustes</a><h1 class="page-title">Historial de metadatos</h1>
+      <p>Qué ha ocurrido en cada consulta de libros y autores. Cada reintento crea una operación nueva.</p></div>
+      <button pButton label="Actualizar" icon="pi pi-refresh" (click)="refresh()" [disabled]="loading"></button></div>
+    <div class="content-body">
+    <form class="filters" (ngSubmit)="applyFilters()">
+      <label for="historyType">Entidad<p-dropdown placeholder="Todas" inputId="historyType" name="type" [(ngModel)]="type" [options]="typeOptions" optionLabel="label" optionValue="value" [style]="{width: '100%'}"></p-dropdown></label>
+      <label for="historyStatus">Resultado<p-dropdown placeholder="Todos" inputId="historyStatus" name="status" [(ngModel)]="status" [options]="statusOptions" optionLabel="label" optionValue="value" [style]="{width: '100%'}"></p-dropdown></label>
+      <label class="search-field">Título o nombre<input pInputText name="search" [(ngModel)]="search" maxlength="200" placeholder="Buscar libro o autor"></label>
+      <button pButton label="Buscar" type="submit"></button>
+    </form>
+    <div class="history-toolbar"><span>{{total}} operaciones<span *ngIf="refreshedAt"> · Actualizado {{refreshedAt | date:'HH:mm:ss'}}</span></span>
+      <span class="auto-refresh"><p-checkbox inputId="historyRefresh" [(ngModel)]="autoRefresh" [binary]="true"></p-checkbox><label for="historyRefresh">Actualizar cada 5 segundos en la primera página</label></span></div>
+    <p *ngIf="entityId" class="entity-filter">Historial de {{entityLabel}} <button pButton class="p-button-text" label="Ver todas las entidades" (click)="clearEntity()"></button></p>
+    <p *ngIf="error" role="alert" class="error">{{error}}</p>
+    <p-table [value]="items" [lazy]="true" [lazyLoadOnInit]="false" (onLazyLoad)="paginate($event)" [loading]="loading"
+      [paginator]="true" [rows]="size" [first]="page * size" [totalRecords]="total" [rowsPerPageOptions]="[10,25,50]" responsiveLayout="scroll">
+      <ng-template pTemplate="header"><tr><th>Fecha</th><th>Libro / autor</th><th>Resultado</th><th>Qué ha ocurrido</th><th>Detalle</th></tr></ng-template>
+      <ng-template pTemplate="body" let-item><tr>
+        <td>{{item.createdAt | date:'dd/MM/yyyy HH:mm:ss'}}<small *ngIf="item.durationMillis != null">{{item.durationMillis / 1000 | number:'1.1-1'}} segundos</small></td>
+        <td class="entity-cell"><strong>{{item.label || item.entityId}}</strong><small>{{typeLabel(item.type)}}</small>
+          <button pButton class="p-button-text" label="Otras consultas" (click)="entityHistory(item)"></button></td>
+        <td><span class="result" [attr.data-status]="item.status">{{statusLabel(item.status)}}</span></td>
+        <td class="summary-cell">{{item.summary || (item.status === 'RUNNING' ? 'Consulta en curso' : 'Registro anterior: consulta el detalle disponible')}}
+          <small class="error row-error" *ngIf="item.error">{{item.error}}</small>
+          <small *ngIf="item.changedFields?.length">Campos modificados: <span *ngFor="let field of item.changedFields; let last = last">{{fieldLabel(field)}}{{last ? '' : ', '}}</span></small></td>
+        <td><button pButton class="p-button-outlined" label="Detalle" (click)="openDetail(item)"></button></td>
+      </tr></ng-template>
+      <ng-template pTemplate="emptymessage"><tr><td colspan="5">No hay operaciones que coincidan con estos filtros.</td></tr></ng-template>
+    </p-table>
+    <p class="hint">Los registros antiguos conservan la información disponible. El recorrido por proveedores y los motivos de omisión se registran a partir de esta actualización.</p>
+    </div>
+  </p-card>
+</div>
+<p-dialog styleClass="metadata-history-dialog" header="Detalle de la consulta" [(visible)]="detailOpen" [modal]="true" [style]="{width: 'min(960px, 95vw)'}" [draggable]="false">
+  <div class="detail-body">
+  <p *ngIf="detailLoading" role="status">Cargando detalle…</p><p *ngIf="detailError" role="alert" class="error">{{detailError}}</p>
+  <ng-container *ngIf="detail">
+    <h2>{{detail.label || detail.entityId}}</h2>
+    <p>{{typeLabel(detail.type)}} · {{detail.createdAt | date:'dd/MM/yyyy HH:mm:ss'}} · <strong>{{statusLabel(detail.status)}}</strong></p>
+    <p>{{detail.summary}}</p><p *ngIf="detail.error" class="error">{{detail.error}}</p>
+    <div class="field-state" *ngIf="detail.fieldsAfter"><strong>Campos disponibles al terminar:</strong>
+      <span *ngFor="let field of fieldStates(detail.fieldsAfter)">{{fieldLabel(field.field)}}: {{field.present ? 'Disponible' : 'Sin datos'}}</span></div>
+    <h3>Fuentes consultadas y resultados</h3>
+    <ol class="events"><li *ngFor="let event of detail.events"><strong>{{event.provider}} · {{event.operation}}</strong>
+      <span class="result" [attr.data-status]="event.status">{{statusLabel(event.status)}}</span><p>{{event.message}}</p></li></ol>
+    <p *ngIf="!detail.events?.length">No hay un recorrido de proveedores registrado para esta operación.</p>
+    <div class="diagnostic" *ngFor="let diagnostic of detail.diagnostics"><strong>{{diagnostic.provider}} · {{diagnostic.operation}}</strong>
+      <p>{{diagnostic.message}}<span *ngIf="diagnostic.httpStatus"> (HTTP {{diagnostic.httpStatus}})</span></p>
+      <p *ngIf="diagnostic.retryAt">Proveedor en pausa hasta {{diagnostic.retryAt | date:'short'}}</p></div>
+    <h3>Cambios guardados</h3><p *ngIf="!detail.changes?.length">No se modificaron campos en esta operación.</p>
+    <details *ngFor="let change of detail.changes" class="change"><summary>{{fieldLabel(change.field)}} · {{change.provider || 'Fuente no registrada'}}</summary>
+      <div class="change-values"><div><strong>Antes</strong>
+        <ng-container *ngIf="change.field === 'image'; else beforeText"><img *ngIf="imageValue(change.before) as photo; else noBefore" [src]="photo" alt="Foto anterior"><ng-template #noBefore>Sin foto disponible</ng-template></ng-container>
+        <ng-template #beforeText><pre>{{textValue(change.before)}}</pre></ng-template></div>
+        <div><strong>Después</strong><ng-container *ngIf="change.field === 'image'; else afterText"><img *ngIf="imageValue(change.after) as photo; else noAfter" [src]="photo" alt="Foto obtenida"><ng-template #noAfter>Sin foto disponible</ng-template></ng-container>
+          <ng-template #afterText><pre>{{textValue(change.after)}}</pre></ng-template></div></div>
+    </details>
+    <p *ngIf="detail.undone">Los cambios de esta operación se han deshecho.</p>
+    <button pButton class="p-button-text" label="Ver todas las consultas de esta entidad" (click)="entityHistory(detail)"></button>
+  </ng-container>
+  </div>
+</p-dialog>

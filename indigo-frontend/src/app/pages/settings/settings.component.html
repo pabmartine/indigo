@@ -7,6 +7,7 @@
                 <span class="page-title">
                     {{'locale.settings.title' | translate}}
                 </span>
+        <p><a routerLink="/settings/metadata-history">Ver historial detallado de metadatos</a></p>
       </div>
     </div>
 
@@ -28,6 +29,7 @@
       </div>
       <div class="p-col">
         <p-panel header="Actividad e historial de metadatos" [toggleable]="true" [collapsed]="true">
+          <p><a routerLink="/settings/metadata-history">Abrir historial detallado de libros y autores</a></p>
           <p>Últimas 100 operaciones. Proteger pausa las actualizaciones automáticas de ese tipo para el libro o autor.</p>
           <button pButton label="Actualizar" (click)="loadActivity()" [disabled]="activityBusy"></button>
           <p-table [value]="metadataItems" [paginator]="true" [rows]="10">
@@ -157,6 +159,7 @@
                     <span class="metadata-task-percent">{{ getMetadataProgress('FULL', 'BOOKS') }}%</span>
                   </div>
                   <div class="metadata-task-footer">{{ getMetadataResult('FULL', 'BOOKS') }}</div>
+                  <div class="metadata-task-footer"><a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS'}">Ver consultas de libros</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS', status: 'ERROR'}">Ver errores</a></div>
                   <div class="metadata-task-footer">Última ejecución: {{ getMetadataLastExecution('FULL', 'BOOKS') }}</div>
                 </article>
 
@@ -179,6 +182,7 @@
                     <span class="metadata-task-percent">{{ getMetadataProgress('PARTIAL', 'BOOKS') }}%</span>
                   </div>
                   <div class="metadata-task-footer">{{ getMetadataResult('PARTIAL', 'BOOKS') }}</div>
+                  <div class="metadata-task-footer"><a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS'}">Ver consultas de libros</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS', status: 'ERROR'}">Ver errores</a></div>
                   <div class="metadata-task-footer">Última ejecución: {{ getMetadataLastExecution('PARTIAL', 'BOOKS') }}</div>
                 </article>
               </div>
@@ -214,6 +218,7 @@
                     <span class="metadata-task-percent">{{ getMetadataProgress('FULL', 'AUTHORS') }}%</span>
                   </div>
                   <div class="metadata-task-footer">{{ getMetadataResult('FULL', 'AUTHORS') }}</div>
+                  <div class="metadata-task-footer"><a routerLink="/settings/metadata-history" [queryParams]="{type: 'AUTHORS'}">Ver consultas de autores</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'AUTHORS', status: 'ERROR'}">Ver errores</a></div>
                   <div class="metadata-task-footer">Última ejecución: {{ getMetadataLastExecution('FULL', 'AUTHORS') }}</div>
                 </article>
 
@@ -236,6 +241,7 @@
                     <span class="metadata-task-percent">{{ getMetadataProgress('PARTIAL', 'AUTHORS') }}%</span>
                   </div>
                   <div class="metadata-task-footer">{{ getMetadataResult('PARTIAL', 'AUTHORS') }}</div>
+                  <div class="metadata-task-footer"><a routerLink="/settings/metadata-history" [queryParams]="{type: 'AUTHORS'}">Ver consultas de autores</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'AUTHORS', status: 'ERROR'}">Ver errores</a></div>
                   <div class="metadata-task-footer">Última ejecución: {{ getMetadataLastExecution('PARTIAL', 'AUTHORS') }}</div>
                 </article>
               </div>

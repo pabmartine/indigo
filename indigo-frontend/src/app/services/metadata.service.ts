@@ -52,6 +52,14 @@ export class MetadataService {
     return this.http.post(this.endpoint + '/pending-imports/' + encodeURIComponent(id) + '/retry', {});
   }
   history(): Observable<any[]> { return this.http.get<any[]>(this.endpoint + '/activity/history'); }
+  historyPage(page: number, size: number, type = '', status = '', search = '', entityId = ''): Observable<any> {
+    return this.http.get(this.endpoint + '/activity/history/page', {
+      params: { page, size, type, status, search, entityId }, headers: { ignoreLoadingBar: '' }
+    });
+  }
+  historyEntry(id: string): Observable<any> {
+    return this.http.get(this.endpoint + '/activity/history/' + encodeURIComponent(id), {headers: {ignoreLoadingBar: ''}});
+  }
   retryItem(key: string): Observable<any> { return this.http.post(this.endpoint + '/activity/retry/' + encodeURIComponent(key), {}); }
   undoItem(id: string): Observable<any> { return this.http.post(this.endpoint + '/activity/undo/' + encodeURIComponent(id), {}); }
   lockItem(type: string, id: string, locked: boolean): Observable<any> {
