@@ -25,6 +25,17 @@ import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FindAuthorMetadataCommandHandlerIntegrationTest extends BaseIndigoIntegrationTest {
+	@Test
+	void cancellationIsNotRetriedByTheCommandInfrastructure() {
+		Mockito.when(findWikipediaAuthorPort.findAuthor(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt()))
+				.thenThrow(new java.util.concurrent.CancellationException("Stopped"));
+		org.assertj.core.api.Assertions.assertThatThrownBy(() -> commandBus.executeAndWait(
+				FindAuthorMetadataCommand.builder().authorId("id").override(true).lang("es").build()))
+				.satisfies(error -> org.assertj.core.api.Assertions.assertThatThrownBy(() ->
+						com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(error))
+						.isInstanceOf(java.util.concurrent.CancellationException.class));
+		Mockito.verify(findWikipediaAuthorPort, Mockito.times(1)).findAuthor(Mockito.anyString(), Mockito.anyString(), Mockito.anyInt());
+	}
 
 	private AuthorMongoEntity authorMongoEntity;
 	@MockBean

@@ -90,7 +90,7 @@ public class MetadataSingleton {
 		RunState run = activeRuns.remove(runId);
 		if (run != null) {
 			run.completedAt = System.currentTimeMillis();
-			storeRunSnapshot(runId, run);
+			publish(runId, run);
 			if (runId == generation.get()) {
 				running = false;
 				completedAt = run.completedAt;

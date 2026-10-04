@@ -1,7 +1,7 @@
 <div class="search metadata-history">
   <p-card>
     <div class="heading content-header"><div><a routerLink="/settings">← Volver a Ajustes</a><h1 class="page-title">Historial de metadatos</h1>
-      <p>Qué ha ocurrido en cada consulta de libros y autores. Cada reintento crea una operación nueva.</p></div>
+      <p>Qué ha ocurrido en cada consulta de libros y autores. El detalle incluye sus esperas y resultados.</p></div>
       <button pButton label="Actualizar" icon="pi pi-refresh" (click)="refresh()" [disabled]="loading"></button></div>
     <div class="content-body">
     <form class="filters" (ngSubmit)="applyFilters()">

@@ -73,6 +73,23 @@ class AuthorMetadataFallbackTest {
 	}
 
 	@Test
+	void existingDonaldHonigBiographyReportsTheMissingPhotoRatherThanAnAbsentAuthor() {
+		author.setDescription("Biografía ya traducida");
+		when(wikipedia.findAuthor("Author", "en", 0))
+				.thenReturn(new String[]{"Biografía", null, "WIKIPEDIA"});
+		com.martinia.indigo.metadata.application.ProviderDiagnostics.begin();
+		try {
+			assertThat(useCase.find("author", false, 0, "es")).isEqualTo(MetadataItemResult.NOT_FOUND);
+			assertThat(author.getDescription()).isEqualTo("Biografía ya traducida");
+			assertThat(com.martinia.indigo.metadata.application.ProviderDiagnostics.reason()).contains("No se ha obtenido foto");
+			assertThat(com.martinia.indigo.metadata.application.ProviderDiagnostics.events()).anySatisfy(event -> {
+				assertThat(event.getString("provider")).isEqualTo("WIKIPEDIA");
+				assertThat(event.getString("message")).contains("Se ha localizado información del autor", "foto");
+			});
+		} finally { com.martinia.indigo.metadata.application.ProviderDiagnostics.finish(); }
+	}
+
+	@Test
 	void triesEnglishWikipediaWhenTheFirstResultContainsOnlyAPhoto() {
 		when(wikipedia.findAuthor("Author", "es", 0)).thenReturn(new String[] { " ", "es-photo", "WIKIPEDIA" });
 		when(wikipedia.findAuthor("Author", "en", 0)).thenReturn(new String[] { "Biography", "en-photo", "WIKIPEDIA" });
@@ -255,6 +272,34 @@ class AuthorMetadataFallbackTest {
 	}
 
 	@Test
+	void cancellationDuringCatalogRequestPreventsSavingAndCallingOtherProviders() {
+		var state = new com.martinia.indigo.common.singletons.MetadataSingleton();
+		long run = state.start("metadata", "authors");
+		ReflectionTestUtils.setField(useCase, "metadataSingleton", state);
+		when(catalog.findAuthor("Author")).thenAnswer(invocation -> {
+			state.complete(run);
+			return new String[]{"Biografía", "photo", "OPEN_LIBRARY"};
+		});
+		org.assertj.core.api.Assertions.assertThatThrownBy(() -> useCase.find("author", false, 0, "es", run))
+				.isInstanceOf(java.util.concurrent.CancellationException.class);
+		verifyNoInteractions(wikipedia, openLibrary, images);
+		verify(repository, never()).save(any());
+	}
+
+	@Test
+	void manualRefreshIsIndependentOfAnUnrelatedBulkRun() {
+		var state = new com.martinia.indigo.common.singletons.MetadataSingleton();
+		long run = state.start("metadata", "authors");
+		ReflectionTestUtils.setField(useCase, "metadataSingleton", state);
+		when(catalog.findAuthor("Author")).thenAnswer(invocation -> {
+			state.complete(run);
+			return new String[]{"Biografía", "photo", "OPEN_LIBRARY"};
+		});
+		assertThat(useCase.find("author", false, 0, "es")).isEqualTo(MetadataItemResult.FOUND);
+		verify(repository).save(author);
+	}
+
+	@Test
 	void cancellingWikipediaWaitDoesNotInspectTheAuthorOrTryOtherProviders() {
 		when(wikipedia.findAuthor("Author", "es", 0)).thenThrow(new IllegalStateException(
 				new com.martinia.indigo.metadata.application.reviews.ReviewPageGuard.AccessRestrictedException(
@@ -283,7 +328,7 @@ class AuthorMetadataFallbackTest {
 			when(singleton.isActive(17L)).thenReturn(false);
 			return ((java.util.function.BooleanSupplier) invocation.getArgument(0)).getAsBoolean();
 		});
-		org.assertj.core.api.Assertions.assertThatThrownBy(() -> useCase.find("author", false, 0, "en"))
+		org.assertj.core.api.Assertions.assertThatThrownBy(() -> useCase.find("author", false, 0, "en", 17L))
 				.isInstanceOf(java.util.concurrent.CancellationException.class);
 		verify(wikipedia, times(2)).findAuthor("Author", "es", 0);
 		verify(data, times(2)).awaitWikipediaAvailable(any());

@@ -114,7 +114,7 @@ public class StartFillAuthorsMetadataUseCaseImpl implements StartFillAuthorsMeta
 						MetadataItemResult result;
 						try {
 							result = commandBus.executeAndWait(FindAuthorMetadataCommand.builder()
-									.authorId(author.getId()).lang(lang).override(override).lastExecution(lastExecution).build());
+									.authorId(author.getId()).lang(lang).override(override).lastExecution(lastExecution).runId(runId).build());
 						}
 						catch (java.util.concurrent.CancellationException exception) {
 							return;

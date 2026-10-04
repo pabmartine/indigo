@@ -12,4 +12,5 @@ public class FindAuthorMetadataCommand extends Command<MetadataItemResult> {
 	private String authorId;
 	private String lang;
 	private long lastExecution;
+	private long runId;
 }

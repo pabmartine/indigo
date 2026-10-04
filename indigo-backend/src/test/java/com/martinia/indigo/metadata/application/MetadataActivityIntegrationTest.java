@@ -15,6 +15,27 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class MetadataActivityIntegrationTest extends BaseIndigoIntegrationTest {
+    @Test void waitingForOneAuthorDoesNotBlockAnotherAuthorsHistory() throws Exception {
+        var first = authorRepository.save(com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity.builder().name("Waiting author").build());
+        var second = authorRepository.save(com.martinia.indigo.author.infrastructure.mongo.entities.AuthorMongoEntity.builder().name("Other author").build());
+        var entered = new java.util.concurrent.CountDownLatch(1);
+        var release = new java.util.concurrent.CountDownLatch(1);
+        var pool = java.util.concurrent.Executors.newFixedThreadPool(2);
+        try {
+            var waiting = pool.submit(() -> activity.track("AUTHORS", first.getId(), "es", () -> {
+                entered.countDown();
+                try { release.await(); }
+                catch (InterruptedException e) { Thread.currentThread().interrupt(); throw new java.util.concurrent.CancellationException(); }
+                return MetadataItemResult.NOT_FOUND;
+            }));
+            assertTrue(entered.await(5, java.util.concurrent.TimeUnit.SECONDS));
+            var independent = pool.submit(() -> activity.track("AUTHORS", second.getId(), "es", () -> MetadataItemResult.NOT_FOUND));
+            assertEquals(MetadataItemResult.NOT_FOUND, independent.get(5, java.util.concurrent.TimeUnit.SECONDS));
+            release.countDown();
+            assertEquals(MetadataItemResult.NOT_FOUND, waiting.get(5, java.util.concurrent.TimeUnit.SECONDS));
+        } finally { release.countDown(); pool.shutdownNow(); pool.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS); }
+    }
+
     @Resource private MetadataActivityService activity;
     @org.springframework.beans.factory.annotation.Autowired private MongoTemplate mongo;
     @Resource private com.martinia.indigo.book.domain.ports.usecases.EditBookUseCase editor;

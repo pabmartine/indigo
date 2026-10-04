@@ -43,10 +43,15 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 
 	@Override
 	public MetadataItemResult find(final String authorId, final boolean override, final long lastExecution, final String lang) {
-		boolean managed = metadataSingleton != null && metadataSingleton.isRunning();
-		long runId = managed ? metadataSingleton.getRunId() : 0;
+		return find(authorId, override, lastExecution, lang, 0);
+	}
+
+	@Override
+	public MetadataItemResult find(String authorId, boolean override, long lastExecution, String lang, long runId) {
+		boolean managed = runId > 0;
 		java.util.function.BooleanSupplier active = () -> !Thread.currentThread().isInterrupted()
 				&& (!managed || metadataSingleton.isActive(runId));
+		ensureActive(active);
 
 		return authorRepository.findById(authorId).map(author -> {
 
@@ -58,7 +63,7 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 			log.info("Finding author metadata for {}: descriptionPresent={} imagePresent={} override={}",
 					author.getName(), StringUtils.isNotBlank(author.getDescription()), StringUtils.isNotBlank(author.getImage()), override);
 
-			Lookup lookup = new Lookup(author, override);
+			Lookup lookup = new Lookup(author, override, active);
 			findOpenLibraryAuthorCatalogPort.ifPresent(port -> lookup.obtain("OPEN_LIBRARY", "Catálogo local de autores",
 					() -> port.findAuthor(author.getName())));
 
@@ -77,15 +82,26 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 			if (lookup.missing()) findOpenLibraryAuthorPort.ifPresent(port -> lookup.obtain("OPEN_LIBRARY", "Obtener autor",
 					() -> port.findAuthor(author.getName())));
 
+			ensureActive(active);
 			boolean incompleteFailure = lookup.failed && lookup.missing();
 			if (!lookup.succeeded && !lookup.found) return MetadataItemResult.ERROR;
 			if (!lookup.failed) author.setLastMetadataSync(Calendar.getInstance().getTime());
 			if (lookup.found || !incompleteFailure) authorRepository.save(author);
 			if (incompleteFailure) return MetadataItemResult.ERROR;
+			if (!lookup.found && lookup.missing()) {
+				String missingFields = lookup.needsDescription() && lookup.needsImage() ? "descripción ni foto"
+						: lookup.needsDescription() ? "descripción" : "foto";
+				com.martinia.indigo.metadata.application.ProviderDiagnostics.explain(
+						"No se ha obtenido " + missingFields + " para los campos pendientes del autor; se conservan los datos que ya tenía");
+			}
 			log.info("Author metadata result for {}: found={} descriptionPresent={} imagePresent={}", author.getName(),
 					lookup.found, StringUtils.isNotBlank(author.getDescription()), StringUtils.isNotBlank(author.getImage()));
 			return lookup.found ? MetadataItemResult.FOUND : MetadataItemResult.NOT_FOUND;
 		}).orElse(MetadataItemResult.SKIPPED);
+	}
+
+	private void ensureActive(java.util.function.BooleanSupplier active) {
+		if (!active.getAsBoolean()) throw new java.util.concurrent.CancellationException("Author metadata cancelled");
 	}
 
 	private String[] obtainWikipediaWithRetry(FindWikipediaAuthorPort port, String name, String language,
@@ -124,10 +140,12 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 		private boolean succeeded;
 		private boolean failed;
 		private boolean found;
+		private final java.util.function.BooleanSupplier active;
 
-		private Lookup(AuthorMongoEntity author, boolean override) {
+		private Lookup(AuthorMongoEntity author, boolean override, java.util.function.BooleanSupplier active) {
 			this.author = author;
 			this.override = override;
+			this.active = active;
 		}
 
 		private boolean needsDescription() {
@@ -143,10 +161,12 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 		}
 
 		private void obtain(String provider, String operation, java.util.function.Supplier<String[]> request) {
+			ensureActive(active);
 			String[] metadata;
 			boolean requestFailed = false;
 			try {
 				metadata = request.get();
+				ensureActive(active);
 				succeeded = true;
 			}
 			catch (RuntimeException exception) {
@@ -193,8 +213,11 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 			}
 			if (changed && (StringUtils.isBlank(author.getProvider()) || override && !found)) author.setProvider(metadata[2]);
 			found |= changed;
+			String pendingFields = needsDescription() && needsImage() ? "descripción y foto"
+					: needsDescription() ? "descripción" : "foto";
 			com.martinia.indigo.metadata.application.ProviderDiagnostics.event(provider, operation,
-					changed ? "FOUND" : "NOT_FOUND", changed ? "Ha aportado campos pendientes" : "No ha aportado nuevos campos pendientes");
+					changed ? "FOUND" : "NOT_FOUND", changed ? "Ha aportado campos pendientes"
+					: "Se ha localizado información del autor, pero no aporta los campos pendientes: " + pendingFields);
 		}
 	}
 

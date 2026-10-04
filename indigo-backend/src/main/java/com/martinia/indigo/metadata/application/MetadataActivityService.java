@@ -38,7 +38,11 @@ public class MetadataActivityService {
             "AUTHORS", List.of("description", "image", "provider", "metadataSources", "lastMetadataSync"),
             "REVIEWS", List.of("reviews", "lastReviewsMetadataSync", "reviewsMetadataStatus", "reviewsMetadataError"));
 
-    public synchronized MetadataItemResult track(String type, String id, String lang, Supplier<MetadataItemResult> action) {
+    public MetadataItemResult track(String type, String id, String lang, Supplier<MetadataItemResult> action) {
+        return withEntityLock(type, id, () -> trackLocked(type, id, lang, action));
+    }
+
+    private MetadataItemResult trackLocked(String type, String id, String lang, Supplier<MetadataItemResult> action) {
         validate(type);
         Document before = snapshot(type, id);
         Document lock = mongo.findById(type + ":" + id, Document.class, "metadataLocks");
@@ -166,7 +170,10 @@ public class MetadataActivityService {
         if (item == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         return item;
     }
-    public synchronized void lock(String type, String id, boolean locked) {
+    public void lock(String type, String id, boolean locked) {
+        withEntityLock(type, id, () -> { lockEntity(type, id, locked); return null; });
+    }
+    private void lockEntity(String type, String id, boolean locked) {
         validate(type);
         Document entity = snapshot(type, id);
         if (entity == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -181,7 +188,11 @@ public class MetadataActivityService {
         return lock != null && Boolean.TRUE.equals(lock.getBoolean("locked"));
     }
     @org.springframework.transaction.annotation.Transactional
-    public synchronized void undo(String historyId) {
+    public void undo(String historyId) {
+        Document entry = historyEntry(historyId);
+        withEntityLock(entry.getString("type"), entry.getString("entityId"), () -> { undoLocked(historyId); return null; });
+    }
+    private void undoLocked(String historyId) {
         Document entry = mongo.findById(historyId, Document.class, HISTORY);
         if (entry == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         if (Boolean.TRUE.equals(entry.getBoolean("undone"))) throw new ResponseStatusException(HttpStatus.CONFLICT, "Already undone");
@@ -203,6 +214,33 @@ public class MetadataActivityService {
         mongo.updateFirst(Query.query(Criteria.where("_id").is(historyId)), new Update().set("undone", true), HISTORY);
         lock(type, entry.getString("entityId"), true);
     }
+    private final java.util.concurrent.ConcurrentHashMap<String, EntityLock> entityLocks = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final class EntityLock {
+        final java.util.concurrent.locks.ReentrantLock lock = new java.util.concurrent.locks.ReentrantLock();
+        int users;
+    }
+    private <T> T withEntityLock(String type, String id, Supplier<T> action) {
+        validate(type);
+        String key = collection(type) + ":" + id;
+        EntityLock guard = entityLocks.compute(key, (ignored, current) -> {
+            if (current == null) current = new EntityLock();
+            current.users++;
+            return current;
+        });
+        boolean acquired = false;
+        try {
+            guard.lock.lockInterruptibly();
+            acquired = true;
+            return action.get();
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new java.util.concurrent.CancellationException("Metadata activity cancelled while waiting for entity");
+        } finally {
+            if (acquired) guard.lock.unlock();
+            entityLocks.compute(key, (ignored, current) -> --current.users == 0 ? null : current);
+        }
+    }
+
     private Document snapshot(String type, String id) {
         Object entity = "AUTHORS".equals(type) ? mongo.findById(id, AuthorMongoEntity.class) : mongo.findById(id, BookMongoEntity.class);
         if (entity == null) return null;

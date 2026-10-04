@@ -33,8 +33,6 @@ public class FindWikipediaAuthorInfoUseCaseImpl implements FindWikipediaAuthorIn
 
 		String[] ret = null;
 
-		String normalizedSubject = StringUtils.stripAccents(subject).replaceAll("[^a-zA-Z0-9]", " ")
-                .replaceAll("\\s+", " ").toLowerCase(java.util.Locale.ROOT).trim();
 
 		String url = endpoint.replace("$lang", lang).replace("$subject", java.net.URLEncoder.encode(subject, java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20"));
 
@@ -47,24 +45,24 @@ public class FindWikipediaAuthorInfoUseCaseImpl implements FindWikipediaAuthorIn
 				objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
 				JsonNode jsonNodeRoot = objectMapper.readTree(json);
-				JsonNode query = jsonNodeRoot.get("query");
-				if (query != null) {
-
-					JsonNode search = query.get("pages");
-					JsonNode title = search.findPath("title");
-					JsonNode extract = search.findPath("extract");
-					JsonNode source = search.findPath("original").get("source");
-
-					String strTitle = title.asText();
-					String filterTitle = StringUtils.stripAccents(strTitle).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ")
-							.toLowerCase().trim();
-
-
-					if (filterTitle.equals(normalizedSubject) || filterTitle.startsWith(normalizedSubject + " ")) {
-						ret = new String[] { extract.asText(), source != null ? source.asText() : null, ProviderEnum.WIKIPEDIA.name() };
-					}
-
-				}
+                JsonNode query = jsonNodeRoot.path("query");
+                JsonNode pages = query.path("pages");
+                if (!pages.isContainerNode()) throw new IllegalStateException("Invalid Wikipedia page response");
+                for (JsonNode page : pages) {
+                    if (page.has("missing") || page.has("invalid") || page.path("pageprops").has("disambiguation")) continue;
+                    String title = page.path("title").asText("");
+                    boolean matches = WikipediaAuthorTitles.matches(subject, title);
+                    for (JsonNode redirect : query.path("redirects")) {
+                        if (WikipediaAuthorTitles.normalize(subject).equals(WikipediaAuthorTitles.normalize(redirect.path("from").asText()))
+                                && title.equals(redirect.path("to").asText())) matches = true;
+                    }
+                    if (!matches) continue;
+                    String description = page.path("extract").asText(null);
+                    String image = page.path("original").path("source").asText(null);
+                    if (StringUtils.isNotBlank(description) || StringUtils.isNotBlank(image))
+                        ret = new String[]{description, image, ProviderEnum.WIKIPEDIA.name()};
+                    break;
+                }
 			}
 		}
 		catch (Exception e) {

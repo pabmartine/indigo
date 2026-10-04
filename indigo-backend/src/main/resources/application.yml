@@ -207,7 +207,7 @@ metadata:
     # Endpoint de la MediaWiki API para buscar artículos de autores por texto.
     author: ${METADATA_WIKIPEDIA_AUTHOR:${metadata.wikipedia.url}/w/api.php?action=query&format=json&list=search&utf8=1&origin=*&srsearch=$subject}
     # Endpoint de la MediaWiki API para extraer biografía resumida e imagen de cabecera del autor.
-    author-info: ${METADATA_WIKIPEDIA_AUTHOR_INFO:${metadata.wikipedia.url}/w/api.php?format=json&action=query&prop=extracts|pageimages&exintro&explaintext&redirects=1&piprop=original&titles=$subject}
+    author-info: ${METADATA_WIKIPEDIA_AUTHOR_INFO:${metadata.wikipedia.url}/w/api.php?format=json&action=query&prop=extracts|pageimages|pageprops&exintro&explaintext&redirects=1&piprop=original&titles=$subject}
   unsplash:
     # URL de búsqueda de imágenes de alta calidad en Unsplash (usado para portadas de etiquetas/temas).
     url: ${METADATA_UNSPLASH_URL:https://unsplash.com/es/s/fotos/$term}

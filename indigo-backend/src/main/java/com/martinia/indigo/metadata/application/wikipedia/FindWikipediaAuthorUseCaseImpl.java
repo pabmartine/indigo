@@ -29,10 +29,12 @@ public class FindWikipediaAuthorUseCaseImpl implements FindWikipediaAuthorUseCas
 	public String[] findAuthor(String subject, String lang, int cont) {
 
 		String[] ret = null;
+        if (StringUtils.isBlank(subject)) return null;
 
-		subject = StringUtils.stripAccents(subject).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ");
+		subject = StringUtils.stripAccents(subject).replaceAll("[^\\p{L}\\p{N}]", " ").replaceAll("\\s+", " ").trim();
+        if (subject.isBlank()) return null;
 
-		String url = endpoint.replace("$lang", lang).replace("$subject", subject.replace(" ", "%20"));
+		String url = endpoint.replace("$lang", lang).replace("$subject", java.net.URLEncoder.encode(subject, java.nio.charset.StandardCharsets.UTF_8).replace("+", "%20"));
 
 		try {
 
@@ -44,37 +46,22 @@ public class FindWikipediaAuthorUseCaseImpl implements FindWikipediaAuthorUseCas
 				objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
 				JsonNode jsonNodeRoot = objectMapper.readTree(json);
-				JsonNode query = jsonNodeRoot.get("query");
+				JsonNode query = jsonNodeRoot.path("query");
 				JsonNode search = query.get("search");
 
 				String strTitle = null;
-				String normalizedSubject = subject.toLowerCase().trim();
-				if (search.isArray() && !search.isEmpty()) {
-					for (final JsonNode objNode : search) {
-						JsonNode title = objNode.get("title");
-						strTitle = title.asText();
-
-						String filterTitle = StringUtils.stripAccents(strTitle).replaceAll("[^a-zA-Z0-9]", " ").replaceAll("\\s+", " ")
-								.toLowerCase().trim();
-
-					if (filterTitle.equals(normalizedSubject) || filterTitle.startsWith(normalizedSubject + " ")) {
-							break;
-						}
-						else {
-							strTitle = null;
-						}
-
-					}
-				}
-				else {
-					if (query.get("searchinfo") != null && query.get("searchinfo").get("suggestion") != null && cont < 2) {
-						String auth = query.get("searchinfo").get("suggestion").asText();
-						if (!StringUtils.stripAccents(auth).equals(StringUtils.stripAccents(subject))) {
-							log.warn("	Retry with {}", auth);
-							return findAuthor(auth, lang, ++cont);
-						}
-					}
-				}
+                if (search == null || !search.isArray()) throw new IllegalStateException("Invalid Wikipedia search response");
+                if (!search.isEmpty()) {
+                    java.util.Set<String> exact = new java.util.LinkedHashSet<>();
+                    java.util.Set<String> qualified = new java.util.LinkedHashSet<>();
+                    for (JsonNode candidate : search) {
+                        String title = candidate.path("title").asText("");
+                        if (WikipediaAuthorTitles.normalize(subject).equals(WikipediaAuthorTitles.normalize(title))) exact.add(title);
+                        else if (WikipediaAuthorTitles.matches(subject, title)) qualified.add(title);
+                    }
+                    if (exact.size() == 1) strTitle = exact.iterator().next();
+                    else if (exact.isEmpty() && qualified.size() == 1) strTitle = qualified.iterator().next();
+                }
 
 				if (StringUtils.isNotEmpty(strTitle)) {
 					ret = findWikipediaAuthorInfoPort.getAuthorInfo(strTitle, lang);

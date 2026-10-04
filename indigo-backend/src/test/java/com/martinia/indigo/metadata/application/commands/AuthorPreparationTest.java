@@ -38,6 +38,9 @@ class AuthorPreparationTest {
 		ReflectionTestUtils.setField(useCase, "authorRepository", authors);
 		ReflectionTestUtils.setField(useCase, "commandBus", commands);
 		ReflectionTestUtils.setField(useCase, "metadataSingleton", status);
+		var executions = mock(com.martinia.indigo.metadata.application.MetadataExecutionService.class);
+        ReflectionTestUtils.setField(useCase, "executions", executions);
+        when(executions.pending(anyString(), anyList())).thenReturn(List.of());
 		runId = status.start("PARTIAL", "AUTHORS");
 		when(books.getBookLanguages()).thenReturn(List.of("es", "en"));
 		when(authors.count(anyList())).thenReturn(0L);

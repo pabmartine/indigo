@@ -31,6 +31,26 @@ class FindOpenLibraryAuthorUseCaseImplTest {
         verifyNoInteractions(translation);
     }
 
+    @Test void doesNotChooseArbitrarilyBetweenHomonyms() {
+        when(data.getData("https://openlibrary.org/search/authors.json?q=Author"))
+                .thenReturn("{\"docs\":[{\"name\":\"Author\",\"key\":\"OL1A\"},{\"name\":\"Author\",\"key\":\"OL2A\"}]}");
+        assertThat(useCase.findAuthor("Author")).isNull();
+        verify(data, never()).getData("https://openlibrary.org/authors/OL1A.json");
+        verifyNoInteractions(translation);
+    }
+
+    @Test void acceptsUniqueAliasAndNormalizesAuthorKey() {
+        when(data.getData("https://openlibrary.org/search/authors.json?q=Author"))
+                .thenReturn("{\"docs\":[{\"name\":\"Full Author Name\",\"alternate_names\":[\"Author\"],\"key\":\"/authors/OL1A\"}]}");
+        when(data.getData("https://openlibrary.org/authors/OL1A.json")).thenReturn("{\"photos\":[123]}");
+        assertThat(useCase.findAuthor("Author")[1]).contains("/OL1A-L.jpg");
+    }
+
+    @Test void malformedSearchIsAnErrorRatherThanNoMatch() {
+        when(data.getData("https://openlibrary.org/search/authors.json?q=Author")).thenReturn("{\"error\":\"unavailable\"}");
+        assertThatThrownBy(() -> useCase.findAuthor("Author")).isInstanceOf(IllegalStateException.class);
+    }
+
     @Test void translatesBiographyWithoutInventingAPhoto() {
         when(data.getData("https://openlibrary.org/authors/OL1A.json"))
                 .thenReturn("{\"bio\":{\"value\":\"English biography\"},\"photos\":[-1]}");

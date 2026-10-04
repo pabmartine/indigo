@@ -44,6 +44,7 @@ public class DataUtils {
     private long maxDelaySeconds = 900;
 
     public String getData(String _url) {
+        if (Thread.currentThread().isInterrupted()) throw new java.util.concurrent.CancellationException("Metadata request cancelled");
         try {
             URL url = new URL(_url);
             ProviderState state = providerStates.computeIfAbsent(providerKey(url.getHost()), ignored -> new ProviderState());
@@ -99,6 +100,7 @@ public class DataUtils {
                     return data.isEmpty() ? null : data.toString();
                 }
                 catch (Exception exception) {
+                    com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
                     log.warn("Metadata request to {}{} failed", url.getHost(), url.getPath(), exception);
                     if (state.blockedUntil == null) registerFailure(url.getHost(), state, exception);
                     else state.pauseCause = exception;
@@ -111,6 +113,7 @@ public class DataUtils {
             }
         }
         catch (Exception exception) {
+            com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
             throw new IllegalStateException("Could not obtain metadata from " + _url, exception);
         }
     }
@@ -185,7 +188,7 @@ public class DataUtils {
         }
         catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
-            throw new IllegalStateException("Interrupted while waiting for metadata provider", exception);
+            throw new java.util.concurrent.CancellationException("Interrupted while waiting for metadata provider");
         }
     }
 

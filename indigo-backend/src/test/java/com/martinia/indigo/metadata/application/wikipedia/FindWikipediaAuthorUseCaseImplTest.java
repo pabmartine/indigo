@@ -42,6 +42,31 @@ class FindWikipediaAuthorUseCaseImplTest {
 	}
 
 	@Test
+	void rejectsAdditionalNamesAndAmbiguousQualifiedTitles() {
+		when(dataUtils.getData("https://en.example/John%20Smith"))
+				.thenReturn("{\"query\":{\"search\":[{\"title\":\"John Smith Jr.\"},{\"title\":\"John Smith (writer)\"},{\"title\":\"John Smith (historian)\"}]}}");
+		assertNull(useCase.findAuthor("John Smith", "en", 0));
+		org.mockito.Mockito.verifyNoInteractions(infoPort);
+	}
+
+	@Test
+	void prefersExactMatchOverQualifiedTitleAndDoesNotReplaceAuthorWithSuggestion() {
+		when(dataUtils.getData("https://en.example/Donald%20Honig"))
+				.thenReturn("{\"query\":{\"search\":[{\"title\":\"Donald Honig (writer)\"},{\"title\":\"Donald Honig\"}],\"searchinfo\":{\"suggestion\":\"donald honing\"}}}");
+		useCase.findAuthor("Donald Honig", "en", 0);
+		verify(infoPort).getAuthorInfo("Donald Honig", "en");
+		verify(infoPort, never()).getAuthorInfo("Donald Honig (writer)", "en");
+	}
+
+	@Test
+	void preservesUnicodeNamesInEncodedSearchAndMatching() {
+		when(dataUtils.getData("https://en.example/%E9%AD%AF%E8%BF%85"))
+				.thenReturn("{\"query\":{\"search\":[{\"title\":\"魯迅\"}]}}");
+		useCase.findAuthor("魯迅", "en", 0);
+		verify(infoPort).getAuthorInfo("魯迅", "en");
+	}
+
+	@Test
 	void acceptsAnExactAuthorName() {
 		String[] expected = { "bio", "image", "WIKIPEDIA" };
 		when(dataUtils.getData("https://es.example/Abraham%20Merritt"))

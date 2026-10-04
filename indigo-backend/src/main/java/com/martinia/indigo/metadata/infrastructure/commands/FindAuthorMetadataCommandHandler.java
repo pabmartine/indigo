@@ -19,9 +19,20 @@ public class FindAuthorMetadataCommandHandler extends CommandHandler<FindAuthorM
 	private com.martinia.indigo.metadata.application.MetadataActivityService activity;
 
 	@Override
+    @org.springframework.retry.annotation.Retryable(
+            noRetryFor = java.util.concurrent.CancellationException.class,
+            notRecoverable = java.util.concurrent.CancellationException.class,
+            maxAttemptsExpression = "#{${retries.maxAttempts.commands:3}}",
+            backoff = @org.springframework.retry.annotation.Backoff(delayExpression = "#{${retries.delay.commands:1000}}",
+                    multiplierExpression = "#{${retries.multiplier.commands:2}}", maxDelayExpression = "#{${retries.maxDelay.commands:0}}"))
 	public MetadataItemResult handle(final FindAuthorMetadataCommand command) {
 		if (activity != null) return activity.track("AUTHORS", command.getAuthorId(), command.getLang(), () ->
-				findAuthorMetadataUseCase.find(command.getAuthorId(), command.isOverride(), command.getLastExecution(), command.getLang()));
-		return findAuthorMetadataUseCase.find(command.getAuthorId(), command.isOverride(), command.getLastExecution(), command.getLang());
+				find(command));
+		return find(command);
+	}
+	private MetadataItemResult find(FindAuthorMetadataCommand command) {
+		return command.getRunId() > 0
+				? findAuthorMetadataUseCase.find(command.getAuthorId(), command.isOverride(), command.getLastExecution(), command.getLang(), command.getRunId())
+				: findAuthorMetadataUseCase.find(command.getAuthorId(), command.isOverride(), command.getLastExecution(), command.getLang());
 	}
 }

@@ -28,13 +28,18 @@ class AuthorRetryTest {
         ReflectionTestUtils.setField(useCase, "bookRepository", books);
         ReflectionTestUtils.setField(useCase, "commandBus", bus);
         when(books.getBookLanguages()).thenReturn(List.of("es"));
-        when(authors.count(anyList())).thenReturn(1L);
-        when(authors.findAll(anyList(), any(Pageable.class))).thenReturn(List.of(AuthorMongoEntity.builder().id("pending").name("Author").build()));
+        var executions = mock(com.martinia.indigo.metadata.application.MetadataExecutionService.class);
+        ReflectionTestUtils.setField(useCase, "executions", executions);
+        when(authors.findMetadataIds(anyList())).thenReturn(List.of("pending"));
+        when(executions.pending(anyString(), anyList())).thenReturn(List.of("pending"));
+        when(authors.findAllById(anyList())).thenReturn(List.of(AuthorMongoEntity.builder().id("pending").name("Author").build()));
         when(bus.executeAndWait(any(FindAuthorMetadataCommand.class))).thenReturn(MetadataItemResult.ERROR);
         useCase.start(false, "es", run);
         verify(bus, times(1)).executeAndWait(any(FindAuthorMetadataCommand.class));
         assertThat(state.getCurrent()).isEqualTo(1);
         assertThat(state.getFound()).isZero();
         assertThat(state.getErrors()).isEqualTo(1);
+        verify(executions, never()).inspected(anyString(), anyString());
+        verify(bus).executeAndWait(org.mockito.ArgumentMatchers.<FindAuthorMetadataCommand>argThat(c -> c.getRunId() == run));
     }
 }

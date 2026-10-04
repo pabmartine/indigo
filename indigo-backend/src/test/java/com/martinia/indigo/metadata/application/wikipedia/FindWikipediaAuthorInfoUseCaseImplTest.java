@@ -8,6 +8,21 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.mockito.Mockito.*;
 
 class FindWikipediaAuthorInfoUseCaseImplTest {
+    @Test void distinguishesMissingPagesDisambiguationAndVerifiedRedirects() {
+        DataUtils data = mock(DataUtils.class);
+        var useCase = new FindWikipediaAuthorInfoUseCaseImpl();
+        ReflectionTestUtils.setField(useCase, "dataUtils", data);
+        ReflectionTestUtils.setField(useCase, "translateLibreTranslatePort", Optional.empty());
+        ReflectionTestUtils.setField(useCase, "endpoint", "https://$lang.wikipedia.org/$subject");
+        when(data.getData("https://es.wikipedia.org/Author")).thenReturn(
+                "{\"query\":{\"pages\":{\"-1\":{\"title\":\"Author\",\"missing\":\"\"}}}}",
+                "{\"query\":{\"pages\":{\"1\":{\"title\":\"Author\",\"extract\":\"Lista de personas\",\"pageprops\":{\"disambiguation\":\"\"}}}}}",
+                "{\"query\":{\"redirects\":[{\"from\":\"Author\",\"to\":\"Nombre completo\"}],\"pages\":{\"1\":{\"title\":\"Nombre completo\",\"extract\":\"Biografía\"}}}}");
+        org.assertj.core.api.Assertions.assertThat(useCase.getAuthorInfo("Author", "es")).isNull();
+        org.assertj.core.api.Assertions.assertThat(useCase.getAuthorInfo("Author", "es")).isNull();
+        assertArrayEquals(new String[]{"Biografía", null, "WIKIPEDIA"}, useCase.getAuthorInfo("Author", "es"));
+    }
+
     @Test void translatesEnglishBiographyAndPreservesThePhotoIfTranslationFails() {
         DataUtils data = mock(DataUtils.class);
         var translator = mock(com.martinia.indigo.metadata.domain.ports.adapters.libretranslate.TranslateLibreTranslatePort.class);

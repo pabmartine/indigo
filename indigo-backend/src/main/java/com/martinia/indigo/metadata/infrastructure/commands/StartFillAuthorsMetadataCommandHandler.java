@@ -16,6 +16,12 @@ public class StartFillAuthorsMetadataCommandHandler extends CommandHandler<Start
 	private StartFillAuthorsMetadataUseCase startFillAuthorsMetadataUseCase;
 
 	@Override
+    @org.springframework.retry.annotation.Retryable(
+            noRetryFor = java.util.concurrent.CancellationException.class,
+            notRecoverable = java.util.concurrent.CancellationException.class,
+            maxAttemptsExpression = "#{${retries.maxAttempts.commands:3}}",
+            backoff = @org.springframework.retry.annotation.Backoff(delayExpression = "#{${retries.delay.commands:1000}}",
+                    multiplierExpression = "#{${retries.multiplier.commands:2}}", maxDelayExpression = "#{${retries.maxDelay.commands:0}}"))
 	public Void handle(final StartFillAuthorsMetadataCommand command) {
 
 		startFillAuthorsMetadataUseCase.start(command.isOverride(), command.getLang(), command.getRunId());

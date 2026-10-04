@@ -49,11 +49,19 @@ public class FindOpenLibraryAuthorUseCaseImpl implements FindOpenLibraryAuthorUs
 			}
 
 			final String expectedName = normalize(name);
-			for (JsonNode candidate : objectMapper.readTree(json).path("docs")) {
-				if (normalize(candidate.path("name").asText()).equals(expectedName)) {
-					return findAuthorInfo(candidate.path("key").asText());
+			JsonNode candidates = objectMapper.readTree(json).path("docs");
+			if (!candidates.isArray()) throw new IllegalStateException("Invalid Open Library author search response");
+			java.util.Set<String> matches = new java.util.LinkedHashSet<>();
+			for (JsonNode candidate : candidates) {
+				boolean matched = normalize(candidate.path("name").asText()).equals(expectedName);
+				for (JsonNode alias : candidate.path("alternate_names")) matched |= normalize(alias.asText()).equals(expectedName);
+				if (matched) {
+					String id = candidate.path("key").asText().replaceFirst("^/authors/", "");
+					if (id.isBlank()) throw new IllegalStateException("Open Library author has no identifier");
+					matches.add(id);
 				}
 			}
+			if (matches.size() == 1) return findAuthorInfo(matches.iterator().next());
 		}
 		catch (com.martinia.indigo.metadata.application.AuthorMetadataTranslationException exception) {
 			throw exception;
@@ -101,10 +109,6 @@ public class FindOpenLibraryAuthorUseCaseImpl implements FindOpenLibraryAuthorUs
 	}
 
 	private String normalize(final String value) {
-		return StringUtils.stripAccents(StringUtils.defaultString(value))
-				.replaceAll("[^a-zA-Z0-9]", " ")
-				.replaceAll("\\s+", " ")
-				.toLowerCase()
-				.trim();
+		return AuthorNameNormalizer.normalize(value);
 	}
 }
