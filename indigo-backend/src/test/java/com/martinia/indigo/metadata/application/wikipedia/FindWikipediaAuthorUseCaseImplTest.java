@@ -67,6 +67,16 @@ class FindWikipediaAuthorUseCaseImplTest {
 	}
 
 	@Test
+	void photoOnlySearchPassesTheFieldRequirementToTheDetailsLookup() {
+		when(dataUtils.getData("https://en.example/Donald%20Honig"))
+				.thenReturn("{\"query\":{\"search\":[{\"title\":\"Donald Honig\"}]}}");
+		String[] expected = {null, "photo", "WIKIPEDIA"};
+		when(infoPort.getAuthorInfo("Donald Honig", "en", false)).thenReturn(expected);
+		assertArrayEquals(expected, useCase.findAuthor("Donald Honig", "en", 0, false));
+		verify(infoPort, never()).getAuthorInfo("Donald Honig", "en");
+	}
+
+	@Test
 	void acceptsAnExactAuthorName() {
 		String[] expected = { "bio", "image", "WIKIPEDIA" };
 		when(dataUtils.getData("https://es.example/Abraham%20Merritt"))
