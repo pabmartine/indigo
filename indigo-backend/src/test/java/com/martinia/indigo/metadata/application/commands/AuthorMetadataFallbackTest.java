@@ -28,6 +28,7 @@ class AuthorMetadataFallbackTest {
 	private final FindWikipediaAuthorPort wikipedia = mock(FindWikipediaAuthorPort.class);
 	private final FindOpenLibraryAuthorPort openLibrary = mock(FindOpenLibraryAuthorPort.class);
 	private final ImageUtils images = mock(ImageUtils.class);
+	private final com.martinia.indigo.common.util.DataUtils data = mock(com.martinia.indigo.common.util.DataUtils.class);
 	private final FindAuthorMetadataUseCaseImpl useCase = new FindAuthorMetadataUseCaseImpl();
 	private final AuthorMongoEntity author = AuthorMongoEntity.builder().id("author").name("Author").build();
 
@@ -38,6 +39,7 @@ class AuthorMetadataFallbackTest {
 		ReflectionTestUtils.setField(useCase, "findWikipediaAuthorPort", Optional.of(wikipedia));
 		ReflectionTestUtils.setField(useCase, "findOpenLibraryAuthorPort", Optional.of(openLibrary));
 		ReflectionTestUtils.setField(useCase, "imageUtils", images);
+		ReflectionTestUtils.setField(useCase, "dataUtils", data);
 		when(repository.findById("author")).thenReturn(Optional.of(author));
 		when(images.getBase64AuthorUrl(anyString())).thenAnswer(invocation -> "base64:" + invocation.getArgument(0));
 	}
@@ -230,14 +232,63 @@ class AuthorMetadataFallbackTest {
 		verify(repository, never()).save(any());
 	}
 	@Test
-	void pausedWikipediaSkipsOtherLanguagesButStillTriesOpenLibraryAndKeepsAuthorPending() {
+	void pausedWikipediaWaitsAndRetriesTheSameAuthorWithoutRecordingAnError() {
+		when(wikipedia.findAuthor("Author", "es", 0)).thenThrow(new IllegalStateException(
+				new com.martinia.indigo.metadata.application.reviews.ReviewPageGuard.AccessRestrictedException(
+						"Paused", java.time.Instant.now().plusSeconds(60))))
+				.thenReturn(new String[]{"Biografía", "photo", "WIKIPEDIA"});
+		when(data.awaitWikipediaAvailable(any())).thenReturn(true);
+		com.martinia.indigo.metadata.application.ProviderDiagnostics.begin();
+		try {
+			assertThat(useCase.find("author", false, 0, "en")).isEqualTo(MetadataItemResult.FOUND);
+			assertThat(author.getDescription()).isEqualTo("Biografía");
+			assertThat(author.getLastMetadataSync()).isNotNull();
+			verify(wikipedia, times(2)).findAuthor("Author", "es", 0);
+			verify(wikipedia, never()).findAuthor("Author", "en", 0);
+			verifyNoInteractions(openLibrary);
+			verify(data).awaitWikipediaAvailable(any());
+			assertThat(com.martinia.indigo.metadata.application.ProviderDiagnostics.events())
+					.anySatisfy(event -> assertThat(event.getString("status")).isEqualTo("WAITING"));
+		} finally {
+			assertThat(com.martinia.indigo.metadata.application.ProviderDiagnostics.finish()).isEmpty();
+		}
+	}
+
+	@Test
+	void cancellingWikipediaWaitDoesNotInspectTheAuthorOrTryOtherProviders() {
 		when(wikipedia.findAuthor("Author", "es", 0)).thenThrow(new IllegalStateException(
 				new com.martinia.indigo.metadata.application.reviews.ReviewPageGuard.AccessRestrictedException(
 						"Paused", java.time.Instant.now().plusSeconds(60))));
-		assertThat(useCase.find("author", false, 0, "en")).isEqualTo(MetadataItemResult.ERROR);
+		when(data.awaitWikipediaAvailable(any())).thenReturn(false);
+		org.assertj.core.api.Assertions.assertThatThrownBy(() -> useCase.find("author", false, 0, "en"))
+				.isInstanceOf(java.util.concurrent.CancellationException.class);
 		verify(wikipedia).findAuthor("Author", "es", 0);
 		verify(wikipedia, never()).findAuthor("Author", "en", 0);
-		verify(openLibrary).findAuthor("Author");
+		verifyNoInteractions(openLibrary);
+		verify(repository, never()).save(any());
+		assertThat(author.getLastMetadataSync()).isNull();
+	}
+
+	@Test
+	void repeatedPausesKeepTheSameAuthorAndCancellationOfTheRunStopsRetrying() {
+		var singleton = mock(com.martinia.indigo.common.singletons.MetadataSingleton.class);
+		ReflectionTestUtils.setField(useCase, "metadataSingleton", singleton);
+		when(singleton.isRunning()).thenReturn(true);
+		when(singleton.getRunId()).thenReturn(17L);
+		when(singleton.isActive(17L)).thenReturn(true);
+		when(wikipedia.findAuthor("Author", "es", 0)).thenThrow(new IllegalStateException(
+				new com.martinia.indigo.metadata.application.reviews.ReviewPageGuard.AccessRestrictedException(
+						"Paused", java.time.Instant.now().plusSeconds(60))));
+		when(data.awaitWikipediaAvailable(any())).thenReturn(true).thenAnswer(invocation -> {
+			when(singleton.isActive(17L)).thenReturn(false);
+			return ((java.util.function.BooleanSupplier) invocation.getArgument(0)).getAsBoolean();
+		});
+		org.assertj.core.api.Assertions.assertThatThrownBy(() -> useCase.find("author", false, 0, "en"))
+				.isInstanceOf(java.util.concurrent.CancellationException.class);
+		verify(wikipedia, times(2)).findAuthor("Author", "es", 0);
+		verify(data, times(2)).awaitWikipediaAvailable(any());
+		verifyNoInteractions(openLibrary);
+		verify(repository, never()).save(any());
 	}
 
 }

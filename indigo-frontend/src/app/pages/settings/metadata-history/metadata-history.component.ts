@@ -30,10 +30,10 @@ export class MetadataHistoryComponent implements OnInit, OnDestroy {
   private detailId = '';
   private readonly reload$ = new Subject<void>();
   private readonly destroy$ = new Subject<void>();
-  readonly statuses = {RUNNING: 'En curso', FOUND: 'Encontrado', NOT_FOUND: 'Sin coincidencia', SKIPPED: 'Omitido', ERROR: 'Error'};
+  readonly statuses = {RUNNING: 'En curso', WAITING: 'En espera', FOUND: 'Encontrado', NOT_FOUND: 'Sin coincidencia', SKIPPED: 'Omitido', ERROR: 'Error'};
   readonly types = {BOOKS: 'Libro', AUTHORS: 'Autor', REVIEWS: 'Reseñas'};
   readonly typeOptions = [{label: 'Todas', value: ''}, {label: 'Libros', value: 'BOOKS'}, {label: 'Autores', value: 'AUTHORS'}, {label: 'Reseñas', value: 'REVIEWS'}];
-  readonly statusOptions = [{label: 'Todos', value: ''}, ...Object.entries(this.statuses).map(([value, label]) => ({value, label}))];
+  readonly statusOptions = [{label: 'Todos', value: ''}, ...Object.entries(this.statuses).filter(([value]) => value !== 'WAITING').map(([value, label]) => ({value, label}))];
   readonly fields = {description: 'Descripción', image: 'Foto', provider: 'Proveedor', metadataSources: 'Fuentes por campo',
     rating: 'Valoración', ratingAverage: 'Valoración media', ratingsCount: 'Número de valoraciones', ratingDistribution: 'Distribución de valoraciones',
     ratingProvider: 'Fuente de valoración', ratingUpdatedAt: 'Fecha de valoración', openLibraryWorkId: 'Obra en Open Library',

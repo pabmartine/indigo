@@ -130,7 +130,7 @@ metadata:
     # Intervalo mínimo entre llamadas a la API de OpenLibrary (ms).
     openlibrary-minimum-interval-millis: ${METADATA_HTTP_OPENLIBRARY_MINIMUM_INTERVAL_MILLIS:500}
     # Intervalo mínimo entre llamadas a la API de Wikipedia (ms).
-    wikipedia-minimum-interval-millis: ${METADATA_HTTP_WIKIPEDIA_MINIMUM_INTERVAL_MILLIS:2000}
+    wikipedia-minimum-interval-millis: ${METADATA_HTTP_WIKIPEDIA_MINIMUM_INTERVAL_MILLIS:1000}
     circuit-breaker:
       # Número de fallos consecutivos antes de abrir el circuito y pausar peticiones al proveedor.
       failures: ${METADATA_HTTP_CIRCUIT_BREAKER_FAILURES:3}

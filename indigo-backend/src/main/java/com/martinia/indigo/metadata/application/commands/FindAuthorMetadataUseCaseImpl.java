@@ -35,8 +35,18 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 	@Resource
 	private ImageUtils imageUtils;
 
+	@Resource
+	private com.martinia.indigo.common.util.DataUtils dataUtils;
+
+	@Resource
+	private com.martinia.indigo.common.singletons.MetadataSingleton metadataSingleton;
+
 	@Override
 	public MetadataItemResult find(final String authorId, final boolean override, final long lastExecution, final String lang) {
+		boolean managed = metadataSingleton != null && metadataSingleton.isRunning();
+		long runId = managed ? metadataSingleton.getRunId() : 0;
+		java.util.function.BooleanSupplier active = () -> !Thread.currentThread().isInterrupted()
+				&& (!managed || metadataSingleton.isActive(runId));
 
 		return authorRepository.findById(authorId).map(author -> {
 
@@ -61,8 +71,7 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 				for (String language : languages) {
 					if (!lookup.missing()) break;
 					lookup.obtain("WIKIPEDIA", "Obtener autor (" + language + ")",
-							() -> port.findAuthor(author.getName(), language, 0));
-					if (lookup.wikipediaPaused) break;
+							() -> obtainWikipediaWithRetry(port, author.getName(), language, active));
 				}
 			});
 			if (lookup.missing()) findOpenLibraryAuthorPort.ifPresent(port -> lookup.obtain("OPEN_LIBRARY", "Obtener autor",
@@ -79,6 +88,34 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 		}).orElse(MetadataItemResult.SKIPPED);
 	}
 
+	private String[] obtainWikipediaWithRetry(FindWikipediaAuthorPort port, String name, String language,
+			java.util.function.BooleanSupplier active) {
+		while (active.getAsBoolean()) {
+			try {
+				return port.findAuthor(name, language, 0);
+			}
+			catch (RuntimeException exception) {
+				com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
+				java.util.Set<Throwable> visited = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+				java.time.Instant retryAt = null;
+				for (Throwable cause = exception; cause != null && visited.add(cause); cause = cause.getCause()) {
+					if (cause instanceof com.martinia.indigo.metadata.application.reviews.ReviewPageGuard.AccessRestrictedException restricted
+							&& restricted.retryAt() != null) {
+						retryAt = restricted.retryAt();
+						break;
+					}
+				}
+				if (retryAt == null) throw exception;
+				log.info("Wikipedia paused until {}; retaining author {} and retrying language {} after the pause",
+						retryAt, name, language);
+				com.martinia.indigo.metadata.application.ProviderDiagnostics.event("WIKIPEDIA", "Obtener autor (" + language + ")",
+						"WAITING", "Wikipedia en pausa hasta " + retryAt + "; se reintentará este mismo autor");
+				if (!dataUtils.awaitWikipediaAvailable(active)) break;
+			}
+		}
+		throw new java.util.concurrent.CancellationException("Author metadata stopped while waiting for Wikipedia");
+	}
+
 	private final class Lookup {
 		private final AuthorMongoEntity author;
 		private final boolean override;
@@ -87,7 +124,6 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 		private boolean succeeded;
 		private boolean failed;
 		private boolean found;
-		private boolean wikipediaPaused;
 
 		private Lookup(AuthorMongoEntity author, boolean override) {
 			this.author = author;
@@ -117,13 +153,6 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 				com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
 				failed = true;
 				requestFailed = true;
-				if ("WIKIPEDIA".equals(provider)) {
-					java.util.Set<Throwable> visited = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
-					for (Throwable cause = exception; cause != null && visited.add(cause); cause = cause.getCause()) {
-						if (cause instanceof com.martinia.indigo.metadata.application.reviews.ReviewPageGuard.AccessRestrictedException restricted
-								&& restricted.retryAt() != null) wikipediaPaused = true;
-					}
-				}
 				log.warn("Metadata provider {} operation {} failed for author {} ({})",
 						provider, operation, author.getId(), author.getName(), exception);
 				com.martinia.indigo.metadata.application.ProviderDiagnostics.record(provider, operation, exception);

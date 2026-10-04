@@ -10,6 +10,78 @@ import static org.assertj.core.api.Assertions.*;
 
 class DataUtilsCircuitTest {
     @Test
+    void wikipediaLearnsIntervalAndWaitsBeforeRetryingWithoutCountingBlockedRequests() throws Exception {
+        HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        AtomicInteger requests = new AtomicInteger();
+        server.createContext("/", exchange -> {
+            int attempt = requests.incrementAndGet();
+            if (attempt == 2) {
+                byte[] body = "{}".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(200, body.length);
+                exchange.getResponseBody().write(body);
+            } else exchange.sendResponseHeaders(429, -1);
+            exchange.close();
+        });
+        server.start();
+        try {
+            // Route the local test server through the shared Wikipedia policy.
+            DataUtils data = new DataUtils() {
+                @Override String providerKey(String host) { return "wikipedia.org"; }
+            };
+            String url = "http://127.0.0.1:" + server.getAddress().getPort() + "/";
+            assertThatThrownBy(() -> data.getData(url)).isInstanceOf(IllegalStateException.class);
+            var states = (java.util.Map<?, ?>) ReflectionTestUtils.getField(data, "providerStates");
+            Object state = states.get("wikipedia.org");
+            assertThat(ReflectionTestUtils.getField(state, "wikipediaIntervalMillis")).isEqualTo(2000L);
+            assertThatThrownBy(() -> data.getData(url)).isInstanceOf(IllegalStateException.class);
+            assertThat(requests.get()).isEqualTo(1);
+            assertThat(ReflectionTestUtils.getField(state, "wikipediaIntervalMillis")).isEqualTo(2000L);
+            ReflectionTestUtils.setField(state, "blockedUntil", java.time.Instant.EPOCH);
+            long start = System.nanoTime();
+            assertThat(data.getData(url)).isEqualTo("{}");
+            assertThat(java.time.Duration.ofNanos(System.nanoTime() - start).toMillis()).isGreaterThanOrEqualTo(1800);
+            assertThat(ReflectionTestUtils.getField(state, "wikipediaIntervalMillis")).isEqualTo(2000L);
+            assertThatThrownBy(() -> data.getData(url)).isInstanceOf(IllegalStateException.class);
+            assertThat(ReflectionTestUtils.getField(state, "wikipediaIntervalMillis")).isEqualTo(3000L);
+            assertThat(requests.get()).isEqualTo(3);
+        } finally { server.stop(0); }
+    }
+
+    @Test
+    void successfulRequestsBetweenRateLimitsDoNotResetTheBackoff() throws Exception {
+        HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        AtomicInteger requests = new AtomicInteger();
+        server.createContext("/", exchange -> {
+            int attempt = requests.incrementAndGet();
+            if (attempt == 2) {
+                byte[] body = "{}".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(200, body.length);
+                exchange.getResponseBody().write(body);
+            } else exchange.sendResponseHeaders(429, -1);
+            exchange.close();
+        });
+        server.start();
+        try {
+            DataUtils data = new DataUtils();
+            String url = "http://127.0.0.1:" + server.getAddress().getPort() + "/";
+            assertThatThrownBy(() -> data.getData(url)).isInstanceOf(IllegalStateException.class);
+            var states = (java.util.Map<?, ?>) ReflectionTestUtils.getField(data, "providerStates");
+            Object state = states.get("127.0.0.1");
+            ReflectionTestUtils.setField(state, "blockedUntil", java.time.Instant.EPOCH);
+            assertThat(data.getData(url)).isEqualTo("{}");
+            java.time.Instant before = java.time.Instant.now();
+            assertThatThrownBy(() -> data.getData(url)).satisfies(error -> {
+                var paused = (com.martinia.indigo.metadata.application.reviews.ReviewPageGuard.AccessRestrictedException)
+                        org.springframework.core.NestedExceptionUtils.getMostSpecificCause(error);
+                assertThat(paused.retryAt()).isAfterOrEqualTo(before.plusSeconds(120));
+            });
+            ReflectionTestUtils.setField(state, "lastRateLimit", java.time.Instant.now().minusSeconds(1801));
+            ReflectionTestUtils.invokeMethod(data, "resetRateLimitsAfterRecovery", state);
+            assertThat(ReflectionTestUtils.getField(state, "rateLimitFailures")).isEqualTo(0);
+        } finally { server.stop(0); }
+    }
+
+    @Test
     void repeatedRateLimitsUseIncreasingDelaysWithoutWaitingInTest() throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/", exchange -> {

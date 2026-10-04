@@ -28,8 +28,8 @@ public class DataUtils {
     @Value("${metadata.http.openlibrary-minimum-interval-millis:500}")
     private long openLibraryMinimumIntervalMillis;
 
-    @Value("${metadata.http.wikipedia-minimum-interval-millis:2000}")
-    private long wikipediaMinimumIntervalMillis;
+    @Value("${metadata.http.wikipedia-minimum-interval-millis:1000}")
+    private long wikipediaMinimumIntervalMillis = 1000;
 
     @Value("${metadata.http.circuit-breaker.failures:3}")
     private int circuitBreakerFailures;
@@ -50,7 +50,7 @@ public class DataUtils {
 
             synchronized (state) {
                 ensureCircuitIsClosed(url.getHost(), state);
-                waitForRateLimit(url.getHost(), state);
+                waitForRateLimit(providerKey(url.getHost()), state);
 
                 URLConnection connection = null;
                 try {
@@ -62,6 +62,11 @@ public class DataUtils {
                     if (connection instanceof java.net.HttpURLConnection http) {
                         int status = http.getResponseCode();
                         if (status == 429) {
+                            if (providerKey(url.getHost()).equals("wikipedia.org")) {
+                                state.wikipediaIntervalMillis = Math.max(wikipediaMinimumIntervalMillis, state.wikipediaIntervalMillis) + 1000;
+                                log.info("Wikipedia request interval increased to {} ms after HTTP 429", state.wikipediaIntervalMillis);
+                            }
+                            state.lastRateLimit = Instant.now();
                             long delay = Math.min(Math.max(1, maxDelaySeconds), Math.max(1, initialDelaySeconds)
                                     * (1L << Math.min(state.rateLimitFailures++, 20)));
                             Instant requested = com.martinia.indigo.metadata.application.reviews.ReviewProviderRequestPolicy.retryAt(http.getHeaderField("Retry-After"));
@@ -73,7 +78,7 @@ public class DataUtils {
                         }
                         if (status == 404) {
                             state.failures = 0;
-                            state.rateLimitFailures = 0;
+                            resetRateLimitsAfterRecovery(state);
                             state.pauseCause = null;
                             return null;
                         }
@@ -88,7 +93,7 @@ public class DataUtils {
                         }
                     }
                     state.failures = 0;
-                    state.rateLimitFailures = 0;
+                    resetRateLimitsAfterRecovery(state);
                     state.blockedUntil = null;
                     state.pauseCause = null;
                     return data.isEmpty() ? null : data.toString();
@@ -110,8 +115,15 @@ public class DataUtils {
         }
     }
 
-    private String providerKey(String host) {
+    String providerKey(String host) {
         return host.equals("wikipedia.org") || host.endsWith(".wikipedia.org") ? "wikipedia.org" : host;
+    }
+
+    private void resetRateLimitsAfterRecovery(ProviderState state) {
+        if (state.lastRateLimit != null && !Instant.now().isBefore(state.lastRateLimit.plus(Duration.ofMinutes(30)))) {
+            state.rateLimitFailures = 0;
+            state.lastRateLimit = null;
+        }
     }
 
     public boolean isWikipediaPaused() {
@@ -162,7 +174,9 @@ public class DataUtils {
             return;
         }
         long elapsed = Duration.between(state.lastRequest, Instant.now()).toMillis();
-        long waitMillis = minimumIntervalFor(host) - elapsed;
+        long interval = host.contains("wikipedia.org")
+                ? Math.max(wikipediaMinimumIntervalMillis, state.wikipediaIntervalMillis) : minimumIntervalFor(host);
+        long waitMillis = interval - elapsed;
         if (waitMillis <= 0) {
             return;
         }
@@ -202,6 +216,8 @@ public class DataUtils {
         private Instant lastRequest;
         private int failures;
         private int rateLimitFailures;
+        private Instant lastRateLimit;
+        private long wikipediaIntervalMillis;
         private Instant blockedUntil;
         private Exception pauseCause;
     }
