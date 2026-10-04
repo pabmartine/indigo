@@ -25,7 +25,7 @@ class AuthorMetadataFallbackTest {
 
 	private final AuthorRepository repository = mock(AuthorRepository.class);
 	private final FindOpenLibraryAuthorCatalogPort catalog = mock(FindOpenLibraryAuthorCatalogPort.class);
-	private final FindWikipediaAuthorPort wikipedia = mock(FindWikipediaAuthorPort.class);
+	private final FindWikipediaAuthorPort wikipedia = mock(FindWikipediaAuthorPort.class, org.mockito.Mockito.CALLS_REAL_METHODS);
 	private final FindOpenLibraryAuthorPort openLibrary = mock(FindOpenLibraryAuthorPort.class);
 	private final ImageUtils images = mock(ImageUtils.class);
 	private final com.martinia.indigo.common.util.DataUtils data = mock(com.martinia.indigo.common.util.DataUtils.class);

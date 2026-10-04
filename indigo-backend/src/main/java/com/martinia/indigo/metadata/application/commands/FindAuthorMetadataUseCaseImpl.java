@@ -76,7 +76,7 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 				for (String language : languages) {
 					if (!lookup.missing()) break;
 					lookup.obtain("WIKIPEDIA", "Obtener autor (" + language + ")",
-							() -> obtainWikipediaWithRetry(port, author.getName(), language, active));
+							() -> obtainWikipediaWithRetry(port, author.getName(), language, lookup.needsDescription(), active));
 				}
 			});
 			if (lookup.missing()) findOpenLibraryAuthorPort.ifPresent(port -> lookup.obtain("OPEN_LIBRARY", "Obtener autor",
@@ -104,11 +104,11 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 		if (!active.getAsBoolean()) throw new java.util.concurrent.CancellationException("Author metadata cancelled");
 	}
 
-	private String[] obtainWikipediaWithRetry(FindWikipediaAuthorPort port, String name, String language,
+	private String[] obtainWikipediaWithRetry(FindWikipediaAuthorPort port, String name, String language, boolean descriptionNeeded,
 			java.util.function.BooleanSupplier active) {
 		while (active.getAsBoolean()) {
 			try {
-				return port.findAuthor(name, language, 0);
+				return descriptionNeeded ? port.findAuthor(name, language, 0) : port.findAuthor(name, language, 0, false);
 			}
 			catch (RuntimeException exception) {
 				com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);

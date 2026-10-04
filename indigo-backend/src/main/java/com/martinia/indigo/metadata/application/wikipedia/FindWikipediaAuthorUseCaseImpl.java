@@ -27,6 +27,11 @@ public class FindWikipediaAuthorUseCaseImpl implements FindWikipediaAuthorUseCas
 
 	@Override
 	public String[] findAuthor(String subject, String lang, int cont) {
+        return findAuthor(subject, lang, cont, true);
+    }
+
+    @Override
+    public String[] findAuthor(String subject, String lang, int cont, boolean descriptionNeeded) {
 
 		String[] ret = null;
         if (StringUtils.isBlank(subject)) return null;
@@ -64,7 +69,8 @@ public class FindWikipediaAuthorUseCaseImpl implements FindWikipediaAuthorUseCas
                 }
 
 				if (StringUtils.isNotEmpty(strTitle)) {
-					ret = findWikipediaAuthorInfoPort.getAuthorInfo(strTitle, lang);
+					ret = descriptionNeeded ? findWikipediaAuthorInfoPort.getAuthorInfo(strTitle, lang)
+                            : findWikipediaAuthorInfoPort.getAuthorInfo(strTitle, lang, false);
 				}
 			}
 		}

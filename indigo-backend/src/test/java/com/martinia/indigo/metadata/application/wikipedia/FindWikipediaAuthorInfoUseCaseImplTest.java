@@ -8,6 +8,18 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.mockito.Mockito.*;
 
 class FindWikipediaAuthorInfoUseCaseImplTest {
+    @Test void photoOnlyLookupDoesNotTranslateAnExistingBiography() {
+        DataUtils data = mock(DataUtils.class);
+        var translator = mock(com.martinia.indigo.metadata.domain.ports.adapters.libretranslate.TranslateLibreTranslatePort.class);
+        var useCase = new FindWikipediaAuthorInfoUseCaseImpl();
+        ReflectionTestUtils.setField(useCase, "dataUtils", data);
+        ReflectionTestUtils.setField(useCase, "translateLibreTranslatePort", Optional.of(translator));
+        ReflectionTestUtils.setField(useCase, "endpoint", "https://$lang.wikipedia.org/$subject");
+        when(data.getData("https://en.wikipedia.org/Author")).thenReturn("{\"query\":{\"pages\":{\"1\":{\"title\":\"Author\",\"extract\":\"Long English biography\",\"original\":{\"source\":\"photo\"}}}}}");
+        assertArrayEquals(new String[]{null, "photo", "WIKIPEDIA"}, useCase.getAuthorInfo("Author", "en", false));
+        verifyNoInteractions(translator);
+    }
+
     @Test void distinguishesMissingPagesDisambiguationAndVerifiedRedirects() {
         DataUtils data = mock(DataUtils.class);
         var useCase = new FindWikipediaAuthorInfoUseCaseImpl();

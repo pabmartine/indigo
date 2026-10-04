@@ -18,7 +18,7 @@ class AuthorProviderFailureTest {
         var repository = mock(AuthorRepository.class);
         var openLibrary = mock(FindOpenLibraryAuthorPort.class);
         var catalog = mock(FindOpenLibraryAuthorCatalogPort.class);
-        var wikipedia = mock(FindWikipediaAuthorPort.class);
+        var wikipedia = mock(FindWikipediaAuthorPort.class, org.mockito.Mockito.CALLS_REAL_METHODS);
         var author = AuthorMongoEntity.builder().id("author").name("Olivia Dean").build();
         when(repository.findById("author")).thenReturn(Optional.of(author));
         when(openLibrary.findAuthor(anyString())).thenThrow(new IllegalStateException("HTTP 429"));

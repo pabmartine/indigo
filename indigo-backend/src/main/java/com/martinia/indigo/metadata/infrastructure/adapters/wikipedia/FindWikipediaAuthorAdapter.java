@@ -18,4 +18,8 @@ public class FindWikipediaAuthorAdapter implements FindWikipediaAuthorPort {
 	public String[] findAuthor(final String subject, final String lang, final int cont) {
 		return useCase.findAuthor(subject, lang, cont);
 	}
+	@Override
+	public String[] findAuthor(String subject, String lang, int cont, boolean descriptionNeeded) {
+		return useCase.findAuthor(subject, lang, cont, descriptionNeeded);
+	}
 }

@@ -30,6 +30,11 @@ public class FindWikipediaAuthorInfoUseCaseImpl implements FindWikipediaAuthorIn
 
 	@Override
 	public String[] getAuthorInfo(String subject, String lang) {
+        return getAuthorInfo(subject, lang, true);
+    }
+
+    @Override
+    public String[] getAuthorInfo(String subject, String lang, boolean descriptionNeeded) {
 
 		String[] ret = null;
 
@@ -69,7 +74,9 @@ public class FindWikipediaAuthorInfoUseCaseImpl implements FindWikipediaAuthorIn
 			throw new IllegalStateException("Could not obtain Wikipedia author details from " + url, e);
 		}
 
-		if (ret != null && !"es".equals(com.martinia.indigo.metadata.application.libretranslate.CachedSpanishTranslation.normalizeLanguage(lang))
+		if (ret != null && !descriptionNeeded) ret[0] = null;
+
+		if (ret != null && descriptionNeeded && !"es".equals(com.martinia.indigo.metadata.application.libretranslate.CachedSpanishTranslation.normalizeLanguage(lang))
 				&& StringUtils.isNotBlank(ret[0])) {
 			final String description = ret[0];
 			try {

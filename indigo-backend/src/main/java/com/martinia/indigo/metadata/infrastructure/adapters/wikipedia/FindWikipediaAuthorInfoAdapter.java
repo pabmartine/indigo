@@ -18,4 +18,8 @@ public class FindWikipediaAuthorInfoAdapter implements FindWikipediaAuthorInfoPo
 	public String[] getAuthorInfo(final String subject, final String lang) {
 		return useCase.getAuthorInfo(subject, lang);
 	}
+	@Override
+	public String[] getAuthorInfo(String subject, String lang, boolean descriptionNeeded) {
+		return useCase.getAuthorInfo(subject, lang, descriptionNeeded);
+	}
 }
