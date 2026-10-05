@@ -584,8 +584,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
     if (!run) {
       return 'Listo';
     }
+    if (run.status && run.waitingUntil) return 'Esperando Wikipedia';
     return run.status ? (!run.total ? 'Preparando' : 'En curso')
       : (run.errors > 0 ? 'Con errores' : (run.current < run.total ? 'Detenido' : 'Finalizado'));
+  }
+
+  getMetadataWait(type: string, entity: string): any {
+    const run = this.getMetadataRun(type, entity);
+    return run?.status && run.waitingUntil ? run : null;
   }
 
   getMetadataLastExecution(type: string, entity: string): string {

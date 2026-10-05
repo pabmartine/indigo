@@ -135,7 +135,7 @@ metadata:
       # Intentos por petición HTTP, incluido el inicial. Las esperas no se acumulan entre autores.
       attempts: ${METADATA_HTTP_WIKIPEDIA_RETRY_ATTEMPTS:3}
       initial-delay-millis: ${METADATA_HTTP_WIKIPEDIA_RETRY_INITIAL_DELAY_MILLIS:1000}
-      # Una espera Retry-After superior deja el autor pendiente para otra ejecución.
+      # Presupuesto del backoff local; Retry-After se respeta conservando la petición actual.
       max-wait-millis: ${METADATA_HTTP_WIKIPEDIA_RETRY_MAX_WAIT_MILLIS:10000}
     circuit-breaker:
       # Resto de proveedores HTTP: Wikipedia utiliza sus reintentos acotados.

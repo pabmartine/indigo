@@ -89,6 +89,8 @@ public class MetadataSingleton {
 	public synchronized void complete(final long runId) {
 		RunState run = activeRuns.remove(runId);
 		if (run != null) {
+			run.waitingFor = null;
+			run.waitingUntil = null;
 			run.completedAt = System.currentTimeMillis();
 			publish(runId, run);
 			if (runId == generation.get()) {
@@ -115,6 +117,14 @@ public class MetadataSingleton {
 		run.total = total;
 		publish(runId, run);
 		return true;
+	}
+
+	public synchronized void setProviderWait(long runId, String provider, Long until) {
+		RunState run = activeRuns.get(runId);
+		if (run == null) return;
+		run.waitingFor = until == null ? null : provider;
+		run.waitingUntil = until;
+		publish(runId, run);
 	}
 
 	public synchronized void record(final long runId, final MetadataItemResult result) {
@@ -173,6 +183,8 @@ public class MetadataSingleton {
 		snapshot.put("entity", run.entity);
 		snapshot.put("status", activeRuns.containsKey(runId));
 		snapshot.put("message", run.message);
+		snapshot.put("waitingFor", run.waitingFor);
+		snapshot.put("waitingUntil", run.waitingUntil);
 		snapshot.put("total", run.total);
 		snapshot.put("current", run.current);
 		snapshot.put("found", run.found);
@@ -193,6 +205,8 @@ public class MetadataSingleton {
 		private long skipped;
 		private long errors;
 		private String message;
+		private String waitingFor;
+		private Long waitingUntil;
 		private Long completedAt;
 
 		private RunState(String type, String entity) {

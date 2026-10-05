@@ -1,7 +1,6 @@
 package com.martinia.indigo.common.util;
 
 import com.martinia.indigo.metadata.application.ProviderDiagnostics;
-import com.martinia.indigo.metadata.application.reviews.ReviewPageGuard.AccessRestrictedException;
 import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -84,14 +83,52 @@ class WikipediaHttpRequestsTest {
         assertThat(java.time.Duration.between(times.get(0), times.get(1)).toMillis()).isGreaterThanOrEqualTo(990);
     }
 
-    @Test void longServerPauseIsRespectedWithoutBlockingTheJobOrSendingMoreRequests() {
-        responses("120", 429);
-        for (int i = 0; i < 2; i++) {
-            assertThatThrownBy(() -> requests.getData(url, 0))
-                    .isInstanceOfSatisfying(AccessRestrictedException.class, e ->
-                            assertThat(e.retryAt()).isAfter(Instant.now().plusSeconds(110)));
+    @Test void serverPauseLongerThanLocalBudgetRetainsRequestAndDoesNotRecordAnError() throws Exception {
+        ReflectionTestUtils.setField(requests, "maxWaitMillis", 150L);
+        responses("1", 429, 200);
+        var waits = new ArrayList<Instant>();
+        ProviderDiagnostics.begin();
+        try {
+            assertThat(WikipediaHttpRequests.whileActive(() -> true, waits::add, () -> {
+                try { return requests.getData(url, 0); }
+                catch (java.io.IOException e) { throw new IllegalStateException(e); }
+            })).isEqualTo("{}");
+            assertThat(calls.get()).isEqualTo(2);
+            assertThat(java.time.Duration.between(times.get(0), times.get(1)).toMillis()).isGreaterThanOrEqualTo(990);
+            assertThat(waits).hasSize(2);
+            assertThat(waits.get(0)).isNotNull();
+            assertThat(waits.get(1)).isNull();
+            assertThat(ProviderDiagnostics.events()).allSatisfy(event -> assertThat(event.getString("status")).isEqualTo("WAITING"));
+        } finally { assertThat(ProviderDiagnostics.finish()).isEmpty(); }
+    }
+
+    @Test void repeatedServerPausesStillUseOnlyThreeAttemptsAndNextRequestWaitsForTheLastPause() throws Exception {
+        ReflectionTestUtils.setField(requests, "maxWaitMillis", 150L);
+        responses("1", 429, 429, 429, 200);
+        assertThatThrownBy(() -> requests.getData(url, 0)).isInstanceOf(RestClientResponseException.class);
+        assertThat(calls.get()).isEqualTo(3);
+        assertThat(requests.getData(url, 0)).isEqualTo("{}");
+        assertThat(calls.get()).isEqualTo(4);
+        for (int i = 1; i < times.size(); i++) {
+            assertThat(java.time.Duration.between(times.get(i - 1), times.get(i)).toMillis()).isGreaterThanOrEqualTo(990);
         }
+    }
+
+    @Test void longProviderWaitCanBeCancelledAndClearsTheVisibleWaitState() {
+        responses("120", 429);
+        var active = new AtomicBoolean(true);
+        var waits = new ArrayList<Instant>();
+        assertThatThrownBy(() -> WikipediaHttpRequests.whileActive(active::get, until -> {
+            waits.add(until);
+            if (until != null) active.set(false);
+        }, () -> {
+            try { return requests.getData(url, 0); }
+            catch (java.io.IOException e) { throw new IllegalStateException(e); }
+        })).isInstanceOf(CancellationException.class);
         assertThat(calls.get()).isEqualTo(1);
+        assertThat(waits).hasSize(2);
+        assertThat(waits.get(0)).isAfter(Instant.now().plusSeconds(110));
+        assertThat(waits.get(1)).isNull();
     }
 
     @Test void fixedSpacingDoesNotGrowAfterRateLimits() throws Exception {

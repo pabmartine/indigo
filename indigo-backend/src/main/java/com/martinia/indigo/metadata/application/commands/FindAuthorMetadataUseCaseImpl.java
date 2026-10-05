@@ -74,6 +74,8 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 					if (!lookup.missing()) break;
 					lookup.obtain("WIKIPEDIA", "Obtener autor (" + language + ")",
 							() -> com.martinia.indigo.common.util.WikipediaHttpRequests.whileActive(active,
+									until -> { if (managed) metadataSingleton.setProviderWait(runId, "Wikipedia · " + author.getName(),
+											until == null ? null : until.toEpochMilli()); },
 									() -> lookup.needsDescription() ? port.findAuthor(author.getName(), language, 0)
 											: port.findAuthor(author.getName(), language, 0, false)));
 				}

@@ -142,4 +142,14 @@ describe('Settings metadata processes', () => {
     expect(component.getMetadataStatusLabel('PARTIAL', 'AUTHORS')).toBe('Detenido');
     expect(component.getMetadataProgress('PARTIAL', 'AUTHORS')).toBe(0.1);
   });
+
+  it('shows the provider wait without treating it as completion and clears it on resume', () => {
+    component.metadataRuns['PARTIAL:AUTHORS'] = {status: true, total: 40000, current: 25, waitingUntil: 123456, waitingFor: 'Wikipedia · Margaret Rogerson'};
+    expect(component.getMetadataStatusLabel('PARTIAL', 'AUTHORS')).toBe('Esperando Wikipedia');
+    expect(component.getMetadataWait('PARTIAL', 'AUTHORS').waitingUntil).toBe(123456);
+    expect(component.getMetadataWait('FULL', 'BOOKS')).toBeNull();
+    component.metadataRuns['PARTIAL:AUTHORS'].waitingUntil = null;
+    expect(component.getMetadataWait('PARTIAL', 'AUTHORS')).toBeNull();
+    expect(component.getMetadataStatusLabel('PARTIAL', 'AUTHORS')).toBe('En curso');
+  });
 });

@@ -132,6 +132,10 @@
                     </div>
                   </div>
                   <div class="metadata-task-counter">{{ getMetadataCounter('FULL', 'AUTHORS') }}</div>
+                  <div class="metadata-task-footer" role="status" *ngIf="getMetadataWait('FULL', 'AUTHORS') as wait">
+                    <i class="pi pi-clock" aria-hidden="true"></i> {{ wait.waitingFor }}: esperando hasta {{ wait.waitingUntil | date:'HH:mm:ss' }}.
+                    Se retomará este autor automáticamente. Puedes detener el proceso.
+                  </div>
                   <div class="metadata-task-progress-row">
                     <p-progressBar [value]="getMetadataProgress('FULL', 'AUTHORS')"></p-progressBar>
                     <span class="metadata-task-percent">{{ getMetadataProgress('FULL', 'AUTHORS') }}%</span>
@@ -157,6 +161,10 @@
                     </div>
                   </div>
                   <div class="metadata-task-counter">{{ getMetadataCounter('PARTIAL', 'AUTHORS') }}</div>
+                  <div class="metadata-task-footer" role="status" *ngIf="getMetadataWait('PARTIAL', 'AUTHORS') as wait">
+                    <i class="pi pi-clock" aria-hidden="true"></i> {{ wait.waitingFor }}: esperando hasta {{ wait.waitingUntil | date:'HH:mm:ss' }}.
+                    Se retomará este autor automáticamente. Puedes detener el proceso.
+                  </div>
                   <div class="metadata-task-progress-row">
                     <p-progressBar [value]="getMetadataProgress('PARTIAL', 'AUTHORS')"></p-progressBar>
                     <span class="metadata-task-percent">{{ getMetadataProgress('PARTIAL', 'AUTHORS') }}%</span>

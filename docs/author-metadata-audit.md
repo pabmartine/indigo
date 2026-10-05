@@ -4,7 +4,7 @@
 
 1. La preparación crea autores ausentes a partir de los libros y selecciona los identificadores pendientes del ciclo. Los modos completo e incompleto tienen checkpoints independientes.
 2. Se consulta el índice local de Open Library. Se conservan los campos que aporta y se continúa buscando los que faltan.
-3. Wikipedia consulta español, el idioma solicitado y finalmente inglés, sin repetir idiomas. Se aplica un intervalo fijo y hasta tres intentos por petición HTTP, con esperas de 1 y 2 segundos y respeto a `Retry-After`. Un plazo del servidor superior al presupuesto de espera deja los campos pendientes para otra ejecución. No se repite indefinidamente la búsqueda completa del autor.
+3. Wikipedia consulta español, el idioma solicitado y finalmente inglés, sin repetir idiomas. Se aplica un intervalo fijo y hasta tres intentos por petición HTTP, con esperas de 1 y 2 segundos y respeto a `Retry-After`. Una pausa del servidor conserva la petición actual, aunque supere el presupuesto del backoff local, sin generar un error por cada autor siguiente. Ajustes muestra el autor retenido y la fecha de reanudación. No se repite indefinidamente la búsqueda completa del autor.
 4. Si quedan campos pendientes y no hay índice local de autores activo, se consulta Open Library por HTTP. Con el índice disponible no se duplica esa fuente por Internet. La descarga de una foto debe completarse antes de considerarla obtenida.
 5. Las biografías recuperadas en otros idiomas se traducen al español. Si la traducción falla, se conserva la foto recuperable, se registra el fallo y la descripción queda pendiente; no se guarda el original como descripción española.
 6. El historial conserva resultado, campos disponibles, cambios, fuentes, esperas y errores. Encontrar una página sin la foto pendiente no equivale a recuperar metadatos nuevos.
@@ -34,3 +34,5 @@ mvn -q '-Dtest=Author*Test,FindWikipediaAuthor*Test,FindOpenLibraryAuthor*Test,D
 Los proveedores externos se simulan en la batería automatizada para reproducir errores de forma determinista. Esta revisión valida el código local; los cambios necesitan desplegarse para aplicarse al proceso del NAS. No se reconstruyen los registros de historial antiguos.
 
 Ajustes: 12 pruebas en Chrome Headless, compilación Angular y capturas a 1440 y 390 píxeles, sin errores de JavaScript ni desbordamiento horizontal. El catálogo local omite traducciones si sólo se necesita una foto; los lotes de autores excluyen fotos y biografías antes de procesar cada elemento.
+
+Validación de la corrección de pausas: 54 pruebas de backend en 8 clases y 13 pruebas de ajustes superadas, más compilación Angular. Incluye espera superior al presupuesto local, reintento de la misma petición, máximo de tres intentos reales, respeto de la pausa en la siguiente consulta, cancelación y limpieza del estado visible.
