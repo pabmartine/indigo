@@ -36,7 +36,6 @@ class MetadataExecutionIntegrationTest extends BaseIndigoTest {
         mongo.dropCollection("metadataExecutions");
         originalBooksState = ReflectionTestUtils.getField(books, "metadataSingleton");
         originalAuthorsState = ReflectionTestUtils.getField(authors, "metadataSingleton");
-        when(dataUtils.awaitWikipediaAvailable(any())).thenReturn(true);
     }
 
     @AfterEach void restore() {
@@ -114,12 +113,10 @@ class MetadataExecutionIntegrationTest extends BaseIndigoTest {
     @Test void authorErrorsStayPendingAndDoNotBlockOtherAuthorsDuringWikipediaPause() {
         authorRepository.save(AuthorMongoEntity.builder().id("one").name("One").build());
         authorRepository.save(AuthorMongoEntity.builder().id("two").name("Two").build());
-        when(dataUtils.isWikipediaPaused()).thenReturn(true);
         when(commands.executeAndWait(any(FindAuthorMetadataCommand.class)))
                 .thenReturn(MetadataItemResult.ERROR, MetadataItemResult.FOUND);
         runAuthors(true);
         assertThat(mongo.findAll(Document.class, "metadataExecutions")).hasSize(1);
-        verify(dataUtils, never()).awaitWikipediaAvailable(any());
         reset(commands);
         when(commands.executeAndWait(any(FindAuthorMetadataCommand.class))).thenReturn(MetadataItemResult.NOT_FOUND);
         runAuthors(true);

@@ -32,7 +32,7 @@ class AuthorRetryTest {
         ReflectionTestUtils.setField(useCase, "executions", executions);
         when(authors.findMetadataIds(anyList())).thenReturn(List.of("pending"));
         when(executions.pending(anyString(), anyList())).thenReturn(List.of("pending"));
-        when(authors.findAllById(anyList())).thenReturn(List.of(AuthorMongoEntity.builder().id("pending").name("Author").build()));
+        when(authors.findMetadataBatch(anyList())).thenReturn(List.of(AuthorMongoEntity.builder().id("pending").name("Author").build()));
         when(bus.executeAndWait(any(FindAuthorMetadataCommand.class))).thenReturn(MetadataItemResult.ERROR);
         useCase.start(false, "es", run);
         verify(bus, times(1)).executeAndWait(any(FindAuthorMetadataCommand.class));

@@ -98,7 +98,7 @@ public class StartFillAuthorsMetadataUseCaseImpl implements StartFillAuthorsMeta
 				}
 
 				progress.stage("Leyendo lote de autores para obtener metadatos");
-				List<AuthorMongoEntity> authors = authorRepository.findAllById(
+				List<AuthorMongoEntity> authors = authorRepository.findMetadataBatch(
 						pending.subList(page * size, Math.min((page + 1) * size, pending.size())));
 
 				if (!CollectionUtils.isEmpty(authors)) {

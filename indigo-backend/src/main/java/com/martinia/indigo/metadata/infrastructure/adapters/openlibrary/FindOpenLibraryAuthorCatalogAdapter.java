@@ -13,6 +13,14 @@ public class FindOpenLibraryAuthorCatalogAdapter implements FindOpenLibraryAutho
 	private FindOpenLibraryAuthorCatalogUseCase useCase;
 
 	@Override
+	public boolean isAvailable() { return useCase.isAvailable(); }
+
+	@Override
+	public String[] findAuthor(String name, boolean descriptionNeeded) {
+		return useCase.findAuthor(name, descriptionNeeded);
+	}
+
+	@Override
 	public String[] findAuthor(final String name) {
 		return useCase.findAuthor(name);
 	}

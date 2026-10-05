@@ -85,4 +85,22 @@ class FindOpenLibraryAuthorCatalogUseCaseImplTest {
                         assertThat(failure.getPartialMetadata()).containsExactly(null,
                                 "https://covers.openlibrary.org/a/olid/OL1A-L.jpg?default=false", "OPEN_LIBRARY"));
     }
+
+    @Test void photoOnlyLookupNeverTranslatesAnUnusedBiography() {
+        activeIndex();
+        when(authorRepository.findTop2ByIndexVersionAndNames("active", "author")).thenReturn(List.of(
+                OpenLibraryAuthorMongoEntity.builder().authorId("OL1A").biography("Biography").hasPhoto(true).build()));
+        assertThat(useCase.findAuthor("Author", false)).containsExactly(null,
+                "https://covers.openlibrary.org/a/olid/OL1A-L.jpg?default=false", "OPEN_LIBRARY");
+        verifyNoInteractions(spanishTranslation);
+    }
+
+    @Test void onlyMatchingActiveAuthorVersionCountsAsAvailable() {
+        assertThat(useCase.isAvailable()).isFalse();
+        when(jobRepository.findById(OpenLibraryIndexManager.JOB_ID)).thenReturn(Optional.of(
+                OpenLibraryIndexJobMongoEntity.builder().activeVersion("new").authorsVersion("old").build()));
+        assertThat(useCase.isAvailable()).isFalse();
+        activeIndex();
+        assertThat(useCase.isAvailable()).isTrue();
+    }
 }

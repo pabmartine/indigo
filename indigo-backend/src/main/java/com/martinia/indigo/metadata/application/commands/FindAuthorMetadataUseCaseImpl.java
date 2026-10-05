@@ -36,9 +36,6 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 	private ImageUtils imageUtils;
 
 	@Resource
-	private com.martinia.indigo.common.util.DataUtils dataUtils;
-
-	@Resource
 	private com.martinia.indigo.common.singletons.MetadataSingleton metadataSingleton;
 
 	@Override
@@ -65,7 +62,7 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 
 			Lookup lookup = new Lookup(author, override, active);
 			findOpenLibraryAuthorCatalogPort.ifPresent(port -> lookup.obtain("OPEN_LIBRARY", "Catálogo local de autores",
-					() -> port.findAuthor(author.getName())));
+					() -> lookup.needsDescription() ? port.findAuthor(author.getName()) : port.findAuthor(author.getName(), false)));
 
 			java.util.Set<String> languages = new java.util.LinkedHashSet<>();
 			languages.add("es");
@@ -76,10 +73,25 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 				for (String language : languages) {
 					if (!lookup.missing()) break;
 					lookup.obtain("WIKIPEDIA", "Obtener autor (" + language + ")",
-							() -> obtainWikipediaWithRetry(port, author.getName(), language, lookup.needsDescription(), active));
+							() -> com.martinia.indigo.common.util.WikipediaHttpRequests.whileActive(active,
+									() -> lookup.needsDescription() ? port.findAuthor(author.getName(), language, 0)
+											: port.findAuthor(author.getName(), language, 0, false)));
 				}
 			});
-			if (lookup.missing()) findOpenLibraryAuthorPort.ifPresent(port -> lookup.obtain("OPEN_LIBRARY", "Obtener autor",
+			// An active author dump is the Open Library source, including negative matches.
+			// A readiness failure must not silently enable remote queries.
+			boolean catalogAvailable = true;
+			if (lookup.missing()) {
+				try {
+					catalogAvailable = findOpenLibraryAuthorCatalogPort.map(FindOpenLibraryAuthorCatalogPort::isAvailable).orElse(false);
+				} catch (RuntimeException exception) {
+					com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
+					lookup.failed = true;
+					log.warn("Could not determine author catalog availability", exception);
+					com.martinia.indigo.metadata.application.ProviderDiagnostics.record("OPEN_LIBRARY", "Estado del catálogo local", exception);
+				}
+			}
+			if (lookup.missing() && !catalogAvailable) findOpenLibraryAuthorPort.ifPresent(port -> lookup.obtain("OPEN_LIBRARY", "Obtener autor",
 					() -> port.findAuthor(author.getName())));
 
 			ensureActive(active);
@@ -102,34 +114,6 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 
 	private void ensureActive(java.util.function.BooleanSupplier active) {
 		if (!active.getAsBoolean()) throw new java.util.concurrent.CancellationException("Author metadata cancelled");
-	}
-
-	private String[] obtainWikipediaWithRetry(FindWikipediaAuthorPort port, String name, String language, boolean descriptionNeeded,
-			java.util.function.BooleanSupplier active) {
-		while (active.getAsBoolean()) {
-			try {
-				return descriptionNeeded ? port.findAuthor(name, language, 0) : port.findAuthor(name, language, 0, false);
-			}
-			catch (RuntimeException exception) {
-				com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
-				java.util.Set<Throwable> visited = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
-				java.time.Instant retryAt = null;
-				for (Throwable cause = exception; cause != null && visited.add(cause); cause = cause.getCause()) {
-					if (cause instanceof com.martinia.indigo.metadata.application.reviews.ReviewPageGuard.AccessRestrictedException restricted
-							&& restricted.retryAt() != null) {
-						retryAt = restricted.retryAt();
-						break;
-					}
-				}
-				if (retryAt == null) throw exception;
-				log.info("Wikipedia paused until {}; retaining author {} and retrying language {} after the pause",
-						retryAt, name, language);
-				com.martinia.indigo.metadata.application.ProviderDiagnostics.event("WIKIPEDIA", "Obtener autor (" + language + ")",
-						"WAITING", "Wikipedia en pausa hasta " + retryAt + "; se reintentará este mismo autor");
-				if (!dataUtils.awaitWikipediaAvailable(active)) break;
-			}
-		}
-		throw new java.util.concurrent.CancellationException("Author metadata stopped while waiting for Wikipedia");
 	}
 
 	private final class Lookup {

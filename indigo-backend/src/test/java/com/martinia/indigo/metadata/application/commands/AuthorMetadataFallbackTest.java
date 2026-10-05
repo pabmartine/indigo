@@ -24,11 +24,10 @@ import static org.mockito.Mockito.*;
 class AuthorMetadataFallbackTest {
 
 	private final AuthorRepository repository = mock(AuthorRepository.class);
-	private final FindOpenLibraryAuthorCatalogPort catalog = mock(FindOpenLibraryAuthorCatalogPort.class);
+	private final FindOpenLibraryAuthorCatalogPort catalog = mock(FindOpenLibraryAuthorCatalogPort.class, org.mockito.Mockito.CALLS_REAL_METHODS);
 	private final FindWikipediaAuthorPort wikipedia = mock(FindWikipediaAuthorPort.class, org.mockito.Mockito.CALLS_REAL_METHODS);
 	private final FindOpenLibraryAuthorPort openLibrary = mock(FindOpenLibraryAuthorPort.class);
 	private final ImageUtils images = mock(ImageUtils.class);
-	private final com.martinia.indigo.common.util.DataUtils data = mock(com.martinia.indigo.common.util.DataUtils.class);
 	private final FindAuthorMetadataUseCaseImpl useCase = new FindAuthorMetadataUseCaseImpl();
 	private final AuthorMongoEntity author = AuthorMongoEntity.builder().id("author").name("Author").build();
 
@@ -39,7 +38,6 @@ class AuthorMetadataFallbackTest {
 		ReflectionTestUtils.setField(useCase, "findWikipediaAuthorPort", Optional.of(wikipedia));
 		ReflectionTestUtils.setField(useCase, "findOpenLibraryAuthorPort", Optional.of(openLibrary));
 		ReflectionTestUtils.setField(useCase, "imageUtils", images);
-		ReflectionTestUtils.setField(useCase, "dataUtils", data);
 		when(repository.findById("author")).thenReturn(Optional.of(author));
 		when(images.getBase64AuthorUrl(anyString())).thenAnswer(invocation -> "base64:" + invocation.getArgument(0));
 	}
@@ -249,26 +247,33 @@ class AuthorMetadataFallbackTest {
 		verify(repository, never()).save(any());
 	}
 	@Test
-	void pausedWikipediaWaitsAndRetriesTheSameAuthorWithoutRecordingAnError() {
-		when(wikipedia.findAuthor("Author", "es", 0)).thenThrow(new IllegalStateException(
-				new com.martinia.indigo.metadata.application.reviews.ReviewPageGuard.AccessRestrictedException(
-						"Paused", java.time.Instant.now().plusSeconds(60))))
-				.thenReturn(new String[]{"Biografía", "photo", "WIKIPEDIA"});
-		when(data.awaitWikipediaAvailable(any())).thenReturn(true);
-		com.martinia.indigo.metadata.application.ProviderDiagnostics.begin();
-		try {
-			assertThat(useCase.find("author", false, 0, "en")).isEqualTo(MetadataItemResult.FOUND);
-			assertThat(author.getDescription()).isEqualTo("Biografía");
-			assertThat(author.getLastMetadataSync()).isNotNull();
-			verify(wikipedia, times(2)).findAuthor("Author", "es", 0);
-			verify(wikipedia, never()).findAuthor("Author", "en", 0);
-			verifyNoInteractions(openLibrary);
-			verify(data).awaitWikipediaAvailable(any());
-			assertThat(com.martinia.indigo.metadata.application.ProviderDiagnostics.events())
-					.anySatisfy(event -> assertThat(event.getString("status")).isEqualTo("WAITING"));
-		} finally {
-			assertThat(com.martinia.indigo.metadata.application.ProviderDiagnostics.finish()).isEmpty();
-		}
+	void exhaustedWikipediaRetriesLeaveAuthorPendingInsteadOfRetryingTheWholeLookup() {
+		when(wikipedia.findAuthor("Author", "es", 0)).thenThrow(new IllegalStateException("Retries exhausted"));
+		assertThat(useCase.find("author", false, 0, "en")).isEqualTo(MetadataItemResult.ERROR);
+		verify(wikipedia, times(1)).findAuthor("Author", "es", 0);
+		verify(wikipedia).findAuthor("Author", "en", 0);
+		assertThat(author.getLastMetadataSync()).isNull();
+		verify(repository, never()).save(any());
+	}
+
+	@Test
+	void activeLocalCatalogSuppressesRemoteOpenLibraryEvenWhenNoAuthorMatches() {
+		when(catalog.isAvailable()).thenReturn(true);
+		assertThat(useCase.find("author", false, 0, "en")).isEqualTo(MetadataItemResult.NOT_FOUND);
+		verify(wikipedia).findAuthor("Author", "es", 0);
+		verify(wikipedia).findAuthor("Author", "en", 0);
+		verifyNoInteractions(openLibrary);
+	}
+
+	@Test
+	void activeLocalCatalogSuppressesRemoteOpenLibraryOnPartialDataAndTranslationFailure() {
+		when(catalog.isAvailable()).thenReturn(true);
+		when(catalog.findAuthor("Author")).thenThrow(new AuthorCatalogTranslationException("Failed", "photo", null));
+		assertThat(useCase.find("author", false, 0, "en")).isEqualTo(MetadataItemResult.ERROR);
+		assertThat(author.getImage()).isEqualTo("base64:photo");
+		assertThat(author.getLastMetadataSync()).isNull();
+		verifyNoInteractions(openLibrary);
+		verify(repository).save(author);
 	}
 
 	@Test
@@ -300,40 +305,12 @@ class AuthorMetadataFallbackTest {
 	}
 
 	@Test
-	void cancellingWikipediaWaitDoesNotInspectTheAuthorOrTryOtherProviders() {
-		when(wikipedia.findAuthor("Author", "es", 0)).thenThrow(new IllegalStateException(
-				new com.martinia.indigo.metadata.application.reviews.ReviewPageGuard.AccessRestrictedException(
-						"Paused", java.time.Instant.now().plusSeconds(60))));
-		when(data.awaitWikipediaAvailable(any())).thenReturn(false);
+	void cancellingWikipediaRequestDoesNotInspectAuthorOrTryOtherProviders() {
+		when(wikipedia.findAuthor("Author", "es", 0)).thenThrow(new java.util.concurrent.CancellationException());
 		org.assertj.core.api.Assertions.assertThatThrownBy(() -> useCase.find("author", false, 0, "en"))
 				.isInstanceOf(java.util.concurrent.CancellationException.class);
-		verify(wikipedia).findAuthor("Author", "es", 0);
 		verify(wikipedia, never()).findAuthor("Author", "en", 0);
 		verifyNoInteractions(openLibrary);
 		verify(repository, never()).save(any());
-		assertThat(author.getLastMetadataSync()).isNull();
 	}
-
-	@Test
-	void repeatedPausesKeepTheSameAuthorAndCancellationOfTheRunStopsRetrying() {
-		var singleton = mock(com.martinia.indigo.common.singletons.MetadataSingleton.class);
-		ReflectionTestUtils.setField(useCase, "metadataSingleton", singleton);
-		when(singleton.isRunning()).thenReturn(true);
-		when(singleton.getRunId()).thenReturn(17L);
-		when(singleton.isActive(17L)).thenReturn(true);
-		when(wikipedia.findAuthor("Author", "es", 0)).thenThrow(new IllegalStateException(
-				new com.martinia.indigo.metadata.application.reviews.ReviewPageGuard.AccessRestrictedException(
-						"Paused", java.time.Instant.now().plusSeconds(60))));
-		when(data.awaitWikipediaAvailable(any())).thenReturn(true).thenAnswer(invocation -> {
-			when(singleton.isActive(17L)).thenReturn(false);
-			return ((java.util.function.BooleanSupplier) invocation.getArgument(0)).getAsBoolean();
-		});
-		org.assertj.core.api.Assertions.assertThatThrownBy(() -> useCase.find("author", false, 0, "en", 17L))
-				.isInstanceOf(java.util.concurrent.CancellationException.class);
-		verify(wikipedia, times(2)).findAuthor("Author", "es", 0);
-		verify(data, times(2)).awaitWikipediaAvailable(any());
-		verifyNoInteractions(openLibrary);
-		verify(repository, never()).save(any());
-	}
-
 }

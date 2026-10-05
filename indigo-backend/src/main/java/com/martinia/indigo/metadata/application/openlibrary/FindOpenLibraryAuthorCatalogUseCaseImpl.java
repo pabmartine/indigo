@@ -24,7 +24,16 @@ public class FindOpenLibraryAuthorCatalogUseCaseImpl implements FindOpenLibraryA
 	private String authorImageEndpoint;
 
 	@Override
-	public String[] findAuthor(final String name) {
+	public boolean isAvailable() {
+		var job = jobRepository.findById(OpenLibraryIndexManager.JOB_ID).orElse(null);
+		return job != null && job.getActiveVersion() != null && job.getActiveVersion().equals(job.getAuthorsVersion());
+	}
+
+	@Override
+	public String[] findAuthor(final String name) { return findAuthor(name, true); }
+
+	@Override
+	public String[] findAuthor(final String name, boolean descriptionNeeded) {
 		if (StringUtils.isBlank(name)) return null;
 		var job = jobRepository.findById(OpenLibraryIndexManager.JOB_ID).orElse(null);
 		if (job == null || job.getActiveVersion() == null || !job.getActiveVersion().equals(job.getAuthorsVersion())) return null;
@@ -33,7 +42,7 @@ public class FindOpenLibraryAuthorCatalogUseCaseImpl implements FindOpenLibraryA
 		var author = matches.get(0);
 		String image = author.isHasPhoto() ? authorImageEndpoint.replace("$id", author.getAuthorId()) : null;
 		String translated = null;
-		if (StringUtils.isNotBlank(author.getBiography())) {
+		if (descriptionNeeded && StringUtils.isNotBlank(author.getBiography())) {
 			try {
 				translated = spanishTranslation.translate(author.getBiography());
 			}

@@ -43,10 +43,16 @@ public class DataUtils {
     @Value("${metadata.http.rate-limit.max-delay-seconds:900}")
     private long maxDelaySeconds = 900;
 
+    @jakarta.annotation.Resource
+    private WikipediaHttpRequests wikipediaRequests = new WikipediaHttpRequests();
+
     public String getData(String _url) {
         if (Thread.currentThread().isInterrupted()) throw new java.util.concurrent.CancellationException("Metadata request cancelled");
         try {
             URL url = new URL(_url);
+            if (providerKey(url.getHost()).equals("wikipedia.org")) {
+                return wikipediaRequests.getData(url, wikipediaMinimumIntervalMillis);
+            }
             ProviderState state = providerStates.computeIfAbsent(providerKey(url.getHost()), ignored -> new ProviderState());
 
             synchronized (state) {
@@ -63,10 +69,6 @@ public class DataUtils {
                     if (connection instanceof java.net.HttpURLConnection http) {
                         int status = http.getResponseCode();
                         if (status == 429) {
-                            if (providerKey(url.getHost()).equals("wikipedia.org")) {
-                                state.wikipediaIntervalMillis = Math.max(wikipediaMinimumIntervalMillis, state.wikipediaIntervalMillis) + 1000;
-                                log.info("Wikipedia request interval increased to {} ms after HTTP 429", state.wikipediaIntervalMillis);
-                            }
                             state.lastRateLimit = Instant.now();
                             long delay = Math.min(Math.max(1, maxDelaySeconds), Math.max(1, initialDelaySeconds)
                                     * (1L << Math.min(state.rateLimitFailures++, 20)));
@@ -129,34 +131,6 @@ public class DataUtils {
         }
     }
 
-    public boolean isWikipediaPaused() {
-        ProviderState state = providerStates.get("wikipedia.org");
-        if (state == null) return false;
-        synchronized (state) { return state.blockedUntil != null && Instant.now().isBefore(state.blockedUntil); }
-    }
-
-    public boolean awaitWikipediaAvailable(java.util.function.BooleanSupplier active) {
-        Instant announced = null;
-        while (active.getAsBoolean()) {
-            ProviderState state = providerStates.get("wikipedia.org");
-            Instant until = null;
-            if (state != null) {
-                synchronized (state) { until = state.blockedUntil; }
-            }
-            if (until == null || !Instant.now().isBefore(until)) return true;
-            if (!until.equals(announced)) {
-                log.info("Waiting for Wikipedia until {}", until.atZone(java.time.ZoneId.systemDefault()));
-                announced = until;
-            }
-            try { Thread.sleep(Math.min(1000, Math.max(1, Duration.between(Instant.now(), until).toMillis()))); }
-            catch (InterruptedException error) {
-                Thread.currentThread().interrupt();
-                return false;
-            }
-        }
-        return false;
-    }
-
     private void ensureCircuitIsClosed(final String host, final ProviderState state) {
         if (state.blockedUntil == null) {
             return;
@@ -177,8 +151,7 @@ public class DataUtils {
             return;
         }
         long elapsed = Duration.between(state.lastRequest, Instant.now()).toMillis();
-        long interval = host.contains("wikipedia.org")
-                ? Math.max(wikipediaMinimumIntervalMillis, state.wikipediaIntervalMillis) : minimumIntervalFor(host);
+        long interval = minimumIntervalFor(host);
         long waitMillis = interval - elapsed;
         if (waitMillis <= 0) {
             return;
@@ -220,7 +193,6 @@ public class DataUtils {
         private int failures;
         private int rateLimitFailures;
         private Instant lastRateLimit;
-        private long wikipediaIntervalMillis;
         private Instant blockedUntil;
         private Exception pauseCause;
     }

@@ -1,4 +1,5 @@
-import { of } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
+import { fakeAsync, tick } from '@angular/core/testing';
 import { SettingsComponent } from './settings.component';
 
 describe('Settings metadata processes', () => {
@@ -86,5 +87,59 @@ describe('Settings metadata processes', () => {
     component.libraryIndex = { status: 'COMPLETED', matchedAuthors: 12 };
     expect(component.indexRunning).toBeFalse();
     expect(component.indexStatusText).toBe('Completado');
+  });
+
+  it('prevents duplicate start requests until the response arrives', () => {
+    const response = new Subject<any>();
+    service.start.and.returnValue(response);
+    component.doExecuteMetadata('FULL', 'AUTHORS');
+    component.doExecuteMetadata('PARTIAL', 'AUTHORS');
+    expect(service.start).toHaveBeenCalledTimes(1);
+    expect(component.metadataActionBusy.AUTHORS).toBeTrue();
+    response.next({});
+    response.complete();
+    expect(component.metadataActionBusy.AUTHORS).toBeFalse();
+  });
+
+  it('refreshes activity with OnPush and releases the loading state', () => {
+    service.activity = jasmine.createSpy().and.returnValue(of([{label: 'Autor'}]));
+    service.history = jasmine.createSpy().and.returnValue(of([]));
+    const refresh = spyOn((component as any).cdr, 'markForCheck');
+    component.loadActivity();
+    expect(component.metadataItems[0].label).toBe('Autor');
+    expect(component.activityBusy).toBeFalse();
+    expect(refresh).toHaveBeenCalled();
+  });
+
+  it('rejects invalid review intervals before sending a request', () => {
+    component.reviewQueueLoaded = true;
+    service.configureReviewQueue = jasmine.createSpy();
+    for (const value of [null, 0, 14, 3601, 30.5]) {
+      component.reviewAmazonSeconds = value;
+      expect(component.validReviewIntervals).toBeFalse();
+      component.reviewQueueAction('settings');
+    }
+    expect(service.configureReviewQueue).not.toHaveBeenCalled();
+    component.reviewAmazonSeconds = 15;
+    component.reviewGoodreadsSeconds = 3600;
+    expect(component.validReviewIntervals).toBeTrue();
+  });
+
+  it('continues polling after a temporary status failure', fakeAsync(() => {
+    spyOnProperty(document, 'hidden', 'get').and.returnValue(false);
+    service.getDataStatus = jasmine.createSpy().and.returnValues(throwError(() => new Error('Offline')), of({status: false, runs: {}}));
+    (component as any).startStatusPolling();
+    tick(1000);
+    expect(service.getDataStatus).toHaveBeenCalledTimes(2);
+    component.ngOnDestroy();
+  }));
+
+  it('distinguishes preparation from a stopped run and shows fractional progress', () => {
+    component.metadataRuns['PARTIAL:AUTHORS'] = {status: true, current: 0, total: 0};
+    expect(component.getMetadataStatusLabel('PARTIAL', 'AUTHORS')).toBe('Preparando');
+    expect(component.getMetadataCounter('PARTIAL', 'AUTHORS')).toContain('Preparando');
+    component.metadataRuns['PARTIAL:AUTHORS'] = {status: false, current: 25, total: 40133};
+    expect(component.getMetadataStatusLabel('PARTIAL', 'AUTHORS')).toBe('Detenido');
+    expect(component.getMetadataProgress('PARTIAL', 'AUTHORS')).toBe(0.1);
   });
 });

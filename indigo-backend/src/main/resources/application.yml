@@ -131,8 +131,14 @@ metadata:
     openlibrary-minimum-interval-millis: ${METADATA_HTTP_OPENLIBRARY_MINIMUM_INTERVAL_MILLIS:500}
     # Intervalo mínimo entre llamadas a la API de Wikipedia (ms).
     wikipedia-minimum-interval-millis: ${METADATA_HTTP_WIKIPEDIA_MINIMUM_INTERVAL_MILLIS:1000}
+    wikipedia-retry:
+      # Intentos por petición HTTP, incluido el inicial. Las esperas no se acumulan entre autores.
+      attempts: ${METADATA_HTTP_WIKIPEDIA_RETRY_ATTEMPTS:3}
+      initial-delay-millis: ${METADATA_HTTP_WIKIPEDIA_RETRY_INITIAL_DELAY_MILLIS:1000}
+      # Una espera Retry-After superior deja el autor pendiente para otra ejecución.
+      max-wait-millis: ${METADATA_HTTP_WIKIPEDIA_RETRY_MAX_WAIT_MILLIS:10000}
     circuit-breaker:
-      # Número de fallos consecutivos antes de abrir el circuito y pausar peticiones al proveedor.
+      # Resto de proveedores HTTP: Wikipedia utiliza sus reintentos acotados.
       failures: ${METADATA_HTTP_CIRCUIT_BREAKER_FAILURES:3}
       # Minutos de espera con el circuito abierto antes de volver a intentar conectar con el servicio.
       cooldown-minutes: ${METADATA_HTTP_CIRCUIT_BREAKER_COOLDOWN_MINUTES:15}

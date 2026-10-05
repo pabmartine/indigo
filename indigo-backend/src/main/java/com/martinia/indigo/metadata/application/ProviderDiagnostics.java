@@ -65,6 +65,9 @@ public final class ProviderDiagnostics {
             case "INVALID_RESPONSE" -> "La respuesta no tiene el formato esperado. Puede haber cambiado el proveedor.";
             default -> "No se pudo completar la operación. Consulta el log para el detalle técnico.";
         };
+        if ("PAUSED".equals(code) && "WIKIPEDIA".equals(provider)) {
+            message = "Wikipedia ha solicitado esperar antes de volver a consultar. Los campos pendientes se reintentarán en otra ejecución.";
+        }
         Document detail = new Document("provider", provider).append("operation", operation).append("code", code)
                 .append("message", message).append("httpStatus", status).append("retryAt", retryAt == null ? null : Date.from(retryAt));
         var items = CURRENT.get();

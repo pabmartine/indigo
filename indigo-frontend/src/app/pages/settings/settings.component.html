@@ -2,22 +2,216 @@
 
 <div class="search settings">
   <p-card>
-    <div class="content-header p-grid">
-      <div class="p-col-12">
-                <span class="page-title">
-                    {{'locale.settings.title' | translate}}
-                </span>
-        <p><a routerLink="/settings/metadata-history">Ver historial detallado de metadatos</a></p>
+    <div class="content-header settings-heading">
+      <div>
+        <h1 class="page-title">{{'locale.settings.title' | translate}}</h1>
+        <p class="settings-hint">Gestiona la biblioteca, sus procesos y la configuración de la aplicación.</p>
       </div>
+      <a pButton class="p-button-outlined" icon="pi pi-history" label="Historial de metadatos" routerLink="/settings/metadata-history"></a>
     </div>
 
     <div class="content-body">
       <div class="p-col">
-        <p-panel header="Importaciones pendientes" [toggleable]="true" [collapsed]="true">
+        <p-panel header="{{'locale.settings.panel.metadata.title' | translate}}" [toggleable]="true" [collapsed]="false">
+          <p class="settings-hint">Cada sección avanza de forma independiente. Al iniciar de nuevo, se retoman los elementos pendientes del recorrido.</p>
+          <div class="metadata-task-card">
+            <div class="metadata-task-top"><div class="metadata-task-title">Índice local de Open Library</div>
+            <span class="metadata-task-status" [class.is-running]="indexRunning">{{ indexStatusText }}</span></div>
+            <p>Descarga los volcados de ediciones, valoraciones y autores de Open Library. Puede ocupar varios GB.
+              Con el índice de autores disponible, se utiliza el catálogo local sin repetir consultas a la API de Open Library. Reconstrúyelo después de añadir autores nuevos.</p>
+            <div class="settings-actions">
+            <button pButton type="button" class="p-button-text" icon="pi pi-refresh" label="Actualizar estado" (click)="indexAction('status')" [disabled]="indexBusy"></button>
+            <button pButton type="button" class="p-button-outlined" icon="pi pi-download" label="Reconstruir índice" (click)="indexAction('start')" [disabled]="indexBusy || indexRunning"></button>
+            <button pButton type="button" *ngIf="['FAILED', 'CANCELLED'].includes(libraryIndex?.status)" label="Reanudar" (click)="indexAction('resume')" [disabled]="indexBusy || !['FAILED', 'CANCELLED'].includes(libraryIndex?.status)"></button>
+            <button pButton type="button" *ngIf="indexRunning" class="p-button-outlined" label="Cancelar" (click)="indexAction('cancel')" [disabled]="indexBusy || !indexRunning"></button>
+            </div>
+            <div *ngIf="libraryIndex" class="index-details" role="status" aria-live="polite">
+              <p><i *ngIf="indexRunning" class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+                Estado: {{ indexStatusText }}<span *ngIf="libraryIndex.cancelRequested"> · Cancelación solicitada</span></p>
+              <p *ngIf="libraryIndex.detail">{{ libraryIndex.detail }}</p>
+              <p *ngIf="indexProcessing">Registros leídos en esta fase: {{ (libraryIndex.processedRecords || 0) | number:'1.0-0' }}.
+                El contador se actualiza durante el procesamiento.</p>
+              <p *ngIf="indexDownloading">Descargado en total: {{ (libraryIndex.downloadedBytes || 0) / 1048576 | number:'1.1-1' }} MiB<span
+                *ngIf="libraryIndex.totalBytes > 0"> de {{ libraryIndex.totalBytes / 1048576 | number:'1.1-1' }} MiB</span>.</p>
+              <p *ngIf="indexRunning && libraryIndex.status !== 'ACTIVATING'">Los autores se indexan después de las ediciones y las valoraciones.</p>
+              <p *ngIf="libraryIndex.matchedIsbns > 0 || libraryIndex.status === 'COMPLETED'">ISBN encontrados: {{ (libraryIndex.matchedIsbns || 0) | number:'1.0-0' }} ·
+                Obras con valoraciones: {{ (libraryIndex.worksWithRatings || 0) | number:'1.0-0' }}</p>
+              <p *ngIf="libraryIndex.matchedAuthors > 0 || libraryIndex.status === 'COMPLETED'">Autores indexados: {{ (libraryIndex.matchedAuthors || 0) | number:'1.0-0' }}</p>
+              <p *ngIf="libraryIndex.updatedAt">Última actualización del proceso: {{ libraryIndex.updatedAt | date:'dd/MM/yyyy HH:mm:ss' }}</p>
+            </div>
+            <p class="error" role="alert" *ngIf="libraryIndex?.error">{{ libraryIndex.error }}</p>
+          </div>
+          <div class="metadata-overview">
+            <section class="metadata-section books-theme">
+              <header class="metadata-section-header">
+                <div class="metadata-section-title-wrap">
+                  <span class="metadata-section-icon pi pi-book"></span>
+                  <div>
+                    <div class="metadata-section-title">Libros</div>
+                  </div>
+                </div>
+                <div class="metadata-section-total">{{ booksTotal | number }} libros</div>
+              </header>
+              <div class="metadata-task-grid">
+                <article class="metadata-task-card">
+                  <div class="metadata-task-top">
+                    <div>
+                      <div class="metadata-task-title">Todos los libros</div>
+                      <div class="metadata-task-description">Actualizar metadatos de toda la biblioteca</div>
+                    </div>
+                    <div class="metadata-task-actions">
+                      <span class="metadata-task-status" [class.is-running]="isBooksFull()">{{ getMetadataStatusLabel('FULL', 'BOOKS') }}</span>
+                      <button type="button" (click)="doExecuteMetadata('FULL', 'BOOKS')" class="metadata-action-button"
+                              [disabled]="metadataActionBusy['BOOKS']" [attr.aria-label]="isBooksFull() ? 'Detener actualización de libros' : 'Iniciar actualización de libros'"
+                              [title]="isBooksFull() ? 'Detener' : 'Iniciar'">
+                        <span class="pi" [ngClass]="{ 'pi-stop': isBooksFull(), 'pi-play': !isBooksFull() }" aria-hidden="true"></span>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="metadata-task-counter">{{ getMetadataCounter('FULL', 'BOOKS') }}</div>
+                  <div class="metadata-task-progress-row">
+                    <p-progressBar [value]="getMetadataProgress('FULL', 'BOOKS')"></p-progressBar>
+                    <span class="metadata-task-percent">{{ getMetadataProgress('FULL', 'BOOKS') }}%</span>
+                  </div>
+                  <div class="metadata-task-footer">{{ getMetadataResult('FULL', 'BOOKS') }}</div>
+                  <div class="metadata-task-footer"><a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS'}">Ver consultas de libros</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS', status: 'ERROR'}">Ver errores</a></div>
+                  <div class="metadata-task-footer">Última ejecución: {{ getMetadataLastExecution('FULL', 'BOOKS') }}</div>
+                </article>
+
+                <article class="metadata-task-card">
+                  <div class="metadata-task-top">
+                    <div>
+                      <div class="metadata-task-title">Sin metadatos</div>
+                      <div class="metadata-task-description">Solo libros que carecen de información</div>
+                    </div>
+                    <div class="metadata-task-actions">
+                      <span class="metadata-task-status" [class.is-running]="isBooksPartial()">{{ getMetadataStatusLabel('PARTIAL', 'BOOKS') }}</span>
+                      <button type="button" (click)="doExecuteMetadata('PARTIAL', 'BOOKS')" class="metadata-action-button"
+                              [disabled]="metadataActionBusy['BOOKS']" [attr.aria-label]="isBooksPartial() ? 'Detener actualización de libros' : 'Iniciar actualización de libros'"
+                              [title]="isBooksPartial() ? 'Detener' : 'Iniciar'">
+                        <span class="pi" [ngClass]="{ 'pi-stop': isBooksPartial(), 'pi-play': !isBooksPartial() }" aria-hidden="true"></span>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="metadata-task-counter">{{ getMetadataCounter('PARTIAL', 'BOOKS') }}</div>
+                  <div class="metadata-task-progress-row">
+                    <p-progressBar [value]="getMetadataProgress('PARTIAL', 'BOOKS')"></p-progressBar>
+                    <span class="metadata-task-percent">{{ getMetadataProgress('PARTIAL', 'BOOKS') }}%</span>
+                  </div>
+                  <div class="metadata-task-footer">{{ getMetadataResult('PARTIAL', 'BOOKS') }}</div>
+                  <div class="metadata-task-footer"><a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS'}">Ver consultas de libros</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS', status: 'ERROR'}">Ver errores</a></div>
+                  <div class="metadata-task-footer">Última ejecución: {{ getMetadataLastExecution('PARTIAL', 'BOOKS') }}</div>
+                </article>
+              </div>
+            </section>
+
+            <section class="metadata-section authors-theme">
+              <header class="metadata-section-header">
+                <div class="metadata-section-title-wrap">
+                  <span class="metadata-section-icon pi pi-user-edit"></span>
+                  <div>
+                    <div class="metadata-section-title">Autores</div>
+                  </div>
+                </div>
+                <div class="metadata-section-total">{{ authorsTotal | number }} autores</div>
+              </header>
+              <div class="metadata-task-grid">
+                <article class="metadata-task-card">
+                  <div class="metadata-task-top">
+                    <div>
+                      <div class="metadata-task-title">Todos los autores</div>
+                      <div class="metadata-task-description">Actualizar descripción y foto, empezando por el catálogo local</div>
+                    </div>
+                    <div class="metadata-task-actions">
+                      <span class="metadata-task-status" [class.is-running]="isAuthorsFull()">{{ getMetadataStatusLabel('FULL', 'AUTHORS') }}</span>
+                      <button type="button" (click)="doExecuteMetadata('FULL', 'AUTHORS')" class="metadata-action-button"
+                              [disabled]="metadataActionBusy['AUTHORS']" [attr.aria-label]="isAuthorsFull() ? 'Detener actualización de autores' : 'Iniciar actualización de autores'"
+                              [title]="isAuthorsFull() ? 'Detener' : 'Iniciar'">
+                        <span class="pi" [ngClass]="{ 'pi-stop': isAuthorsFull(), 'pi-play': !isAuthorsFull() }" aria-hidden="true"></span>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="metadata-task-counter">{{ getMetadataCounter('FULL', 'AUTHORS') }}</div>
+                  <div class="metadata-task-progress-row">
+                    <p-progressBar [value]="getMetadataProgress('FULL', 'AUTHORS')"></p-progressBar>
+                    <span class="metadata-task-percent">{{ getMetadataProgress('FULL', 'AUTHORS') }}%</span>
+                  </div>
+                  <div class="metadata-task-footer">{{ getMetadataResult('FULL', 'AUTHORS') }}</div>
+                  <div class="metadata-task-footer"><a routerLink="/settings/metadata-history" [queryParams]="{type: 'AUTHORS'}">Ver consultas de autores</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'AUTHORS', status: 'ERROR'}">Ver errores</a></div>
+                  <div class="metadata-task-footer">Última ejecución: {{ getMetadataLastExecution('FULL', 'AUTHORS') }}</div>
+                </article>
+
+                <article class="metadata-task-card">
+                  <div class="metadata-task-top">
+                    <div>
+                      <div class="metadata-task-title">Sin metadatos</div>
+                      <div class="metadata-task-description">Completar la descripción o la foto que falta</div>
+                    </div>
+                    <div class="metadata-task-actions">
+                      <span class="metadata-task-status" [class.is-running]="isAuthorsPartial()">{{ getMetadataStatusLabel('PARTIAL', 'AUTHORS') }}</span>
+                      <button type="button" (click)="doExecuteMetadata('PARTIAL', 'AUTHORS')" class="metadata-action-button"
+                              [disabled]="metadataActionBusy['AUTHORS']" [attr.aria-label]="isAuthorsPartial() ? 'Detener actualización de autores' : 'Iniciar actualización de autores'"
+                              [title]="isAuthorsPartial() ? 'Detener' : 'Iniciar'">
+                        <span class="pi" [ngClass]="{ 'pi-stop': isAuthorsPartial(), 'pi-play': !isAuthorsPartial() }" aria-hidden="true"></span>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="metadata-task-counter">{{ getMetadataCounter('PARTIAL', 'AUTHORS') }}</div>
+                  <div class="metadata-task-progress-row">
+                    <p-progressBar [value]="getMetadataProgress('PARTIAL', 'AUTHORS')"></p-progressBar>
+                    <span class="metadata-task-percent">{{ getMetadataProgress('PARTIAL', 'AUTHORS') }}%</span>
+                  </div>
+                  <div class="metadata-task-footer">{{ getMetadataResult('PARTIAL', 'AUTHORS') }}</div>
+                  <div class="metadata-task-footer"><a routerLink="/settings/metadata-history" [queryParams]="{type: 'AUTHORS'}">Ver consultas de autores</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'AUTHORS', status: 'ERROR'}">Ver errores</a></div>
+                  <div class="metadata-task-footer">Última ejecución: {{ getMetadataLastExecution('PARTIAL', 'AUTHORS') }}</div>
+                </article>
+              </div>
+            </section>
+
+            <section class="metadata-section reviews-theme">
+              <header class="metadata-section-header">
+                <div class="metadata-section-title-wrap">
+                  <span class="metadata-section-icon pi pi-comments"></span>
+                  <div>
+                    <div class="metadata-section-title">Opiniones</div>
+                  </div>
+                </div>
+                <div class="metadata-section-total">{{ reviewsTotal | number }} libros</div>
+              </header>
+              <div class="metadata-task-card review-task-card">
+              <p>Estado: {{reviewQueueState}} · {{reviewQueue.all ? 'Todas las reseñas' : 'Reseñas faltantes'}}</p>
+              <p>{{reviewQueue.processed || 0}} / {{reviewQueue.total || 0}} libros procesados · {{reviewQueue.errors || 0}} intentos fallidos · {{reviewQueue.failedBooks || 0}} libros sin completar</p>
+              <p *ngIf="reviewQueue.inFlight">Hay un libro en curso. Una pausa o parada impide la siguiente petición; la petición ya enviada puede terminar.</p>
+              <p *ngIf="reviewQueue.nextAttempt">Próximo reintento: {{reviewQueue.nextAttempt | date:'short'}}</p>
+              <p *ngIf="reviewQueue.reason">{{reviewQueue.reason}}</p>
+              <p>Intervalo mínimo entre peticiones (segundos, de 15 a 3600). Los límites del proveedor tienen prioridad.</p>
+              <div class="settings-inline-fields">
+                <div class="p-field"><label for="review-amazon-seconds">Amazon</label>
+                  <input pInputText id="review-amazon-seconds" type="number" min="15" max="3600" [(ngModel)]="reviewAmazonSeconds"></div>
+                <div class="p-field"><label for="review-goodreads-seconds">Goodreads</label>
+                  <input pInputText id="review-goodreads-seconds" type="number" min="15" max="3600" [(ngModel)]="reviewGoodreadsSeconds"></div>
+                <button pButton class="p-button-outlined" label="Guardar intervalos" (click)="reviewQueueAction('settings')" [disabled]="reviewQueueBusy || !reviewQueueLoaded || !validReviewIntervals"></button>
+              </div>
+              <div class="settings-actions">
+                <button pButton class="p-button-outlined" label="Obtener todas" (click)="reviewQueueAction('all')" [disabled]="reviewQueueBusy || !reviewQueueLoaded"></button>
+                <button pButton label="Completar reseñas faltantes" (click)="reviewQueueAction('missing')" [disabled]="reviewQueueBusy || !reviewQueueLoaded || reviewQueueActive"></button>
+                <button pButton label="Pausar" *ngIf="reviewQueue.status === 'RUNNING'" (click)="reviewQueueAction('pause')" [disabled]="reviewQueueBusy"></button>
+                <button pButton label="Reanudar" *ngIf="reviewQueue.status === 'PAUSED'" (click)="reviewQueueAction('resume')" [disabled]="reviewQueueBusy"></button>
+                <button pButton label="Parar" *ngIf="reviewQueue.status === 'RUNNING' || reviewQueue.status === 'PAUSED'" (click)="reviewQueueAction('stop')" [disabled]="reviewQueueBusy"></button>
+              </div>
+              </div>
+            </section>
+          </div>
+        </p-panel>
+      </div>
+
+
+      <div class="p-col">
+        <p-panel header="Importaciones pendientes" [toggleable]="true" [collapsed]="true" (onBeforeToggle)="$event.collapsed && loadPendingImports()">
           <p>Reintenta las tareas incompletas sin reiniciar. Las tareas confirmadas no se repiten. Espera a que termine cualquier importación en curso.</p>
           <button pButton label="Actualizar" (click)="loadPendingImports()" [disabled]="importsBusy"></button>
           <p *ngIf="importsLoaded && !pendingImports.length">No hay importaciones pendientes.</p>
-          <p-table [value]="pendingImports" [paginator]="true" [rows]="10">
+          <p-table *ngIf="pendingImports.length" [value]="pendingImports" [paginator]="true" [rows]="10">
             <ng-template pTemplate="header"><tr><th>Archivo / fecha</th><th>Tareas pendientes</th><th>Acciones</th></tr></ng-template>
             <ng-template pTemplate="body" let-item><tr>
               <td>{{item.fileName}}<br>{{item.createdAt | date:'short'}}</td>
@@ -28,23 +222,25 @@
         </p-panel>
       </div>
       <div class="p-col">
-        <p-panel header="Actividad e historial de metadatos" [toggleable]="true" [collapsed]="true">
+        <p-panel header="Protección y cambios recientes" [toggleable]="true" [collapsed]="true" (onBeforeToggle)="$event.collapsed && loadActivity()">
           <p><a routerLink="/settings/metadata-history">Abrir historial detallado de libros y autores</a></p>
           <p>Últimas 100 operaciones. Proteger pausa las actualizaciones automáticas de ese tipo para el libro o autor.</p>
           <button pButton label="Actualizar" (click)="loadActivity()" [disabled]="activityBusy"></button>
+          <h3 class="settings-subheading">Último resultado por libro o autor</h3>
           <p-table [value]="metadataItems" [paginator]="true" [rows]="10">
             <ng-template pTemplate="header"><tr><th>Libro / autor</th><th>Tipo</th><th>Resultado</th><th>Acciones</th></tr></ng-template>
             <ng-template pTemplate="body" let-item><tr>
-              <td>{{item.label}}</td><td>{{item.type}}</td><td>{{item.status}}
+              <td>{{item.label}}</td><td>{{metadataTypeLabel(item.type)}}</td><td>{{metadataResultLabel(item.status)}}
                 <div *ngFor="let detail of item.diagnostics"><strong>{{detail.provider}} — {{detail.operation}}</strong>
                   <span *ngIf="detail.httpStatus"> (HTTP {{detail.httpStatus}})</span><div>{{detail.message}}</div>
                   <small *ngIf="detail.retryAt">Próximo intento permitido: {{detail.retryAt | date:'short'}}</small></div>
                 <small *ngIf="item.error && !item.diagnostics?.length"> — {{item.error}}</small></td>
-              <td><button pButton label="Reintentar" *ngIf="item.status === 'ERROR'" [disabled]="activityBusy" (click)="activityAction('retry', item)"></button>
-                <button pButton label="Proteger" *ngIf="!item.locked" [disabled]="activityBusy" (click)="activityAction('lock', item)"></button>
-                <button pButton label="Desproteger" *ngIf="item.locked" [disabled]="activityBusy" (click)="activityAction('unlock', item)"></button></td>
+              <td class="settings-table-actions"><button pButton class="p-button-outlined" label="Reintentar" *ngIf="item.status === 'ERROR'" [disabled]="activityBusy" (click)="activityAction('retry', item)"></button>
+                <button pButton class="p-button-text" label="Proteger" *ngIf="!item.locked" [disabled]="activityBusy" (click)="activityAction('lock', item)"></button>
+                <button pButton class="p-button-text" label="Desproteger" *ngIf="item.locked" [disabled]="activityBusy" (click)="activityAction('unlock', item)"></button></td>
             </tr></ng-template>
           </p-table>
+          <h3 class="settings-subheading">Cambios que puedes deshacer</h3>
           <p-table [value]="metadataHistory" [paginator]="true" [rows]="10">
             <ng-template pTemplate="header"><tr><th>Fecha / entidad</th><th>Cambios y procedencia</th><th>Acciones</th></tr></ng-template>
             <ng-template pTemplate="body" let-item><tr>
@@ -69,7 +265,7 @@
                 <th class="center">{{'locale.profile.account.language' | translate}}</th>
                 <th class="center">{{'locale.profile.account.kindle_short' | translate}}</th>
                 <th class="table-buttons">
-                  <button pButton type="button" label="{{'locale.buttons.add' | translate}}" icon="pi p-plus" class="settings-button"
+                  <button pButton type="button" label="{{'locale.buttons.add' | translate}}" icon="pi pi-plus" class="settings-button"
                           (click)="newUser()"></button>
                 </th>
               </tr>
@@ -81,8 +277,8 @@
                 <td>{{'locale.languages.' + user.language | translate}}</td>
                 <td title="{{user.kindle}}">{{user.kindle}}</td>
                 <td class="table-buttons">
-                  <button pButton type="button" icon="pi pi-pencil" class="settings-button" (click)="updateUser(user)"></button>
-                  <button pButton type="button" icon="pi pi-trash" class="settings-button" (click)="deleteUser(user.id)"></button>
+                  <button pButton type="button" icon="pi pi-pencil" [attr.aria-label]="'Editar usuario ' + user.username" class="settings-button p-button-text" (click)="updateUser(user)"></button>
+                  <button pButton type="button" icon="pi pi-trash" [attr.aria-label]="'Eliminar usuario ' + user.username" class="settings-button p-button-text" (click)="deleteUser(user.id)"></button>
                 </td>
               </tr>
             </ng-template>
@@ -97,185 +293,6 @@
               <label>{{'locale.settings.panel.global.recommendations' | translate}}</label>
               <p-inputNumber [(ngModel)]="booksRecommendations" mode="decimal" [showButtons]="true" [min]="0" [max]="50"></p-inputNumber>
             </div>
-          </div>
-        </p-panel>
-      </div>
-
-      <div class="p-col">
-        <p-panel header="{{'locale.settings.panel.metadata.title' | translate}}" [toggleable]="true" [collapsed]="true">
-          <p>Libros, autores y opiniones pueden ejecutarse a la vez. Solo se sustituye el proceso de la misma sección.</p>
-          <div class="metadata-task-card">
-            <div class="metadata-task-title">Índice local de Open Library</div>
-            <p>Descarga los volcados de ediciones, valoraciones y autores de Open Library. Puede ocupar varios GB.
-              Reconstruye el índice para priorizar el catálogo local antes de obtener autores y después de añadir autores nuevos.</p>
-            <button pButton type="button" label="Actualizar estado" (click)="indexAction('status')" [disabled]="indexBusy"></button>
-            <button pButton type="button" label="Reconstruir índice" (click)="indexAction('start')" [disabled]="indexBusy || indexRunning"></button>
-            <button pButton type="button" label="Reanudar" (click)="indexAction('resume')" [disabled]="indexBusy || !['FAILED', 'CANCELLED'].includes(libraryIndex?.status)"></button>
-            <button pButton type="button" label="Cancelar" (click)="indexAction('cancel')" [disabled]="indexBusy || !indexRunning"></button>
-            <div *ngIf="libraryIndex" role="status" aria-live="polite">
-              <p><i *ngIf="indexRunning" class="pi pi-spin pi-spinner" aria-hidden="true"></i>
-                Estado: {{ indexStatusText }}<span *ngIf="libraryIndex.cancelRequested"> · Cancelación solicitada</span></p>
-              <p *ngIf="libraryIndex.detail">{{ libraryIndex.detail }}</p>
-              <p *ngIf="indexProcessing">Registros leídos en esta fase: {{ (libraryIndex.processedRecords || 0) | number:'1.0-0' }}.
-                El contador se actualiza durante el procesamiento.</p>
-              <p *ngIf="indexDownloading">Descargado en total: {{ (libraryIndex.downloadedBytes || 0) / 1048576 | number:'1.1-1' }} MiB<span
-                *ngIf="libraryIndex.totalBytes > 0"> de {{ libraryIndex.totalBytes / 1048576 | number:'1.1-1' }} MiB</span>.</p>
-              <p *ngIf="indexRunning && libraryIndex.status !== 'ACTIVATING'">Los autores se indexan después de las ediciones y las valoraciones.</p>
-              <p *ngIf="libraryIndex.matchedIsbns > 0 || libraryIndex.status === 'COMPLETED'">ISBN encontrados: {{ (libraryIndex.matchedIsbns || 0) | number:'1.0-0' }} ·
-                Obras con valoraciones: {{ (libraryIndex.worksWithRatings || 0) | number:'1.0-0' }}</p>
-              <p *ngIf="libraryIndex.matchedAuthors > 0 || libraryIndex.status === 'COMPLETED'">Autores indexados: {{ (libraryIndex.matchedAuthors || 0) | number:'1.0-0' }}</p>
-              <p *ngIf="libraryIndex.updatedAt">Última actualización del proceso: {{ libraryIndex.updatedAt | date:'dd/MM/yyyy HH:mm:ss' }}</p>
-            </div>
-            <p *ngIf="libraryIndex?.error">{{ libraryIndex.error }}</p>
-          </div>
-          <div class="metadata-overview">
-            <section class="metadata-section books-theme">
-              <header class="metadata-section-header">
-                <div class="metadata-section-title-wrap">
-                  <span class="metadata-section-icon pi pi-book"></span>
-                  <div>
-                    <div class="metadata-section-title">Libros</div>
-                  </div>
-                </div>
-                <div class="metadata-section-total">{{ booksTotal }}</div>
-              </header>
-              <div class="metadata-task-grid">
-                <article class="metadata-task-card">
-                  <div class="metadata-task-top">
-                    <div>
-                      <div class="metadata-task-title">Todos los libros</div>
-                      <div class="metadata-task-description">Actualizar metadatos de toda la biblioteca</div>
-                    </div>
-                    <div class="metadata-task-actions">
-                      <span class="metadata-task-status">{{ getMetadataStatusLabel('FULL', 'BOOKS') }}</span>
-                      <a href="javascript:;" (click)="doExecuteMetadata('FULL', 'BOOKS')" class="metadata-action-button">
-                        <span class="pi" [ngClass]="{ 'pi-pause': isBooksFull(), 'pi-play': !isBooksFull() }"></span>
-                      </a>
-                    </div>
-                  </div>
-                  <div class="metadata-task-counter">{{ getMetadataCounter('FULL', 'BOOKS') }}</div>
-                  <div class="metadata-task-progress-row">
-                    <p-progressBar [value]="getMetadataProgress('FULL', 'BOOKS')"></p-progressBar>
-                    <span class="metadata-task-percent">{{ getMetadataProgress('FULL', 'BOOKS') }}%</span>
-                  </div>
-                  <div class="metadata-task-footer">{{ getMetadataResult('FULL', 'BOOKS') }}</div>
-                  <div class="metadata-task-footer"><a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS'}">Ver consultas de libros</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS', status: 'ERROR'}">Ver errores</a></div>
-                  <div class="metadata-task-footer">Última ejecución: {{ getMetadataLastExecution('FULL', 'BOOKS') }}</div>
-                </article>
-
-                <article class="metadata-task-card">
-                  <div class="metadata-task-top">
-                    <div>
-                      <div class="metadata-task-title">Sin metadatos</div>
-                      <div class="metadata-task-description">Solo libros que carecen de información</div>
-                    </div>
-                    <div class="metadata-task-actions">
-                      <span class="metadata-task-status">{{ getMetadataStatusLabel('PARTIAL', 'BOOKS') }}</span>
-                      <a href="javascript:;" (click)="doExecuteMetadata('PARTIAL', 'BOOKS')" class="metadata-action-button">
-                        <span class="pi" [ngClass]="{ 'pi-pause': isBooksPartial(), 'pi-play': !isBooksPartial() }"></span>
-                      </a>
-                    </div>
-                  </div>
-                  <div class="metadata-task-counter">{{ getMetadataCounter('PARTIAL', 'BOOKS') }}</div>
-                  <div class="metadata-task-progress-row">
-                    <p-progressBar [value]="getMetadataProgress('PARTIAL', 'BOOKS')"></p-progressBar>
-                    <span class="metadata-task-percent">{{ getMetadataProgress('PARTIAL', 'BOOKS') }}%</span>
-                  </div>
-                  <div class="metadata-task-footer">{{ getMetadataResult('PARTIAL', 'BOOKS') }}</div>
-                  <div class="metadata-task-footer"><a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS'}">Ver consultas de libros</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS', status: 'ERROR'}">Ver errores</a></div>
-                  <div class="metadata-task-footer">Última ejecución: {{ getMetadataLastExecution('PARTIAL', 'BOOKS') }}</div>
-                </article>
-              </div>
-            </section>
-
-            <section class="metadata-section authors-theme">
-              <header class="metadata-section-header">
-                <div class="metadata-section-title-wrap">
-                  <span class="metadata-section-icon pi pi-user-edit"></span>
-                  <div>
-                    <div class="metadata-section-title">Autores</div>
-                  </div>
-                </div>
-                <div class="metadata-section-total">{{ authorsTotal }}</div>
-              </header>
-              <div class="metadata-task-grid">
-                <article class="metadata-task-card">
-                  <div class="metadata-task-top">
-                    <div>
-                      <div class="metadata-task-title">Todos los autores</div>
-                      <div class="metadata-task-description">Catálogo local con Wikipedia y Open Library de respaldo; biografías en español con LibreTranslate</div>
-                    </div>
-                    <div class="metadata-task-actions">
-                      <span class="metadata-task-status">{{ getMetadataStatusLabel('FULL', 'AUTHORS') }}</span>
-                      <a href="javascript:;" (click)="doExecuteMetadata('FULL', 'AUTHORS')" class="metadata-action-button">
-                        <span class="pi" [ngClass]="{ 'pi-pause': isAuthorsFull(), 'pi-play': !isAuthorsFull() }"></span>
-                      </a>
-                    </div>
-                  </div>
-                  <div class="metadata-task-counter">{{ getMetadataCounter('FULL', 'AUTHORS') }}</div>
-                  <div class="metadata-task-progress-row">
-                    <p-progressBar [value]="getMetadataProgress('FULL', 'AUTHORS')"></p-progressBar>
-                    <span class="metadata-task-percent">{{ getMetadataProgress('FULL', 'AUTHORS') }}%</span>
-                  </div>
-                  <div class="metadata-task-footer">{{ getMetadataResult('FULL', 'AUTHORS') }}</div>
-                  <div class="metadata-task-footer"><a routerLink="/settings/metadata-history" [queryParams]="{type: 'AUTHORS'}">Ver consultas de autores</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'AUTHORS', status: 'ERROR'}">Ver errores</a></div>
-                  <div class="metadata-task-footer">Última ejecución: {{ getMetadataLastExecution('FULL', 'AUTHORS') }}</div>
-                </article>
-
-                <article class="metadata-task-card">
-                  <div class="metadata-task-top">
-                    <div>
-                      <div class="metadata-task-title">Sin metadatos</div>
-                      <div class="metadata-task-description">Solo autores sin información completa</div>
-                    </div>
-                    <div class="metadata-task-actions">
-                      <span class="metadata-task-status">{{ getMetadataStatusLabel('PARTIAL', 'AUTHORS') }}</span>
-                      <a href="javascript:;" (click)="doExecuteMetadata('PARTIAL', 'AUTHORS')" class="metadata-action-button">
-                        <span class="pi" [ngClass]="{ 'pi-pause': isAuthorsPartial(), 'pi-play': !isAuthorsPartial() }"></span>
-                      </a>
-                    </div>
-                  </div>
-                  <div class="metadata-task-counter">{{ getMetadataCounter('PARTIAL', 'AUTHORS') }}</div>
-                  <div class="metadata-task-progress-row">
-                    <p-progressBar [value]="getMetadataProgress('PARTIAL', 'AUTHORS')"></p-progressBar>
-                    <span class="metadata-task-percent">{{ getMetadataProgress('PARTIAL', 'AUTHORS') }}%</span>
-                  </div>
-                  <div class="metadata-task-footer">{{ getMetadataResult('PARTIAL', 'AUTHORS') }}</div>
-                  <div class="metadata-task-footer"><a routerLink="/settings/metadata-history" [queryParams]="{type: 'AUTHORS'}">Ver consultas de autores</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'AUTHORS', status: 'ERROR'}">Ver errores</a></div>
-                  <div class="metadata-task-footer">Última ejecución: {{ getMetadataLastExecution('PARTIAL', 'AUTHORS') }}</div>
-                </article>
-              </div>
-            </section>
-
-            <section class="metadata-section reviews-theme">
-              <header class="metadata-section-header">
-                <div class="metadata-section-title-wrap">
-                  <span class="metadata-section-icon pi pi-comments"></span>
-                  <div>
-                    <div class="metadata-section-title">Opiniones</div>
-                  </div>
-                </div>
-                <div class="metadata-section-total">{{ reviewsTotal }}</div>
-              </header>
-              <p>Estado: {{reviewQueueState}} · {{reviewQueue.all ? 'Todas las reseñas' : 'Reseñas faltantes'}}</p>
-              <p>{{reviewQueue.processed || 0}} / {{reviewQueue.total || 0}} libros procesados · {{reviewQueue.errors || 0}} intentos fallidos · {{reviewQueue.failedBooks || 0}} libros sin completar</p>
-              <p *ngIf="reviewQueue.inFlight">Hay un libro en curso. Una pausa o parada impide la siguiente petición; la petición ya enviada puede terminar.</p>
-              <p *ngIf="reviewQueue.nextAttempt">Próximo reintento: {{reviewQueue.nextAttempt | date:'short'}}</p>
-              <p *ngIf="reviewQueue.reason">{{reviewQueue.reason}}</p>
-              <p>Intervalo mínimo entre peticiones (segundos, de 15 a 3600). Los límites del proveedor tienen prioridad.</p>
-              <label for="review-amazon-seconds">Amazon </label>
-              <input id="review-amazon-seconds" type="number" min="15" max="3600" [(ngModel)]="reviewAmazonSeconds">
-              <label for="review-goodreads-seconds">Goodreads </label>
-              <input id="review-goodreads-seconds" type="number" min="15" max="3600" [(ngModel)]="reviewGoodreadsSeconds">
-              <button pButton label="Guardar intervalos" (click)="reviewQueueAction('settings')" [disabled]="reviewQueueBusy || !reviewQueueLoaded"></button>
-              <div class="metadata-task-grid">
-                <button pButton label="Obtener todas" (click)="reviewQueueAction('all')" [disabled]="reviewQueueBusy || !reviewQueueLoaded"></button>
-                <button pButton label="Obtener reseñas faltantes" (click)="reviewQueueAction('missing')" [disabled]="reviewQueueBusy || !reviewQueueLoaded || reviewQueueActive"></button>
-                <button pButton label="Pausar" *ngIf="reviewQueue.status === 'RUNNING'" (click)="reviewQueueAction('pause')" [disabled]="reviewQueueBusy"></button>
-                <button pButton label="Reanudar" *ngIf="reviewQueue.status === 'PAUSED'" (click)="reviewQueueAction('resume')" [disabled]="reviewQueueBusy"></button>
-                <button pButton label="Parar" *ngIf="reviewQueue.status === 'RUNNING' || reviewQueue.status === 'PAUSED'" (click)="reviewQueueAction('stop')" [disabled]="reviewQueueBusy"></button>
-              </div>
-            </section>
           </div>
         </p-panel>
       </div>
@@ -320,8 +337,8 @@
                                       [ngClass]="{ 'success': smtpStatus==='ok','error': smtpStatus==='error', 'warning': smtpStatus === 'unknown'}">
                                     {{'locale.settings.panel.smtp.status.' + smtpStatus | translate}}
                                 </span>
-                <button type="button" class="smtp-test-btn" [disabled]="isSendTestMail" (click)="doSendTestMail()">
-                  <i class="pi" [ngClass]="{ 'pi-pause': isSendTestMail, 'pi-play': !isSendTestMail }"></i>
+                <button type="button" class="smtp-test-btn" aria-label="Enviar correo de prueba" title="Enviar correo de prueba" [disabled]="isSendTestMail" (click)="doSendTestMail()">
+                  <i class="pi" [ngClass]="{ 'pi-spin pi-spinner': isSendTestMail, 'pi-send': !isSendTestMail }"></i>
                 </button>
               </div>
             </div>
@@ -377,7 +394,8 @@
         </p-panel>
       </div>
 
-      <div class="p-col-12 right">
+      <div class="settings-save">
+        <span class="settings-hint">Guardar aplica los cambios de configuración general y correo.</span>
         <button type="button" pButton label="{{'locale.buttons.save' | translate}}" class="search-button" (click)="save()"></button>
       </div>
     </div>

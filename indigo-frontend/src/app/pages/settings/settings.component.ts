@@ -32,6 +32,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   message: string;
   progressBar: number = 0;
   metadataRunning: boolean = false;
+  metadataActionBusy: {[entity: string]: boolean} = {};
   libraryIndex: any;
   indexBusy = false;
   get indexRunning(): boolean {
@@ -51,6 +52,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
   get indexDownloading(): boolean {
     return this.libraryIndex?.status?.startsWith('DOWNLOADING_') || false;
+  }
+  metadataTypeLabel(type: string): string {
+    return ({BOOKS: 'Libro', AUTHORS: 'Autor', REVIEWS: 'Opiniones'} as any)[type] || type;
+  }
+  metadataResultLabel(status: string): string {
+    return ({FOUND: 'Encontrado', NOT_FOUND: 'Sin coincidencia', SKIPPED: 'Omitido', ERROR: 'Error', RUNNING: 'En curso'} as any)[status] || status;
+  }
+  get validReviewIntervals(): boolean {
+    return [this.reviewAmazonSeconds, this.reviewGoodreadsSeconds].every(value => Number.isInteger(value) && value >= 15 && value <= 3600);
   }
   indexAction(action: string): void {
     if (this.indexBusy) return;
@@ -84,7 +94,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
   reviewQueueAction(action: string): void {
-    if (this.reviewQueueBusy || !this.reviewQueueLoaded) return;
+    if (this.reviewQueueBusy || !this.reviewQueueLoaded || (action === 'settings' && !this.validReviewIntervals)) return;
     if (action === 'missing' && this.reviewQueueActive) return;
     const replace = action === 'all' && this.reviewQueueActive;
     if (replace && !window.confirm('¿Cancelar el recorrido actual y empezar todas las reseñas desde cero? Las reseñas guardadas se conservan.')) return;
@@ -137,10 +147,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   loadActivity(): void {
-    this.metadataService.activity().subscribe({ next: items => this.metadataItems = items,
-      error: () => this.messageService.add({severity: 'error', summary: 'No se pudo cargar la actividad'}) });
-    this.metadataService.history().subscribe({ next: items => this.metadataHistory = items,
-      error: () => this.messageService.add({severity: 'error', summary: 'No se pudo cargar el historial'}) });
+    if (this.activityBusy) return;
+    this.activityBusy = true;
+    forkJoin({items: this.metadataService.activity(), history: this.metadataService.history()})
+      .pipe(takeUntil(this.destroy$), finalize(() => { this.activityBusy = false; this.cdr.markForCheck(); }))
+      .subscribe({next: result => { this.metadataItems = result.items; this.metadataHistory = result.history; },
+        error: () => this.messageService.add({severity: 'error', summary: 'No se pudo cargar la actividad de metadatos'})});
   }
 
   activityAction(action: 'retry' | 'undo' | 'lock' | 'unlock', item: any): void {
@@ -150,7 +162,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const request = action === 'retry' ? this.metadataService.retryItem(item._id)
       : action === 'undo' ? this.metadataService.undoItem(item._id)
       : this.metadataService.lockItem(item.type, item.entityId, action === 'lock');
-    request.subscribe({ next: () => { this.activityBusy = false; this.loadActivity();
+    request.pipe(takeUntil(this.destroy$), finalize(() => this.cdr.markForCheck())).subscribe({ next: () => { this.activityBusy = false; this.loadActivity();
       this.messageService.add({severity: 'success', summary: 'Operación completada'}); },
       error: () => { this.activityBusy = false;
         this.messageService.add({severity: 'error', summary: 'No se pudo completar. Actualiza la lista; los datos pueden haber cambiado.'}); } });
@@ -235,7 +247,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
 
     this.getData();
-    this.loadActivity();
     this.startStatusPolling();
     timer(0, 5000).pipe(rxFilter(() => !document.hidden),
       switchMap(() => this.metadataService.libraryIndex().pipe(catchError(() => EMPTY))),
@@ -258,7 +269,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.statusPollingSub = timer(0, 1000)
       .pipe(
         rxFilter(() => !document.hidden),
-        switchMap(() => this.metadataService.getDataStatus()),
+        switchMap(() => this.metadataService.getDataStatus().pipe(catchError(() => EMPTY))),
         takeUntil(this.destroy$)
       )
       .subscribe({
@@ -557,14 +568,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   getMetadataProgress(type: string, entity: string): number {
     const run = this.getMetadataRun(type, entity);
-    return run?.total ? Math.round((run.current * 100) / run.total) : 0;
+    return run?.total ? Math.min(100, Math.round((run.current * 1000) / run.total) / 10) : 0;
   }
 
   getMetadataCounter(type: string, entity: string): string {
     const run = this.getMetadataRun(type, entity);
-    if (!run || run.total === 0) {
-      return '0 / 0 elementos';
-    }
+    if (!run) return 'Aún no se ha iniciado';
+    if (!run.total) return run.status ? 'Preparando los elementos pendientes…' : 'No hay elementos pendientes';
 
     return `${run.current} / ${run.total} elementos`;
   }
@@ -574,7 +584,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
     if (!run) {
       return 'Listo';
     }
-    return run.status ? 'En curso' : (run.errors > 0 ? 'Con errores' : 'Finalizado');
+    return run.status ? (!run.total ? 'Preparando' : 'En curso')
+      : (run.errors > 0 ? 'Con errores' : (run.current < run.total ? 'Detenido' : 'Finalizado'));
   }
 
   getMetadataLastExecution(type: string, entity: string): string {
@@ -601,9 +612,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   doExecuteMetadata(type: string, entity: string): void {
     if (entity === 'REVIEWS') { this.reviewQueueAction(type === 'FULL' ? 'all' : 'missing'); return; }
+    if (this.metadataActionBusy[entity]) return;
+    this.metadataActionBusy[entity] = true;
     const startMetadataService = () => {
       this.metadataService.start("es", type, entity)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntil(this.destroy$), finalize(() => { this.metadataActionBusy[entity] = false; this.cdr.markForCheck(); }))
         .subscribe({
           next: () => {
             for (const mode of ['FULL', 'PARTIAL']) {
@@ -639,7 +652,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       (type === 'PARTIAL' && entity === 'BOOKS' && this.isBooksPartial())
     ) {
       this.metadataService.stop(entity)
-        .pipe(takeUntil(this.destroy$))
+        .pipe(takeUntil(this.destroy$), finalize(() => { this.metadataActionBusy[entity] = false; this.cdr.markForCheck(); }))
         .subscribe({
           next: () => {
             this.metadataRuns[`${type}:${entity}`].status = false;

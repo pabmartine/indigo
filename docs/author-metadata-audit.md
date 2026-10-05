@@ -1,11 +1,11 @@
-# Revisión del flujo de metadatos de autores — 4 de octubre de 2026
+# Revisión del flujo de metadatos de autores — 5 de octubre de 2026
 
 ## Flujo comprobado
 
 1. La preparación crea autores ausentes a partir de los libros y selecciona los identificadores pendientes del ciclo. Los modos completo e incompleto tienen checkpoints independientes.
 2. Se consulta el índice local de Open Library. Se conservan los campos que aporta y se continúa buscando los que faltan.
-3. Wikipedia consulta español, el idioma solicitado y finalmente inglés, sin repetir idiomas. Los HTTP 429 aumentan el intervalo compartido en memoria; la pausa conserva el mismo autor y se respeta antes de reintentar.
-4. Si quedan campos pendientes, se consulta Open Library por HTTP. La descarga de una foto debe completarse antes de considerarla obtenida.
+3. Wikipedia consulta español, el idioma solicitado y finalmente inglés, sin repetir idiomas. Se aplica un intervalo fijo y hasta tres intentos por petición HTTP, con esperas de 1 y 2 segundos y respeto a `Retry-After`. Un plazo del servidor superior al presupuesto de espera deja los campos pendientes para otra ejecución. No se repite indefinidamente la búsqueda completa del autor.
+4. Si quedan campos pendientes y no hay índice local de autores activo, se consulta Open Library por HTTP. Con el índice disponible no se duplica esa fuente por Internet. La descarga de una foto debe completarse antes de considerarla obtenida.
 5. Las biografías recuperadas en otros idiomas se traducen al español. Si la traducción falla, se conserva la foto recuperable, se registra el fallo y la descripción queda pendiente; no se guarda el original como descripción española.
 6. El historial conserva resultado, campos disponibles, cambios, fuentes, esperas y errores. Encontrar una página sin la foto pendiente no equivale a recuperar metadatos nuevos.
 7. Los errores de autores no crean checkpoints de inspección terminada. La reanudación usa MongoDB y el ciclo se reinicia sólo al volver a lanzar un recorrido cuyo conjunto elegible ya se había inspeccionado.
@@ -23,12 +23,14 @@
 
 ## Validación
 
-138 pruebas superadas en 33 clases, sin fallos, errores ni pruebas omitidas. Incluyen servidores HTTP locales, Mockito y pruebas de integración con MongoDB de Testcontainers y el bus de comandos de Spring. Se comprobaron búsqueda y traducción, resultados parciales, fotos fallidas, pausas y reintentos, cancelación, checkpoints tras recrear el estado en memoria, historial, deshacer, protección manual y concurrencia entre entidades.
+150 pruebas superadas en 34 clases, sin fallos, errores ni pruebas omitidas. Incluyen servidores HTTP locales, Mockito y pruebas de integración con MongoDB de Testcontainers y el bus de comandos de Spring. Se comprobaron búsqueda y traducción, resultados parciales, fotos fallidas, pausas y reintentos, cancelación, checkpoints tras recrear el estado en memoria, historial, deshacer, protección manual y concurrencia entre entidades.
 
 Comando de verificación, desde `indigo-backend` con Java 25:
 
 ```sh
-mvn -q '-Dtest=Author*Test,FindWikipediaAuthor*Test,FindOpenLibraryAuthor*Test,DataUtilsCircuitTest,*SpanishTranslationTest,MetadataExecutionIntegrationTest,MetadataActivityIntegrationTest,FindAuthorMetadataCommandHandler*Test,StartFillAuthorsMetadataCommandHandler*Test,*LibreTranslate*Test,*MetadataSingleton*Test' test
+mvn -q '-Dtest=Author*Test,FindWikipediaAuthor*Test,FindOpenLibraryAuthor*Test,DataUtilsCircuitTest,WikipediaHttpRequestsTest,*SpanishTranslationTest,MetadataExecutionIntegrationTest,MetadataActivityIntegrationTest,FindAuthorMetadataCommandHandler*Test,StartFillAuthorsMetadataCommandHandler*Test,*LibreTranslate*Test,*MetadataSingleton*Test' test
 ```
 
 Los proveedores externos se simulan en la batería automatizada para reproducir errores de forma determinista. Esta revisión valida el código local; los cambios necesitan desplegarse para aplicarse al proceso del NAS. No se reconstruyen los registros de historial antiguos.
+
+Ajustes: 12 pruebas en Chrome Headless, compilación Angular y capturas a 1440 y 390 píxeles, sin errores de JavaScript ni desbordamiento horizontal. El catálogo local omite traducciones si sólo se necesita una foto; los lotes de autores excluyen fotos y biografías antes de procesar cada elemento.

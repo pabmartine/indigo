@@ -25,4 +25,7 @@ public interface AuthorRepository extends MongoRepository<AuthorMongoEntity, Str
 
 	@Query(value = "{ 'name' : { '$in' : ?0 } }", fields = "{ 'name': 1, '_id': 0 }")
 	List<AuthorMongoEntity> findNamesByNameIn(List<String> names);
+
+	@Query(value = "{ '_id': { '$in': ?0 } }", fields = "{ 'name': 1 }")
+	List<AuthorMongoEntity> findMetadataBatch(List<String> ids);
 }

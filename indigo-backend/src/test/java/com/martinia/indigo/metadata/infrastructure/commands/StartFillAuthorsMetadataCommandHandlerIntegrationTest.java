@@ -45,7 +45,6 @@ public class StartFillAuthorsMetadataCommandHandlerIntegrationTest extends BaseI
 		metadataSingleton.stop();
 		metadataSingleton.setTotal(0);
 		metadataSingleton.setCurrent(0);
-		org.mockito.Mockito.when(dataUtils.awaitWikipediaAvailable(any())).thenReturn(true);
 	}
 
 	@Test
