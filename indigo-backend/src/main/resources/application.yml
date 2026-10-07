@@ -122,6 +122,13 @@ flags:
 # CONFIGURACIÓN DE CLIENTES HTTP Y LIMITADORES DE TASA DE PETICIONES DE METADATOS
 # ==============================================================================
 metadata:
+  autostart:
+    # Inicia un proceso de metadatos cuando la aplicación está lista.
+    enabled: ${METADATA_AUTOSTART_ENABLED:false}
+    # Valores: AUTHORS_ALL, AUTHORS_EMPTY, BOOKS_ALL, BOOKS_EMPTY, REVIEWS_ALL, REVIEWS_EMPTY.
+    # ALL recorre todos los registros; EMPTY usa la selección de metadatos incompletos existente.
+    type: ${METADATA_AUTOSTART_TYPE:AUTHORS_EMPTY}
+    lang: ${METADATA_AUTOSTART_LANG:es}
   http:
     # Intervalo mínimo por defecto entre peticiones HTTP a servicios externos (ms) para no saturar APIs.
     default-minimum-interval-millis: ${METADATA_HTTP_DEFAULT_MINIMUM_INTERVAL_MILLIS:250}

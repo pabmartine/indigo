@@ -126,3 +126,40 @@ La primera revisión del 5 de octubre rechazaba localmente las consultas cuando 
 La espera es cancelable y se muestra en el proceso de autores con la hora prevista. Al finalizar o detener el proceso se limpia el estado de espera, sin afectar a libros ni a ejecuciones posteriores. Los errores históricos no se borran; esos autores conservan su condición de pendientes cuando faltaron campos por un fallo.
 
 Validación de la corrección de pausas: 54 pruebas de backend en 8 clases y 13 pruebas de ajustes superadas, más compilación Angular. Incluye espera superior al presupuesto local, reintento de la misma petición, máximo de tres intentos reales, respeto de la pausa en la siguiente consulta, cancelación y limpieza del estado visible.
+## Arranque automático de metadatos
+
+Se puede lanzar un proceso en cada arranque del backend, cuando Spring publica
+`ApplicationReadyEvent`. Está desactivado por defecto. Configuración YAML:
+
+```yaml
+metadata:
+  autostart:
+    enabled: true
+    type: AUTHORS_EMPTY
+    lang: es
+```
+
+La configuración incluida en `application.yml` admite las variables de entorno
+`METADATA_AUTOSTART_ENABLED=true`, `METADATA_AUTOSTART_TYPE=AUTHORS_EMPTY` y
+`METADATA_AUTOSTART_LANG=es`. Se selecciona un único tipo por arranque:
+
+| Tipo | Proceso existente |
+| --- | --- |
+| `AUTHORS_ALL` | Autores, `FULL` |
+| `AUTHORS_EMPTY` | Autores, `PARTIAL` |
+| `BOOKS_ALL` | Libros, `FULL` |
+| `BOOKS_EMPTY` | Libros, `PARTIAL` |
+| `REVIEWS_ALL` | Reseñas, `FULL` |
+| `REVIEWS_EMPTY` | Reseñas, `PARTIAL` |
+
+Los valores por defecto son `enabled: false`, `type: AUTHORS_EMPTY` y `lang: es`.
+Un tipo desconocido produce un error de configuración al arrancar.
+`EMPTY` reutiliza los criterios actuales de datos vacíos/incompletos, por lo que
+permite avanzar entre reinicios conservando las reglas de actualización y el
+seguimiento de ejecuciones del proceso manual. `ALL` selecciona el modo completo
+del proceso existente. El trabajo utiliza los mismos procesos en segundo plano,
+historial y controles de parada que el arranque manual.
+
+Si ya existe un trabajo de reseñas activo o pausado, se conserva y se registra
+un aviso; el arranque automático no lo reemplaza ni lo reanuda si está pausado.
+Los errores al lanzar el proceso se registran sin impedir el arranque del backend.
