@@ -18,8 +18,18 @@ public class FindBookMetadataCommandHandler extends CommandHandler<FindBookMetad
 	@org.springframework.beans.factory.annotation.Autowired(required = false)
 	private com.martinia.indigo.metadata.application.MetadataActivityService activity;
 
+	@Resource
+	private com.martinia.indigo.common.singletons.MetadataSingleton metadataSingleton;
+
 	@Override
 	public MetadataItemResult handle(final FindBookMetadataCommand command) {
+        return com.martinia.indigo.common.util.BookProviderHttpRequests.whileActive(
+                () -> command.getRunId() <= 0 || metadataSingleton.isActive(command.getRunId()),
+                until -> metadataSingleton.setProviderWait(command.getRunId(), "Proveedor de libros",
+                        until == null ? null : until.toEpochMilli()), () -> find(command));
+    }
+
+    private MetadataItemResult find(FindBookMetadataCommand command) {
 		if (activity != null) return activity.track("BOOKS", command.getBookId(), "es", () ->
 				findBookMetadataUseCase.find(command.getBookId(), command.getMergePolicy(), command.getDynamicPolicy(), command.getLastExecution()));
 		return findBookMetadataUseCase.find(command.getBookId(), command.getMergePolicy(), command.getDynamicPolicy(),

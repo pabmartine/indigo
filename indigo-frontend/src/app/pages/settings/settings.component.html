@@ -69,6 +69,10 @@
                     </div>
                   </div>
                   <div class="metadata-task-counter">{{ getMetadataCounter('FULL', 'BOOKS') }}</div>
+                  <div class="metadata-task-footer" role="status" *ngIf="getMetadataWait('FULL', 'BOOKS') as wait">
+                    <i class="pi pi-clock" aria-hidden="true"></i> {{ wait.waitingFor }}: esperando hasta {{ wait.waitingUntil | date:'HH:mm:ss' }}.
+                    Se retomará este libro automáticamente. Puedes detener el proceso.
+                  </div>
                   <div class="metadata-task-progress-row">
                     <p-progressBar [value]="getMetadataProgress('FULL', 'BOOKS')"></p-progressBar>
                     <span class="metadata-task-percent">{{ getMetadataProgress('FULL', 'BOOKS') }}%</span>
@@ -94,6 +98,10 @@
                     </div>
                   </div>
                   <div class="metadata-task-counter">{{ getMetadataCounter('PARTIAL', 'BOOKS') }}</div>
+                  <div class="metadata-task-footer" role="status" *ngIf="getMetadataWait('PARTIAL', 'BOOKS') as wait">
+                    <i class="pi pi-clock" aria-hidden="true"></i> {{ wait.waitingFor }}: esperando hasta {{ wait.waitingUntil | date:'HH:mm:ss' }}.
+                    Se retomará este libro automáticamente. Puedes detener el proceso.
+                  </div>
                   <div class="metadata-task-progress-row">
                     <p-progressBar [value]="getMetadataProgress('PARTIAL', 'BOOKS')"></p-progressBar>
                     <span class="metadata-task-percent">{{ getMetadataProgress('PARTIAL', 'BOOKS') }}%</span>

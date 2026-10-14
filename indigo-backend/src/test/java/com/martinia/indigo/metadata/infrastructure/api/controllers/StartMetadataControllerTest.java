@@ -22,12 +22,12 @@ public class StartMetadataControllerTest extends BaseIndigoTest {
 	private MockMvc mockMvc;
 
 	@Test
-	@WithMockUser
+	@WithMockUser(authorities = "ADMIN")
 	public void testInitialLoad_WhenRequestParamsProvided_ThenReturnOkStatus() throws Exception {
 		// Given
 		String lang = "en";
-		String type = "book";
-		String entity = "exampleEntity";
+		String type = "FULL";
+		String entity = "BOOKS";
 
 		// When
 		mockMvc.perform(MockMvcRequestBuilders.get("/api/metadata/start").param("lang", lang).param("type", type).param("entity", entity)

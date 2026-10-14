@@ -59,6 +59,36 @@ class FindOpenLibraryBookUseCaseImplTest {
 		assertThat(useCase.findBook("The Hobbit", List.of("J. R. R. Tolkien"))).isNull();
 	}
 
+    @Test void titlePrefixDoesNotMatchASequel() {
+        when(dataUtils.getData(contains("title=Dune"))).thenReturn("""
+            {"docs":[{"key":"/works/OL1W","title":"Dune Messiah","author_name":["Frank Herbert"],"ratings_average":4.5}]}
+            """);
+        assertThat(useCase.findBook("Dune", List.of("Frank Herbert"))).isNull();
+    }
+    @Test void titleMatchWithoutRatingsStillKeepsTheWorkIdentity() {
+        when(dataUtils.getData(contains("title=Dune"))).thenReturn("""
+            {"docs":[{"key":"/works/OL1W","title":"Dune","author_name":["Frank Herbert"]}]}
+            """);
+        var identity = useCase.findBook("Dune", List.of("Frank Herbert"));
+        assertThat(identity.getOpenLibraryWorkId()).isEqualTo("OL1W");
+        assertThat(identity.getRatingAverage()).isNull();
+    }
+
+    @Test void laterMatchingRatingIsPreferredToAnUnratedIdentity() {
+        when(dataUtils.getData(contains("title=Dune"))).thenReturn("""
+            {"docs":[{"key":"/works/OL1W","title":"Dune","author_name":["Frank Herbert"]},
+             {"key":"/works/OL1W","title":"Dune","author_name":["Frank Herbert"],"ratings_average":4.5,"ratings_count":"broken"}]}
+            """);
+        var result = useCase.findBook("Dune", List.of("Frank Herbert"));
+        assertThat(result.getRatingAverage()).isEqualTo(4.5F);
+        assertThat(result.getRatingsCount()).isNull();
+    }
+    @Test void invalidProviderResponseIsNotANegativeMatch() {
+        when(dataUtils.getData(contains("title=Dune"))).thenReturn("{\"error\":\"unavailable\"}");
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> useCase.findBook("Dune", List.of()))
+                .isInstanceOf(IllegalStateException.class);
+    }
+
 	@Test
 	void shouldPreferExactIsbnLookup() {
 		when(dataUtils.getData(contains("isbn=9780261102217"))).thenReturn("""

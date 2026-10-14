@@ -22,9 +22,12 @@ public class BookMetadataQuery {
 	private Integer publicationYear;
 
 	public String preferredIsbn() {
-		if (isbn13 != null && !isbn13.isEmpty()) {
-			return isbn13.get(0);
-		}
-		return isbn10 == null || isbn10.isEmpty() ? null : isbn10.get(0);
-	}
+        return java.util.stream.Stream.concat(
+                isbn13 == null ? java.util.stream.Stream.empty() : isbn13.stream(),
+                isbn10 == null ? java.util.stream.Stream.empty() : isbn10.stream())
+                .filter(java.util.Objects::nonNull)
+                .map(value -> value.replaceAll("[\\s-]", ""))
+                .filter(value -> !value.isBlank())
+                .findFirst().orElse(null);
+    }
 }

@@ -584,7 +584,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     if (!run) {
       return 'Listo';
     }
-    if (run.status && run.waitingUntil) return 'Esperando Wikipedia';
+    if (run.status && run.waitingUntil) return run.waitingFor?.startsWith('Wikipedia') ? 'Esperando Wikipedia' : 'Esperando proveedor';
     return run.status ? (!run.total ? 'Preparando' : 'En curso')
       : (run.errors > 0 ? 'Con errores' : (run.current < run.total ? 'Detenido' : 'Finalizado'));
   }

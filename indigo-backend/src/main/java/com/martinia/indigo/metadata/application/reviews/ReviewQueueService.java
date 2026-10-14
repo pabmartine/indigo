@@ -19,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 /** Single-instance durable review worker. Cursor and upper bound avoid loading the library into memory. */
 @Service
+@lombok.extern.slf4j.Slf4j
 public class ReviewQueueService {
     private static final String COLLECTION = "reviewQueue";
     private static final ThreadLocal<String> EXECUTING = new ThreadLocal<>();
@@ -129,6 +130,8 @@ public class ReviewQueueService {
                     mongo.updateFirst(current, update, COLLECTION);
                 } else mongo.updateFirst(current, new Update().set("cursor", book.getId()).set("attempts", 0).unset("nextAttempt").inc("processed", 1), COLLECTION);
             }
+        } catch (CancellationException exception) {
+            log.debug("Review queue request cancelled; cursor retained", exception);
         } finally { EXECUTING.remove(); inFlight = false; }
     }
     /** Called before every explicit Goodreads/Amazon HTTP request, including searches and fallbacks. */

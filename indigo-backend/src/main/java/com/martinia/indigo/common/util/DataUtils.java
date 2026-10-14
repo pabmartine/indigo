@@ -23,10 +23,10 @@ public class DataUtils {
     private long defaultMinimumIntervalMillis;
 
     @Value("${metadata.http.google-minimum-interval-millis:1000}")
-    private long googleMinimumIntervalMillis;
+    private long googleMinimumIntervalMillis = 1000;
 
     @Value("${metadata.http.openlibrary-minimum-interval-millis:500}")
-    private long openLibraryMinimumIntervalMillis;
+    private long openLibraryMinimumIntervalMillis = 500;
 
     @Value("${metadata.http.wikipedia-minimum-interval-millis:1000}")
     private long wikipediaMinimumIntervalMillis = 1000;
@@ -46,12 +46,19 @@ public class DataUtils {
     @jakarta.annotation.Resource
     private WikipediaHttpRequests wikipediaRequests = new WikipediaHttpRequests();
 
+    @jakarta.annotation.Resource
+    private BookProviderHttpRequests bookRequests = new BookProviderHttpRequests();
+
     public String getData(String _url) {
         if (Thread.currentThread().isInterrupted()) throw new java.util.concurrent.CancellationException("Metadata request cancelled");
         try {
             URL url = new URL(_url);
             if (providerKey(url.getHost()).equals("wikipedia.org")) {
                 return wikipediaRequests.getData(url, wikipediaMinimumIntervalMillis);
+            }
+            if (url.getHost().equals("www.googleapis.com") || url.getHost().equals("books.googleapis.com")
+                    || url.getHost().equals("openlibrary.org") || url.getHost().endsWith(".openlibrary.org")) {
+                return bookRequests.getData(url, minimumIntervalFor(url.getHost()));
             }
             ProviderState state = providerStates.computeIfAbsent(providerKey(url.getHost()), ignored -> new ProviderState());
 
@@ -116,7 +123,7 @@ public class DataUtils {
         }
         catch (Exception exception) {
             com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
-            throw new IllegalStateException("Could not obtain metadata from " + _url, exception);
+            throw new IllegalStateException("Could not obtain metadata from provider", exception);
         }
     }
 

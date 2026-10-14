@@ -136,7 +136,7 @@ public class FindBookMetadataCommandHandlerIntegrationTest extends BaseIndigoInt
 		assertEquals(10L, optEntity.get().getRatingsCount().longValue());
 		assertEquals("OL1W", optEntity.get().getOpenLibraryWorkId());
 
-		verify(eventBus, times(1)).publish(any(BookMetadataFoundEvent.class));
+		verify(eventBus, never()).publish(any(BookMetadataFoundEvent.class));
 	}
 
 	@Test
@@ -175,7 +175,7 @@ public class FindBookMetadataCommandHandlerIntegrationTest extends BaseIndigoInt
 		assertEquals("OL_EXISTING_W", optEntity.get().getOpenLibraryWorkId());
 		assertEquals("OL_EXISTING_M", optEntity.get().getOpenLibraryEditionId());
 
-		verify(eventBus, times(1)).publish(any(BookMetadataFoundEvent.class));
+		verify(eventBus, never()).publish(any(BookMetadataFoundEvent.class));
 	}
 
 	@Test

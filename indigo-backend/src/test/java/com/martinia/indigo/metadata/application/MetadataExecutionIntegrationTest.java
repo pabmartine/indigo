@@ -60,6 +60,13 @@ class MetadataExecutionIntegrationTest extends BaseIndigoTest {
         runBooks(BookMetadataScope.ALL); // Fresh singleton simulates a backend restart.
         verify(commands).executeAndWait(org.mockito.ArgumentMatchers.<FindBookMetadataCommand>argThat(
                 command -> remaining.equals(command.getBookId())));
+        assertThat(mongo.findAll(Document.class, "metadataExecutions")).hasSize(1);
+
+        reset(commands);
+        when(commands.executeAndWait(any(FindBookMetadataCommand.class))).thenReturn(MetadataItemResult.SKIPPED);
+        runBooks(BookMetadataScope.ALL);
+        verify(commands).executeAndWait(org.mockito.ArgumentMatchers.<FindBookMetadataCommand>argThat(
+                command -> remaining.equals(command.getBookId())));
         assertThat(mongo.findAll(Document.class, "metadataExecutions")).hasSize(2);
 
         reset(commands);

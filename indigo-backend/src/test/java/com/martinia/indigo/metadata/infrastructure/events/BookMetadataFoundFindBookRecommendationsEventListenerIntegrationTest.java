@@ -52,7 +52,8 @@ public class BookMetadataFoundFindBookRecommendationsEventListenerIntegrationTes
 		// Then
 		Optional<BookMongoEntity> entity = bookRepository.findById(event.getBookId());
 		assertTrue(entity.isPresent());
-		assertNull(entity.get().getRecommendations());
+        awaitRecommendations(event.getBookId());
+        assertTrue(bookRepository.findById(event.getBookId()).orElseThrow().getRecommendations().isEmpty());
 	}
 
 	@Test
@@ -69,9 +70,18 @@ public class BookMetadataFoundFindBookRecommendationsEventListenerIntegrationTes
 		// Then
 		Optional<BookMongoEntity> entity = bookRepository.findById(event.getBookId());
 		assertTrue(entity.isPresent());
-//		assertNotNull(entity.get().getRecommendations());
-//		assertEquals("id2", entity.get().getRecommendations().get(0));
+        awaitRecommendations(event.getBookId());
+        assertEquals(List.of("id2"), bookRepository.findById(event.getBookId()).orElseThrow().getRecommendations());
 	}
+
+    private void awaitRecommendations(String id) {
+        long deadline = System.nanoTime() + java.util.concurrent.TimeUnit.SECONDS.toNanos(5);
+        while (bookRepository.findById(id).orElseThrow().getRecommendations() == null) {
+            if (System.nanoTime() >= deadline) throw new AssertionError("Recommendation event did not finish");
+            try { Thread.sleep(20); }
+            catch (InterruptedException exception) { Thread.currentThread().interrupt(); throw new AssertionError(exception); }
+        }
+    }
 
 	private void insertBook() {
 		BookMongoEntity bookMongoEntity = BookMongoEntity.builder()

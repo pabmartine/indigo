@@ -76,6 +76,18 @@ public class MetadataSingleton {
 		if (run != null) run.total = total;
 	}
 
+    public synchronized void setCurrent(long current) {
+        this.current = current;
+        RunState run = activeRuns.get(generation.get());
+        if (run != null) run.current = current;
+    }
+
+    public synchronized void setMessage(String message) {
+        this.message = message;
+        RunState run = activeRuns.get(generation.get());
+        if (run != null) run.message = message;
+    }
+
 	public synchronized void complete() {
 		if (isActive(generation.get())) {
 			complete(generation.get());
@@ -99,6 +111,13 @@ public class MetadataSingleton {
 			}
 		}
 	}
+
+    public synchronized void fail(final long runId) {
+        RunState run = activeRuns.get(runId);
+        if (run == null) return;
+        run.errors++;
+        complete(runId);
+    }
 
 	public synchronized boolean isActive(final long runId) {
 		return activeRuns.containsKey(runId);

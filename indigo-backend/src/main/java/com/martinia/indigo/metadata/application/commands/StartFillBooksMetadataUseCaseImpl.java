@@ -32,6 +32,9 @@ public class StartFillBooksMetadataUseCaseImpl implements StartFillBooksMetadata
 	@Resource
 	private com.martinia.indigo.metadata.application.MetadataExecutionService executions;
 
+    @org.springframework.beans.factory.annotation.Value("${metadata.books.progress-log-interval-millis:30000}")
+    private long progressLogIntervalMillis = 30000;
+
 	@Override
 	public void start(final BookMetadataScope scope, final MetadataMergePolicy mergePolicy,
 			final DynamicMetadataPolicy dynamicPolicy, final long requestedRunId) {
@@ -44,46 +47,51 @@ public class StartFillBooksMetadataUseCaseImpl implements StartFillBooksMetadata
 			return;
 		}
 
-		final List<BookMongoEntity> selected = scope == BookMetadataScope.INCOMPLETE
-				? bookRepository.findBooksWithIncompleteMetadata()
-				: bookRepository.findAllBookIds();
-		final String process = "BOOKS:" + scope.name();
-		final List<String> pending;
-		synchronized (metadataSingleton) {
-			if (managedRun && !metadataSingleton.isActive(runId)) return;
-			pending = executions.pending(process, selected.stream().map(BookMongoEntity::getId).toList());
-		}
-		final java.util.Set<String> pendingIds = new java.util.HashSet<>(pending);
-		final List<BookMongoEntity> books = selected.stream().filter(book -> pendingIds.contains(book.getId())).toList();
-		final long numBooks = books.size();
-
-		if (managedRun && !metadataSingleton.initializeRun(runId, "obtaining_metadata_books", numBooks)) {
-			return;
-		}
-		if (!managedRun) {
-			metadataSingleton.setMessage("obtaining_metadata_books");
-			metadataSingleton.setTotal(metadataSingleton.getTotal() + numBooks);
-		}
-		if (numBooks == 0) {
-			if (managedRun) {
-				metadataSingleton.complete(runId);
+        try (BookProgress progress = new BookProgress(runId, progressLogIntervalMillis)) {
+			final List<BookMongoEntity> selected = scope == BookMetadataScope.INCOMPLETE
+					? bookRepository.findBooksWithIncompleteMetadata()
+					: bookRepository.findAllBookIds();
+            progress.stage = "Comprobar libros pendientes";
+			final String process = "BOOKS:" + scope.name();
+			final List<String> pending;
+			synchronized (metadataSingleton) {
+				if (managedRun && !metadataSingleton.isActive(runId)) return;
+				pending = executions.pending(process, selected.stream().map(BookMongoEntity::getId).toList());
 			}
-			else {
-				metadataSingleton.complete();
-			}
-			return;
-		}
+			final java.util.Set<String> pendingIds = new java.util.HashSet<>(pending);
+			final List<BookMongoEntity> books = selected.stream().filter(book -> pendingIds.contains(book.getId())).toList();
+			final long numBooks = books.size();
+            progress.total = numBooks;
 
-		long lastExecution = 0L;
-		try {
+			if (managedRun && !metadataSingleton.initializeRun(runId, "obtaining_metadata_books", numBooks)) {
+				return;
+			}
+			if (!managedRun) {
+				metadataSingleton.setMessage("obtaining_metadata_books");
+				metadataSingleton.setTotal(metadataSingleton.getTotal() + numBooks);
+			}
+			if (numBooks == 0) {
+				if (managedRun) {
+					metadataSingleton.complete(runId);
+				}
+				else {
+					metadataSingleton.complete();
+				}
+				return;
+			}
+
+			long lastExecution = 0L;
 			for (BookMongoEntity book : books) {
 				if (!(managedRun ? metadataSingleton.isActive(runId) : metadataSingleton.isRunning())) {
 					break;
 				}
+                progress.stage = "Consultar libro " + book.getId();
+                long itemStarted = System.nanoTime();
 				MetadataItemResult result;
 				try {
 					result = commandBus.executeAndWait(FindBookMetadataCommand.builder()
 							.bookId(book.getId())
+							.runId(managedRun ? runId : 0)
 							.mergePolicy(mergePolicy)
 							.dynamicPolicy(dynamicPolicy)
 							.lastExecution(lastExecution)
@@ -97,12 +105,23 @@ public class StartFillBooksMetadataUseCaseImpl implements StartFillBooksMetadata
 					log.error("Book metadata failed for {}", book.getId(), exception);
 					result = MetadataItemResult.ERROR;
 				}
-				checkpoint(process, book.getId(), managedRun, runId);
+				if (result != null && result != MetadataItemResult.ERROR) {
+					checkpoint(process, book.getId(), managedRun, runId);
+				}
 				metadataSingleton.record(runId, result == null ? MetadataItemResult.ERROR : result);
+                progress.processed++;
+                log.info("Book metadata run {} item={} result={} durationMs={}", runId, book.getId(), result,
+                        (System.nanoTime() - itemStarted) / 1_000_000L);
 				lastExecution = System.currentTimeMillis();
 				log.debug("Obtained {}/{} books metadata", metadataSingleton.getCurrent(), numBooks);
 			}
 		}
+        catch (RuntimeException exception) {
+            com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
+            log.error("Book metadata run {} failed", runId, exception);
+            if (managedRun) metadataSingleton.fail(runId);
+            throw exception;
+        }
 		finally {
 			if (managedRun) {
 				metadataSingleton.complete(runId);
@@ -122,5 +141,37 @@ public class StartFillBooksMetadataUseCaseImpl implements StartFillBooksMetadata
 			}
 		}
 	}
+
+    private static final class BookProgress implements AutoCloseable {
+        private final long runId;
+        private final long started = System.nanoTime();
+        private final java.util.concurrent.ScheduledExecutorService scheduler;
+        private volatile String stage = "Seleccionar libros";
+        private volatile long total;
+        private volatile long processed;
+
+        private BookProgress(long runId, long intervalMillis) {
+            this.runId = runId;
+            scheduler = java.util.concurrent.Executors.newSingleThreadScheduledExecutor(task -> {
+                Thread thread = new Thread(task, "book-metadata-progress");
+                thread.setDaemon(true);
+                return thread;
+            });
+            long interval = Math.max(1, intervalMillis);
+            scheduler.scheduleAtFixedRate(this::report, interval, interval, java.util.concurrent.TimeUnit.MILLISECONDS);
+            report();
+        }
+
+        private void report() {
+            log.info("Book metadata run {} progress: stage={} processed={} total={} elapsedMs={}",
+                    runId, stage, processed, total, (System.nanoTime() - started) / 1_000_000L);
+        }
+
+        @Override public void close() {
+            scheduler.shutdownNow();
+            report();
+            log.info("Book metadata run {} ended", runId);
+        }
+    }
 
 }

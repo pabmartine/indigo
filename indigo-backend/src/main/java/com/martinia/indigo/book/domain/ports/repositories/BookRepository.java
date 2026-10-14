@@ -25,8 +25,7 @@ public interface BookRepository extends MongoRepository<BookMongoEntity, String>
 			+ "{ 'isbn13': { '$in': [null, []] } },"
 			+ "{ 'identifiers': { '$in': [null, {}] } }"
 			+ "] }"
-			+ "] },"
-			+ "{ 'metadataMatchStatus': { '$ne': 'NO_MATCH' } }"
+			+ "] }"
 			+ "] }";
 
 	@Query(value = "{ '_id': ?0 }", fields = "{ 'image': 1 }")

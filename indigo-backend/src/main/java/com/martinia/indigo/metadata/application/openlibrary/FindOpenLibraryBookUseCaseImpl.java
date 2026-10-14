@@ -49,6 +49,7 @@ public class FindOpenLibraryBookUseCaseImpl implements FindOpenLibraryBookUseCas
 				var local = localLookup.find(query);
 				if (local != null) return local;
 			} catch (RuntimeException exception) {
+                com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
 				log.warn("Local Open Library index unavailable; falling back to HTTP", exception);
 			}
 		}
@@ -68,12 +69,15 @@ public class FindOpenLibraryBookUseCaseImpl implements FindOpenLibraryBookUseCas
 			if (StringUtils.isBlank(json)) {
 				return null;
 			}
-			for (JsonNode document : objectMapper.readTree(json).path("docs")) {
-				if (document.hasNonNull("key") || document.path("edition_key").isArray()) {
-					return toResult(document, 1D);
-				}
-			}
-			return null;
+            BookMetadataResult identity = null;
+            for (JsonNode document : documents(json)) {
+                BookMetadataResult result = toResult(document, 1D);
+                if (result.getRatingAverage() != null) return result;
+                if (identity == null && (result.getOpenLibraryWorkId() != null || result.getOpenLibraryEditionId() != null)) {
+                    identity = result;
+                }
+            }
+            return identity;
 		}
 		catch (Exception exception) {
 			throw new IllegalStateException("Could not obtain Open Library metadata for ISBN " + isbn, exception);
@@ -86,7 +90,8 @@ public class FindOpenLibraryBookUseCaseImpl implements FindOpenLibraryBookUseCas
 		}
 
 		try {
-			final String author = String.join(" ", authors == null ? Collections.emptyList() : authors);
+            final String author = String.join(" ", authors == null ? Collections.emptyList()
+                    : authors.stream().filter(StringUtils::isNotBlank).toList());
 			final String url = endpoint
 					.replace("$title", encode(title))
 					.replace("$author", encode(author));
@@ -95,24 +100,41 @@ public class FindOpenLibraryBookUseCaseImpl implements FindOpenLibraryBookUseCas
 				return null;
 			}
 
-			for (JsonNode document : objectMapper.readTree(json).path("docs")) {
-				if (matches(document, title, authors) && document.hasNonNull("ratings_average")) {
-					return toResult(document, 1D);
-				}
-			}
+            BookMetadataResult identity = null;
+            for (JsonNode document : documents(json)) {
+                if (!matches(document, title, authors)) continue;
+                BookMetadataResult result = toResult(document, 1D);
+                if (result.getRatingAverage() != null) return result;
+                if (identity == null && (result.getOpenLibraryWorkId() != null || result.getOpenLibraryEditionId() != null)) {
+                    identity = result;
+                }
+            }
+            return identity;
 		}
 		catch (Exception exception) {
 			throw new IllegalStateException("Could not obtain Open Library metadata for " + title, exception);
 		}
-		return null;
 	}
 
+    private JsonNode documents(String json) throws java.io.IOException {
+        JsonNode response = objectMapper.readTree(json);
+        if (!response.isObject() || response.has("error") || !response.path("docs").isArray()) {
+            throw new IllegalStateException("Invalid Open Library response");
+        }
+        return response.path("docs");
+    }
+
 	private BookMetadataResult toResult(final JsonNode document, final double confidence) {
+        Float average = null;
+        if (document.hasNonNull("ratings_average")) {
+            try {
+                float value = Float.parseFloat(document.get("ratings_average").asText());
+                if (Float.isFinite(value) && value >= 0 && value <= 5) average = value;
+            } catch (NumberFormatException ignored) { /* Invalid rating does not invalidate the identity. */ }
+        }
 		return BookMetadataResult.builder()
-				.ratingAverage(document.hasNonNull("ratings_average")
-						? (float) document.path("ratings_average").asDouble()
-						: null)
-				.ratingsCount(document.hasNonNull("ratings_count") ? document.path("ratings_count").asLong() : null)
+				.ratingAverage(average)
+				.ratingsCount(validCount(document.path("ratings_count")))
 				.provider(ProviderEnum.OPEN_LIBRARY.name())
 				.openLibraryWorkId(normalizeOpenLibraryId(document.path("key").asText(null)))
 				.openLibraryEditionId(firstValue(document.path("edition_key")))
@@ -120,22 +142,31 @@ public class FindOpenLibraryBookUseCaseImpl implements FindOpenLibraryBookUseCas
 				.build();
 	}
 
+    private Long validCount(JsonNode value) {
+        try {
+            long count = Long.parseLong(value.asText());
+            return count >= 0 ? count : null;
+        } catch (NumberFormatException exception) { return null; }
+    }
+
 	private String firstValue(final JsonNode values) {
-		return values.isArray() && !values.isEmpty() ? values.get(0).asText(null) : null;
+        if (values.isArray()) for (JsonNode value : values) {
+            if (value.isTextual() && StringUtils.isNotBlank(value.asText())) return normalizeOpenLibraryId(value.asText());
+        }
+        return null;
 	}
 
 	private String normalizeOpenLibraryId(final String value) {
-		if (value == null) {
+		if (StringUtils.isBlank(value)) {
 			return null;
 		}
 		final int separator = value.lastIndexOf('/');
-		return separator >= 0 ? value.substring(separator + 1) : value;
+		return StringUtils.trimToNull(separator >= 0 ? value.substring(separator + 1) : value);
 	}
 
 	private boolean matches(final JsonNode document, final String title, final List<String> authors) {
-		final String expectedTitle = normalize(title);
-		final String actualTitle = normalize(document.path("title").asText());
-		if (!actualTitle.equals(expectedTitle) && !actualTitle.startsWith(expectedTitle + " ")) {
+		if (!com.martinia.indigo.metadata.application.BookMetadataTitles.matches(title,
+                document.path("title").asText(null), document.path("subtitle").asText(null))) {
 			return false;
 		}
 
@@ -146,7 +177,7 @@ public class FindOpenLibraryBookUseCaseImpl implements FindOpenLibraryBookUseCas
 			final String expectedAuthor = normalize(author);
 			for (JsonNode candidate : document.path("author_name")) {
 				final String actualAuthor = normalize(candidate.asText());
-				if (actualAuthor.equals(expectedAuthor)) {
+				if (!expectedAuthor.isBlank() && actualAuthor.equals(expectedAuthor)) {
 					return true;
 				}
 			}
@@ -162,7 +193,7 @@ public class FindOpenLibraryBookUseCaseImpl implements FindOpenLibraryBookUseCas
 		return StringUtils.stripAccents(StringUtils.defaultString(value))
 				.replaceAll("[^a-zA-Z0-9]", " ")
 				.replaceAll("\\s+", " ")
-				.toLowerCase()
+				.toLowerCase(java.util.Locale.ROOT)
 				.trim();
 	}
 }

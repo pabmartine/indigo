@@ -94,7 +94,10 @@ public class FindAuthorMetadataUseCaseImpl implements FindAuthorMetadataUseCase 
 				}
 			}
 			if (lookup.missing() && !catalogAvailable) findOpenLibraryAuthorPort.ifPresent(port -> lookup.obtain("OPEN_LIBRARY", "Obtener autor",
-					() -> port.findAuthor(author.getName())));
+                    () -> com.martinia.indigo.common.util.BookProviderHttpRequests.whileActive(active,
+                            until -> { if (managed) metadataSingleton.setProviderWait(runId, "Open Library · " + author.getName(),
+                                    until == null ? null : until.toEpochMilli()); },
+                            () -> port.findAuthor(author.getName()))));
 
 			ensureActive(active);
 			boolean incompleteFailure = lookup.failed && lookup.missing();

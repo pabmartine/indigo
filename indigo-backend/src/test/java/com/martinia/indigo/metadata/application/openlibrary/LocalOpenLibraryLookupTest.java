@@ -26,5 +26,9 @@ class LocalOpenLibraryLookupTest {
         assertEquals(20, result.getRatingsCount());
         assertEquals("OL1W", result.getOpenLibraryWorkId());
         verify(ratings, never()).findByIndexVersionAndWorkId(eq("pending"), any());
+        when(ratings.findByIndexVersionAndWorkId("active", "OL1W")).thenReturn(Optional.empty());
+        var identity = lookup.find(BookMetadataQuery.builder().isbn13(List.of("9780306406157")).build());
+        assertEquals("OL1W", identity.getOpenLibraryWorkId());
+        assertNull(identity.getRatingAverage());
     }
 }

@@ -22,10 +22,14 @@ public class LocalOpenLibraryLookup {
         var mapping = mappings.findFirstByIndexVersionAndIsbnIn(version, keys).orElse(null);
         if (mapping == null) return null;
         var rating = ratings.findByIndexVersionAndWorkId(version, mapping.getWorkId()).orElse(null);
-        if (rating == null || rating.getAverage() == null || rating.getCount() <= 0) return null;
-        return BookMetadataResult.builder().provider("OPEN_LIBRARY")
+        var result = BookMetadataResult.builder().provider("OPEN_LIBRARY")
                 .openLibraryWorkId(mapping.getWorkId()).openLibraryEditionId(mapping.getEditionId())
-                .ratingAverage(rating.getAverage()).ratingsCount(rating.getCount())
-                .ratingDistribution(rating.getDistribution()).matchConfidence(1D).build();
+                .matchConfidence(1D);
+        if (rating != null && rating.getAverage() != null && Float.isFinite(rating.getAverage())
+                && rating.getAverage() >= 0 && rating.getAverage() <= 5 && rating.getCount() > 0) {
+            result.ratingAverage(rating.getAverage()).ratingsCount(rating.getCount())
+                    .ratingDistribution(rating.getDistribution());
+        }
+        return result.build();
     }
 }

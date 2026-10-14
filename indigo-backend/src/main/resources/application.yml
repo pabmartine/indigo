@@ -138,6 +138,10 @@ metadata:
     openlibrary-minimum-interval-millis: ${METADATA_HTTP_OPENLIBRARY_MINIMUM_INTERVAL_MILLIS:500}
     # Intervalo mínimo entre llamadas a la API de Wikipedia (ms).
     wikipedia-minimum-interval-millis: ${METADATA_HTTP_WIKIPEDIA_MINIMUM_INTERVAL_MILLIS:1000}
+    books-retry:
+      attempts: ${METADATA_HTTP_BOOKS_RETRY_ATTEMPTS:3}
+      initial-delay-millis: ${METADATA_HTTP_BOOKS_RETRY_INITIAL_DELAY_MILLIS:1000}
+      max-wait-millis: ${METADATA_HTTP_BOOKS_RETRY_MAX_WAIT_MILLIS:10000}
     wikipedia-retry:
       # Intentos por petición HTTP, incluido el inicial. Las esperas no se acumulan entre autores.
       attempts: ${METADATA_HTTP_WIKIPEDIA_RETRY_ATTEMPTS:3}
@@ -145,7 +149,7 @@ metadata:
       # Presupuesto del backoff local; Retry-After se respeta conservando la petición actual.
       max-wait-millis: ${METADATA_HTTP_WIKIPEDIA_RETRY_MAX_WAIT_MILLIS:10000}
     circuit-breaker:
-      # Resto de proveedores HTTP: Wikipedia utiliza sus reintentos acotados.
+      # Resto de proveedores HTTP: Wikipedia, Google Books y Open Library usan reintentos acotados.
       failures: ${METADATA_HTTP_CIRCUIT_BREAKER_FAILURES:3}
       # Minutos de espera con el circuito abierto antes de volver a intentar conectar con el servicio.
       cooldown-minutes: ${METADATA_HTTP_CIRCUIT_BREAKER_COOLDOWN_MINUTES:15}

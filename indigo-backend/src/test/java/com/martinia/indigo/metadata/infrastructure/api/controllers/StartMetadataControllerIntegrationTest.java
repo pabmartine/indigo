@@ -22,9 +22,12 @@ public class StartMetadataControllerIntegrationTest extends BaseIndigoIntegratio
 	@MockBean
 	protected CommandBus commandBus;
 
+    @MockBean
+    private com.martinia.indigo.metadata.application.reviews.ReviewQueueService reviewQueue;
+
 	@ParameterizedTest(name = "{index} -> {0} ")
 	@MethodSource("entities")
-	@WithMockUser
+	@WithMockUser(authorities = "ADMIN")
 	public void testStartMetadata(final MetadataProcessType type, final MetadataProcessEnum entity) throws Exception {
 		// Given
 		String lang = "en";
@@ -38,7 +41,13 @@ public class StartMetadataControllerIntegrationTest extends BaseIndigoIntegratio
 
 		// Then
 		result.andExpect(MockMvcResultMatchers.status().isOk());
-		Mockito.verify(commandBus, Mockito.times(1)).execute(Mockito.any());
+        if (entity == MetadataProcessEnum.REVIEWS) {
+            Mockito.verify(reviewQueue).start(type == MetadataProcessType.FULL, lang, false);
+            Mockito.verifyNoInteractions(commandBus);
+        } else {
+            Mockito.verify(commandBus).execute(Mockito.any());
+            Mockito.verifyNoInteractions(reviewQueue);
+        }
 	}
 
 	static Stream<Arguments> entities() {

@@ -31,6 +31,9 @@ public class StartFillReviewsMetadataCommandHandlerIntegrationTest extends BaseI
 	@MockBean
 	private CommandBus commandBus;
 
+    @MockBean
+    private com.martinia.indigo.metadata.application.reviews.ReviewQueueService reviewQueue;
+
 	@Resource
 	private StartFillReviewsMetadataCommandHandler startFillReviewsMetadataCommandHandler;
 
@@ -43,6 +46,7 @@ public class StartFillReviewsMetadataCommandHandlerIntegrationTest extends BaseI
 		// When
 		startFillReviewsMetadataCommandHandler.handle(StartFillReviewsMetadataCommand.builder().override(override).lang(lang).build());
 
+        verify(reviewQueue).start(override, lang, false);
 		// Then
 		// Verify the method invocation
 		verify(commandBus, times(0)).executeAndWait(any(FindReviewMetadataCommand.class));
@@ -60,6 +64,7 @@ public class StartFillReviewsMetadataCommandHandlerIntegrationTest extends BaseI
 		// When
 		startFillReviewsMetadataCommandHandler.handle(StartFillReviewsMetadataCommand.builder().override(override).lang(lang).build());
 
+        verify(reviewQueue).start(override, lang, false);
 		// Then
 		// Verify the method invocation
 		verify(commandBus, times(0)).executeAndWait(any(FindReviewMetadataCommand.class));
@@ -77,9 +82,10 @@ public class StartFillReviewsMetadataCommandHandlerIntegrationTest extends BaseI
 		// When
 		startFillReviewsMetadataCommandHandler.handle(StartFillReviewsMetadataCommand.builder().override(override).lang(lang).build());
 
+        verify(reviewQueue).start(override, lang, false);
 		// Then
 		// Verify the method invocation
-		verify(commandBus, times(1)).executeAndWait(any(FindReviewMetadataCommand.class));
+		verify(commandBus, times(0)).executeAndWait(any(FindReviewMetadataCommand.class));
 //		assertEquals(0, metadataSingleton.getTotal());
 //		assertEquals(0, metadataSingleton.getCurrent());
 	}

@@ -120,7 +120,7 @@ public class StartFillBooksMetadataCommandHandlerIntegrationTest extends BaseInd
 	}
 
 	@Test
-	void incompleteScopeDoesNotRetryAnUnchangedNoMatch() {
+	void incompleteScopeAllowsRetryOfPreviousNoMatch() {
 		insertBook();
 		BookMongoEntity book = bookRepository.findById("id").orElseThrow();
 		book.setMetadataMatchStatus("NO_MATCH");
@@ -129,8 +129,8 @@ public class StartFillBooksMetadataCommandHandlerIntegrationTest extends BaseInd
 
 		startFillBooksMetadataCommandHandler.handle(incompleteBooksCommand());
 
-		verify(commandBus, times(0)).executeAndWait(any(FindBookMetadataCommand.class));
-		assertEquals(0, metadataSingleton.getTotal());
+		verify(commandBus, times(1)).executeAndWait(any(FindBookMetadataCommand.class));
+		assertEquals(1, metadataSingleton.getTotal());
 	}
 
 	private void insertBook() {

@@ -14,4 +14,5 @@ public class FindBookMetadataCommand extends Command<MetadataItemResult> {
 	private MetadataMergePolicy mergePolicy;
 	private DynamicMetadataPolicy dynamicPolicy;
 	private long lastExecution;
+	private long runId;
 }

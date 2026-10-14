@@ -148,6 +148,9 @@ describe('Settings metadata processes', () => {
     expect(component.getMetadataStatusLabel('PARTIAL', 'AUTHORS')).toBe('Esperando Wikipedia');
     expect(component.getMetadataWait('PARTIAL', 'AUTHORS').waitingUntil).toBe(123456);
     expect(component.getMetadataWait('FULL', 'BOOKS')).toBeNull();
+    component.metadataRuns['FULL:BOOKS'] = {status: true, total: 1000, current: 3, waitingUntil: 123456, waitingFor: 'Proveedor de libros'};
+    expect(component.getMetadataStatusLabel('FULL', 'BOOKS')).toBe('Esperando proveedor');
+    expect(component.getMetadataWait('FULL', 'BOOKS').waitingUntil).toBe(123456);
     component.metadataRuns['PARTIAL:AUTHORS'].waitingUntil = null;
     expect(component.getMetadataWait('PARTIAL', 'AUTHORS')).toBeNull();
     expect(component.getMetadataStatusLabel('PARTIAL', 'AUTHORS')).toBe('En curso');

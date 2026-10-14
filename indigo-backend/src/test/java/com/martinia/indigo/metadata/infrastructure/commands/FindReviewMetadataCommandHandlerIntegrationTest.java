@@ -105,7 +105,7 @@ public class FindReviewMetadataCommandHandlerIntegrationTest extends BaseIndigoI
 		// Then
 		verify(findGoodReadsReviewsPort, times(1)).getReviews(any(), any(), any());
 		verify(findAmazonReviewsPort, times(1)).getReviews(any(), any());
-		assertNull(bookRepository.findById(bookId).get().getReviews());
+		assertEquals(1, bookRepository.findById(bookId).get().getReviews().size());
 	}
 
 	@Test
@@ -133,7 +133,8 @@ public class FindReviewMetadataCommandHandlerIntegrationTest extends BaseIndigoI
 		// Then
 		verify(findGoodReadsReviewsPort, times(1)).getReviews(any(), any(), any());
 		verify(findAmazonReviewsPort, times(1)).getReviews(any(), any());
-		ReviewMongo review = bookRepository.findById(bookId).get().getReviews().get(0);
+		ReviewMongo review = bookRepository.findById(bookId).get().getReviews().stream()
+                .filter(value -> "name".equals(value.getName())).findFirst().orElseThrow();
 		assertEquals("name", review.getName());
 		assertEquals("comment", review.getComment());
 		assertEquals("title", review.getTitle());
@@ -156,6 +157,7 @@ public class FindReviewMetadataCommandHandlerIntegrationTest extends BaseIndigoI
 				.provider(null)
 				.image("::image::")
 				.lastMetadataSync(new Date())
+                .lastReviewsMetadataSync(new Date())
 				.reviews(Arrays.asList(review))
 				.build();
 		bookRepository.save(bookMongoEntity);
