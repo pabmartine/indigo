@@ -131,6 +131,27 @@ class MetadataExecutionIntegrationTest extends BaseIndigoTest {
         assertThat(mongo.findAll(Document.class, "metadataExecutions")).hasSize(2);
     }
 
+    @Test void deferredBooksRemainPendingAcrossRunsAndHaveTheirOwnCounter() {
+        bookRepository.save(BookMongoEntity.builder().title("One").build());
+        bookRepository.save(BookMongoEntity.builder().title("Two").build());
+        when(commands.executeAndWait(any(FindBookMetadataCommand.class)))
+                .thenReturn(MetadataItemResult.DEFERRED, MetadataItemResult.FOUND);
+        runBooks(BookMetadataScope.ALL);
+        var state = (MetadataSingleton) ReflectionTestUtils.getField(books, "metadataSingleton");
+        assertThat(state.getDeferred()).isEqualTo(1);
+        assertThat(state.getErrors()).isZero();
+        assertThat(state.getRuns().get("FULL:BOOKS")).containsEntry("deferred", 1L);
+        assertThat(state.isRunning()).isFalse();
+        assertThat(mongo.findAll(Document.class, "metadataExecutions")).hasSize(1);
+        reset(commands);
+        when(commands.executeAndWait(any(FindBookMetadataCommand.class))).thenReturn(MetadataItemResult.FOUND);
+        runBooks(BookMetadataScope.ALL);
+        verify(commands).executeAndWait(any(FindBookMetadataCommand.class));
+        assertThat(mongo.findAll(Document.class, "metadataExecutions")).hasSize(2);
+        state = (MetadataSingleton) ReflectionTestUtils.getField(books, "metadataSingleton");
+        assertThat(state.getDeferred()).isZero();
+    }
+
     private void runBooks(BookMetadataScope scope) {
         MetadataSingleton state = new MetadataSingleton();
         ReflectionTestUtils.setField(books, "metadataSingleton", state);

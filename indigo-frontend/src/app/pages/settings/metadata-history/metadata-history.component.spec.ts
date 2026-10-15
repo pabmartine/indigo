@@ -72,4 +72,12 @@ describe('Metadata history', () => {
     component.ngOnDestroy(); service.historyPage.calls.reset(); tick(10000);
     expect(service.historyPage).not.toHaveBeenCalled();
   }));
+  it('opens deferred books from settings and exposes the filter', fakeAsync(() => {
+    params.next(convertToParamMap({type: 'BOOKS', status: 'DEFERRED'}));
+    component.ngOnInit(); tick(0);
+    expect(service.historyPage).toHaveBeenCalledWith(0, 25, 'BOOKS', 'DEFERRED', '', '');
+    expect(component.statusOptions).toContain(jasmine.objectContaining({value: 'DEFERRED', label: 'Aplazado'}));
+    component.ngOnDestroy();
+  }));
+
 });

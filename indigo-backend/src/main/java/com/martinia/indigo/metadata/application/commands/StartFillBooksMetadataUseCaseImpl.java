@@ -105,7 +105,7 @@ public class StartFillBooksMetadataUseCaseImpl implements StartFillBooksMetadata
 					log.error("Book metadata failed for {}", book.getId(), exception);
 					result = MetadataItemResult.ERROR;
 				}
-				if (result != null && result != MetadataItemResult.ERROR) {
+				if (result != null && result != MetadataItemResult.ERROR && result != MetadataItemResult.DEFERRED) {
 					checkpoint(process, book.getId(), managedRun, runId);
 				}
 				metadataSingleton.record(runId, result == null ? MetadataItemResult.ERROR : result);

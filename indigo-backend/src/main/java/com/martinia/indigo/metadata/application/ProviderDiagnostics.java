@@ -31,9 +31,15 @@ public final class ProviderDiagnostics {
     public static String record(String provider, String operation, Throwable error) {
         String code = "PROVIDER_ERROR";
         Integer status = null;
+        boolean deferred = false;
         java.time.Instant retryAt = null;
         Set<Throwable> visited = Collections.newSetFromMap(new IdentityHashMap<>());
         for (Throwable cause = error; cause != null && visited.add(cause); cause = cause.getCause()) {
+            if (cause instanceof com.martinia.indigo.common.util.ProviderDeferredException pause) {
+                retryAt = pause.retryAt();
+                status = pause.httpStatus();
+                deferred = true;
+            }
             if (cause instanceof AuthorMetadataTranslationException) code = "TRANSLATION_FAILED";
             if (cause instanceof RestClientResponseException http) status = http.getStatusCode().value();
             if (cause instanceof FailingHttpStatusCodeException http) status = http.getStatusCode();
@@ -53,8 +59,10 @@ public final class ProviderDiagnostics {
         };
         // The current request was prevented locally, even when its retained cause is an older HTTP failure.
         if (retryAt != null) code = "PAUSED";
+        if (deferred) code = "DEFERRED";
         String message = switch (code) {
             case "TRANSLATION_FAILED" -> "Se ha obtenido información del autor, pero no se pudo traducir su descripción al español. La descripción queda pendiente.";
+            case "DEFERRED" -> "Proveedor en pausa. La consulta queda pendiente para otra ejecución; el recorrido continúa con los demás elementos.";
             case "PAUSED" -> "Proveedor en pausa preventiva. No se realizan peticiones hasta que termine la pausa.";
             case "TIMEOUT" -> "Tiempo de espera agotado. Puedes reintentar más tarde.";
             case "CONNECTION" -> "No se pudo conectar. Revisa la conexión y la configuración del servicio.";
@@ -72,7 +80,7 @@ public final class ProviderDiagnostics {
                 .append("message", message).append("httpStatus", status).append("retryAt", retryAt == null ? null : Date.from(retryAt));
         var items = CURRENT.get();
         if (items != null && items.size() < 20 && !items.contains(detail)) items.add(detail);
-        event(provider, operation, "ERROR", message);
+        event(provider, operation, deferred ? "DEFERRED" : "ERROR", message);
         return provider + " — " + operation + ": " + message;
     }
 }

@@ -24,6 +24,7 @@ public class MetadataSingleton {
 	private volatile long notFound;
 	private volatile long skipped;
 	private volatile long errors;
+	private volatile long deferred;
 	private volatile String message;
 	private volatile Long completedAt;
 	private final AtomicLong generation = new AtomicLong();
@@ -41,6 +42,7 @@ public class MetadataSingleton {
 		this.notFound = 0;
 		this.skipped = 0;
 		this.errors = 0;
+		this.deferred = 0;
 		this.message = null;
 		this.completedAt = null;
 		this.running = true;
@@ -157,6 +159,7 @@ public class MetadataSingleton {
 		case NOT_FOUND -> run.notFound++;
 		case SKIPPED -> run.skipped++;
 		case ERROR -> run.errors++;
+		case DEFERRED -> run.deferred++;
 		}
 		if (run.current >= run.total) {
 			complete(runId);
@@ -192,6 +195,7 @@ public class MetadataSingleton {
 			notFound = run.notFound;
 			skipped = run.skipped;
 			errors = run.errors;
+			deferred = run.deferred;
 			completedAt = run.completedAt;
 		}
 	}
@@ -210,6 +214,7 @@ public class MetadataSingleton {
 		snapshot.put("notFound", run.notFound);
 		snapshot.put("skipped", run.skipped);
 		snapshot.put("errors", run.errors);
+		snapshot.put("deferred", run.deferred);
 		snapshot.put("completedAt", run.completedAt);
 		runs.put(run.type + ':' + run.entity, snapshot);
 	}
@@ -223,6 +228,7 @@ public class MetadataSingleton {
 		private long notFound;
 		private long skipped;
 		private long errors;
+		private long deferred;
 		private String message;
 		private String waitingFor;
 		private Long waitingUntil;
@@ -248,6 +254,7 @@ public class MetadataSingleton {
 		snapshot.put("notFound", notFound);
 		snapshot.put("skipped", skipped);
 		snapshot.put("errors", errors);
+		snapshot.put("deferred", deferred);
 		snapshot.put("completedAt", completedAt);
 		runs.put(type + ':' + entity, snapshot);
 	}

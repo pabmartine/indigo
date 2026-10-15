@@ -34,6 +34,7 @@ public class FindStatusMetadataUseCaseImpl implements FindStatusMetadataUseCase 
 		data.put("completedAt", metadataSingleton.getCompletedAt());
 		data.put("found", metadataSingleton.getFound());
 		data.put("notFound", metadataSingleton.getNotFound());
+        data.put("deferred", metadataSingleton.getDeferred());
 		data.put("skipped", metadataSingleton.getSkipped());
 		data.put("errors", metadataSingleton.getErrors());
 		data.put("runs", metadataSingleton.getRuns());

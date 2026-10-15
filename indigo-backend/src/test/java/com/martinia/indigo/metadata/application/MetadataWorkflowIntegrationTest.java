@@ -39,7 +39,8 @@ class MetadataWorkflowIntegrationTest extends BaseIndigoIntegrationTest {
     void resumeInitialImportAfterDatabaseCommitWithoutDuplicatingAuthors(boolean manual) throws Exception {
         Files.createDirectories(ROOT.resolve("uploads"));
         Path source = epub("recovery.epub", 1);
-        Path target = ROOT.resolve("library/Recovered Book");
+        // Each parameterized invocation needs its own destination; ZIP timestamps can differ.
+        Path target = ROOT.resolve("library/Recovered Book-" + manual);
         var book = bookRepository.save(com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity.builder()
                 .title("Test Book").path(target.toString()).authors(List.of("Test Author"))
                 .languages(List.of("es")).tags(List.of()).version(1).build());

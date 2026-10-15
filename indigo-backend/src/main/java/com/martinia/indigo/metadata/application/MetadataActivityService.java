@@ -102,6 +102,7 @@ public class MetadataActivityService {
             case FOUND -> "Se han obtenido metadatos; consulta los campos y proveedores en el detalle";
             case NOT_FOUND -> "Las fuentes consultadas no han aportado datos útiles para los campos pendientes";
             case SKIPPED -> "La consulta se ha omitido";
+            case DEFERRED -> "Consulta aplazada por una pausa del proveedor; queda pendiente para otra ejecución";
             case ERROR -> "No se ha podido completar la consulta; puede haber información parcial guardada";
         };
         Date completedAt = new Date();
@@ -133,7 +134,7 @@ public class MetadataActivityService {
         Query query = new Query();
         if (type != null && !type.isBlank()) { validate(type); query.addCriteria(Criteria.where("type").is(type)); }
         if (status != null && !status.isBlank()) {
-            if (!List.of("RUNNING", "FOUND", "NOT_FOUND", "SKIPPED", "ERROR").contains(status))
+            if (!List.of("RUNNING", "FOUND", "NOT_FOUND", "SKIPPED", "DEFERRED", "ERROR").contains(status))
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid status");
             query.addCriteria(Criteria.where("status").is(status));
         }

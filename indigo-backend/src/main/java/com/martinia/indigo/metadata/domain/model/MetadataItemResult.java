@@ -4,5 +4,6 @@ public enum MetadataItemResult {
 	FOUND,
 	NOT_FOUND,
 	SKIPPED,
+	DEFERRED,
 	ERROR
 }

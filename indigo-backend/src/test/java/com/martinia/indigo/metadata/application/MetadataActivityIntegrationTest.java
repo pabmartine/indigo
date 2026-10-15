@@ -186,4 +186,29 @@ class MetadataActivityIntegrationTest extends BaseIndigoIntegrationTest {
         mockMvc.perform(get("/api/metadata/activity/history/page")).andExpect(status().isForbidden());
         mockMvc.perform(get("/api/metadata/activity/history/entry")).andExpect(status().isForbidden());
     }
+    @Test @WithMockUser(authorities = "ADMIN")
+    void deferredBookKeepsRetryDateAndIsFilterableWithoutFalseChanges() throws Exception {
+        var book = bookRepository.save(BookMongoEntity.builder().title("Quota limited book").build());
+        var retry = java.time.Instant.now().plusSeconds(600).truncatedTo(java.time.temporal.ChronoUnit.MILLIS);
+        activity.track("BOOKS", book.getId(), "es", () -> {
+            ProviderDiagnostics.record("GOOGLE_BOOKS", "Obtener libro", new IllegalStateException(
+                    new com.martinia.indigo.common.util.ProviderDeferredException(retry, 429)));
+            return MetadataItemResult.DEFERRED;
+        });
+        var entry = activity.history().get(0);
+        assertEquals("DEFERRED", entry.getString("status"));
+        assertTrue(entry.getString("summary").contains("pendiente"));
+        assertTrue(entry.getList("changes", Document.class).isEmpty());
+        var diagnostic = entry.getList("diagnostics", Document.class).get(0);
+        assertEquals("DEFERRED", diagnostic.getString("code"));
+        assertEquals(429, diagnostic.getInteger("httpStatus"));
+        assertEquals(java.util.Date.from(retry), diagnostic.getDate("retryAt"));
+        assertEquals("DEFERRED", entry.getList("events", Document.class).get(0).getString("status"));
+        mockMvc.perform(get("/api/metadata/activity/history/page").param("type", "BOOKS").param("status", "DEFERRED"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.total").value(1));
+        activity.track("BOOKS", book.getId(), "es", () -> MetadataItemResult.FOUND);
+        assertEquals("FOUND", activity.items().get(0).getString("status"));
+        assertTrue(activity.items().get(0).getList("diagnostics", Document.class).isEmpty());
+    }
+
 }

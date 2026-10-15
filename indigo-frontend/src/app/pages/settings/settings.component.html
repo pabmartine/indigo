@@ -78,7 +78,7 @@
                     <span class="metadata-task-percent">{{ getMetadataProgress('FULL', 'BOOKS') }}%</span>
                   </div>
                   <div class="metadata-task-footer">{{ getMetadataResult('FULL', 'BOOKS') }}</div>
-                  <div class="metadata-task-footer"><a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS'}">Ver consultas de libros</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS', status: 'ERROR'}">Ver errores</a></div>
+                  <div class="metadata-task-footer"><a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS'}">Ver consultas de libros</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS', status: 'ERROR'}">Ver errores</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS', status: 'DEFERRED'}">Ver aplazados</a></div>
                   <div class="metadata-task-footer">Última ejecución: {{ getMetadataLastExecution('FULL', 'BOOKS') }}</div>
                 </article>
 
@@ -107,7 +107,7 @@
                     <span class="metadata-task-percent">{{ getMetadataProgress('PARTIAL', 'BOOKS') }}%</span>
                   </div>
                   <div class="metadata-task-footer">{{ getMetadataResult('PARTIAL', 'BOOKS') }}</div>
-                  <div class="metadata-task-footer"><a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS'}">Ver consultas de libros</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS', status: 'ERROR'}">Ver errores</a></div>
+                  <div class="metadata-task-footer"><a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS'}">Ver consultas de libros</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS', status: 'ERROR'}">Ver errores</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS', status: 'DEFERRED'}">Ver aplazados</a></div>
                   <div class="metadata-task-footer">Última ejecución: {{ getMetadataLastExecution('PARTIAL', 'BOOKS') }}</div>
                 </article>
               </div>
@@ -251,7 +251,7 @@
                   <span *ngIf="detail.httpStatus"> (HTTP {{detail.httpStatus}})</span><div>{{detail.message}}</div>
                   <small *ngIf="detail.retryAt">Próximo intento permitido: {{detail.retryAt | date:'short'}}</small></div>
                 <small *ngIf="item.error && !item.diagnostics?.length"> — {{item.error}}</small></td>
-              <td class="settings-table-actions"><button pButton class="p-button-outlined" label="Reintentar" *ngIf="item.status === 'ERROR'" [disabled]="activityBusy" (click)="activityAction('retry', item)"></button>
+              <td class="settings-table-actions"><button pButton class="p-button-outlined" label="Reintentar" *ngIf="item.status === 'ERROR' || item.status === 'DEFERRED'" [disabled]="activityBusy" (click)="activityAction('retry', item)"></button>
                 <button pButton class="p-button-text" label="Proteger" *ngIf="!item.locked" [disabled]="activityBusy" (click)="activityAction('lock', item)"></button>
                 <button pButton class="p-button-text" label="Desproteger" *ngIf="item.locked" [disabled]="activityBusy" (click)="activityAction('unlock', item)"></button></td>
             </tr></ng-template>

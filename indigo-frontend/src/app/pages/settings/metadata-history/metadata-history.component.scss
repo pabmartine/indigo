@@ -61,3 +61,5 @@ img { display: block; max-width: 180px; max-height: 250px; margin-top: .5rem; }
   .history-toolbar { font-size: .85rem; }
 }
 @media (prefers-color-scheme: dark) { .error { color: #ffb4b4; } .diagnostic { border-color: #ffb4b4; } }
+
+.result[data-status=DEFERRED] { background: #fef3c7; color: #92400e; }

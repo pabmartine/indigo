@@ -57,7 +57,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     return ({BOOKS: 'Libro', AUTHORS: 'Autor', REVIEWS: 'Opiniones'} as any)[type] || type;
   }
   metadataResultLabel(status: string): string {
-    return ({FOUND: 'Encontrado', NOT_FOUND: 'Sin coincidencia', SKIPPED: 'Omitido', ERROR: 'Error', RUNNING: 'En curso'} as any)[status] || status;
+    return ({FOUND: 'Encontrado', NOT_FOUND: 'Sin coincidencia', SKIPPED: 'Omitido', DEFERRED: 'Aplazado', ERROR: 'Error', RUNNING: 'En curso'} as any)[status] || status;
   }
   get validReviewIntervals(): boolean {
     return [this.reviewAmazonSeconds, this.reviewGoodreadsSeconds].every(value => Number.isInteger(value) && value >= 15 && value <= 3600);
@@ -162,8 +162,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const request = action === 'retry' ? this.metadataService.retryItem(item._id)
       : action === 'undo' ? this.metadataService.undoItem(item._id)
       : this.metadataService.lockItem(item.type, item.entityId, action === 'lock');
-    request.pipe(takeUntil(this.destroy$), finalize(() => this.cdr.markForCheck())).subscribe({ next: () => { this.activityBusy = false; this.loadActivity();
-      this.messageService.add({severity: 'success', summary: 'Operación completada'}); },
+    request.pipe(takeUntil(this.destroy$), finalize(() => this.cdr.markForCheck())).subscribe({ next: (result: any) => { this.activityBusy = false; this.loadActivity();
+      const pending = action === 'retry' && (result === 'DEFERRED' || result === 'ERROR');
+      this.messageService.add({severity: pending ? 'warn' : 'success',
+        summary: result === 'DEFERRED' ? 'Consulta aplazada; el proveedor sigue en pausa'
+          : result === 'ERROR' ? 'La consulta sigue pendiente por un error' : 'Operación completada'}); },
       error: () => { this.activityBusy = false;
         this.messageService.add({severity: 'error', summary: 'No se pudo completar. Actualiza la lista; los datos pueden haber cambiado.'}); } });
   }
@@ -301,7 +304,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         type: this.type, entity: this.entity, status: this.metadataRunning,
         current: this.current, total: this.total, completedAt: this.metadataCompletedAt,
         found: data.found || 0, notFound: data.notFound || 0,
-        skipped: data.skipped || 0, errors: data.errors || 0
+        skipped: data.skipped || 0, deferred: data.deferred || 0, errors: data.errors || 0
       };
     }
 
@@ -319,9 +322,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
     for (const [key, run] of Object.entries(this.metadataRuns) as [string, any][]) {
       if (previousRuns[key]?.status && !run.status && run.current >= run.total) {
         this.messageService.add({
-          severity: (run.errors || 0) > 0 ? 'warn' : 'success',
+          severity: (run.errors || 0) > 0 || (run.deferred || 0) > 0 ? 'warn' : 'success',
           summary: run.entity === 'AUTHORS' ? 'Metadatos de autores' : 'Metadatos de libros',
-          detail: `Proceso terminado: ${run.found || 0} encontrados, ${run.notFound || 0} sin coincidencia, ${run.errors || 0} errores.`,
+          detail: `Proceso terminado: ${run.found || 0} encontrados, ${run.notFound || 0} sin coincidencia, ${run.deferred || 0} aplazados, ${run.errors || 0} errores.`,
           closable: false,
           life: 10000
         });
@@ -586,7 +589,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
     if (run.status && run.waitingUntil) return run.waitingFor?.startsWith('Wikipedia') ? 'Esperando Wikipedia' : 'Esperando proveedor';
     return run.status ? (!run.total ? 'Preparando' : 'En curso')
-      : (run.errors > 0 ? 'Con errores' : (run.current < run.total ? 'Detenido' : 'Finalizado'));
+      : (run.errors > 0 ? 'Con errores' : (run.current < run.total ? 'Detenido' : (run.deferred > 0 ? 'Con pendientes' : 'Finalizado')));
   }
 
   getMetadataWait(type: string, entity: string): any {
@@ -607,7 +610,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     if (!run || run.current === 0) {
       return '';
     }
-    return `${run.found || 0} encontrados · ${run.notFound || 0} sin coincidencia · ${run.skipped || 0} omitidos · ${run.errors || 0} errores`;
+    return `${run.found || 0} encontrados · ${run.notFound || 0} sin coincidencia · ${run.skipped || 0} omitidos · ${run.deferred || 0} aplazados · ${run.errors || 0} errores`;
   }
 
   private getMetadataRun(type: string, entity: string): any {

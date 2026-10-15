@@ -155,4 +155,25 @@ describe('Settings metadata processes', () => {
     expect(component.getMetadataWait('PARTIAL', 'AUTHORS')).toBeNull();
     expect(component.getMetadataStatusLabel('PARTIAL', 'AUTHORS')).toBe('En curso');
   });
+  it('shows deferred books as pending and distinguishes them from errors and completed work', () => {
+    const notification = spyOn((component as any).messageService, 'add');
+    component.metadataRuns['FULL:BOOKS'] = {status: true, current: 0, total: 2};
+    (component as any).handleMetadataStatus({type: 'FULL', entity: 'BOOKS', status: false,
+      current: 2, total: 2, found: 1, deferred: 1, errors: 0});
+    expect(component.metadataResultLabel('DEFERRED')).toBe('Aplazado');
+    expect(component.getMetadataStatusLabel('FULL', 'BOOKS')).toBe('Con pendientes');
+    expect(component.getMetadataResult('FULL', 'BOOKS')).toContain('1 aplazados');
+    expect(notification).toHaveBeenCalledWith(jasmine.objectContaining({severity: 'warn', detail: jasmine.stringMatching('1 aplazados')}));
+  });
+
+  it('does not announce success when a manual retry is still deferred', () => {
+    service.retryItem = jasmine.createSpy().and.returnValue(of('DEFERRED'));
+    spyOn(component, 'loadActivity');
+    const notification = spyOn((component as any).messageService, 'add');
+    component.activityAction('retry', {_id: 'BOOKS:one', status: 'DEFERRED'});
+    expect(service.retryItem).toHaveBeenCalledWith('BOOKS:one');
+    expect(notification).toHaveBeenCalledWith(jasmine.objectContaining({severity: 'warn', summary: jasmine.stringMatching('aplazada')}));
+    expect(component.activityBusy).toBeFalse();
+  });
+
 });

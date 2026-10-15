@@ -124,7 +124,7 @@ public class StartFillAuthorsMetadataUseCaseImpl implements StartFillAuthorsMeta
 							log.error("Author metadata failed for {}", author.getName(), exception);
 							result = MetadataItemResult.ERROR;
 						}
-						if (result != null && result != MetadataItemResult.ERROR) {
+						if (result != null && result != MetadataItemResult.ERROR && result != MetadataItemResult.DEFERRED) {
 							checkpoint(process, author.getId(), managedRun, runId);
 						}
 						metadataSingleton.record(runId, result == null ? MetadataItemResult.ERROR : result);

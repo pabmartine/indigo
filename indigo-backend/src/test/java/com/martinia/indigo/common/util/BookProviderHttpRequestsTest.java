@@ -77,45 +77,52 @@ class BookProviderHttpRequestsTest {
         assertThat(requests.getData(url, 0)).isEqualTo("{}");
     }
 
-    @Test void honorsShortRetryAfterBeforeRetrying() throws Exception {
-        responses("1", 429, 200);
-        assertThat(requests.getData(url, 0)).isEqualTo("{}");
-        assertThat(java.time.Duration.between(times.get(0), times.get(1)).toMillis()).isGreaterThanOrEqualTo(990);
+    @Test void serverCooldownNeverRetainsTheCurrentBookEvenBeyondTheLocalBudget() {
+        ReflectionTestUtils.setField(requests, "maxWaitMillis", 150L);
+        responses("600", 429);
+        org.junit.jupiter.api.Assertions.assertTimeoutPreemptively(java.time.Duration.ofSeconds(2), () -> {
+            for (int book = 0; book < 100; book++) {
+                assertThatThrownBy(() -> requests.getData(url, 1000))
+                        .isInstanceOfSatisfying(ProviderDeferredException.class, pause -> {
+                            assertThat(pause.retryAt()).isAfter(Instant.now().plusSeconds(590));
+                            assertThat(pause.httpStatus()).isEqualTo(429);
+                        });
+            }
+        });
+        assertThat(calls.get()).isEqualTo(1);
     }
 
-    @Test void serverPauseLongerThanLocalBudgetRetainsRequestAndDoesNotRecordAnError() throws Exception {
-        ReflectionTestUtils.setField(requests, "maxWaitMillis", 150L);
-        responses("1", 429, 200);
-        var waits = new ArrayList<Instant>();
-        ProviderDiagnostics.begin();
-        try {
-            assertThat(BookProviderHttpRequests.whileActive(() -> true, waits::add, () -> {
-                try { return requests.getData(url, 0); }
-                catch (java.io.IOException e) { throw new IllegalStateException(e); }
-            })).isEqualTo("{}");
-            assertThat(calls.get()).isEqualTo(2);
-            assertThat(java.time.Duration.between(times.get(0), times.get(1)).toMillis()).isGreaterThanOrEqualTo(990);
-            assertThat(waits).hasSize(2);
-            assertThat(waits.get(0)).isNotNull();
-            assertThat(waits.get(1)).isNull();
-            assertThat(ProviderDiagnostics.events()).allSatisfy(event -> assertThat(event.getString("status")).isEqualTo("WAITING"));
-        } finally { assertThat(ProviderDiagnostics.finish()).isEmpty(); }
+    @Test void serviceUnavailableWithRetryAfterAlsoDefersWithoutSleeping() {
+        responses("600", 503);
+        org.junit.jupiter.api.Assertions.assertTimeoutPreemptively(java.time.Duration.ofSeconds(2), () -> {
+            assertThatThrownBy(() -> requests.getData(url, 0)).isInstanceOf(ProviderDeferredException.class);
+            assertThatThrownBy(() -> requests.getData(url, 0)).isInstanceOf(ProviderDeferredException.class);
+        });
+        assertThat(calls.get()).isEqualTo(1);
     }
 
-    @Test void repeatedServerPausesStillUseOnlyThreeAttemptsAndNextRequestWaitsForTheLastPause() throws Exception {
-        ReflectionTestUtils.setField(requests, "maxWaitMillis", 150L);
-        responses("1", 429, 429, 429, 200);
-        assertThatThrownBy(() -> requests.getData(url, 0)).isInstanceOf(RestClientResponseException.class);
-        assertThat(calls.get()).isEqualTo(3);
-        assertThat(requests.getData(url, 0)).isEqualTo("{}");
+    @Test void onlyRealRateLimitResponsesIncreaseCooldownAndSuccessResetsIt() throws Exception {
+        var clock = new MutableClock();
+        var client = new BookProviderHttpRequests(clock);
+        responses(null, 429, 429, 200, 429);
+        assertThatThrownBy(() -> client.getData(url, 0)).isInstanceOfSatisfying(ProviderDeferredException.class,
+                pause -> assertThat(pause.retryAt()).isEqualTo(clock.instant().plusSeconds(60)));
+        clock.advance(59);
+        assertThatThrownBy(() -> client.getData(url, 0)).isInstanceOf(ProviderDeferredException.class);
+        assertThat(calls.get()).isEqualTo(1);
+        clock.advance(1);
+        assertThatThrownBy(() -> client.getData(url, 0)).isInstanceOfSatisfying(ProviderDeferredException.class,
+                pause -> assertThat(pause.retryAt()).isEqualTo(clock.instant().plusSeconds(120)));
+        assertThat(calls.get()).isEqualTo(2);
+        clock.advance(120);
+        assertThat(client.getData(url, 0)).isEqualTo("{}");
+        assertThatThrownBy(() -> client.getData(url, 0)).isInstanceOfSatisfying(ProviderDeferredException.class,
+                pause -> assertThat(pause.retryAt()).isEqualTo(clock.instant().plusSeconds(60)));
         assertThat(calls.get()).isEqualTo(4);
-        for (int i = 1; i < times.size(); i++) {
-            assertThat(java.time.Duration.between(times.get(i - 1), times.get(i)).toMillis()).isGreaterThanOrEqualTo(990);
-        }
     }
 
-    @Test void longProviderWaitCanBeCancelledAndClearsTheVisibleWaitState() {
-        responses("120", 429);
+    @Test void shortTransientRetryCanBeCancelledAndClearsVisibleWait() {
+        responses(null, 503);
         var active = new AtomicBoolean(true);
         var waits = new ArrayList<Instant>();
         assertThatThrownBy(() -> BookProviderHttpRequests.whileActive(active::get, until -> {
@@ -127,7 +134,7 @@ class BookProviderHttpRequestsTest {
         })).isInstanceOf(CancellationException.class);
         assertThat(calls.get()).isEqualTo(1);
         assertThat(waits).hasSize(2);
-        assertThat(waits.get(0)).isAfter(Instant.now().plusSeconds(110));
+        assertThat(waits.get(0)).isNotNull();
         assertThat(waits.get(1)).isNull();
     }
 
@@ -165,25 +172,21 @@ class BookProviderHttpRequestsTest {
         org.mockito.Mockito.verify(client).getData(new URL("https://www.googleapis.com/books/v1/volumes?q=test"), 1000L);
         org.mockito.Mockito.verify(client).getData(new URL("https://openlibrary.org/search.json?q=test"), 500L);
     }
-    @Test void rateLimitWithoutHeaderWaitsOnTheSameBookAndCanBeCancelled() {
+    @Test void hundredBooksUnderQuotaDoNotAccumulateThreeOrSevenMinuteWaits() {
         responses(null, 429);
-        var active = new AtomicBoolean(true);
-        var waits = new ArrayList<Instant>();
-        assertThatThrownBy(() -> BookProviderHttpRequests.whileActive(active::get, until -> {
-            waits.add(until);
-            if (until != null) active.set(false);
-        }, () -> {
-            try { return requests.getData(url, 0); }
-            catch (java.io.IOException e) { throw new IllegalStateException(e); }
-        })).isInstanceOf(CancellationException.class);
+        long started = System.nanoTime();
+        org.junit.jupiter.api.Assertions.assertTimeoutPreemptively(java.time.Duration.ofSeconds(2), () -> {
+            for (int book = 0; book < 100; book++)
+                assertThatThrownBy(() -> requests.getData(url, 1000)).isInstanceOf(ProviderDeferredException.class);
+        });
         assertThat(calls.get()).isEqualTo(1);
-        assertThat(waits.get(0)).isAfter(Instant.now().plusSeconds(50));
-        assertThat(waits.get(1)).isNull();
+        System.out.println("100 books during HTTP 429 cooldown: " + java.util.concurrent.TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started) + " ms; HTTP calls: " + calls.get());
     }
+
     @Test void clientKeepsProvidersIndependent() throws Exception {
         responses("1", 429, 200);
         ReflectionTestUtils.setField(requests, "attempts", 1);
-        assertThatThrownBy(() -> requests.getData(url, 0)).isInstanceOf(RestClientResponseException.class);
+        assertThatThrownBy(() -> requests.getData(url, 0)).isInstanceOf(ProviderDeferredException.class);
         // Same server via another host has a separate lock/pause.
         URL other = new URL(url.toString().replace("127.0.0.1", "localhost"));
         var waits = new ArrayList<Instant>();
@@ -192,5 +195,13 @@ class BookProviderHttpRequestsTest {
             catch (java.io.IOException e) { throw new IllegalStateException(e); }
         })).isEqualTo("{}");
         assertThat(waits).isEmpty();
+    }
+
+    private static final class MutableClock extends java.time.Clock {
+        private Instant now = Instant.now();
+        void advance(long seconds) { now = now.plusSeconds(seconds); }
+        @Override public java.time.ZoneId getZone() { return java.time.ZoneOffset.UTC; }
+        @Override public java.time.Clock withZone(java.time.ZoneId zone) { return this; }
+        @Override public Instant instant() { return now; }
     }
 }

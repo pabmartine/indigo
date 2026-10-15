@@ -31,6 +31,7 @@ class FindStatusMetadataUseCaseImplTest {
 		when(metadataSingleton.getEntity()).thenReturn("BOOKS");
 		when(metadataSingleton.isRunning()).thenReturn(true);
 		when(metadataSingleton.getCurrent()).thenReturn(50L);
+        when(metadataSingleton.getDeferred()).thenReturn(3L);
 		when(metadataSingleton.getTotal()).thenReturn(100L);
 		when(metadataSingleton.getMessage()).thenReturn("Processing books");
 		when(metadataSingleton.getCompletedAt()).thenReturn(null);
@@ -48,9 +49,10 @@ class FindStatusMetadataUseCaseImplTest {
 		Map<String, Object> result = findStatusMetadataUseCase.getStatus();
 
 		assertThat(result).isNotNull();
-		assertThat(result).hasSize(22);
-		assertThat(result).containsKeys("found", "notFound", "skipped", "errors", "runs");
+		assertThat(result).hasSize(23);
+		assertThat(result).containsKeys("found", "notFound", "skipped", "errors", "deferred", "runs");
 		assertThat(result.get("type")).isEqualTo("FULL");
+        assertThat(result.get("deferred")).isEqualTo(3L);
 		assertThat(result.get("entity")).isEqualTo("BOOKS");
 		assertThat(result.get("status")).isEqualTo(true);
 		assertThat(result.get("current")).isEqualTo(50L);

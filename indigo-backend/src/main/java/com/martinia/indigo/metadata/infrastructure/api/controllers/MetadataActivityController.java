@@ -30,7 +30,7 @@ public class MetadataActivityController {
             @RequestParam boolean locked) { activity.lock(type, id, locked); }
     @PostMapping("/retry/{key}") public MetadataItemResult retry(@PathVariable String key) {
         Document item = activity.item(key);
-        if (!"ERROR".equals(item.getString("status"))) throw new ResponseStatusException(HttpStatus.CONFLICT, "Only failed items can be retried");
+        if (!"ERROR".equals(item.getString("status")) && !"DEFERRED".equals(item.getString("status"))) throw new ResponseStatusException(HttpStatus.CONFLICT, "Only failed or deferred items can be retried");
         String id = item.getString("entityId");
         String lang = item.getString("lang") == null ? "es" : item.getString("lang");
         return switch (item.getString("type")) {

@@ -1,5 +1,6 @@
 package com.martinia.indigo.metadata.application.commands;
 
+import com.martinia.indigo.common.util.ProviderDeferredException;
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
 import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.metadata.domain.model.BookMetadataResult;
@@ -53,6 +54,7 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 			BookMetadataResult bookData = null;
 			boolean providerSucceeded = false;
 			boolean providerFailed = false;
+            boolean providerDeferred = false;
 			boolean providerAttempted = false;
 			final BookMetadataQuery query = BookMetadataQuery.builder()
 					.title(book.getTitle())
@@ -63,9 +65,8 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 					.publicationYear(book.getPubDate() == null ? null : book.getPubDate().toInstant()
 							.atZone(ZoneId.systemDefault()).getYear())
 					.build();
-			final boolean hasIsbn = query.preferredIsbn() != null;
 
-			if (hasIsbn && findOpenLibraryBookPort.isPresent()) {
+			if (findOpenLibraryBookPort.isPresent()) {
 				providerAttempted = true;
 				try {
 					bookData = findOpenLibraryBookPort.get().findBook(query);
@@ -74,8 +75,11 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 				}
 				catch (RuntimeException exception) {
                     com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
-                    providerFailed = true;
-					log.warn("Open Library ISBN lookup failed for book {} ({})", book.getId(), book.getTitle(), exception);
+                    if (ProviderDeferredException.causedBy(exception)) providerDeferred = true;
+                    else {
+                        providerFailed = true;
+                        log.warn("Open Library lookup failed for book {} ({})", book.getId(), book.getTitle(), exception);
+                    }
                     com.martinia.indigo.metadata.application.ProviderDiagnostics.record("OPEN_LIBRARY", "Obtener libro", exception);
 				}
 			}
@@ -89,23 +93,12 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 				}
 				catch (RuntimeException exception) {
                     com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
-                    providerFailed = true;
-					log.warn("Google Books failed for book {} ({})", book.getId(), book.getTitle(), exception);
+                    if (ProviderDeferredException.causedBy(exception)) providerDeferred = true;
+                    else {
+                        providerFailed = true;
+                        log.warn("Google Books lookup failed for book {} ({})", book.getId(), book.getTitle(), exception);
+                    }
                     com.martinia.indigo.metadata.application.ProviderDiagnostics.record("GOOGLE_BOOKS", "Obtener libro", exception);
-				}
-			}
-			if (bookData == null && !hasIsbn && findOpenLibraryBookPort.isPresent()) {
-				providerAttempted = true;
-				try {
-					bookData = findOpenLibraryBookPort.get().findBook(query);
-					trace("OPEN_LIBRARY", bookData);
-					providerSucceeded = true;
-				}
-				catch (RuntimeException exception) {
-                    com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
-                    providerFailed = true;
-					log.warn("Open Library failed for book {} ({})", book.getId(), book.getTitle(), exception);
-                    com.martinia.indigo.metadata.application.ProviderDiagnostics.record("OPEN_LIBRARY", "Obtener libro", exception);
 				}
 			}
 
@@ -132,10 +125,10 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 				book.setProvider(bookData.getProvider());
 				log.info("Found {} metadata for {}", bookData.getProvider(), book.getTitle());
 			}
-			else if (!providerSucceeded || providerFailed) {
-				log.warn("No metadata provider completed successfully for {} (provider configured: {})",
+			else if (!providerSucceeded || providerFailed || providerDeferred) {
+				log.debug("No metadata provider completed successfully for {} (provider configured: {})",
 						book.getTitle(), providerAttempted);
-				return MetadataItemResult.ERROR;
+				return providerDeferred && !providerFailed ? MetadataItemResult.DEFERRED : MetadataItemResult.ERROR;
 			}
 			else {
 				log.info("No external metadata match found for {}", book.getTitle());
@@ -143,11 +136,11 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 				book.setMetadataMatchConfidence(null);
 			}
 
-            boolean incompleteFailure = providerFailed && (bookData == null || bookData.getRatingAverage() == null);
+            boolean incompleteFailure = (providerFailed || providerDeferred) && (bookData == null || bookData.getRatingAverage() == null);
             if (!incompleteFailure) book.setLastMetadataSync(Calendar.getInstance().getTime());
 			bookRepository.updateBookMetadata(book);
 
-            return incompleteFailure ? MetadataItemResult.ERROR
+            return incompleteFailure ? (providerFailed ? MetadataItemResult.ERROR : MetadataItemResult.DEFERRED)
                     : bookData == null ? MetadataItemResult.NOT_FOUND : MetadataItemResult.FOUND;
 		}).orElse(MetadataItemResult.SKIPPED);
 	}
