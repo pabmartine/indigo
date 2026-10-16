@@ -97,6 +97,17 @@ public class OpenLibraryDumpProcessor {
 
 	public EditionProcessingResult processEditions(final Path dump, final String indexVersion,
 			final Set<String> libraryIsbns, final BooleanSupplier cancelled, final LongConsumer progress) {
+        return processEditions(dump, indexVersion, libraryIsbns, Set.of(), cancelled, progress);
+    }
+
+    public EditionProcessingResult processEditions(final Path dump, final String indexVersion,
+            final Set<String> libraryIsbns, final Set<String> libraryBookKeys,
+            final BooleanSupplier cancelled, final LongConsumer progress) {
+        Map<String, List<String>> authorNames = new HashMap<>();
+        if (!libraryBookKeys.isEmpty()) for (var author : authorRepository.findByIndexVersion(indexVersion)) {
+            authorNames.put(author.getAuthorId(), author.getNames());
+        }
+        Set<String> matchedTitleKeys = new HashSet<>();
 		mappingRepository.deleteByIndexVersion(indexVersion);
 		final List<OpenLibraryEditionMappingMongoEntity> batch = new ArrayList<>(BATCH_SIZE);
 		final Set<String> matchedIsbns = new HashSet<>();
@@ -119,19 +130,30 @@ public class OpenLibraryDumpProcessor {
 					reportProgress(progress, processed);
 					continue;
 				}
-				for (String isbn : editionIsbns(edition)) {
-					if (libraryIsbns.contains(isbn)) {
-						matchedIsbns.add(isbn);
-						matchedWorks.add(workId);
-						batch.add(OpenLibraryEditionMappingMongoEntity.builder()
-								.id(indexVersion + ':' + isbn + ':' + editionId)
-								.indexVersion(indexVersion)
-								.isbn(isbn)
-								.editionId(editionId)
-								.workId(workId)
-								.build());
-					}
-				}
+                Set<String> isbns = editionIsbns(edition);
+                isbns.retainAll(libraryIsbns);
+                Set<String> titleKeys = new HashSet<>();
+                for (JsonNode author : edition.path("authors")) {
+                    List<String> names = authorNames.get(normalizeOpenLibraryId(author.path("key").asText(null)));
+                    if (names == null || names.isEmpty()) continue;
+                    titleKeys.addAll(LocalBookKey.keys(edition.path("title").asText(null), names));
+                    if (edition.hasNonNull("subtitle")) titleKeys.addAll(LocalBookKey.keys(
+                            edition.path("title").asText("") + " " + edition.path("subtitle").asText(), names));
+                }
+                titleKeys.retainAll(libraryBookKeys);
+                if (!isbns.isEmpty() || !titleKeys.isEmpty()) {
+                    matchedWorks.add(workId);
+                    matchedIsbns.addAll(isbns);
+                    matchedTitleKeys.addAll(titleKeys);
+                    // Keep ISBN documents compatible with existing indexes and store a title-only edition when needed.
+                    for (String isbn : isbns.isEmpty() ? java.util.Collections.singleton((String) null) : isbns) {
+                        batch.add(OpenLibraryEditionMappingMongoEntity.builder()
+                                .id(indexVersion + ':' + (isbn == null ? "title" : isbn) + ':' + editionId)
+                                .indexVersion(indexVersion).isbn(isbn).editionId(editionId).workId(workId)
+                                .titleAuthorKeys(new ArrayList<>(titleKeys)).build());
+                    }
+                }
+
 				if (batch.size() >= BATCH_SIZE) {
 					mappingRepository.saveAll(new ArrayList<>(batch));
 					batch.clear();
@@ -142,7 +164,7 @@ public class OpenLibraryDumpProcessor {
 				mappingRepository.saveAll(new ArrayList<>(batch));
 			}
 			progress.accept(processed);
-			return new EditionProcessingResult(processed, matchedIsbns, matchedWorks);
+			return new EditionProcessingResult(processed, matchedIsbns, matchedWorks, matchedTitleKeys.size());
 		}
 		catch (IOException exception) {
 			throw new IllegalStateException("Invalid or unreadable Open Library editions dump", exception);
@@ -171,7 +193,8 @@ public class OpenLibraryDumpProcessor {
 				}
 				try {
 					final double rating = Double.parseDouble(columns[2]);
-					ratings.computeIfAbsent(workId, ignored -> new RatingAccumulator()).add(rating);
+					if (Double.isFinite(rating) && rating >= 1 && rating <= 5 && rating == Math.rint(rating))
+                        ratings.computeIfAbsent(workId, ignored -> new RatingAccumulator()).add(rating);
 				}
 				catch (NumberFormatException ignored) {
 					// The ratings dump can contain a header; malformed data rows are ignored.
@@ -229,7 +252,7 @@ public class OpenLibraryDumpProcessor {
 			values.forEach(value -> {
 				final String isbn = normalizeIsbn(value.asText());
 				if (isbn != null) {
-					target.add(isbn);
+					target.addAll(com.martinia.indigo.file.application.EpubImportPolicy.isbnKeys(List.of(isbn)));
 				}
 			});
 		}
@@ -271,7 +294,7 @@ public class OpenLibraryDumpProcessor {
 	}
 
 	public record EditionProcessingResult(long processedRecords, Set<String> matchedIsbns,
-			Set<String> matchedWorks) {
+			Set<String> matchedWorks, long matchedTitleAuthorKeys) {
 	}
 
 	public record RatingProcessingResult(long processedRecords, long worksWithRatings) {

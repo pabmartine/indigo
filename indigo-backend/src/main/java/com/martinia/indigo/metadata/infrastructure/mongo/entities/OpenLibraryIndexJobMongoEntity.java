@@ -25,6 +25,8 @@ public class OpenLibraryIndexJobMongoEntity {
 	private String stagingVersion;
 	private String activeVersion;
 	private String authorsVersion;
+    private int bookLookupVersion;
+    private long matchedTitleAuthorKeys;
 	private String authorsUrl;
 	private String authorsFile;
 	private String authorsLastModified;

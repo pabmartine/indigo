@@ -11,6 +11,7 @@ import lombok.Getter;
 public class BookMetadataQuery {
 
 	private String title;
+    private String openLibraryWorkId;
 	@Builder.Default
 	private List<String> authors = Collections.emptyList();
 	@Builder.Default

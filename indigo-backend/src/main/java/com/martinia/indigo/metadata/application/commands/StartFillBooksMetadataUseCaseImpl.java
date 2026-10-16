@@ -32,6 +32,12 @@ public class StartFillBooksMetadataUseCaseImpl implements StartFillBooksMetadata
 	@Resource
 	private com.martinia.indigo.metadata.application.MetadataExecutionService executions;
 
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private com.martinia.indigo.metadata.application.openlibrary.LocalOpenLibraryLookup localLookup;
+
+    @org.springframework.beans.factory.annotation.Value("${metadata.books.max-consecutive-deferred:10}")
+    private int maxConsecutiveDeferred = 10;
+
     @org.springframework.beans.factory.annotation.Value("${metadata.books.progress-log-interval-millis:30000}")
     private long progressLogIntervalMillis = 30000;
 
@@ -59,7 +65,7 @@ public class StartFillBooksMetadataUseCaseImpl implements StartFillBooksMetadata
 				pending = executions.pending(process, selected.stream().map(BookMongoEntity::getId).toList());
 			}
 			final java.util.Set<String> pendingIds = new java.util.HashSet<>(pending);
-			final List<BookMongoEntity> books = selected.stream().filter(book -> pendingIds.contains(book.getId())).toList();
+			List<BookMongoEntity> books = selected.stream().filter(book -> pendingIds.contains(book.getId())).toList();
 			final long numBooks = books.size();
             progress.total = numBooks;
 
@@ -80,6 +86,20 @@ public class StartFillBooksMetadataUseCaseImpl implements StartFillBooksMetadata
 				return;
 			}
 
+            if (localLookup != null && (managedRun ? metadataSingleton.isActive(runId) : metadataSingleton.isRunning())) {
+                progress.stage = "Priorizar valoraciones del índice local";
+                try {
+                    var rated = com.martinia.indigo.common.util.BookProviderHttpRequests.whileActive(
+                            () -> managedRun ? metadataSingleton.isActive(runId) : metadataSingleton.isRunning(),
+                            () -> localLookup.ratedBookIds(pendingIds));
+                    books = books.stream().sorted(java.util.Comparator.comparing(book -> !rated.contains(book.getId()))).toList();
+                    log.info("Book metadata run {}: {} pending books have local ratings", runId, rated.size());
+                } catch (RuntimeException exception) {
+                    com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
+                    log.warn("Could not prioritize local book ratings; continuing with provider lookup", exception);
+                }
+            }
+            int consecutiveDeferred = 0;
 			long lastExecution = 0L;
 			for (BookMongoEntity book : books) {
 				if (!(managedRun ? metadataSingleton.isActive(runId) : metadataSingleton.isRunning())) {
@@ -108,14 +128,26 @@ public class StartFillBooksMetadataUseCaseImpl implements StartFillBooksMetadata
 				if (result != null && result != MetadataItemResult.ERROR && result != MetadataItemResult.DEFERRED) {
 					checkpoint(process, book.getId(), managedRun, runId);
 				}
+                consecutiveDeferred = result == MetadataItemResult.DEFERRED ? consecutiveDeferred + 1 : 0;
+                if (consecutiveDeferred >= Math.max(1, maxConsecutiveDeferred)) {
+                    String message = "Recorrido detenido: " + consecutiveDeferred
+                            + " consultas consecutivas aplazadas por los proveedores. Los libros pendientes se conservan. "
+                            + "Revisa la cobertura del índice local y vuelve a iniciar cuando termine la pausa indicada en el historial.";
+                    if (managedRun) metadataSingleton.initializeRun(runId, message, numBooks);
+                    else metadataSingleton.setMessage(message);
+                }
 				metadataSingleton.record(runId, result == null ? MetadataItemResult.ERROR : result);
                 progress.processed++;
                 log.info("Book metadata run {} item={} result={} durationMs={}", runId, book.getId(), result,
                         (System.nanoTime() - itemStarted) / 1_000_000L);
+                if (consecutiveDeferred >= Math.max(1, maxConsecutiveDeferred)) break;
 				lastExecution = System.currentTimeMillis();
 				log.debug("Obtained {}/{} books metadata", metadataSingleton.getCurrent(), numBooks);
 			}
 		}
+        catch (java.util.concurrent.CancellationException exception) {
+            log.info("Book metadata run {} cancelled", runId);
+        }
         catch (RuntimeException exception) {
             com.martinia.indigo.metadata.application.reviews.ReviewQueueService.rethrowCancellation(exception);
             log.error("Book metadata run {} failed", runId, exception);

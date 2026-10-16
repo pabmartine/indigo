@@ -57,7 +57,7 @@ class OpenLibraryDumpProcessorTest {
 		ArgumentCaptor<List<OpenLibraryEditionMappingMongoEntity>> mappings = ArgumentCaptor.forClass(List.class);
 		verify(mappingRepository).saveAll(mappings.capture());
 		assertThat(mappings.getValue()).extracting(OpenLibraryEditionMappingMongoEntity::getEditionId)
-				.containsExactlyInAnyOrder("OL1M", "OL2M");
+				.containsExactlyInAnyOrder("OL1M", "OL1M", "OL2M", "OL2M");
 
 		Path ratingsDump = gzip("ratings.txt.gz", """
 				Work Key\tEdition Key\tRating\tDate
@@ -138,4 +138,24 @@ class OpenLibraryDumpProcessorTest {
 		}
 		return target;
 	}
+    @Test void invalidRatingsDoNotPoisonTheWorkAverage() throws IOException {
+        Path dump = gzip("invalid-ratings.gz", "/works/OL1W\t\tNaN\n/works/OL1W\t\t6\n/works/OL1W\t\t0\n/works/OL1W\t\t2.5\n/works/OL1W\t\t4\n");
+        processor.processRatings(dump, "v", Set.of("OL1W"), () -> false, ignored -> {});
+        ArgumentCaptor<List<OpenLibraryRatingMongoEntity>> saved = ArgumentCaptor.forClass(List.class);
+        verify(ratingRepository).saveAll(saved.capture());
+        assertThat(saved.getValue()).singleElement().satisfies(rating -> {
+            assertThat(rating.getAverage()).isEqualTo(4F);
+            assertThat(rating.getCount()).isEqualTo(1);
+        });
+    }
+
+    @Test void matchesEquivalentIsbn10WhenDumpContainsOnlyIsbn13() throws IOException {
+        Path dump = gzip("equivalent-isbn.gz", """
+                /type/edition\t/books/OL1M\t1\t2026-10-16\t{"key":"/books/OL1M","isbn_13":["9780261102217"],"works":[{"key":"/works/OL1W"}]}
+                """);
+        var result = processor.processEditions(dump, "v", Set.of("0261102214"), () -> false, ignored -> {});
+        assertThat(result.matchedIsbns()).containsExactly("0261102214");
+        assertThat(result.matchedWorks()).containsExactly("OL1W");
+    }
+
 }

@@ -37,7 +37,7 @@ class FindOpenLibraryBookUseCaseImplTest {
 
 	@Test
 	void shouldReturnRatingForMatchingBookAndAuthor() {
-		when(dataUtils.getData(contains("title=The+Hobbit"))).thenReturn("""
+		when(dataUtils.getData(contains("q=%22The+Hobbit%22"))).thenReturn("""
 				{"docs":[{"key":"/works/OL27448W","edition_key":["OL5171337M"],"title":"The Hobbit","author_name":["J. R. R. Tolkien"],"ratings_average":4.28,"ratings_count":321}]}
 				""");
 
@@ -47,12 +47,12 @@ class FindOpenLibraryBookUseCaseImplTest {
 		assertThat(result.getRatingsCount()).isEqualTo(321L);
 		assertThat(result.getProvider()).isEqualTo(ProviderEnum.OPEN_LIBRARY.name());
 		assertThat(result.getOpenLibraryWorkId()).isEqualTo("OL27448W");
-		assertThat(result.getOpenLibraryEditionId()).isEqualTo("OL5171337M");
+		assertThat(result.getOpenLibraryEditionId()).isNull();
 	}
 
 	@Test
 	void shouldIgnoreAResultFromAnotherAuthor() {
-		when(dataUtils.getData(contains("title=The+Hobbit"))).thenReturn("""
+		when(dataUtils.getData(contains("q=%22The+Hobbit%22"))).thenReturn("""
 				{"docs":[{"title":"The Hobbit","author_name":["Another Author"],"ratings_average":4.28}]}
 				""");
 
@@ -60,13 +60,13 @@ class FindOpenLibraryBookUseCaseImplTest {
 	}
 
     @Test void titlePrefixDoesNotMatchASequel() {
-        when(dataUtils.getData(contains("title=Dune"))).thenReturn("""
+        when(dataUtils.getData(contains("q=%22Dune%22"))).thenReturn("""
             {"docs":[{"key":"/works/OL1W","title":"Dune Messiah","author_name":["Frank Herbert"],"ratings_average":4.5}]}
             """);
         assertThat(useCase.findBook("Dune", List.of("Frank Herbert"))).isNull();
     }
     @Test void titleMatchWithoutRatingsStillKeepsTheWorkIdentity() {
-        when(dataUtils.getData(contains("title=Dune"))).thenReturn("""
+        when(dataUtils.getData(contains("q=%22Dune%22"))).thenReturn("""
             {"docs":[{"key":"/works/OL1W","title":"Dune","author_name":["Frank Herbert"]}]}
             """);
         var identity = useCase.findBook("Dune", List.of("Frank Herbert"));
@@ -75,7 +75,7 @@ class FindOpenLibraryBookUseCaseImplTest {
     }
 
     @Test void laterMatchingRatingIsPreferredToAnUnratedIdentity() {
-        when(dataUtils.getData(contains("title=Dune"))).thenReturn("""
+        when(dataUtils.getData(contains("q=%22Dune%22"))).thenReturn("""
             {"docs":[{"key":"/works/OL1W","title":"Dune","author_name":["Frank Herbert"]},
              {"key":"/works/OL1W","title":"Dune","author_name":["Frank Herbert"],"ratings_average":4.5,"ratings_count":"broken"}]}
             """);
@@ -84,7 +84,7 @@ class FindOpenLibraryBookUseCaseImplTest {
         assertThat(result.getRatingsCount()).isNull();
     }
     @Test void invalidProviderResponseIsNotANegativeMatch() {
-        when(dataUtils.getData(contains("title=Dune"))).thenReturn("{\"error\":\"unavailable\"}");
+        when(dataUtils.getData(contains("q=%22Dune%22"))).thenReturn("{\"error\":\"unavailable\"}");
         org.assertj.core.api.Assertions.assertThatThrownBy(() -> useCase.findBook("Dune", List.of()))
                 .isInstanceOf(IllegalStateException.class);
     }
@@ -121,4 +121,25 @@ class FindOpenLibraryBookUseCaseImplTest {
 		assertThat(result.getOpenLibraryEditionId()).isEqualTo("OL5171337M");
 		assertThat(result.getRatingAverage()).isNull();
 	}
+    @Test void translatedEditionCanMatchWhenWorkUsesItsOriginalTitle() {
+        when(dataUtils.getData(contains("q=%22El+Hobbit%22"))).thenReturn("""
+            {"docs":[{"key":"/works/OL1W","title":"The Hobbit","author_name":["J. R. R. Tolkien"],
+             "ratings_average":4.5,"ratings_count":100,"editions":{"docs":[{"key":"/books/OL9M","title":"El Hobbit"}]}}]}
+            """);
+        var result = useCase.findBook("El Hobbit", List.of("J. R. R. Tolkien"));
+        var url = org.mockito.ArgumentCaptor.forClass(String.class);
+        org.mockito.Mockito.verify(dataUtils).getData(url.capture());
+        assertThat(url.getValue()).contains("q=%22El+Hobbit%22", "editions.title").doesNotContain("?title=");
+        assertThat(result.getRatingAverage()).isEqualTo(4.5F);
+        assertThat(result.getOpenLibraryEditionId()).isEqualTo("OL9M");
+        assertThat(useCase.findBook("El Hobbit", List.of("Another Author"))).isNull();
+    }
+    @Test void aMatchingAuthorDoesNotMakeAnUnrelatedTranslatedEditionValid() {
+        when(dataUtils.getData(contains("q=%22El+Hobbit%22"))).thenReturn("""
+            {"docs":[{"key":"/works/OL1W","title":"The Lord of the Rings","author_name":["J. R. R. Tolkien"],
+             "ratings_average":4.5,"editions":{"docs":[{"key":"/books/OL9M","title":"El señor de los anillos"}]}}]}
+            """);
+        assertThat(useCase.findBook("El Hobbit", List.of("J. R. R. Tolkien"))).isNull();
+    }
+
 }

@@ -14,5 +14,8 @@ public interface OpenLibraryEditionMappingRepository
 	Optional<OpenLibraryEditionMappingMongoEntity> findFirstByIndexVersionAndIsbnIn(String indexVersion,
 			Collection<String> isbns);
 
+    List<OpenLibraryEditionMappingMongoEntity> findByIndexVersionAndIsbnIn(String version, Collection<String> isbns);
+    List<OpenLibraryEditionMappingMongoEntity> findByIndexVersionAndTitleAuthorKeysIn(String version, Collection<String> keys);
+
 	long deleteByIndexVersion(String indexVersion);
 }

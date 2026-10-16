@@ -122,6 +122,8 @@ flags:
 # CONFIGURACIÓN DE CLIENTES HTTP Y LIMITADORES DE TASA DE PETICIONES DE METADATOS
 # ==============================================================================
 metadata:
+  books:
+    max-consecutive-deferred: ${METADATA_BOOKS_MAX_CONSECUTIVE_DEFERRED:10}
   autostart:
     # Inicia un proceso de metadatos cuando la aplicación está lista.
     enabled: ${METADATA_AUTOSTART_ENABLED:false}
@@ -186,7 +188,7 @@ metadata:
     api-key: ${METADATA_GOOGLE_API_KEY:}
   openlibrary:
     # Plantilla de búsqueda de libros por título y autor en OpenLibrary API.
-    books: ${METADATA_OPENLIBRARY_BOOKS:https://openlibrary.org/search.json?title=$title&author=$author&fields=key,title,author_name,edition_key,ratings_average,ratings_count,cover_i&limit=5}
+    books: ${METADATA_OPENLIBRARY_BOOKS:https://openlibrary.org/search.json?q=$title&author=$author&fields=key,title,subtitle,author_name,edition_key,ratings_average,ratings_count,editions,editions.key,editions.title,editions.subtitle&limit=5}
     # Plantilla de búsqueda de libros por código ISBN en OpenLibrary API.
     books-by-isbn: ${METADATA_OPENLIBRARY_BOOKS_BY_ISBN:https://openlibrary.org/search.json?isbn=$isbn&fields=key,title,author_name,edition_key,ratings_average,ratings_count&limit=5}
     # Plantilla de búsqueda de autores por nombre en OpenLibrary.

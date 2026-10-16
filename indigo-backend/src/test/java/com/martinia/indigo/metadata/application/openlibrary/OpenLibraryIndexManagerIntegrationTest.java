@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest
+@SpringBootTest(properties = "spring.data.mongodb.auto-index-creation=false")
 @ExtendWith(OutputCaptureExtension.class)
 class OpenLibraryIndexManagerIntegrationTest extends BaseIndigoIntegrationTest {
 	@TempDir
@@ -64,6 +64,8 @@ class OpenLibraryIndexManagerIntegrationTest extends BaseIndigoIntegrationTest {
 	private com.martinia.indigo.metadata.domain.ports.repositories.OpenLibraryAuthorRepository localAuthors;
 	@MockBean
 	private OpenLibraryDumpDownloadPort downloadPort;
+
+    @Resource(name = "mongoTemplate") private org.springframework.data.mongodb.core.MongoTemplate mongo;
 
 	private Path editionsFixture;
 	private Path ratingsFixture;
@@ -119,7 +121,10 @@ class OpenLibraryIndexManagerIntegrationTest extends BaseIndigoIntegrationTest {
 		OpenLibraryIndexJobMongoEntity started = indexManager.start();
 		OpenLibraryIndexJobMongoEntity completed = awaitTerminalStatus();
 
-		assertThat(started.getStagingVersion()).isNotBlank();
+		assertThat(mongo.indexOps(com.martinia.indigo.metadata.infrastructure.mongo.entities.OpenLibraryEditionMappingMongoEntity.class)
+                .getIndexInfo()).extracting(org.springframework.data.mongodb.core.index.IndexInfo::getName)
+                .contains("ol_mapping_version_isbn", "ol_mapping_version_title_author");
+        assertThat(started.getStagingVersion()).isNotBlank();
 		assertThat(completed.getStatus()).isEqualTo(OpenLibraryIndexJobStatus.COMPLETED);
 		assertThat(completed.getActiveVersion()).isEqualTo(started.getStagingVersion());
 		assertThat(completed.getLibraryIsbns()).isEqualTo(1);
@@ -128,7 +133,7 @@ class OpenLibraryIndexManagerIntegrationTest extends BaseIndigoIntegrationTest {
 		assertThat(completed.getWorksWithRatings()).isEqualTo(1);
 		assertThat(completed.getAuthorsVersion()).isEqualTo(completed.getActiveVersion());
 		assertThat(completed.getMatchedAuthors()).isEqualTo(1);
-		assertThat(completed.getProcessedRecords()).isEqualTo(1);
+		assertThat(completed.getProcessedRecords()).isEqualTo(3);
 		assertThat(completed.getUpdatedAt()).isAfterOrEqualTo(completed.getStartedAt());
 		assertThat(output.getOut()).contains("stage=PROCESSING_EDITIONS", "stage=PROCESSING_RATINGS",
 				"stage=PROCESSING_AUTHORS", "processedRecords=2", "Activated Open Library index");
@@ -272,6 +277,73 @@ class OpenLibraryIndexManagerIntegrationTest extends BaseIndigoIntegrationTest {
 		assertThat(failed.getError()).contains("Insufficient free space");
 		assertThat(failed.getDetail()).isNull();
 	}
+
+    @Resource private LocalOpenLibraryLookup lookup;
+
+    @Test void indexesAndPrioritizesBooksWithoutIsbnUsingAuthorAliasesAndEditionTitle() throws Exception {
+        var book = bookRepository.save(BookMongoEntity.builder().title("El Hobbit")
+                .authors(List.of("J. R. R. Tolkien")).build());
+        var other = bookRepository.save(BookMongoEntity.builder().title("El Hobbit")
+                .authors(List.of("Otro autor")).build());
+        editionsFixture = gzip("spanish-editions.gz", """
+                /type/edition\t/books/OL9M\t1\t2026-10-16\t{"key":"/books/OL9M","title":"El Hobbit","authors":[{"key":"/authors/OL1A"}],"works":[{"key":"/works/OL1W"}]}
+                """);
+        indexManager.start();
+        var job = awaitTerminalStatus();
+        assertThat(job.getStatus()).isEqualTo(OpenLibraryIndexJobStatus.COMPLETED);
+        assertThat(job.getBookLookupVersion()).isEqualTo(2);
+        assertThat(job.getMatchedIsbns()).isZero();
+        assertThat(job.getMatchedTitleAuthorKeys()).isEqualTo(1);
+        assertThat(job.getWorksWithRatings()).isEqualTo(1);
+        var result = lookup.find(com.martinia.indigo.metadata.domain.model.BookMetadataQuery.builder()
+                .title(book.getTitle()).authors(book.getAuthors()).build());
+        assertThat(result.getRatingAverage()).isEqualTo(4.5F);
+        assertThat(result.getOpenLibraryEditionId()).isEqualTo("OL9M");
+        assertThat(lookup.ratedBookIds(java.util.Set.of(book.getId(), other.getId()))).containsExactly(book.getId());
+        // The actual lookup remains usable while HTTP providers are unavailable.
+        assertThat(lookup.find(com.martinia.indigo.metadata.domain.model.BookMetadataQuery.builder()
+                .title(book.getTitle()).authors(List.of("Otro autor")).build())).isNull();
+    }
+
+    @Test void retainsRatingsForPreviouslyIdentifiedWorksEvenWithoutEditionMatches() throws Exception {
+        var book = bookRepository.save(BookMongoEntity.builder().title("Previously identified")
+                .openLibraryWorkId("OL1W").build());
+        editionsFixture = gzip("empty-editions.gz", "");
+        indexManager.start();
+        var job = awaitTerminalStatus();
+        assertThat(job.getStatus()).isEqualTo(OpenLibraryIndexJobStatus.COMPLETED);
+        assertThat(job.getMatchedIsbns()).isZero();
+        assertThat(job.getWorksWithRatings()).isEqualTo(1);
+        assertThat(lookup.find(com.martinia.indigo.metadata.domain.model.BookMetadataQuery.builder()
+                .openLibraryWorkId("OL1W").build()).getRatingAverage()).isEqualTo(4.5F);
+        assertThat(lookup.ratedBookIds(java.util.Set.of(book.getId()))).containsExactly(book.getId());
+    }
+
+    @Resource private com.martinia.indigo.metadata.application.commands.StartFillBooksMetadataUseCaseImpl fillBooks;
+
+    @Test void completesLocalRatingsBeforeStoppingAQuotaLimitedRemoteRun() throws Exception {
+        for (int i = 0; i < 20; i++) bookRepository.save(BookMongoEntity.builder().title("Uncached " + i).build());
+        var cached = bookRepository.save(BookMongoEntity.builder().title("El Hobbit").authors(List.of("J. R. R. Tolkien")).build());
+        editionsFixture = gzip("cached-editions.gz", """
+                /type/edition\t/books/OL9M\t1\t2026-10-16\t{"key":"/books/OL9M","title":"El Hobbit","authors":[{"key":"/authors/OL1A"}],"works":[{"key":"/works/OL1W"}]}
+                """);
+        indexManager.start();
+        assertThat(awaitTerminalStatus().getStatus()).isEqualTo(OpenLibraryIndexJobStatus.COMPLETED);
+        org.mockito.Mockito.doThrow(new com.martinia.indigo.common.util.ProviderDeferredException(java.time.Instant.now().plusSeconds(600), 429))
+                .when(findGoogleBooksBookPort).findBook(any(com.martinia.indigo.metadata.domain.model.BookMetadataQuery.class));
+        long run = metadataSingleton.start("PARTIAL", "BOOKS");
+        fillBooks.start(com.martinia.indigo.metadata.domain.model.BookMetadataScope.INCOMPLETE,
+                com.martinia.indigo.metadata.domain.model.MetadataMergePolicy.FILL_MISSING,
+                com.martinia.indigo.metadata.domain.model.DynamicMetadataPolicy.REFRESH_IF_STALE, run);
+        assertThat(bookRepository.findById(cached.getId()).orElseThrow().getRatingAverage()).isEqualTo(4.5F);
+        assertThat(metadataSingleton.getFound()).isEqualTo(1);
+        assertThat(metadataSingleton.getDeferred()).isEqualTo(10);
+        assertThat(metadataSingleton.getCurrent()).isEqualTo(11);
+        assertThat(metadataSingleton.getTotal()).isEqualTo(22);
+        assertThat(metadataSingleton.getMessage()).startsWith("Recorrido detenido:");
+        assertThat(metadataSingleton.isRunning()).isFalse();
+        verify(findGoogleBooksBookPort, org.mockito.Mockito.times(10)).findBook(any(com.martinia.indigo.metadata.domain.model.BookMetadataQuery.class));
+    }
 
 	private OpenLibraryIndexJobMongoEntity awaitTerminalStatus() throws InterruptedException {
 		final long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(15);

@@ -15,6 +15,8 @@ public interface CustomBookRepository {
 
 	void updateReviewMetadata(BookMongoEntity book);
 
+	List<BookMongoEntity> findMetadataIndexBatch(String afterId);
+
 	List<BookMongoEntity> findAuthorNamesBatch(String afterId);
 
 	// Maintenance reads are bounded and exclude covers and reviews.

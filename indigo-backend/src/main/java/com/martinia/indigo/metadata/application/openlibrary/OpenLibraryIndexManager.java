@@ -93,6 +93,15 @@ public class OpenLibraryIndexManager {
 
 	@PostConstruct
 	void resumeInterruptedJob() {
+        // application.yml disables automatic index creation; these lookups still need their indexes.
+        var resolver = new org.springframework.data.mongodb.core.index.MongoPersistentEntityIndexResolver(
+                mongoTemplate.getConverter().getMappingContext());
+        for (Class<?> type : List.of(
+                com.martinia.indigo.metadata.infrastructure.mongo.entities.OpenLibraryEditionMappingMongoEntity.class,
+                com.martinia.indigo.metadata.infrastructure.mongo.entities.OpenLibraryRatingMongoEntity.class,
+                com.martinia.indigo.metadata.infrastructure.mongo.entities.OpenLibraryAuthorMongoEntity.class)) {
+            resolver.resolveIndexFor(type).forEach(index -> mongoTemplate.indexOps(type).ensureIndex(index));
+        }
 		jobRepository.findById(JOB_ID)
 				.filter(job -> job.getStatus() != null && job.getStatus().isRunning())
 				.ifPresent(this::submit);
@@ -122,6 +131,7 @@ public class OpenLibraryIndexManager {
 						: current.getActiveVersion())
 				.editionsUrl(editionsUrl)
 				.authorsVersion(current == null ? null : current.getAuthorsVersion())
+                .bookLookupVersion(current == null ? 0 : current.getBookLookupVersion())
 				.authorsUrl(authorsUrl)
 				.authorsFile(downloads.resolve("authors.txt.gz").toString())
 				.ratingsUrl(ratingsUrl)
@@ -227,57 +237,64 @@ public class OpenLibraryIndexManager {
 			final Set<String> libraryIsbns = preparationStep(job, "Cargando los ISBN de la biblioteca desde MongoDB",
 					this::libraryIsbns);
 			job.setLibraryIsbns(libraryIsbns.size());
-			job.setStatus(OpenLibraryIndexJobStatus.DOWNLOADING_EDITIONS);
-			saveStage(job);
-			ProgressPersistence progress = new ProgressPersistence(job, 0L);
-			final OpenLibraryDownloadResult editionsDownload = downloadPort.download(job.getEditionsUrl(), editionsFile,
-					cancellation::get, progress::downloaded);
-			job.setEditionsLastModified(firstNonBlank(editionsDownload.lastModified(), editionsRemote.lastModified()));
-
-			job.setStatus(OpenLibraryIndexJobStatus.PROCESSING_EDITIONS);
-			job.setDownloadedBytes(editionsDownload.size());
-			job.setProcessedRecords(0L);
-			job.setMatchedRecords(0L);
-			saveStage(job);
-			progress = new ProgressPersistence(job, 0L);
-			final OpenLibraryDumpProcessor.EditionProcessingResult editions = processor.processEditions(editionsFile,
-					version, libraryIsbns, cancellation::get, progress::processed);
-			job.setMatchedIsbns(editions.matchedIsbns().size());
-			job.setMatchedWorks(editions.matchedWorks().size());
-			job.setMatchedRecords(editions.matchedIsbns().size());
-
-			job.setStatus(OpenLibraryIndexJobStatus.DOWNLOADING_RATINGS);
-			job.setDownloadedBytes(editionsDownload.size());
-			saveStage(job);
-			progress = new ProgressPersistence(job, editionsDownload.size());
-			final OpenLibraryDownloadResult ratingsDownload = downloadPort.download(job.getRatingsUrl(), ratingsFile,
-					cancellation::get, progress::downloaded);
-			job.setRatingsLastModified(firstNonBlank(ratingsDownload.lastModified(), ratingsRemote.lastModified()));
-
-			job.setStatus(OpenLibraryIndexJobStatus.PROCESSING_RATINGS);
-			job.setDownloadedBytes(editionsDownload.size() + ratingsDownload.size());
-			job.setProcessedRecords(0L);
-			saveStage(job);
-			progress = new ProgressPersistence(job, 0L);
-			final OpenLibraryDumpProcessor.RatingProcessingResult ratings = processor.processRatings(ratingsFile, version,
-					editions.matchedWorks(), cancellation::get, progress::processed);
-			job.setWorksWithRatings(ratings.worksWithRatings());
-
+			ProgressPersistence progress;
 			job.setStatus(OpenLibraryIndexJobStatus.DOWNLOADING_AUTHORS);
-			job.setDownloadedBytes(editionsDownload.size() + ratingsDownload.size());
+			job.setDownloadedBytes(0L);
 			saveStage(job);
-			progress = new ProgressPersistence(job, editionsDownload.size() + ratingsDownload.size());
+			progress = new ProgressPersistence(job, 0L);
 			final OpenLibraryDownloadResult authorsDownload = downloadPort.download(job.getAuthorsUrl(), authorsFile,
 					cancellation::get, progress::downloaded);
 			job.setAuthorsLastModified(firstNonBlank(authorsDownload.lastModified(), authorsRemote.lastModified()));
 			job.setStatus(OpenLibraryIndexJobStatus.PROCESSING_AUTHORS);
 			job.setProcessedRecords(0L);
-			job.setDownloadedBytes(editionsDownload.size() + ratingsDownload.size() + authorsDownload.size());
+			job.setDownloadedBytes(authorsDownload.size());
 			saveStage(job);
 			progress = new ProgressPersistence(job, 0L);
 			final OpenLibraryDumpProcessor.AuthorProcessingResult authors = processor.processAuthors(authorsFile, version,
 					libraryAuthorNames(), cancellation::get, progress::processed);
 			job.setMatchedAuthors(authors.matchedAuthors());
+
+			job.setStatus(OpenLibraryIndexJobStatus.DOWNLOADING_EDITIONS);
+			saveStage(job);
+			progress = new ProgressPersistence(job, authorsDownload.size());
+			final OpenLibraryDownloadResult editionsDownload = downloadPort.download(job.getEditionsUrl(), editionsFile,
+					cancellation::get, progress::downloaded);
+			job.setEditionsLastModified(firstNonBlank(editionsDownload.lastModified(), editionsRemote.lastModified()));
+
+			job.setStatus(OpenLibraryIndexJobStatus.PROCESSING_EDITIONS);
+			job.setDownloadedBytes(authorsDownload.size() + editionsDownload.size());
+			job.setProcessedRecords(0L);
+			job.setMatchedRecords(0L);
+			saveStage(job);
+			progress = new ProgressPersistence(job, 0L);
+			final Set<String> knownWorks = new HashSet<>();
+            final Set<String> bookKeys = libraryBookKeys(knownWorks);
+			final OpenLibraryDumpProcessor.EditionProcessingResult editions = processor.processEditions(editionsFile,
+					version, libraryIsbns, bookKeys, cancellation::get, progress::processed);
+			job.setMatchedIsbns(editions.matchedIsbns().size());
+            job.setMatchedTitleAuthorKeys(editions.matchedTitleAuthorKeys());
+			final Set<String> ratingWorkIds = new HashSet<>(editions.matchedWorks());
+            ratingWorkIds.addAll(knownWorks);
+            job.setMatchedWorks(ratingWorkIds.size());
+			job.setMatchedRecords(editions.matchedIsbns().size());
+
+			job.setStatus(OpenLibraryIndexJobStatus.DOWNLOADING_RATINGS);
+			job.setDownloadedBytes(authorsDownload.size() + editionsDownload.size());
+			saveStage(job);
+			progress = new ProgressPersistence(job, authorsDownload.size() + editionsDownload.size());
+			final OpenLibraryDownloadResult ratingsDownload = downloadPort.download(job.getRatingsUrl(), ratingsFile,
+					cancellation::get, progress::downloaded);
+			job.setRatingsLastModified(firstNonBlank(ratingsDownload.lastModified(), ratingsRemote.lastModified()));
+
+			job.setStatus(OpenLibraryIndexJobStatus.PROCESSING_RATINGS);
+			job.setDownloadedBytes(authorsDownload.size() + editionsDownload.size() + ratingsDownload.size());
+			job.setProcessedRecords(0L);
+			saveStage(job);
+			progress = new ProgressPersistence(job, 0L);
+			final OpenLibraryDumpProcessor.RatingProcessingResult ratings = processor.processRatings(ratingsFile, version,
+					ratingWorkIds, cancellation::get, progress::processed);
+			job.setWorksWithRatings(ratings.worksWithRatings());
+
 
 			checkCancellation();
 			job.setStatus(OpenLibraryIndexJobStatus.ACTIVATING);
@@ -296,17 +313,18 @@ public class OpenLibraryIndexManager {
 					.ratingsLastModified(job.getRatingsLastModified())
 					.libraryIsbns(libraryIsbns.size())
 					.matchedIsbns(editions.matchedIsbns().size())
-					.matchedWorks(editions.matchedWorks().size())
+					.matchedWorks(ratingWorkIds.size())
 					.worksWithRatings(ratings.worksWithRatings())
 					.processedEditions(editions.processedRecords())
 					.processedRatings(ratings.processedRecords())
 					.build());
 
 			job.setActiveVersion(version);
+            job.setBookLookupVersion(2);
 			job.setAuthorsVersion(version);
 			job.setStatus(OpenLibraryIndexJobStatus.COMPLETED);
 			job.setDownloadedBytes(editionsDownload.size() + ratingsDownload.size() + authorsDownload.size());
-			job.setProcessedRecords(authors.processedRecords());
+			job.setProcessedRecords(ratings.processedRecords());
 			job.setCancelRequested(false);
 			job.setError(null);
 			job.setCompletedAt(new Date());
@@ -399,6 +417,22 @@ public class OpenLibraryIndexManager {
 		}
 		return names;
 	}
+
+    private Set<String> libraryBookKeys(Set<String> knownWorks) {
+        Set<String> keys = new HashSet<>();
+        String after = null;
+        while (true) {
+            checkCancellation();
+            var batch = bookRepository.findMetadataIndexBatch(after);
+            if (batch.isEmpty()) return keys;
+            for (var book : batch) {
+                keys.addAll(LocalBookKey.keys(book.getTitle(), book.getAuthors()));
+                if (book.getOpenLibraryWorkId() != null && book.getOpenLibraryWorkId().matches("OL[0-9]+W"))
+                    knownWorks.add(book.getOpenLibraryWorkId());
+            }
+            after = batch.getLast().getId();
+        }
+    }
 
 	private Set<String> libraryIsbns() {
 		final Set<String> result = new HashSet<>();

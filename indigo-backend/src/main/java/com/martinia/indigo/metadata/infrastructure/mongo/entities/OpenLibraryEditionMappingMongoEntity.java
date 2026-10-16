@@ -16,6 +16,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "openLibraryEditionMappings")
 @CompoundIndexes({
 		@CompoundIndex(name = "ol_mapping_version_isbn", def = "{'indexVersion': 1, 'isbn': 1}"),
+		@CompoundIndex(name = "ol_mapping_version_title_author", def = "{'indexVersion': 1, 'titleAuthorKeys': 1}"),
 		@CompoundIndex(name = "ol_mapping_version_work", def = "{'indexVersion': 1, 'workId': 1}")
 })
 public class OpenLibraryEditionMappingMongoEntity {
@@ -25,4 +26,5 @@ public class OpenLibraryEditionMappingMongoEntity {
 	private String isbn;
 	private String editionId;
 	private String workId;
+    private java.util.List<String> titleAuthorKeys;
 }

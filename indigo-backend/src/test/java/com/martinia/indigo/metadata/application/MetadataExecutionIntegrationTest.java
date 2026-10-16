@@ -152,6 +152,32 @@ class MetadataExecutionIntegrationTest extends BaseIndigoTest {
         assertThat(state.getDeferred()).isZero();
     }
 
+    @Test void ratingSelectionIgnoresMissingSynopsisAndIncludesOtherwiseCompleteUnratedBooks() {
+        var rated = bookRepository.save(BookMongoEntity.builder().title("Rated without synopsis").ratingAverage(4F).build());
+        var unrated = bookRepository.save(BookMongoEntity.builder().title("Unrated").authors(List.of("Author"))
+                .comment("Synopsis").pubDate(new java.util.Date()).pages(100).tags(List.of("Fiction"))
+                .image("cover").languages(List.of("es")).isbn13(List.of("9780306406157")).build());
+        assertThat(bookRepository.findBooksWithIncompleteMetadata()).extracting(BookMongoEntity::getId)
+                .contains(unrated.getId()).doesNotContain(rated.getId());
+    }
+
+    @Test void repeatedQuotaDeferralsStopTheRunAndLeaveAllPendingForNextExecution() {
+        for (int i = 0; i < 25; i++) bookRepository.save(BookMongoEntity.builder().title("Book " + i).build());
+        when(commands.executeAndWait(any(FindBookMetadataCommand.class))).thenReturn(MetadataItemResult.DEFERRED);
+        runBooks(BookMetadataScope.ALL);
+        verify(commands, times(10)).executeAndWait(any(FindBookMetadataCommand.class));
+        assertThat(mongo.findAll(Document.class, "metadataExecutions")).isEmpty();
+        var state = (MetadataSingleton) ReflectionTestUtils.getField(books, "metadataSingleton");
+        assertThat(state.getCurrent()).isEqualTo(10);
+        assertThat(state.getTotal()).isEqualTo(25);
+        assertThat(state.getMessage()).startsWith("Recorrido detenido:");
+        assertThat(state.isRunning()).isFalse();
+        reset(commands);
+        when(commands.executeAndWait(any(FindBookMetadataCommand.class))).thenReturn(MetadataItemResult.FOUND);
+        runBooks(BookMetadataScope.ALL);
+        verify(commands, times(25)).executeAndWait(any(FindBookMetadataCommand.class));
+    }
+
     private void runBooks(BookMetadataScope scope) {
         MetadataSingleton state = new MetadataSingleton();
         ReflectionTestUtils.setField(books, "metadataSingleton", state);

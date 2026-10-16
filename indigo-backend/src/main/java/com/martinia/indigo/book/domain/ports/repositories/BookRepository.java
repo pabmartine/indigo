@@ -10,23 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface BookRepository extends MongoRepository<BookMongoEntity, String>, CustomBookRepository {
-	String INCOMPLETE_METADATA_QUERY = "{ '$and': ["
-			+ "{ '$or': ["
-			+ "{ 'title': { '$in': [null, ''] } },"
-			+ "{ 'authors': { '$in': [null, []] } },"
-			+ "{ 'comment': { '$in': [null, ''] } },"
-			+ "{ 'pubDate': null },"
-			+ "{ 'pages': { '$lte': 0 } },"
-			+ "{ 'tags': { '$in': [null, []] } },"
-			+ "{ 'image': { '$in': [null, ''] } },"
-			+ "{ 'languages': { '$in': [null, []] } },"
-			+ "{ '$and': ["
-			+ "{ 'isbn10': { '$in': [null, []] } },"
-			+ "{ 'isbn13': { '$in': [null, []] } },"
-			+ "{ 'identifiers': { '$in': [null, {}] } }"
-			+ "] }"
-			+ "] }"
-			+ "] }";
+    String INCOMPLETE_METADATA_QUERY = "{ 'ratingAverage': null }";
 
 	@Query(value = "{ '_id': ?0 }", fields = "{ 'image': 1 }")
 	Optional<BookMongoEntity> findCoverById(String id);

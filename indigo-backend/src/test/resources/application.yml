@@ -85,7 +85,7 @@ metadata:
     google:
         url: https://www.googleapis.com/books/v1/volumes?q=intitle:$title
     openlibrary:
-        books: https://openlibrary.org/search.json?title=$title&author=$author&fields=key,title,author_name,edition_key,ratings_average,ratings_count,cover_i&limit=5
+        books: https://openlibrary.org/search.json?q=$title&author=$author&fields=key,title,author_name,edition_key,ratings_average,ratings_count,cover_i&limit=5
         books-by-isbn: https://openlibrary.org/search.json?isbn=$isbn&fields=key,title,author_name,edition_key,ratings_average,ratings_count&limit=5
         authors: https://openlibrary.org/search/authors.json?q=$subject&limit=5
         author-info: https://openlibrary.org/authors/$id.json

@@ -90,10 +90,9 @@ public class FindOpenLibraryBookUseCaseImpl implements FindOpenLibraryBookUseCas
 		}
 
 		try {
-            final String author = String.join(" ", authors == null ? Collections.emptyList()
-                    : authors.stream().filter(StringUtils::isNotBlank).toList());
-			final String url = endpoint
-					.replace("$title", encode(title))
+            final String author = authors == null ? "" : authors.stream().filter(StringUtils::isNotBlank).findFirst().orElse("");
+			final String url = editionSearchEndpoint()
+					.replace("$title", encode(searchLiteral(title)))
 					.replace("$author", encode(author));
 			final String json = dataUtils.getData(url);
 			if (StringUtils.isBlank(json)) {
@@ -104,6 +103,11 @@ public class FindOpenLibraryBookUseCaseImpl implements FindOpenLibraryBookUseCas
             for (JsonNode document : documents(json)) {
                 if (!matches(document, title, authors)) continue;
                 BookMetadataResult result = toResult(document, 1D);
+                JsonNode edition = matchingEdition(document, title);
+                result = BookMetadataResult.builder().provider(result.getProvider()).ratingAverage(result.getRatingAverage())
+                        .ratingsCount(result.getRatingsCount()).openLibraryWorkId(result.getOpenLibraryWorkId())
+                        .openLibraryEditionId(edition == null ? null : normalizeOpenLibraryId(edition.path("key").asText(null)))
+                        .matchConfidence(result.getMatchConfidence()).build();
                 if (result.getRatingAverage() != null) return result;
                 if (identity == null && (result.getOpenLibraryWorkId() != null || result.getOpenLibraryEditionId() != null)) {
                     identity = result;
@@ -166,7 +170,8 @@ public class FindOpenLibraryBookUseCaseImpl implements FindOpenLibraryBookUseCas
 
 	private boolean matches(final JsonNode document, final String title, final List<String> authors) {
 		if (!com.martinia.indigo.metadata.application.BookMetadataTitles.matches(title,
-                document.path("title").asText(null), document.path("subtitle").asText(null))) {
+                document.path("title").asText(null), document.path("subtitle").asText(null))
+                && matchingEdition(document, title) == null) {
 			return false;
 		}
 
@@ -184,6 +189,27 @@ public class FindOpenLibraryBookUseCaseImpl implements FindOpenLibraryBookUseCas
 		}
 		return false;
 	}
+
+    private String searchLiteral(String title) {
+        return "\"" + title.replace("\\", "\\\\").replace("\"", "\\\"") + "\"";
+    }
+
+    private String editionSearchEndpoint() {
+        // title= searches the work title only; q= also searches translated edition titles.
+        // Upgrade the former default even when it is supplied through an environment variable.
+        String url = endpoint.replace("?title=$title", "?q=$title").replace("&title=$title", "&q=$title");
+        String fields = "key,title,subtitle,author_name,edition_key,ratings_average,ratings_count,editions,editions.key,editions.title,editions.subtitle";
+        if (url.matches(".*[?&]fields=[^&]*.*")) return url.replaceFirst("([?&])fields=[^&]*", "$1fields=" + fields);
+        return url + (url.contains("?") ? "&" : "?") + "fields=" + fields;
+    }
+
+    private JsonNode matchingEdition(JsonNode document, String title) {
+        for (JsonNode edition : document.path("editions").path("docs")) {
+            if (com.martinia.indigo.metadata.application.BookMetadataTitles.matches(title,
+                    edition.path("title").asText(null), edition.path("subtitle").asText(null))) return edition;
+        }
+        return null;
+    }
 
 	private String encode(final String value) {
 		return URLEncoder.encode(value, StandardCharsets.UTF_8);

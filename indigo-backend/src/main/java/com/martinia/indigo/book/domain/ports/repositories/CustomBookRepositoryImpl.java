@@ -188,6 +188,11 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 		return maintenanceBatch(afterId, "tags", "languages");
 	}
 
+    @Override
+    public List<BookMongoEntity> findMetadataIndexBatch(String afterId) {
+        return maintenanceBatch(afterId, 1_000, "title", "authors", "isbn10", "isbn13", "openLibraryWorkId");
+    }
+
 	@Override
 	public List<BookMongoEntity> findAuthorNamesBatch(String afterId) {
 		return maintenanceBatch(afterId, 1_000, "authors", "languages");

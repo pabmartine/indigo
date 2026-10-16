@@ -39,11 +39,15 @@ public class StartFillBooksMetadataCommandHandlerIntegrationTest extends BaseInd
 	@Resource
 	private StartFillBooksMetadataCommandHandler startFillBooksMetadataCommandHandler;
 
+    @Resource(name = "mongoTemplate")
+    private org.springframework.data.mongodb.core.MongoTemplate mongo;
+
 	@BeforeEach
 	public void init(){
 		metadataSingleton.start("FULL", "BOOKS");
 		metadataSingleton.stop();
 		bookRepository.deleteAll();
+        mongo.dropCollection("metadataExecutions");
 		when(commandBus.executeAndWait(any(FindBookMetadataCommand.class))).thenReturn(MetadataItemResult.FOUND);
 	}
 
@@ -95,7 +99,7 @@ public class StartFillBooksMetadataCommandHandlerIntegrationTest extends BaseInd
 	}
 
 	@Test
-	void incompleteScopeSelectsOnlyBooksMissingIntrinsicMetadata() {
+	void incompleteScopeSelectsUnratedBooksRegardlessOfIntrinsicMetadata() {
 		insertBook();
 		bookRepository.save(BookMongoEntity.builder()
 				.id("complete")
@@ -111,12 +115,13 @@ public class StartFillBooksMetadataCommandHandlerIntegrationTest extends BaseInd
 				.isbn13(List.of("9780261102217"))
 				.identifiers(Map.of("ISBN", List.of("9780261102217")))
 				.build());
-		metadataSingleton.setRunning(true);
+		bookRepository.save(BookMongoEntity.builder().id("rated-without-synopsis").title("Rated").ratingAverage(4F).build());
+        metadataSingleton.setRunning(true);
 
 		startFillBooksMetadataCommandHandler.handle(incompleteBooksCommand());
 
-		verify(commandBus, times(1)).executeAndWait(any(FindBookMetadataCommand.class));
-		assertEquals(1, metadataSingleton.getTotal());
+		verify(commandBus, times(2)).executeAndWait(any(FindBookMetadataCommand.class));
+		assertEquals(2, metadataSingleton.getTotal());
 	}
 
 	@Test

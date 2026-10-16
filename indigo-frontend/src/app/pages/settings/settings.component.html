@@ -33,10 +33,12 @@
                 El contador se actualiza durante el procesamiento.</p>
               <p *ngIf="indexDownloading">Descargado en total: {{ (libraryIndex.downloadedBytes || 0) / 1048576 | number:'1.1-1' }} MiB<span
                 *ngIf="libraryIndex.totalBytes > 0"> de {{ libraryIndex.totalBytes / 1048576 | number:'1.1-1' }} MiB</span>.</p>
-              <p *ngIf="indexRunning && libraryIndex.status !== 'ACTIVATING'">Los autores se indexan después de las ediciones y las valoraciones.</p>
+              <p *ngIf="indexRunning && libraryIndex.status !== 'ACTIVATING'">Se procesan autores, ediciones y valoraciones para identificar libros también por título y autor.</p>
               <p *ngIf="libraryIndex.matchedIsbns > 0 || libraryIndex.status === 'COMPLETED'">ISBN encontrados: {{ (libraryIndex.matchedIsbns || 0) | number:'1.0-0' }} ·
                 Obras con valoraciones: {{ (libraryIndex.worksWithRatings || 0) | number:'1.0-0' }}</p>
               <p *ngIf="libraryIndex.matchedAuthors > 0 || libraryIndex.status === 'COMPLETED'">Autores indexados: {{ (libraryIndex.matchedAuthors || 0) | number:'1.0-0' }}</p>
+              <p *ngIf="libraryIndex.bookLookupVersion >= 2">Coincidencias por título y autor: {{ (libraryIndex.matchedTitleAuthorKeys || 0) | number:'1.0-0' }}</p>
+              <p *ngIf="libraryIndexCoverageNotice">{{ libraryIndexCoverageNotice }}</p>
               <p *ngIf="libraryIndex.updatedAt">Última actualización del proceso: {{ libraryIndex.updatedAt | date:'dd/MM/yyyy HH:mm:ss' }}</p>
             </div>
             <p class="error" role="alert" *ngIf="libraryIndex?.error">{{ libraryIndex.error }}</p>
@@ -57,7 +59,7 @@
                   <div class="metadata-task-top">
                     <div>
                       <div class="metadata-task-title">Todos los libros</div>
-                      <div class="metadata-task-description">Actualizar metadatos de toda la biblioteca</div>
+                      <div class="metadata-task-description">Actualizar valoraciones e identificadores de Open Library y Google Books</div>
                     </div>
                     <div class="metadata-task-actions">
                       <span class="metadata-task-status" [class.is-running]="isBooksFull()">{{ getMetadataStatusLabel('FULL', 'BOOKS') }}</span>
@@ -78,6 +80,7 @@
                     <span class="metadata-task-percent">{{ getMetadataProgress('FULL', 'BOOKS') }}%</span>
                   </div>
                   <div class="metadata-task-footer">{{ getMetadataResult('FULL', 'BOOKS') }}</div>
+                  <div class="metadata-task-footer" role="status" *ngIf="getMetadataNotice('FULL', 'BOOKS') as notice">{{ notice }}</div>
                   <div class="metadata-task-footer"><a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS'}">Ver consultas de libros</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS', status: 'ERROR'}">Ver errores</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS', status: 'DEFERRED'}">Ver aplazados</a></div>
                   <div class="metadata-task-footer">Última ejecución: {{ getMetadataLastExecution('FULL', 'BOOKS') }}</div>
                 </article>
@@ -85,8 +88,8 @@
                 <article class="metadata-task-card">
                   <div class="metadata-task-top">
                     <div>
-                      <div class="metadata-task-title">Sin metadatos</div>
-                      <div class="metadata-task-description">Solo libros que carecen de información</div>
+                      <div class="metadata-task-title">Sin valoración</div>
+                      <div class="metadata-task-description">Recuperar valoraciones externas; no modifica sinopsis, portadas ni páginas</div>
                     </div>
                     <div class="metadata-task-actions">
                       <span class="metadata-task-status" [class.is-running]="isBooksPartial()">{{ getMetadataStatusLabel('PARTIAL', 'BOOKS') }}</span>
@@ -107,6 +110,7 @@
                     <span class="metadata-task-percent">{{ getMetadataProgress('PARTIAL', 'BOOKS') }}%</span>
                   </div>
                   <div class="metadata-task-footer">{{ getMetadataResult('PARTIAL', 'BOOKS') }}</div>
+                  <div class="metadata-task-footer" role="status" *ngIf="getMetadataNotice('PARTIAL', 'BOOKS') as notice">{{ notice }}</div>
                   <div class="metadata-task-footer"><a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS'}">Ver consultas de libros</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS', status: 'ERROR'}">Ver errores</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'BOOKS', status: 'DEFERRED'}">Ver aplazados</a></div>
                   <div class="metadata-task-footer">Última ejecución: {{ getMetadataLastExecution('PARTIAL', 'BOOKS') }}</div>
                 </article>
@@ -156,7 +160,7 @@
                 <article class="metadata-task-card">
                   <div class="metadata-task-top">
                     <div>
-                      <div class="metadata-task-title">Sin metadatos</div>
+                      <div class="metadata-task-title">Sin valoración</div>
                       <div class="metadata-task-description">Completar la descripción o la foto que falta</div>
                     </div>
                     <div class="metadata-task-actions">

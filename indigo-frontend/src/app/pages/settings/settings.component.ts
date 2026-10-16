@@ -47,6 +47,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
       ACTIVATING: 'Activando el índice', COMPLETED: 'Completado', FAILED: 'Error', CANCELLED: 'Cancelado'
     } as {[key: string]: string})[this.libraryIndex?.status] || this.libraryIndex?.status || 'Sin iniciar';
   }
+  get libraryIndexCoverageNotice(): string {
+    if (!this.libraryIndex?.activeVersion) return 'No hay un índice local de libros activo. Descarga y construye el índice para consultar valoraciones sin depender de Google.';
+    if ((this.libraryIndex.bookLookupVersion || 0) < 2) return 'Este índice sólo permite identificar libros por ISBN. Reconstrúyelo para añadir búsqueda por título y autor, también en libros sin ISBN.';
+    if (this.libraryIndex.status === 'COMPLETED' && !this.libraryIndex.worksWithRatings) return 'El índice está construido, pero no contiene valoraciones para los libros identificados. Tener autores indexados no garantiza valoraciones de sus libros.';
+    return 'La cobertura depende de las ediciones y valoraciones disponibles en Open Library; el índice no incluye todos los libros.';
+  }
+
   get indexProcessing(): boolean {
     return this.libraryIndex?.status?.startsWith('PROCESSING_') || false;
   }
@@ -589,7 +596,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
     if (run.status && run.waitingUntil) return run.waitingFor?.startsWith('Wikipedia') ? 'Esperando Wikipedia' : 'Esperando proveedor';
     return run.status ? (!run.total ? 'Preparando' : 'En curso')
-      : (run.errors > 0 ? 'Con errores' : (run.current < run.total ? 'Detenido' : (run.deferred > 0 ? 'Con pendientes' : 'Finalizado')));
+      : (run.errors > 0 ? 'Con errores' : (run.deferred > 0 ? 'Con pendientes' : (run.current < run.total ? 'Detenido' : 'Finalizado')));
+  }
+
+  getMetadataNotice(type: string, entity: string): string {
+    const message = this.getMetadataRun(type, entity)?.message;
+    return message?.startsWith('Recorrido detenido:') ? message : '';
   }
 
   getMetadataWait(type: string, entity: string): any {

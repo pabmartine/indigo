@@ -58,6 +58,7 @@ public class FindBookMetadataUseCaseImpl implements FindBookMetadataUseCase {
 			boolean providerAttempted = false;
 			final BookMetadataQuery query = BookMetadataQuery.builder()
 					.title(book.getTitle())
+                    .openLibraryWorkId(book.getOpenLibraryWorkId())
 					.authors(book.getAuthors())
 					.isbn10(book.getIsbn10())
 					.isbn13(book.getIsbn13())

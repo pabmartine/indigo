@@ -176,4 +176,25 @@ describe('Settings metadata processes', () => {
     expect(component.activityBusy).toBeFalse();
   });
 
+  it('distinguishes author coverage from usable book ratings and explains old indexes', () => {
+    component.libraryIndex = {status: 'COMPLETED', matchedAuthors: 12000};
+    expect(component.libraryIndexCoverageNotice).toContain('No hay un índice local de libros activo');
+    component.libraryIndex = {status: 'COMPLETED', activeVersion: 'v1', matchedAuthors: 12000, worksWithRatings: 10};
+    expect(component.libraryIndexCoverageNotice).toContain('sólo permite identificar libros por ISBN');
+    component.libraryIndex = {status: 'COMPLETED', activeVersion: 'v2', bookLookupVersion: 2, worksWithRatings: 0};
+    expect(component.libraryIndexCoverageNotice).toContain('no contiene valoraciones');
+    component.libraryIndex.worksWithRatings = 20;
+    expect(component.libraryIndexCoverageNotice).toContain('no incluye todos los libros');
+  });
+
+  it('shows the reason for a quota-limited stop without claiming completion of all books', () => {
+    component.metadataRuns['PARTIAL:BOOKS'] = {status: false, current: 10, total: 50000, deferred: 10,
+      message: 'Recorrido detenido: proveedores en pausa'};
+    expect(component.getMetadataStatusLabel('PARTIAL', 'BOOKS')).toBe('Con pendientes');
+    expect(component.getMetadataNotice('PARTIAL', 'BOOKS')).toContain('proveedores en pausa');
+    expect(component.getMetadataCounter('PARTIAL', 'BOOKS')).toBe('10 / 50000 elementos');
+    component.metadataRuns['PARTIAL:BOOKS'].message = 'obtaining_metadata_books';
+    expect(component.getMetadataNotice('PARTIAL', 'BOOKS')).toBe('');
+  });
+
 });

@@ -8,5 +8,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 public interface OpenLibraryRatingRepository extends MongoRepository<OpenLibraryRatingMongoEntity, String> {
 	Optional<OpenLibraryRatingMongoEntity> findByIndexVersionAndWorkId(String indexVersion, String workId);
 
+    java.util.List<OpenLibraryRatingMongoEntity> findByIndexVersion(String version);
+
 	long deleteByIndexVersion(String indexVersion);
 }
