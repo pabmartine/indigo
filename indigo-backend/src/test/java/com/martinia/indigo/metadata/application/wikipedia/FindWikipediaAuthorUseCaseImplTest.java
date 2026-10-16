@@ -33,6 +33,14 @@ class FindWikipediaAuthorUseCaseImplTest {
 	}
 
 	@Test
+	void rejectsTheTownOfCellinoAttanasioForAAAttanasio() {
+		when(dataUtils.getData("https://es.example/A%20A%20Attanasio"))
+				.thenReturn("{\"query\":{\"search\":[{\"title\":\"Cellino Attanasio\"}]}}");
+		assertNull(useCase.findAuthor("A. A. Attanasio", "es", 0));
+		org.mockito.Mockito.verifyNoInteractions(infoPort);
+	}
+
+	@Test
 	void doesNotAcceptAnUnrelatedAuthorSharingOnlySomeTerms() {
 		when(dataUtils.getData("https://es.example/A%20P%20Hernandez"))
 				.thenReturn("{\"query\":{\"search\":[{\"title\":\"Miguel Hernández\"}]}}");

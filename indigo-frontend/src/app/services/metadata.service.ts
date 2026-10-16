@@ -67,7 +67,7 @@ export class MetadataService {
   }
 
   findAuthor(lang: string, author: string): Observable<any> {
-    return this.http.get(this.endpoint + "/author?lang=" + lang + "&author=" + author);
+    return this.http.get(this.endpoint + "/author?lang=" + encodeURIComponent(lang) + "&author=" + encodeURIComponent(author));
   }
 
   findBook(book: string, lang: string): Observable<any> {

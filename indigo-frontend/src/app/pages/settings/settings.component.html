@@ -160,7 +160,7 @@
                 <article class="metadata-task-card">
                   <div class="metadata-task-top">
                     <div>
-                      <div class="metadata-task-title">Sin valoración</div>
+                      <div class="metadata-task-title">Sin metadatos</div>
                       <div class="metadata-task-description">Completar la descripción o la foto que falta</div>
                     </div>
                     <div class="metadata-task-actions">
@@ -198,28 +198,54 @@
                 </div>
                 <div class="metadata-section-total">{{ reviewsTotal | number }} libros</div>
               </header>
-              <div class="metadata-task-card review-task-card">
-              <p>Estado: {{reviewQueueState}} · {{reviewQueue.all ? 'Todas las reseñas' : 'Reseñas faltantes'}}</p>
-              <p>{{reviewQueue.processed || 0}} / {{reviewQueue.total || 0}} libros procesados · {{reviewQueue.errors || 0}} intentos fallidos · {{reviewQueue.failedBooks || 0}} libros sin completar</p>
-              <p *ngIf="reviewQueue.inFlight">Hay un libro en curso. Una pausa o parada impide la siguiente petición; la petición ya enviada puede terminar.</p>
-              <p *ngIf="reviewQueue.nextAttempt">Próximo reintento: {{reviewQueue.nextAttempt | date:'short'}}</p>
-              <p *ngIf="reviewQueue.reason">{{reviewQueue.reason}}</p>
-              <p>Intervalo mínimo entre peticiones (segundos, de 15 a 3600). Los límites del proveedor tienen prioridad.</p>
-              <div class="settings-inline-fields">
-                <div class="p-field"><label for="review-amazon-seconds">Amazon</label>
-                  <input pInputText id="review-amazon-seconds" type="number" min="15" max="3600" [(ngModel)]="reviewAmazonSeconds"></div>
-                <div class="p-field"><label for="review-goodreads-seconds">Goodreads</label>
-                  <input pInputText id="review-goodreads-seconds" type="number" min="15" max="3600" [(ngModel)]="reviewGoodreadsSeconds"></div>
-                <button pButton class="p-button-outlined" label="Guardar intervalos" (click)="reviewQueueAction('settings')" [disabled]="reviewQueueBusy || !reviewQueueLoaded || !validReviewIntervals"></button>
+              <div class="metadata-task-grid">
+                <article class="metadata-task-card" *ngFor="let mode of reviewModes">
+                  <div class="metadata-task-top">
+                    <div>
+                      <div class="metadata-task-title">{{mode.title}}</div>
+                      <div class="metadata-task-description">{{mode.description}}</div>
+                    </div>
+                    <div class="metadata-task-actions">
+                      <span class="metadata-task-status" [class.is-running]="isReviewActive(mode.all)">{{reviewStatus(mode.all)}}</span>
+                      <button type="button" class="metadata-action-button" (click)="toggleReview(mode.all)"
+                        [disabled]="reviewQueueBusy || !reviewQueueLoaded || (!mode.all && reviewQueueActive && !isReviewActive(mode.all)) || (reviewQueue.status === 'STOPPED' && reviewQueue.inFlight)"
+                        [attr.aria-label]="(isReviewActive(mode.all) ? 'Detener opiniones: ' : 'Iniciar opiniones: ') + mode.title"
+                        [title]="isReviewActive(mode.all) ? 'Detener' : 'Iniciar'">
+                        <span class="pi" [ngClass]="{'pi-stop': isReviewActive(mode.all), 'pi-play': !isReviewActive(mode.all)}" aria-hidden="true"></span>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="metadata-task-counter">{{hasReviewRun(mode.all) ? (reviewQueue.processed || 0) + ' / ' + (reviewQueue.total || 0) + ' libros' : 'Sin ejecución registrada'}}</div>
+                  <div class="metadata-task-progress-row">
+                    <p-progressBar [value]="reviewProgress(mode.all)"></p-progressBar>
+                    <span class="metadata-task-percent">{{reviewProgress(mode.all)}}%</span>
+                  </div>
+                  <ng-container *ngIf="hasReviewRun(mode.all)">
+                    <div class="metadata-task-footer">{{reviewQueue.errors || 0}} intentos fallidos · {{reviewQueue.failedBooks || 0}} libros sin completar</div>
+                    <div class="metadata-task-footer" role="status" *ngIf="reviewQueue.inFlight">Libro en curso. Al pausar o detener, la petición ya enviada puede terminar.</div>
+                    <div class="metadata-task-footer" *ngIf="reviewQueue.nextAttempt">Próximo reintento: {{reviewQueue.nextAttempt | date:'short'}}</div>
+                    <div class="metadata-task-footer" role="status" *ngIf="reviewQueue.reason">{{reviewQueue.reason}}</div>
+                    <div class="settings-actions">
+                      <button pButton class="p-button-outlined" label="Pausar" icon="pi pi-pause" *ngIf="reviewQueue.status === 'RUNNING'" (click)="reviewQueueAction('pause')" [disabled]="reviewQueueBusy"></button>
+                      <button pButton class="p-button-outlined" label="Reanudar" icon="pi pi-play" *ngIf="reviewQueue.status === 'PAUSED'" (click)="reviewQueueAction('resume')" [disabled]="reviewQueueBusy"></button>
+                    </div>
+                  </ng-container>
+                  <div class="metadata-task-footer"><a routerLink="/settings/metadata-history" [queryParams]="{type: 'REVIEWS'}">Ver consultas de opiniones</a> · <a routerLink="/settings/metadata-history" [queryParams]="{type: 'REVIEWS', status: 'ERROR'}">Ver errores</a></div>
+                  <div class="metadata-task-footer">Última ejecución: {{hasReviewRun(mode.all) && reviewQueue.createdAt ? (reviewQueue.createdAt | date:'short') : '—'}}</div>
+                </article>
               </div>
-              <div class="settings-actions">
-                <button pButton class="p-button-outlined" label="Obtener todas" (click)="reviewQueueAction('all')" [disabled]="reviewQueueBusy || !reviewQueueLoaded"></button>
-                <button pButton label="Completar reseñas faltantes" (click)="reviewQueueAction('missing')" [disabled]="reviewQueueBusy || !reviewQueueLoaded || reviewQueueActive"></button>
-                <button pButton label="Pausar" *ngIf="reviewQueue.status === 'RUNNING'" (click)="reviewQueueAction('pause')" [disabled]="reviewQueueBusy"></button>
-                <button pButton label="Reanudar" *ngIf="reviewQueue.status === 'PAUSED'" (click)="reviewQueueAction('resume')" [disabled]="reviewQueueBusy"></button>
-                <button pButton label="Parar" *ngIf="reviewQueue.status === 'RUNNING' || reviewQueue.status === 'PAUSED'" (click)="reviewQueueAction('stop')" [disabled]="reviewQueueBusy"></button>
-              </div>
-              </div>
+              <p class="metadata-task-footer">El progreso corresponde al último recorrido de opiniones. Las consultas anteriores se conservan en el historial.</p>
+              <details class="metadata-task-card review-task-card">
+                <summary>Intervalos de consulta</summary>
+                <p>Espera mínima entre peticiones, de 15 a 3600 segundos. Los límites del proveedor tienen prioridad.</p>
+                <div class="settings-inline-fields">
+                  <div class="p-field"><label for="review-amazon-seconds">Amazon</label>
+                    <input pInputText id="review-amazon-seconds" type="number" min="15" max="3600" [(ngModel)]="reviewAmazonSeconds"></div>
+                  <div class="p-field"><label for="review-goodreads-seconds">Goodreads</label>
+                    <input pInputText id="review-goodreads-seconds" type="number" min="15" max="3600" [(ngModel)]="reviewGoodreadsSeconds"></div>
+                  <button pButton class="p-button-outlined" label="Guardar intervalos" (click)="reviewQueueAction('settings')" [disabled]="reviewQueueBusy || !reviewQueueLoaded || !validReviewIntervals"></button>
+                </div>
+              </details>
             </section>
           </div>
         </p-panel>

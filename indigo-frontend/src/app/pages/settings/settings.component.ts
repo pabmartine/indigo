@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ConfirmationService, MessageService, SelectItem } from 'primeng/api';
 import { forkJoin, Subject, timer, Subscription } from 'rxjs';
-import { takeUntil, switchMap, filter as rxFilter, catchError, finalize } from 'rxjs/operators';
+import { takeUntil, switchMap, exhaustMap, map, filter as rxFilter, catchError, finalize } from 'rxjs/operators';
 import { EMPTY } from 'rxjs';
 import { Config } from 'src/app/domain/config';
 import { User } from 'src/app/domain/user';
@@ -84,11 +84,33 @@ export class SettingsComponent implements OnInit, OnDestroy {
   activityBusy = false;
   reviewQueue: any = {status: 'IDLE'};
   reviewQueueBusy = false;
+  private reviewQueueRevision = 0;
+  readonly reviewModes = [
+    {all: true, title: 'Todos los libros', description: 'Consultar opiniones de todos los libros, incluidos los que ya tienen'},
+    {all: false, title: 'Sin opiniones', description: 'Completar solo los libros que todavía no tienen opiniones'}
+  ];
+  hasReviewRun(all: boolean): boolean { return this.reviewQueue.status !== 'IDLE' && this.reviewQueue.all === all; }
+  isReviewActive(all: boolean): boolean { return this.hasReviewRun(all) && this.reviewQueueActive; }
+  reviewStatus(all: boolean): string {
+    if (!this.reviewQueueLoaded) return 'Cargando';
+    return this.hasReviewRun(all) ? this.reviewQueueState : 'Sin iniciar';
+  }
+  reviewProgress(all: boolean): number {
+    if (!this.hasReviewRun(all) || !this.reviewQueue.total) return 0;
+    return Math.min(100, Math.max(0, Math.round(1000 * (this.reviewQueue.processed || 0) / this.reviewQueue.total) / 10));
+  }
+  toggleReview(all: boolean): void {
+    if (this.isReviewActive(all)) {
+      if (['RUNNING', 'PAUSED'].includes(this.reviewQueue.status)) this.reviewQueueAction('stop');
+    } else this.reviewQueueAction(all ? 'all' : 'missing');
+  }
   reviewQueueLoaded = false;
   reviewAmazonSeconds = 30;
   reviewGoodreadsSeconds = 30;
   get reviewQueueActive(): boolean { return ['RUNNING', 'PAUSED'].includes(this.reviewQueue.status) || !!this.reviewQueue.inFlight; }
   get reviewQueueState(): string {
+    if (this.reviewQueue.status === 'STOPPED' && this.reviewQueue.inFlight) return 'Deteniendo';
+    if (this.reviewQueue.status === 'COMPLETED' && this.reviewQueue.failedBooks) return 'Con pendientes';
     return ({IDLE: 'Sin iniciar', RUNNING: 'En curso', PAUSED: 'En pausa', STOPPED: 'Detenido', COMPLETED: 'Completado'} as any)[this.reviewQueue.status] || this.reviewQueue.status;
   }
   private updateReviewQueue(value: any): void {
@@ -110,6 +132,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       : action === 'settings' ? this.metadataService.configureReviewQueue(this.reviewAmazonSeconds, this.reviewGoodreadsSeconds)
       : this.metadataService.controlReviewQueue(action);
     this.reviewQueueBusy = true;
+    this.reviewQueueRevision++;
     request.pipe(takeUntil(this.destroy$)).subscribe({
       next: result => {
         this.reviewQueueBusy = false;
@@ -261,10 +284,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
     timer(0, 5000).pipe(rxFilter(() => !document.hidden),
       switchMap(() => this.metadataService.libraryIndex().pipe(catchError(() => EMPTY))),
       takeUntil(this.destroy$)).subscribe(value => { this.libraryIndex = value; this.cdr.markForCheck(); });
-    timer(0, 3000).pipe(rxFilter(() => !document.hidden),
-      switchMap(() => this.metadataService.reviewQueue().pipe(catchError(() => EMPTY))),
-      takeUntil(this.destroy$)).subscribe(value => this.updateReviewQueue(value));
+    this.startReviewQueuePolling();
 
+  }
+
+  private startReviewQueuePolling(): void {
+    timer(0, 3000).pipe(rxFilter(() => !document.hidden && !this.reviewQueueBusy),
+      exhaustMap(() => {
+        const revision = this.reviewQueueRevision;
+        return this.metadataService.reviewQueue().pipe(map(value => ({value, revision})), catchError(() => EMPTY));
+      }), takeUntil(this.destroy$)
+    ).subscribe(({value, revision}) => {
+      if (!this.reviewQueueBusy && revision === this.reviewQueueRevision) this.updateReviewQueue(value);
+    });
   }
 
   ngOnChanges(changes: SimpleChanges) {

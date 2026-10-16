@@ -184,7 +184,7 @@ metadata:
   google:
     # Plantilla de consulta a la API REST de Google Books con título y autor.
     url: ${METADATA_GOOGLE_URL:https://www.googleapis.com/books/v1/volumes?q=intitle:$title+inauthor:$author}
-    # API key opcional de Google Books (permite mayores cuotas de uso si se proporciona).
+    # Identifica el proyecto de Google Books y su cuota; el acceso público requiere key o token OAuth.
     api-key: ${METADATA_GOOGLE_API_KEY:}
   openlibrary:
     # Plantilla de búsqueda de libros por título y autor en OpenLibrary API.

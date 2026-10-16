@@ -197,4 +197,57 @@ describe('Settings metadata processes', () => {
     expect(component.getMetadataNotice('PARTIAL', 'BOOKS')).toBe('');
   });
 
+  it('shows review progress only in the matching mode and distinguishes unfinished books', () => {
+    component.reviewQueueLoaded = true;
+    component.reviewQueue = {status: 'RUNNING', all: false, processed: 3, total: 20};
+    expect(component.reviewProgress(false)).toBe(15);
+    expect(component.reviewProgress(true)).toBe(0);
+    expect(component.isReviewActive(false)).toBeTrue();
+    expect(component.isReviewActive(true)).toBeFalse();
+    component.reviewQueue.status = 'COMPLETED'; component.reviewQueue.failedBooks = 1;
+    expect(component.reviewStatus(false)).toBe('Con pendientes');
+  });
+
+  it('starts the selected review mode and stops that mode when active', () => {
+    const action = spyOn(component, 'reviewQueueAction');
+    component.toggleReview(false);
+    expect(action).toHaveBeenCalledWith('missing');
+    component.toggleReview(true);
+    expect(action).toHaveBeenCalledWith('all');
+    component.reviewQueue = {status: 'PAUSED', all: true};
+    component.toggleReview(true);
+    expect(action.calls.mostRecent().args).toEqual(['stop']);
+    component.reviewQueue = {status: 'STOPPED', all: true, inFlight: true};
+    action.calls.reset(); component.toggleReview(true);
+    expect(action).not.toHaveBeenCalled();
+    expect(component.reviewStatus(true)).toBe('Cargando');
+    component.reviewQueueLoaded = true;
+    expect(component.reviewStatus(true)).toBe('Deteniendo');
+  });
+
+  it('lets slow review status requests finish instead of cancelling them every three seconds', fakeAsync(() => {
+    spyOnProperty(document, 'hidden', 'get').and.returnValue(false);
+    const response = new Subject<any>();
+    service.reviewQueue = jasmine.createSpy().and.returnValue(response);
+    (component as any).startReviewQueuePolling(); tick(9000);
+    expect(service.reviewQueue).toHaveBeenCalledTimes(1);
+    response.next({status: 'IDLE', settings: {amazon: 30, goodreads: 30}}); response.complete();
+    expect(component.reviewQueueLoaded).toBeTrue();
+    component.ngOnDestroy();
+  }));
+
+  it('ignores a stale poll after pausing the review queue', fakeAsync(() => {
+    spyOnProperty(document, 'hidden', 'get').and.returnValue(false);
+    const response = new Subject<any>();
+    service.reviewQueue = jasmine.createSpy().and.returnValue(response);
+    service.controlReviewQueue = jasmine.createSpy().and.returnValue(of({status: 'PAUSED', all: false}));
+    component.reviewQueueLoaded = true;
+    component.reviewQueue = {status: 'RUNNING', all: false};
+    (component as any).startReviewQueuePolling(); tick(0);
+    component.reviewQueueAction('pause');
+    response.next({status: 'RUNNING', all: false}); response.complete();
+    expect(component.reviewQueue.status).toBe('PAUSED');
+    component.ngOnDestroy();
+  }));
+
 });

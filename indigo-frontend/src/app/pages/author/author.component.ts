@@ -90,7 +90,7 @@ export class AuthorComponent implements OnInit {
       life: 5000
     });
 
-    this.metadataService.findAuthor("es", this.selected.sort).subscribe({
+    this.metadataService.findAuthor("es", this.selected.name).subscribe({
       next: (data) => {
         this.selected = data;
 

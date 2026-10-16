@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
@@ -44,7 +44,9 @@ export class AuthorService {
   }
 
   getByName(author: string): Observable<any> {
-    return this.http.get<any>(this.endpoint + "/sort?sort=" + author);
+    return this.http.get<any>(this.endpoint + "/sort", {
+      params: new HttpParams().set('sort', author)
+    });
   }
 
   getFavorite(author: string, user: string): Observable<any> {

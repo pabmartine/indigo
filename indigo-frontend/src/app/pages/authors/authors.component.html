@@ -19,13 +19,11 @@
                    [lazyPlaceholder]="'./assets/images/avatar3.jpg'"
                    (lazyLoaded)="author.image = $event"
                    class="avatar"
-                   (click)="showDetails(author)"
                    style="cursor: pointer;"
                    [alt]="author.name"
                    [class.loading-image]="!author.image" />
 
               <a href="javascript:;"
-                 (click)="showDetails(author)"
                  style="cursor: pointer;"
                  tabindex="0"
                  (keyup.enter)="showDetails(author)">
@@ -71,13 +69,11 @@
                      [lazyPlaceholder]="'./assets/images/avatar3.jpg'"
                      (lazyLoaded)="author.image = $event"
                      class="avatar"
-                     (click)="showDetails(author)"
                      style="cursor: pointer;"
                      [alt]="author.name"
                      [class.loading-image]="!author.image" />
 
                 <a href="javascript:;"
-                   (click)="showDetails(author)"
                    style="cursor: pointer;"
                    tabindex="0"
                    (keyup.enter)="showDetails(author)">

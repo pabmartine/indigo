@@ -66,6 +66,7 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
   // Subject para manejar la destrucción del componente
   private destroy$ = new Subject<void>();
   private resetPages$ = new Subject<void>();
+  private resetDetails$ = new Subject<void>();
 
   // Estados de diálogos
   showDetail: boolean = false;
@@ -113,6 +114,7 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
     this.destroy$.next();
     this.destroy$.complete();
     this.resetPages$.complete();
+    this.resetDetails$.complete();
     this.authorsCache.clear();
     this.viewport?.destroy();
     if (this.initialFrame !== undefined) cancelAnimationFrame(this.initialFrame);
@@ -372,16 +374,18 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   showDetails(author: Author): void {
     if (!author || !this.authorComponent) return;
+    this.resetDetails$.next();
 
-    if (!author.description && author.sort) {
-      this.authorService.getByName(author.sort)
-        .pipe(takeUntil(this.destroy$))
+    const lookupName = author.sort?.trim() || author.name;
+    if (!author.description && lookupName) {
+      this.authorService.getByName(lookupName)
+        .pipe(takeUntil(this.destroy$), takeUntil(this.resetDetails$))
         .subscribe({
           next: (data) => {
             const authorData = data ? { ...data } : { ...author };
             if (!authorData.image && author.id) {
               authorData.image = this.authorService.buildCoverImageUrl(author.id);
-            } else if (authorData.image) {
+            } else if (authorData.image && !/^(https?:|data:)/i.test(authorData.image)) {
               authorData.image = this.imageService.toDataUrlSafe(authorData.image);
             }
             this.authorComponent.showDetails(authorData);
@@ -406,6 +410,7 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   closeDetails(): void {
+    this.resetDetails$.next();
     this.showDetail = false;
   }
 
@@ -424,16 +429,17 @@ export class AuthorsComponent implements OnInit, OnDestroy, AfterViewInit {
   openAuthor(sort: string): void {
     if (!sort) return;
 
+    this.resetDetails$.next();
     this.showBookDetail = false;
     this.authorService.getByName(sort)
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this.destroy$), takeUntil(this.resetDetails$))
       .subscribe({
         next: (data) => {
           if (data) {
             const authorData = { ...data };
             if (!authorData.image && authorData.id) {
               authorData.image = this.authorService.buildCoverImageUrl(authorData.id);
-            } else if (authorData.image) {
+            } else if (authorData.image && !/^(https?:|data:)/i.test(authorData.image)) {
               authorData.image = this.imageService.toDataUrlSafe(authorData.image);
             }
             this.authorComponent.showDetails(authorData);

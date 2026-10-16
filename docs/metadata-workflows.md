@@ -209,3 +209,75 @@ Antes de consultar la red, el recorrido prioriza todos los pendientes con valora
 Para aprovechar la búsqueda local sin ISBN hay que desplegar backend e interfaz y reconstruir el índice desde Ajustes. El índice antiguo sigue funcionando por ISBN mientras se construye el nuevo; no puede consultar por títulos que nunca guardó. Ajustes muestra ese aviso, las coincidencias por título/autor y la ausencia de valoraciones. Tener miles de autores indexados no implica disponer de votos para todos sus libros. Reconstruir puede descargar varios GB; esta revisión no inicia descargas ni cambia el NAS automáticamente. Las consultas públicas de «El informe Phaeton» y «El puñal del sarraceno» no devolvieron coincidencias durante la revisión; no se afirma cobertura de esos títulos.
 
 Validación final de esta revisión: 60 pruebas de backend superadas en las ocho clases afectadas, 24 pruebas de Ajustes e Historial y compilación Angular de producción correcta. Se comprobó con MongoDB real en Docker la reconstrucción sin ISBN, los índices de consulta con creación automática desactivada, ISBN equivalentes, obras ya identificadas, coincidencias ambiguas, selección por valoración y priorización local durante una cuota agotada de Google. Las búsquedas HTTP se contrastaron con respuestas públicas reales de Open Library y pruebas de regresión. La batería amplia previa detectó expectativas antiguas e interferencia entre checkpoints de pruebas, que se corrigieron antes de la ejecución final. Los tiempos y la cobertura del NAS siguen pendientes de verificar tras desplegar y reconstruir el índice.
+
+## Inspección del NAS por SSH (16 de octubre de 2026)
+
+Inspección de solo lectura de los logs de `indigo-backend`, del historial persistido, de los índices y estadísticas de MongoDB, y una petición pública a Google Books desde el NAS. No se reiniciaron contenedores, modificaron datos/configuración ni reconstruyó el índice. Esta inspección aporta medidas reales que las pruebas locales anteriores no cubrían.
+
+### Ejecución observada
+
+Horas UTC, tal como aparecen en los logs:
+
+| Evidencia | Resultado |
+| --- | --- |
+| Arranque del backend | 805,268 segundos; sin reinicios del contenedor en la inspección. No se ha localizado la causa exacta de la demora de arranque. |
+| Inicio automático `BOOKS_EMPTY` | 06:55:53; 159.212 libros pendientes. |
+| Selección | El latido sigue en «Seleccionar libros» a las 07:04:53; cambia a priorización antes de las 07:05:23. |
+| Priorización local | Termina a las 07:12:11; solo 2 libros pendientes tienen valoración local. |
+| Consulta de libros | 2 `FOUND` y 10 `DEFERRED`; finaliza a las 07:12:41, tras 1.007,890 segundos en total. |
+
+Las dos valoraciones locales se recuperan correctamente: «The Running Grave» y «El gran Gatsby (trad. Marcelo Cohen)». «Reino del Grial» se identifica por HTTP en Open Library, pero sin valoración; queda aplazado porque Google no completa la fuente alternativa. El mensaje de log `Found OPEN_LIBRARY metadata` no significa necesariamente que se haya obtenido una valoración.
+
+### Google: cuota diaria cero, no una pausa breve
+
+El contenedor no tiene `METADATA_GOOGLE_API_KEY` configurada. Una consulta pública desde el NAS a `https://www.googleapis.com/books/v1/volumes` devuelve HTTP 429 en 0,763 segundos. El cuerpo identifica `Queries per day`, `RESOURCE_EXHAUSTED`, `quota_limit: defaultPerDayPerProject` y **`quota_limit_value: "0"`**. Es la cuota de esa petición sin clave, no una medición de una eventual cuenta o proyecto propio del usuario.
+
+El cliente actual descarta el cuerpo de error y convierte este 429 en una pausa genérica de 60 segundos, ampliable a 900. Esperar ese intervalo no resuelve una cuota configurada a cero. Hace falta una clave de un proyecto con acceso y cuota disponible, o mantener Google fuera del recorrido mientras se resuelve su disponibilidad. El diagnóstico debería conservar el motivo de cuota diaria/configuración y distinguirlo de una limitación transitoria.
+
+### Índice local: versión antigua y cobertura real mínima
+
+El documento activo `open-library-index` sigue apuntando a `20261002075036-3b6d17e6`, completado el 2 de octubre, sin `bookLookupVersion: 2`. Contiene 92.688 registros de autores, pero solo 22 ISBN/obras emparejados y **2 obras con valoraciones**. Su construcción consideró 1.906 ISBN. No se ha reconstruido con las coincidencias por título y autor de la versión nueva. La cantidad de autores no representa cobertura de valoraciones de libros. Es necesario reconstruir el índice para activar esas coincidencias; no se puede anticipar cuántas valoraciones nuevas aportará.
+
+### Preparación: dos recorridos costosos de la biblioteca
+
+La colección `books` tiene 165.369 documentos, 3.491.974.402 bytes lógicos y unos 21 KB de media por documento. El plan real de `find({ratingAverage:null},{_id:1})` es `PROJECTION_SIMPLE → COLLSCAN`; no hay un índice sobre `ratingAverage`. Además, `LocalOpenLibraryLookup.ratedBookIds` recorre las proyecciones de todos los libros, aunque el índice activo solo tenga dos valoraciones. Proyectar pocos campos reduce la transferencia, pero no garantiza evitar la lectura de los documentos en disco.
+
+Dos ensayos de solo lectura confirman que hay alternativas de acceso más selectivas:
+
+- Todos los identificadores, con `hint("_id_")`: 165.369 resultados en 2.755 ms de ejecución del servidor, `PROJECTION_COVERED`, cero documentos examinados. Esto **no** aplica el filtro de valoración ni mide transferencia/mapeo Java.
+- Búsqueda por los dos `openLibraryWorkId` con valoración: 2 resultados, 4 claves y 2 documentos examinados en 26 ms. Los libros ya conservaban esos identificadores después de la ejecución; no demuestra por sí sola el coste de resolver todas las coincidencias por ISBN/título.
+
+La corrección debe evitar ambos barridos: selección mediante una consulta cubierta y priorización mediante candidatos asociados a las obras valoradas. Añadir un índice y mantener la igualdad a `null` no basta para prometer una consulta cubierta: [MongoDB documenta esa limitación](https://www.mongodb.com/docs/manual/core/query-optimization/). Hay que verificar el plan real y los documentos examinados, además de los tiempos.
+
+### Recorrido: riesgo de repetir siempre los mismos pendientes
+
+Los `DEFERRED` no guardan checkpoint y la selección conserva el mismo orden. Si Google continúa indisponible, volver a lanzar el proceso puede repetir los primeros diez pendientes y detenerse antes de consultar por Open Library el resto. En esta inspección solo se observó una ejecución del contenedor actual; la repetición entre lanzamientos se deduce del código, no de una segunda ejecución provocada en producción.
+
+La parada global tras diez aplazamientos evita inundar el historial, pero no resuelve el avance entre fuentes independientes. Hace falta distinguir progreso de inspección y reintentos pendientes por proveedor, conservar un cursor que no deje libros sin visitar y permitir avanzar con Open Library cuando solo Google está bloqueado. Esta inspección documenta esas correcciones pendientes; no declara solucionado el incidente ni sustituye una validación posterior en el NAS.
+
+### Investigación de alternativas a la cuota cero de Google
+
+Comprobaciones adicionales del 16 de octubre, ejecutadas desde el entorno de desarrollo, sin credenciales ni modificaciones en el NAS:
+
+| Petición | Resultado |
+| --- | --- |
+| `www.googleapis.com/books/v1/volumes?q=isbn:9780261102217&maxResults=1` | 429; límite diario 0. |
+| Misma búsqueda en `books.googleapis.com` | 429; mismo proyecto y límite. |
+| `www.googleapis.com/books/v1/volumes/zyTCAlFPjgYC?fields=id,volumeInfo(title,averageRating,ratingsCount)` | 429; mismo límite incluso por identificador y con respuesta reducida. |
+| Directorio oficial Discovery, filtro `name=books` | Solo publica `books:v1`, marcada como preferida. |
+
+`quota_limit_value` expresa el límite, no el saldo restante. Las respuestas no demuestran que Indigo haya consumido una cuota propia. Cambiar de host, buscar por ISBN o solicitar menos campos no habilita las consultas actuales.
+
+La [documentación oficial de Google](https://developers.google.com/books/docs/v1/using) exige identificación mediante clave o token. Indigo ya añade `key=` si se configura `METADATA_GOOGLE_API_KEY`; no necesita otro cliente para ello. Falta probar una clave de un proyecto con Books API habilitada y cuota disponible. Sin acceso a ese proyecto no se puede garantizar su cuota ni comprobar una petición autenticada.
+
+Existe otra interfaz oficial sin clave, [Dynamic Links](https://developers.google.com/books/docs/dynamic-links), pero devuelve enlaces, miniaturas y disponibilidad de vista previa; no las valoraciones que necesita este proceso.
+
+Para la biblioteca masiva, recomiendo mantener como base los [volcados de Open Library](https://openlibrary.org/developers/dumps). Como proveedor adicional, [Hardcover](https://docs.hardcover.app/api/graphql/schemas/books/) ofrece `rating`, `ratings_count` y ediciones mediante GraphQL. Su [documentación fuente actual](https://github.com/hardcoverapp/hardcover-docs/blob/main/src/content/docs/api/Getting-Started.mdx) publica 5.000 consultas diarias en Free y 50.000 en Supporter, ambas con 60 por minuto; requiere credencial y está en beta. No se ha medido su cobertura de esta biblioteca ni realizado una consulta autenticada. Estos límites se verificaron en el repositorio oficial porque la página indexada de documentación mostraba una versión anterior.
+
+### Detalle de autores: descripción ausente (16-10-2026)
+
+Caso confirmado por consulta de solo lectura en MongoDB: `A. A. Attanasio` tiene descripción pero carece de `sort`. El catálogo usa resúmenes sin descripción y Angular solo solicitaba la ficha completa si existía `sort`; abría por tanto un resumen en el modal. Se añade el nombre como alternativa, se codifica el parámetro de consulta y se cancelan consultas anteriores al cambiar de autor. También se eliminan clics duplicados por propagación y se envía el nombre al actualizar metadatos, como espera el backend.
+
+La descripción guardada de este autor habla de **Cellino Attanasio, un municipio**, por lo que mostrarla no corrige su contenido. El buscador actual de Wikipedia rechaza esa coincidencia; se añade una prueba específica. No se ha establecido cuándo ni qué versión guardó ese texto. El modo de completar campos conserva descripciones existentes; una corrección del dato requiere revisión o actualización explícita. No se ha modificado esa ficha en el NAS.
+
+La revisión de la documentación oficial de Google Books y la configuración de su clave están en [google-books-api-review.md](google-books-api-review.md).
