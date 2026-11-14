@@ -208,4 +208,24 @@ verify(mongoTemplate).find(query, BookMongoEntity.class);
 		org.mockito.Mockito.verifyNoInteractions(mongoTemplate);
 	}
 
+	@Test
+	void resetLastMetadataSyncForIncompleteUnsetsColumn() {
+		customBookRepository.resetLastMetadataSyncForIncomplete();
+		var queryCaptor = org.mockito.ArgumentCaptor.forClass(Query.class);
+		var updateCaptor = org.mockito.ArgumentCaptor.forClass(org.springframework.data.mongodb.core.query.Update.class);
+		verify(mongoTemplate).updateMulti(queryCaptor.capture(), updateCaptor.capture(), org.mockito.ArgumentMatchers.eq(BookMongoEntity.class));
+		org.junit.jupiter.api.Assertions.assertNull(queryCaptor.getValue().getQueryObject().get("ratingAverage"));
+		org.junit.jupiter.api.Assertions.assertTrue(updateCaptor.getValue().getUpdateObject().containsKey("$unset"));
+	}
+
+	@Test
+	void resetLastMetadataSyncForAllUnsetsColumn() {
+		customBookRepository.resetLastMetadataSyncForAll();
+		var queryCaptor = org.mockito.ArgumentCaptor.forClass(Query.class);
+		var updateCaptor = org.mockito.ArgumentCaptor.forClass(org.springframework.data.mongodb.core.query.Update.class);
+		verify(mongoTemplate).updateMulti(queryCaptor.capture(), updateCaptor.capture(), org.mockito.ArgumentMatchers.eq(BookMongoEntity.class));
+		org.junit.jupiter.api.Assertions.assertTrue(queryCaptor.getValue().getQueryObject().isEmpty());
+		org.junit.jupiter.api.Assertions.assertTrue(updateCaptor.getValue().getUpdateObject().containsKey("$unset"));
+	}
+
 }

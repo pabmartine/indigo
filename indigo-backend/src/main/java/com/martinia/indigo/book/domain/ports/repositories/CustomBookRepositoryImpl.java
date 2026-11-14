@@ -67,6 +67,22 @@ public class CustomBookRepositoryImpl implements CustomBookRepository {
 		updateMetadataFields(book, List.of("reviews", "lastReviewsMetadataSync", "reviewsMetadataStatus", "reviewsMetadataError"));
 	}
 
+	@Override
+	public void resetLastMetadataSyncForIncomplete() {
+		mongoTemplate.updateMulti(
+				Query.query(Criteria.where("ratingAverage").is(null)),
+				new Update().unset("lastMetadataSync"),
+				BookMongoEntity.class);
+	}
+
+	@Override
+	public void resetLastMetadataSyncForAll() {
+		mongoTemplate.updateMulti(
+				new Query(),
+				new Update().unset("lastMetadataSync"),
+				BookMongoEntity.class);
+	}
+
 	private void updateMetadataFields(BookMongoEntity book, List<String> fields) {
 		Document document = new Document();
 		mongoTemplate.getConverter().write(book, document);

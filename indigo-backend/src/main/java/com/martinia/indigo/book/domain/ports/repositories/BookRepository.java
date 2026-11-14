@@ -10,7 +10,8 @@ import java.util.Optional;
 
 @Repository
 public interface BookRepository extends MongoRepository<BookMongoEntity, String>, CustomBookRepository {
-    String INCOMPLETE_METADATA_QUERY = "{ 'ratingAverage': null }";
+    String INCOMPLETE_METADATA_QUERY = "{ 'ratingAverage': null, 'lastMetadataSync': null }";
+    String ALL_UNMARKED_METADATA_QUERY = "{ 'lastMetadataSync': null }";
 
 	@Query(value = "{ '_id': ?0 }", fields = "{ 'image': 1 }")
 	Optional<BookMongoEntity> findCoverById(String id);
@@ -32,6 +33,19 @@ public interface BookRepository extends MongoRepository<BookMongoEntity, String>
 
 	@Query("{ '$or': [ { 'isbn10': { '$in': ?0 } }, { 'isbn13': { '$in': ?0 } } ] }")
 	List<BookMongoEntity> findByAnyIsbn(java.util.Collection<String> isbn);
+
+	@Query(value = "{ '$or': [ { 'isbn10': { '$in': ?0 } }, { 'isbn13': { '$in': ?0 } } ] }",
+			fields = "{ '_id': 1, 'title': 1, 'authors': 1, 'isbn10': 1, 'isbn13': 1, 'openLibraryWorkId': 1 }")
+	List<BookMongoEntity> findCandidatesByAnyIsbn(java.util.Collection<String> isbn);
+
+	@Query(value = "{ 'openLibraryWorkId': { '$in': ?0 } }",
+			fields = "{ '_id': 1, 'title': 1, 'authors': 1, 'isbn10': 1, 'isbn13': 1, 'openLibraryWorkId': 1 }")
+	List<BookMongoEntity> findCandidatesByOpenLibraryWorkIdIn(java.util.Collection<String> workIds);
+
+	@Query(value = "{ 'title': { '$in': ?0 } }", collation = "{ 'locale': 'en', 'strength': 2 }",
+			fields = "{ '_id': 1, 'title': 1, 'authors': 1, 'isbn10': 1, 'isbn13': 1, 'openLibraryWorkId': 1 }")
+	List<BookMongoEntity> findCandidatesByTitleIn(java.util.Collection<String> titles);
+
 	@Query(value = "{ 'title': ?0 }", collation = "{ 'locale': 'en', 'strength': 2 }")
 	List<BookMongoEntity> findByTitleIgnoreCase(String title);
 
@@ -41,8 +55,10 @@ public interface BookRepository extends MongoRepository<BookMongoEntity, String>
 	@Query(value = INCOMPLETE_METADATA_QUERY, fields = "{ '_id': 1 }")
 	List<BookMongoEntity> findBooksWithIncompleteMetadata();
 
-	@Query(value = "{}", fields = "{ '_id': 1 }")
+	@Query(value = ALL_UNMARKED_METADATA_QUERY, fields = "{ '_id': 1 }")
 	List<BookMongoEntity> findAllBookIds();
+
+	long countByRatingAverageIsNull();
 
 	@Query(value = "{ '$or': [ { 'isbn10.0': { '$exists': true } }, { 'isbn13.0': { '$exists': true } } ] }",
 			fields = "{ 'isbn10': 1, 'isbn13': 1 }")

@@ -37,4 +37,8 @@ public class MetadataExecutionService {
                 new Update().set("process", process).set("entityId", entityId)
                         .set("lastExecution", new Date()), COLLECTION);
     }
+
+    public void reset(String process) {
+        mongo.remove(Query.query(Criteria.where("process").is(process)), COLLECTION);
+    }
 }

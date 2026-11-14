@@ -67,5 +67,7 @@ public interface CustomBookRepository {
 	com.martinia.indigo.book.domain.model.BookPageData getRecommendationSummaryPage(String user, int page, int size, String sort, String order);
 
 	List<String> getBookLanguages();
+	void resetLastMetadataSyncForIncomplete();
+	void resetLastMetadataSyncForAll();
 	void clearCache();
 }

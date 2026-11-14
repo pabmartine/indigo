@@ -38,6 +38,9 @@ public class StartFillBooksMetadataUseCaseImpl implements StartFillBooksMetadata
     @org.springframework.beans.factory.annotation.Value("${metadata.books.max-consecutive-deferred:10}")
     private int maxConsecutiveDeferred = 10;
 
+    @org.springframework.beans.factory.annotation.Value("${metadata.books.max-consecutive-errors:10}")
+    private int maxConsecutiveErrors = 10;
+
     @org.springframework.beans.factory.annotation.Value("${metadata.books.progress-log-interval-millis:30000}")
     private long progressLogIntervalMillis = 30000;
 
@@ -54,11 +57,24 @@ public class StartFillBooksMetadataUseCaseImpl implements StartFillBooksMetadata
 		}
 
         try (BookProgress progress = new BookProgress(runId, progressLogIntervalMillis)) {
-			final List<BookMongoEntity> selected = scope == BookMetadataScope.INCOMPLETE
+			List<BookMongoEntity> selected = scope == BookMetadataScope.INCOMPLETE
 					? bookRepository.findBooksWithIncompleteMetadata()
 					: bookRepository.findAllBookIds();
+            final String process = "BOOKS:" + scope.name();
+            if (selected.isEmpty()) {
+                if (scope == BookMetadataScope.INCOMPLETE && bookRepository.countByRatingAverageIsNull() > 0) {
+                    log.info("All incomplete books were previously checked. Resetting consultation date column for a new cycle.");
+                    bookRepository.resetLastMetadataSyncForIncomplete();
+                    executions.reset(process);
+                    selected = bookRepository.findBooksWithIncompleteMetadata();
+                } else if (scope == BookMetadataScope.ALL && bookRepository.count() > 0) {
+                    log.info("All books were previously checked. Resetting consultation date column for a new cycle.");
+                    bookRepository.resetLastMetadataSyncForAll();
+                    executions.reset(process);
+                    selected = bookRepository.findAllBookIds();
+                }
+            }
             progress.stage = "Comprobar libros pendientes";
-			final String process = "BOOKS:" + scope.name();
 			final List<String> pending;
 			synchronized (metadataSingleton) {
 				if (managedRun && !metadataSingleton.isActive(runId)) return;
@@ -100,6 +116,7 @@ public class StartFillBooksMetadataUseCaseImpl implements StartFillBooksMetadata
                 }
             }
             int consecutiveDeferred = 0;
+            int consecutiveErrors = 0;
 			long lastExecution = 0L;
 			for (BookMongoEntity book : books) {
 				if (!(managedRun ? metadataSingleton.isActive(runId) : metadataSingleton.isRunning())) {
@@ -129,6 +146,7 @@ public class StartFillBooksMetadataUseCaseImpl implements StartFillBooksMetadata
 					checkpoint(process, book.getId(), managedRun, runId);
 				}
                 consecutiveDeferred = result == MetadataItemResult.DEFERRED ? consecutiveDeferred + 1 : 0;
+                consecutiveErrors = (result == null || result == MetadataItemResult.ERROR) ? consecutiveErrors + 1 : 0;
                 if (consecutiveDeferred >= Math.max(1, maxConsecutiveDeferred)) {
                     String message = "Recorrido detenido: " + consecutiveDeferred
                             + " consultas consecutivas aplazadas por los proveedores. Los libros pendientes se conservan. "
@@ -136,11 +154,19 @@ public class StartFillBooksMetadataUseCaseImpl implements StartFillBooksMetadata
                     if (managedRun) metadataSingleton.initializeRun(runId, message, numBooks);
                     else metadataSingleton.setMessage(message);
                 }
+                else if (consecutiveErrors >= Math.max(1, maxConsecutiveErrors)) {
+                    String message = "Recorrido detenido: " + consecutiveErrors
+                            + " errores consecutivos en las consultas a proveedores. Los libros pendientes se conservan. "
+                            + "Revisa la configuración del proveedor (clave de API, cuotas o restricciones) y el historial de errores.";
+                    if (managedRun) metadataSingleton.initializeRun(runId, message, numBooks);
+                    else metadataSingleton.setMessage(message);
+                }
 				metadataSingleton.record(runId, result == null ? MetadataItemResult.ERROR : result);
                 progress.processed++;
                 log.info("Book metadata run {} item={} result={} durationMs={}", runId, book.getId(), result,
                         (System.nanoTime() - itemStarted) / 1_000_000L);
-                if (consecutiveDeferred >= Math.max(1, maxConsecutiveDeferred)) break;
+                if (consecutiveDeferred >= Math.max(1, maxConsecutiveDeferred)
+                        || consecutiveErrors >= Math.max(1, maxConsecutiveErrors)) break;
 				lastExecution = System.currentTimeMillis();
 				log.debug("Obtained {}/{} books metadata", metadataSingleton.getCurrent(), numBooks);
 			}

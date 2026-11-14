@@ -124,6 +124,7 @@ flags:
 metadata:
   books:
     max-consecutive-deferred: ${METADATA_BOOKS_MAX_CONSECUTIVE_DEFERRED:10}
+    max-consecutive-errors: ${METADATA_BOOKS_MAX_CONSECUTIVE_ERRORS:10}
   autostart:
     # Inicia un proceso de metadatos cuando la aplicación está lista.
     enabled: ${METADATA_AUTOSTART_ENABLED:false}

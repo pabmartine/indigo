@@ -1,6 +1,7 @@
 package com.martinia.indigo.metadata.application.openlibrary;
 
 import com.martinia.indigo.book.domain.ports.repositories.BookRepository;
+import com.martinia.indigo.book.infrastructure.mongo.entities.BookMongoEntity;
 import com.martinia.indigo.common.util.BookProviderHttpRequests;
 import com.martinia.indigo.file.application.EpubImportPolicy;
 import com.martinia.indigo.metadata.application.ProviderDiagnostics;
@@ -49,7 +50,7 @@ public class LocalOpenLibraryLookup {
                 ratings.findByIndexVersionAndWorkId(version, mapping.getWorkId()).orElse(null));
     }
 
-    /** Load the small filtered index once and scan book projections in batches, not one DB query per book. */
+    /** Load the small filtered index once and query matching candidate books directly, or fallback to batch scan. */
     public Set<String> ratedBookIds(Set<String> pending) {
         var job = jobs.findById(OpenLibraryIndexManager.JOB_ID).orElse(null);
         if (job == null || job.getActiveVersion() == null || pending.isEmpty()) return Set.of();
@@ -58,12 +59,49 @@ public class LocalOpenLibraryLookup {
             if (valid(rating)) ratedWorks.add(rating.getWorkId());
         if (ratedWorks.isEmpty()) return Set.of();
         Map<String, List<OpenLibraryEditionMappingMongoEntity>> byIsbn = new HashMap<>(), byTitle = new HashMap<>();
+        Set<String> relevantIsbns = new HashSet<>();
+        Set<String> relevantTitles = new HashSet<>();
         for (var mapping : mappings.findByIndexVersion(job.getActiveVersion())) {
             BookProviderHttpRequests.checkActive();
             if (mapping.getIsbn() != null) byIsbn.computeIfAbsent(mapping.getIsbn(), key -> new ArrayList<>()).add(mapping);
-            if (mapping.getTitleAuthorKeys() != null) for (String key : mapping.getTitleAuthorKeys())
+            if (mapping.getTitleAuthorKeys() != null) for (String key : mapping.getTitleAuthorKeys()) {
                 byTitle.computeIfAbsent(key, ignored -> new ArrayList<>()).add(mapping);
+                if (validWorkId(mapping.getWorkId()) && ratedWorks.contains(mapping.getWorkId())) {
+                    int pipe = key.indexOf('|');
+                    relevantTitles.add(pipe > 0 ? key.substring(0, pipe) : key);
+                }
+            }
+            if (mapping.getIsbn() != null && validWorkId(mapping.getWorkId()) && ratedWorks.contains(mapping.getWorkId())) {
+                relevantIsbns.add(mapping.getIsbn());
+            }
         }
+
+        // When the set of targets is small (typical in practice), query candidates directly instead of scanning the full collection.
+        if (ratedWorks.size() <= 500 && relevantIsbns.size() <= 500 && relevantTitles.size() <= 500) {
+            Set<String> candidateIds = new HashSet<>();
+            List<BookMongoEntity> candidateBooks = new ArrayList<>();
+            for (var book : books.findCandidatesByOpenLibraryWorkIdIn(ratedWorks)) {
+                if (candidateIds.add(book.getId())) candidateBooks.add(book);
+            }
+            if (!relevantIsbns.isEmpty()) {
+                for (var book : books.findCandidatesByAnyIsbn(relevantIsbns)) {
+                    if (candidateIds.add(book.getId())) candidateBooks.add(book);
+                }
+            }
+            if (!relevantTitles.isEmpty()) {
+                for (var book : books.findCandidatesByTitleIn(relevantTitles)) {
+                    if (candidateIds.add(book.getId())) candidateBooks.add(book);
+                }
+            }
+            Set<String> found = new HashSet<>();
+            for (var book : candidateBooks) {
+                if (pending.contains(book.getId()) && matchesRated(book, ratedWorks, byIsbn, byTitle)) {
+                    found.add(book.getId());
+                }
+            }
+            return found;
+        }
+
         Set<String> found = new HashSet<>();
         String after = null;
         while (true) {
@@ -71,21 +109,27 @@ public class LocalOpenLibraryLookup {
             var batch = books.findMetadataIndexBatch(after);
             if (batch.isEmpty()) return found;
             for (var book : batch) {
-                if (!pending.contains(book.getId())) continue;
-                if (validWorkId(book.getOpenLibraryWorkId()) && ratedWorks.contains(book.getOpenLibraryWorkId())) {
+                if (pending.contains(book.getId()) && matchesRated(book, ratedWorks, byIsbn, byTitle)) {
                     found.add(book.getId());
-                    continue;
                 }
-                List<OpenLibraryEditionMappingMongoEntity> candidates = new ArrayList<>();
-                for (String isbn : EpubImportPolicy.isbnKeys(book.getIsbn10(), book.getIsbn13()))
-                    candidates.addAll(byIsbn.getOrDefault(isbn, List.of()));
-                if (candidates.isEmpty()) for (String key : LocalBookKey.keys(book.getTitle(), book.getAuthors()))
-                    candidates.addAll(byTitle.getOrDefault(key, List.of()));
-                var mapping = unambiguous(candidates);
-                if (mapping != null && ratedWorks.contains(mapping.getWorkId())) found.add(book.getId());
             }
             after = batch.getLast().getId();
         }
+    }
+
+    private boolean matchesRated(BookMongoEntity book, Set<String> ratedWorks,
+                                 Map<String, List<OpenLibraryEditionMappingMongoEntity>> byIsbn,
+                                 Map<String, List<OpenLibraryEditionMappingMongoEntity>> byTitle) {
+        if (validWorkId(book.getOpenLibraryWorkId()) && ratedWorks.contains(book.getOpenLibraryWorkId())) {
+            return true;
+        }
+        List<OpenLibraryEditionMappingMongoEntity> candidates = new ArrayList<>();
+        for (String isbn : EpubImportPolicy.isbnKeys(book.getIsbn10(), book.getIsbn13()))
+            candidates.addAll(byIsbn.getOrDefault(isbn, List.of()));
+        if (candidates.isEmpty()) for (String key : LocalBookKey.keys(book.getTitle(), book.getAuthors()))
+            candidates.addAll(byTitle.getOrDefault(key, List.of()));
+        var mapping = unambiguous(candidates);
+        return mapping != null && ratedWorks.contains(mapping.getWorkId());
     }
 
     private OpenLibraryEditionMappingMongoEntity unambiguous(List<OpenLibraryEditionMappingMongoEntity> candidates) {

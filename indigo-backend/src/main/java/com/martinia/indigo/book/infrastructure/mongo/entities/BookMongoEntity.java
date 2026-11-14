@@ -68,7 +68,9 @@ public class BookMongoEntity implements Serializable {
 	private List<String> languages;
 	private List<ReviewMongo> reviews;
 
+	@Indexed
 	private Date lastMetadataSync;
+	@Indexed
 	private Float ratingAverage;
 	private Long ratingsCount;
 	private Map<String, Long> ratingDistribution;

@@ -91,4 +91,41 @@ public class StartFillBooksMetadataUseCaseImplTest extends BaseIndigoTest {
 		assertEquals(DynamicMetadataPolicy.REFRESH_IF_STALE, command.getDynamicPolicy());
 	}
 
+	@Test
+	public void testStart_ConsecutiveErrors_ShouldStopProcessing() {
+		List<BookMongoEntity> books = List.of(
+				BookMongoEntity.builder().id("1").build(),
+				BookMongoEntity.builder().id("2").build(),
+				BookMongoEntity.builder().id("3").build(),
+				BookMongoEntity.builder().id("4").build()
+		);
+		when(bookRepository.findAllBookIds()).thenReturn(books);
+		when(metadataSingleton.isRunning()).thenReturn(true);
+		when(commandBus.executeAndWait(any(FindBookMetadataCommand.class)))
+				.thenReturn(com.martinia.indigo.metadata.domain.model.MetadataItemResult.ERROR);
+
+		org.springframework.test.util.ReflectionTestUtils.setField(startFillBooksMetadataUseCase, "maxConsecutiveErrors", 2);
+
+		startFillBooksMetadataUseCase.start(BookMetadataScope.ALL, MetadataMergePolicy.FILL_MISSING,
+				DynamicMetadataPolicy.REFRESH_IF_STALE);
+
+		verify(commandBus, times(2)).executeAndWait(any(FindBookMetadataCommand.class));
+		verify(metadataSingleton).setMessage(contains("errores consecutivos"));
+	}
+
+	@Test
+	void shouldResetColumnWhenAllIncompleteBooksAreMarked() {
+		when(bookRepository.findBooksWithIncompleteMetadata())
+				.thenReturn(List.of())
+				.thenReturn(List.of(BookMongoEntity.builder().id("reset-1").build()));
+		when(bookRepository.countByRatingAverageIsNull()).thenReturn(1L);
+		when(metadataSingleton.isRunning()).thenReturn(true);
+
+		startFillBooksMetadataUseCase.start(BookMetadataScope.INCOMPLETE, MetadataMergePolicy.FILL_MISSING,
+				DynamicMetadataPolicy.REFRESH_IF_STALE);
+
+		verify(bookRepository).resetLastMetadataSyncForIncomplete();
+		verify(commandBus).executeAndWait(any(FindBookMetadataCommand.class));
+	}
+
 }
